@@ -231,6 +231,36 @@ export default function RecipeDetailPage() {
           </section>
         )}
 
+        {(recipe.sources ?? []).length > 0 && (
+          <section>
+            <h2 className="text-base font-semibold text-gray-800 mb-3">Bronnen</h2>
+            <ul className="space-y-3">
+              {(recipe.sources ?? []).map((source, i) => {
+                const isImage = /\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(source.url)
+                return (
+                  <li key={i}>
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-rose-500 hover:text-rose-700 underline text-sm break-all"
+                    >
+                      {source.label.trim() || source.url}
+                    </a>
+                    {isImage && (
+                      <img
+                        src={source.url}
+                        alt={source.label || source.url}
+                        className="mt-2 max-h-40 rounded-lg object-cover border border-gray-200"
+                      />
+                    )}
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+        )}
+
         <button
           onClick={handleDelete}
           disabled={deleting}

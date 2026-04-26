@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { RecipeInput } from '../types/recipe'
 import IngredientEditor, { pruneEmpty } from './IngredientEditor'
+import SourceEditor from './SourceEditor'
 
 interface Props {
   initial?: Partial<RecipeInput>
@@ -17,6 +18,7 @@ const emptyInput = (): RecipeInput => ({
     { kind: 'group', title: 'Voorbereiding', children: [{ kind: 'leaf', text: '' }] },
     { kind: 'group', title: 'Bereiding', children: [{ kind: 'leaf', text: '' }] },
   ],
+  sources: [],
   tags: [],
   imageUrl: '',
   createdBy: 'us',
@@ -51,6 +53,7 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
       ...form,
       ingredients: pruneEmpty(form.ingredients),
       steps: pruneEmpty(form.steps),
+      sources: (form.sources ?? []).filter((s) => s.url.trim()),
       tags,
     }
     if (!data.title.trim()) {
@@ -124,6 +127,14 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
           onChange={(v) => setField('steps', v)}
           labels={stepLabels}
           commonSections={['Voorbereiding', 'Bereiding', 'Assembleren']}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Bronnen</label>
+        <SourceEditor
+          sources={form.sources ?? []}
+          onChange={(v) => setField('sources', v)}
         />
       </div>
 

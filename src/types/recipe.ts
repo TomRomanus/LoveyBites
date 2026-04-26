@@ -13,12 +13,18 @@ export interface IngredientGroup {
 
 export type IngredientNode = IngredientLeaf | IngredientGroup
 
+export interface Source {
+  label: string
+  url: string
+}
+
 export interface Recipe {
   id: string
   title: string
   description: string
   ingredients: IngredientNode[]
   steps: IngredientNode[]
+  sources?: Source[]
   tags: string[]
   imageUrl: string
   portions?: number
