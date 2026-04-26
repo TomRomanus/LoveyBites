@@ -3,6 +3,25 @@ import { Link } from 'react-router-dom'
 import RecipeCard from '../components/RecipeCard'
 import { getRecipes } from '../services/recipes'
 import type { Recipe } from '../types/recipe'
+import { useAuth } from '../contexts/AuthContext'
+
+function UserMenu() {
+  const { user, signOutUser } = useAuth()
+  if (!user) return null
+  return (
+    <div className="flex items-center gap-2">
+      {user.photoURL && (
+        <img src={user.photoURL} alt={user.displayName ?? ''} className="w-8 h-8 rounded-full" referrerPolicy="no-referrer" />
+      )}
+      <button
+        onClick={signOutUser}
+        className="text-sm text-gray-400 hover:text-rose-500 transition-colors"
+      >
+        Uitloggen
+      </button>
+    </div>
+  )
+}
 
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([])
@@ -18,10 +37,12 @@ export default function RecipesPage() {
 
   return (
     <div className="min-h-screen bg-orange-50">
-      <header className="bg-white border-b border-rose-100 px-4 py-4">
-        <h1 className="text-2xl font-bold text-rose-500 text-center tracking-tight">
+      <header className="bg-white border-b border-rose-100 px-4 py-4 flex items-center justify-between">
+        <div className="w-20" />
+        <h1 className="text-2xl font-bold text-rose-500 tracking-tight">
           🍴 LoveyBites
         </h1>
+        <UserMenu />
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6">
