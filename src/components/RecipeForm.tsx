@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { RecipeInput } from '../types/recipe'
+import IngredientEditor, { pruneEmpty } from './IngredientEditor'
 
 interface Props {
   initial?: Partial<RecipeInput>
@@ -10,12 +11,20 @@ interface Props {
 const emptyInput = (): RecipeInput => ({
   title: '',
   description: '',
-  ingredients: [''],
-  steps: [''],
+  ingredients: [{ kind: 'leaf', text: '' }],
+  steps: [{ kind: 'leaf', text: '' }],
   tags: [],
   imageUrl: '',
   createdBy: 'us',
 })
+
+const stepLabels = {
+  leafPlaceholder: 'bijv. Verwarm de oven voor op 180°C',
+  groupPlaceholder: 'Sectienaam (bijv. Voorbereiding)',
+  addLeafInGroup: '+ stap in sectie',
+  addLeaf: '+ Stap toevoegen',
+  addGroup: '+ Sectie toevoegen',
+}
 
 export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
   const [form, setForm] = useState<RecipeInput>({ ...emptyInput(), ...initial })
@@ -27,20 +36,6 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
     setForm((f) => ({ ...f, [key]: value }))
   }
 
-  function updateList(key: 'ingredients' | 'steps', index: number, value: string) {
-    const next = [...form[key]]
-    next[index] = value
-    setField(key, next)
-  }
-
-  function addRow(key: 'ingredients' | 'steps') {
-    setField(key, [...form[key], ''])
-  }
-
-  function removeRow(key: 'ingredients' | 'steps', index: number) {
-    setField(key, form[key].filter((_, i) => i !== index))
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -50,8 +45,8 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
       .filter(Boolean)
     const data: RecipeInput = {
       ...form,
-      ingredients: form.ingredients.filter(Boolean),
-      steps: form.steps.filter(Boolean),
+      ingredients: pruneEmpty(form.ingredients),
+      steps: pruneEmpty(form.steps),
       tags,
     }
     if (!data.title.trim()) {
@@ -99,71 +94,19 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Ingrediënten</label>
-        <div className="space-y-2">
-          {form.ingredients.map((ing, i) => (
-            <div key={i} className="flex gap-2">
-              <input
-                type="text"
-                value={ing}
-                onChange={(e) => updateList('ingredients', i, e.target.value)}
-                className="flex-1 border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400"
-                placeholder={`Ingrediënt ${i + 1}`}
-              />
-              {form.ingredients.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeRow('ingredients', i)}
-                  className="text-gray-400 hover:text-red-500 px-2"
-                  aria-label="Ingrediënt verwijderen"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={() => addRow('ingredients')}
-          className="mt-2 text-sm text-rose-500 hover:text-rose-700 font-medium"
-        >
-          + Ingrediënt toevoegen
-        </button>
+        <IngredientEditor
+          nodes={form.ingredients}
+          onChange={(v) => setField('ingredients', v)}
+        />
       </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Stappen</label>
-        <div className="space-y-2">
-          {form.steps.map((step, i) => (
-            <div key={i} className="flex gap-2 items-start">
-              <span className="mt-2.5 text-sm text-gray-400 w-5 shrink-0">{i + 1}.</span>
-              <textarea
-                value={step}
-                onChange={(e) => updateList('steps', i, e.target.value)}
-                rows={2}
-                className="flex-1 border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none"
-                placeholder={`Stap ${i + 1}`}
-              />
-              {form.steps.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => removeRow('steps', i)}
-                  className="mt-2 text-gray-400 hover:text-red-500 px-2"
-                  aria-label="Stap verwijderen"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-        <button
-          type="button"
-          onClick={() => addRow('steps')}
-          className="mt-2 text-sm text-rose-500 hover:text-rose-700 font-medium"
-        >
-          + Stap toevoegen
-        </button>
+        <IngredientEditor
+          nodes={form.steps}
+          onChange={(v) => setField('steps', v)}
+          labels={stepLabels}
+        />
       </div>
 
       <div>

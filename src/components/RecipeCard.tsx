@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { Recipe } from '../types/recipe'
+import StarRating from './StarRating'
 
 interface Props {
   recipe: Recipe
@@ -17,7 +18,7 @@ export default function RecipeCard({ recipe }: Props) {
           <p className="text-sm text-gray-500 line-clamp-2 mb-3">{recipe.description}</p>
         )}
         {recipe.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1 mb-2">
             {recipe.tags.map((tag) => (
               <span
                 key={tag}
@@ -27,6 +28,9 @@ export default function RecipeCard({ recipe }: Props) {
               </span>
             ))}
           </div>
+        )}
+        {(recipe.rating ?? 0) > 0 && (
+          <StarRating value={recipe.rating!} size="sm" />
         )}
       </div>
     </Link>
