@@ -11,6 +11,7 @@ interface Props {
 const emptyInput = (): RecipeInput => ({
   title: '',
   description: '',
+  portions: 4,
   ingredients: [{ kind: 'leaf', text: '' }],
   steps: [
     { kind: 'group', title: 'Voorbereiding', children: [{ kind: 'leaf', text: '' }] },
@@ -92,6 +93,18 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
           rows={2}
           className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none"
           placeholder="Een korte notitie over dit recept"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Porties</label>
+        <input
+          type="number"
+          min={1}
+          max={100}
+          value={form.portions ?? 4}
+          onChange={(e) => setField('portions', Math.max(1, parseInt(e.target.value) || 1))}
+          className="w-24 border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400"
         />
       </div>
 

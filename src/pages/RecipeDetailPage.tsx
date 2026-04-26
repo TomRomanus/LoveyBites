@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getRecipe, deleteRecipe, updateRecipe } from '../services/recipes'
 import type { Recipe, IngredientNode as TreeNode } from '../types/recipe'
+import { scaleIngredients } from '../utils/scaleIngredient'
 import StarRating from '../components/StarRating'
 
 interface IngredientListProps {
@@ -112,6 +113,11 @@ export default function RecipeDetailPage() {
   const [loading, setLoading] = useState(true)
   const [checked, setChecked] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState(false)
+  const [selectedPortions, setSelectedPortions] = useState(4)
+
+  useEffect(() => {
+    if (recipe) setSelectedPortions(recipe.portions ?? 4)
+  }, [recipe])
 
   useEffect(() => {
     if (!id) return
@@ -190,9 +196,26 @@ export default function RecipeDetailPage() {
 
         {recipe.ingredients.length > 0 && (
           <section>
-            <h2 className="text-base font-semibold text-gray-800 mb-3">Ingrediënten</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base font-semibold text-gray-800">Ingrediënten</h2>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSelectedPortions((p) => Math.max(1, p - 1))}
+                  className="w-7 h-7 rounded-full border border-gray-300 text-gray-500 hover:border-rose-400 hover:text-rose-500 flex items-center justify-center text-sm font-medium transition-colors"
+                  aria-label="Minder porties"
+                >−</button>
+                <span className="text-sm text-gray-700 min-w-[4rem] text-center">
+                  {selectedPortions} {selectedPortions === 1 ? 'portie' : 'porties'}
+                </span>
+                <button
+                  onClick={() => setSelectedPortions((p) => p + 1)}
+                  className="w-7 h-7 rounded-full border border-gray-300 text-gray-500 hover:border-rose-400 hover:text-rose-500 flex items-center justify-center text-sm font-medium transition-colors"
+                  aria-label="Meer porties"
+                >+</button>
+              </div>
+            </div>
             <IngredientList
-              nodes={recipe.ingredients}
+              nodes={scaleIngredients(recipe.ingredients, selectedPortions / (recipe.portions ?? 4))}
               pathPrefix=""
               depth={0}
               checked={checked}

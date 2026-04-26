@@ -21,6 +21,7 @@ export interface Recipe {
   steps: IngredientNode[]
   tags: string[]
   imageUrl: string
+  portions?: number
   rating?: number
   createdAt: Timestamp
   updatedAt: Timestamp
