@@ -12,7 +12,10 @@ const emptyInput = (): RecipeInput => ({
   title: '',
   description: '',
   ingredients: [{ kind: 'leaf', text: '' }],
-  steps: [{ kind: 'leaf', text: '' }],
+  steps: [
+    { kind: 'group', title: 'Voorbereiding', children: [{ kind: 'leaf', text: '' }] },
+    { kind: 'group', title: 'Bereiding', children: [{ kind: 'leaf', text: '' }] },
+  ],
   tags: [],
   imageUrl: '',
   createdBy: 'us',
@@ -97,6 +100,7 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
         <IngredientEditor
           nodes={form.ingredients}
           onChange={(v) => setField('ingredients', v)}
+          commonSections={['Deeg', 'Vulling', 'Marinade', 'Coating', 'Saus', 'Glazuur']}
         />
       </div>
 
@@ -106,6 +110,7 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
           nodes={form.steps}
           onChange={(v) => setField('steps', v)}
           labels={stepLabels}
+          commonSections={['Voorbereiding', 'Bereiding', 'Assembleren']}
         />
       </div>
 
