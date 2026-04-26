@@ -55,14 +55,14 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
       tags,
     }
     if (!data.title.trim()) {
-      setError('Title is required.')
+      setError('Titel is verplicht.')
       return
     }
     setSaving(true)
     try {
       await onSubmit(data)
     } catch {
-      setError('Failed to save recipe. Please try again.')
+      setError('Recept opslaan mislukt. Probeer opnieuw.')
       setSaving(false)
     }
   }
@@ -76,29 +76,29 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Titel *</label>
         <input
           type="text"
           value={form.title}
           onChange={(e) => setField('title', e.target.value)}
           className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400"
-          placeholder="e.g. Grandma's Lasagna"
+          placeholder="bijv. Oma's lasagne"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Beschrijving</label>
         <textarea
           value={form.description}
           onChange={(e) => setField('description', e.target.value)}
           rows={2}
           className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none"
-          placeholder="A short note about this recipe"
+          placeholder="Een korte notitie over dit recept"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Ingredients</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Ingrediënten</label>
         <div className="space-y-2">
           {form.ingredients.map((ing, i) => (
             <div key={i} className="flex gap-2">
@@ -107,14 +107,14 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
                 value={ing}
                 onChange={(e) => updateList('ingredients', i, e.target.value)}
                 className="flex-1 border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400"
-                placeholder={`Ingredient ${i + 1}`}
+                placeholder={`Ingrediënt ${i + 1}`}
               />
               {form.ingredients.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeRow('ingredients', i)}
                   className="text-gray-400 hover:text-red-500 px-2"
-                  aria-label="Remove ingredient"
+                  aria-label="Ingrediënt verwijderen"
                 >
                   ✕
                 </button>
@@ -127,12 +127,12 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
           onClick={() => addRow('ingredients')}
           className="mt-2 text-sm text-rose-500 hover:text-rose-700 font-medium"
         >
-          + Add ingredient
+          + Ingrediënt toevoegen
         </button>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Steps</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Stappen</label>
         <div className="space-y-2">
           {form.steps.map((step, i) => (
             <div key={i} className="flex gap-2 items-start">
@@ -142,14 +142,14 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
                 onChange={(e) => updateList('steps', i, e.target.value)}
                 rows={2}
                 className="flex-1 border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none"
-                placeholder={`Step ${i + 1}`}
+                placeholder={`Stap ${i + 1}`}
               />
               {form.steps.length > 1 && (
                 <button
                   type="button"
                   onClick={() => removeRow('steps', i)}
                   className="mt-2 text-gray-400 hover:text-red-500 px-2"
-                  aria-label="Remove step"
+                  aria-label="Stap verwijderen"
                 >
                   ✕
                 </button>
@@ -162,7 +162,7 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
           onClick={() => addRow('steps')}
           className="mt-2 text-sm text-rose-500 hover:text-rose-700 font-medium"
         >
-          + Add step
+          + Stap toevoegen
         </button>
       </div>
 
@@ -173,7 +173,7 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
           value={tagInput}
           onChange={(e) => setTagInput(e.target.value)}
           className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400"
-          placeholder="dinner, quick, italian (comma-separated)"
+          placeholder="diner, snel, italiaans (kommagescheiden)"
         />
       </div>
 
@@ -182,7 +182,7 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
         disabled={saving}
         className="w-full bg-rose-500 hover:bg-rose-600 disabled:bg-rose-300 text-white font-semibold py-3 rounded-xl transition-colors"
       >
-        {saving ? 'Saving…' : submitLabel}
+        {saving ? 'Opslaan…' : submitLabel}
       </button>
     </form>
   )

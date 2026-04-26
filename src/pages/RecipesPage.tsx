@@ -12,7 +12,7 @@ export default function RecipesPage() {
   useEffect(() => {
     getRecipes()
       .then(setRecipes)
-      .catch(() => setError('Could not load recipes. Check your Firebase config.'))
+      .catch(() => setError('Recepten konden niet worden geladen. Controleer je Firebase-configuratie.'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -26,7 +26,7 @@ export default function RecipesPage() {
 
       <main className="max-w-2xl mx-auto px-4 py-6">
         {loading && (
-          <p className="text-center text-gray-400 mt-12">Loading recipes…</p>
+          <p className="text-center text-gray-400 mt-12">Recepten laden…</p>
         )}
 
         {error && (
@@ -38,7 +38,7 @@ export default function RecipesPage() {
         {!loading && !error && recipes.length === 0 && (
           <div className="text-center mt-16">
             <p className="text-4xl mb-3">🍽️</p>
-            <p className="text-gray-500 mb-6">No recipes yet — add your first one!</p>
+            <p className="text-gray-500 mb-6">Nog geen recepten — voeg je eerste toe!</p>
           </div>
         )}
 
@@ -54,7 +54,7 @@ export default function RecipesPage() {
       <Link
         to="/new"
         className="fixed bottom-6 right-6 bg-rose-500 hover:bg-rose-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl transition-colors"
-        aria-label="Add recipe"
+        aria-label="Recept toevoegen"
       >
         +
       </Link>

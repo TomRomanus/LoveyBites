@@ -27,21 +27,21 @@ export default function RecipeDetailPage() {
   }
 
   async function handleDelete() {
-    if (!id || !confirm('Delete this recipe?')) return
+    if (!id || !confirm('Dit recept verwijderen?')) return
     setDeleting(true)
     await deleteRecipe(id)
     navigate('/')
   }
 
   if (loading) {
-    return <p className="text-center text-gray-400 mt-16">Loading…</p>
+    return <p className="text-center text-gray-400 mt-16">Laden…</p>
   }
 
   if (!recipe) {
     return (
       <div className="text-center mt-16">
-        <p className="text-gray-500 mb-4">Recipe not found.</p>
-        <Link to="/" className="text-rose-500 hover:underline">← Back to recipes</Link>
+        <p className="text-gray-500 mb-4">Recept niet gevonden.</p>
+        <Link to="/" className="text-rose-500 hover:underline">← Terug naar recepten</Link>
       </div>
     )
   }
@@ -55,7 +55,7 @@ export default function RecipeDetailPage() {
           to={`/edit/${recipe.id}`}
           className="text-sm text-rose-500 hover:text-rose-700 font-medium"
         >
-          Edit
+          Bewerken
         </Link>
       </header>
 
@@ -76,7 +76,7 @@ export default function RecipeDetailPage() {
 
         {recipe.ingredients.length > 0 && (
           <section>
-            <h2 className="text-base font-semibold text-gray-800 mb-3">Ingredients</h2>
+            <h2 className="text-base font-semibold text-gray-800 mb-3">Ingrediënten</h2>
             <ul className="space-y-2">
               {recipe.ingredients.map((ing, i) => (
                 <li
@@ -104,7 +104,7 @@ export default function RecipeDetailPage() {
 
         {recipe.steps.length > 0 && (
           <section>
-            <h2 className="text-base font-semibold text-gray-800 mb-3">Steps</h2>
+            <h2 className="text-base font-semibold text-gray-800 mb-3">Stappen</h2>
             <ol className="space-y-4">
               {recipe.steps.map((step, i) => (
                 <li key={i} className="flex gap-4">
@@ -123,7 +123,7 @@ export default function RecipeDetailPage() {
           disabled={deleting}
           className="text-sm text-red-400 hover:text-red-600 disabled:opacity-50 transition-colors"
         >
-          {deleting ? 'Deleting…' : 'Delete recipe'}
+          {deleting ? 'Verwijderen…' : 'Recept verwijderen'}
         </button>
       </main>
     </div>

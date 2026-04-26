@@ -11,7 +11,7 @@ export default defineConfig({
       manifest: {
         name: 'LoveyBites',
         short_name: 'LoveyBites',
-        description: 'Our shared recipe book',
+        description: 'Ons gedeelde receptenboek',
         theme_color: '#fb7185',
         background_color: '#fff7ed',
         display: 'standalone',

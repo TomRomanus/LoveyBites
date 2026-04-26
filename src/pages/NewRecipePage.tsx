@@ -30,7 +30,7 @@ export default function NewRecipePage() {
   }
 
   if (loading) {
-    return <p className="text-center text-gray-400 mt-16">Loading…</p>
+    return <p className="text-center text-gray-400 mt-16">Laden…</p>
   }
 
   return (
@@ -40,7 +40,7 @@ export default function NewRecipePage() {
           ←
         </Link>
         <h1 className="text-lg font-bold text-gray-900">
-          {isEdit ? 'Edit Recipe' : 'New Recipe'}
+          {isEdit ? 'Recept bewerken' : 'Nieuw recept'}
         </h1>
       </header>
 
@@ -48,7 +48,7 @@ export default function NewRecipePage() {
         <RecipeForm
           initial={initial}
           onSubmit={handleSubmit}
-          submitLabel={isEdit ? 'Save changes' : 'Add recipe'}
+          submitLabel={isEdit ? 'Wijzigingen opslaan' : 'Recept toevoegen'}
         />
       </main>
     </div>
