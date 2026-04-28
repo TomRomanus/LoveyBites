@@ -1,9 +1,11 @@
+/* LoveyBites */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-orange-50 text-gray-900 min-h-screen;
+    @apply bg-stone-50 text-stone-700 min-h-screen;
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

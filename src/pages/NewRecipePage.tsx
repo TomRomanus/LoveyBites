@@ -30,16 +30,16 @@ export default function NewRecipePage() {
   }
 
   if (loading) {
-    return <p className="text-center text-gray-400 mt-16">Laden…</p>
+    return <p className="text-center text-stone-400 mt-16">Laden…</p>
   }
 
   return (
-    <div className="min-h-screen bg-orange-50">
-      <header className="bg-white border-b border-rose-100 px-4 py-4 flex items-center gap-3">
-        <Link to={id ? `/recipe/${id}` : '/'} className="text-rose-400 hover:text-rose-600 text-xl">
+    <div className="min-h-screen bg-stone-50">
+      <header className="bg-white border-b border-stone-200 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+        <Link to={id ? `/recipe/${id}` : '/'} className="text-clay-400 hover:text-clay-600 text-xl w-8 flex items-center justify-center">
           ←
         </Link>
-        <h1 className="text-lg font-bold text-gray-900">
+        <h1 className="font-display text-xl font-bold italic text-stone-900">
           {isEdit ? 'Recept bewerken' : 'Nieuw recept'}
         </h1>
       </header>

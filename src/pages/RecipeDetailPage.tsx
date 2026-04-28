@@ -15,7 +15,7 @@ interface IngredientListProps {
 
 function IngredientList({ nodes, pathPrefix, depth, checked, onToggle }: IngredientListProps) {
   return (
-    <ul className="space-y-1">
+    <ul className="space-y-2">
       {nodes.map((node, i) => {
         const path = `${pathPrefix}${i}`
         if (node.kind === 'leaf') {
@@ -24,16 +24,16 @@ function IngredientList({ nodes, pathPrefix, depth, checked, onToggle }: Ingredi
             <li
               key={path}
               onClick={() => onToggle(path)}
-              className="flex items-center gap-3 cursor-pointer select-none"
+              className="flex items-center gap-3 cursor-pointer select-none py-0.5"
             >
               <span
                 className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
-                  isChecked ? 'bg-rose-400 border-rose-400 text-white' : 'border-gray-300'
+                  isChecked ? 'bg-clay-500 border-clay-500 text-white' : 'border-stone-300'
                 }`}
               >
-                {isChecked && '✓'}
+                {isChecked && <span className="text-xs leading-none">✓</span>}
               </span>
-              <span className={isChecked ? 'line-through text-gray-400' : 'text-gray-700'}>
+              <span className={isChecked ? 'line-through text-stone-300' : 'text-stone-700'}>
                 {node.text}
               </span>
             </li>
@@ -42,13 +42,13 @@ function IngredientList({ nodes, pathPrefix, depth, checked, onToggle }: Ingredi
 
         const headingClass =
           depth === 0
-            ? 'text-sm font-semibold text-gray-800 mt-4 mb-1'
-            : 'text-xs font-semibold text-gray-600 uppercase tracking-wide mt-3 mb-0.5'
+            ? 'font-display text-sm font-semibold text-stone-800 mt-5 mb-2 italic'
+            : 'text-xs font-semibold text-stone-500 uppercase tracking-wider mt-4 mb-1'
 
         return (
           <li key={path}>
             {node.title && <p className={headingClass}>{node.title}</p>}
-            <div className={depth > 0 ? 'pl-3 border-l border-gray-200' : ''}>
+            <div className={depth > 0 ? 'pl-3 border-l border-stone-200' : ''}>
               <IngredientList
                 nodes={node.children}
                 pathPrefix={`${path}.`}
@@ -70,25 +70,24 @@ interface StepListProps {
 }
 
 function StepList({ nodes, depth }: StepListProps) {
-  // Number only the leaf nodes within this level
   let leafCounter = 0
   const headingClass =
     depth === 0
-      ? 'text-sm font-semibold text-gray-800 mt-4 mb-2'
-      : 'text-xs font-semibold text-gray-600 uppercase tracking-wide mt-3 mb-1'
+      ? 'font-display text-sm font-semibold text-stone-800 mt-5 mb-2 italic'
+      : 'text-xs font-semibold text-stone-500 uppercase tracking-wider mt-4 mb-1'
 
   return (
-    <ol className="space-y-3">
+    <ol className="space-y-4">
       {nodes.map((node, i) => {
         if (node.kind === 'leaf') {
           leafCounter++
           const num = leafCounter
           return (
             <li key={i} className="flex gap-4">
-              <span className="shrink-0 w-7 h-7 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-sm font-semibold">
+              <span className="shrink-0 w-7 h-7 bg-clay-100 text-clay-600 rounded-full flex items-center justify-center text-sm font-semibold font-display">
                 {num}
               </span>
-              <p className="text-gray-700 pt-0.5">{node.text}</p>
+              <p className="text-stone-700 pt-0.5 leading-relaxed">{node.text}</p>
             </li>
           )
         }
@@ -96,7 +95,7 @@ function StepList({ nodes, depth }: StepListProps) {
         return (
           <li key={i}>
             {node.title && <p className={headingClass}>{node.title}</p>}
-            <div className={depth > 0 ? 'pl-3 border-l border-gray-200' : ''}>
+            <div className={depth > 0 ? 'pl-3 border-l border-stone-200' : ''}>
               <StepList nodes={node.children} depth={depth + 1} />
             </div>
           </li>
@@ -148,46 +147,46 @@ export default function RecipeDetailPage() {
   }
 
   if (loading) {
-    return <p className="text-center text-gray-400 mt-16">Laden…</p>
+    return <p className="text-center text-stone-400 mt-16">Laden…</p>
   }
 
   if (!recipe) {
     return (
       <div className="text-center mt-16">
-        <p className="text-gray-500 mb-4">Recept niet gevonden.</p>
-        <Link to="/" className="text-rose-500 hover:underline">← Terug naar recepten</Link>
+        <p className="text-stone-500 mb-4">Recept niet gevonden.</p>
+        <Link to="/" className="text-clay-500 hover:underline">← Terug naar recepten</Link>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-orange-50">
-      <header className="bg-white border-b border-rose-100 px-4 py-4 flex items-center gap-3">
-        <Link to="/" className="text-rose-400 hover:text-rose-600 text-xl">←</Link>
-        <h1 className="flex-1 text-lg font-bold text-gray-900 truncate">{recipe.title}</h1>
+    <div className="min-h-screen bg-stone-50">
+      <header className="bg-white border-b border-stone-200 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
+        <Link to="/" className="text-clay-400 hover:text-clay-600 text-xl w-8 flex items-center justify-center">←</Link>
+        <h1 className="flex-1 font-display text-xl font-bold italic text-stone-900 truncate">{recipe.title}</h1>
         <Link
           to={`/edit/${recipe.id}`}
-          className="text-sm text-rose-500 hover:text-rose-700 font-medium"
+          className="text-sm text-clay-500 hover:text-clay-700 font-medium"
         >
           Bewerken
         </Link>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6 space-y-8">
-        <div className="space-y-2">
+        <div className="space-y-3">
           {recipe.description && (
-            <p className="text-gray-600 italic">{recipe.description}</p>
+            <p className="text-stone-500 italic leading-relaxed">{recipe.description}</p>
           )}
           <div>
-            <p className="text-xs text-gray-400 mb-1">Beoordeling</p>
+            <p className="text-xs text-stone-400 mb-1.5 uppercase tracking-wider font-medium">Beoordeling</p>
             <StarRating value={recipe.rating ?? 0} onChange={handleRatingChange} />
           </div>
         </div>
 
         {recipe.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1.5">
             {recipe.tags.map((tag) => (
-              <span key={tag} className="text-xs bg-rose-50 text-rose-600 px-2 py-0.5 rounded-full">
+              <span key={tag} className="text-xs bg-clay-50 text-clay-600 px-3 py-1 rounded-full font-medium">
                 {tag}
               </span>
             ))}
@@ -196,20 +195,20 @@ export default function RecipeDetailPage() {
 
         {recipe.ingredients.length > 0 && (
           <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-semibold text-gray-800">Ingrediënten</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-xl font-semibold italic text-stone-900">Ingrediënten</h2>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setSelectedPortions((p) => Math.max(1, p - 1))}
-                  className="w-7 h-7 rounded-full border border-gray-300 text-gray-500 hover:border-rose-400 hover:text-rose-500 flex items-center justify-center text-sm font-medium transition-colors"
+                  className="w-10 h-10 rounded-full border border-stone-300 text-stone-500 hover:border-clay-400 hover:text-clay-500 flex items-center justify-center text-sm font-medium transition-colors"
                   aria-label="Minder porties"
                 >−</button>
-                <span className="text-sm text-gray-700 min-w-[4rem] text-center">
+                <span className="text-sm text-stone-600 min-w-[4.5rem] text-center">
                   {selectedPortions} {selectedPortions === 1 ? 'portie' : 'porties'}
                 </span>
                 <button
                   onClick={() => setSelectedPortions((p) => p + 1)}
-                  className="w-7 h-7 rounded-full border border-gray-300 text-gray-500 hover:border-rose-400 hover:text-rose-500 flex items-center justify-center text-sm font-medium transition-colors"
+                  className="w-10 h-10 rounded-full border border-stone-300 text-stone-500 hover:border-clay-400 hover:text-clay-500 flex items-center justify-center text-sm font-medium transition-colors"
                   aria-label="Meer porties"
                 >+</button>
               </div>
@@ -226,14 +225,14 @@ export default function RecipeDetailPage() {
 
         {recipe.steps.length > 0 && (
           <section>
-            <h2 className="text-base font-semibold text-gray-800 mb-3">Stappen</h2>
+            <h2 className="font-display text-xl font-semibold italic text-stone-900 mb-4">Stappen</h2>
             <StepList nodes={recipe.steps} depth={0} />
           </section>
         )}
 
         {(recipe.sources ?? []).length > 0 && (
           <section>
-            <h2 className="text-base font-semibold text-gray-800 mb-3">Bronnen</h2>
+            <h2 className="font-display text-xl font-semibold italic text-stone-900 mb-3">Bronnen</h2>
             <ul className="space-y-3">
               {(recipe.sources ?? []).map((source, i) => {
                 const isImage = /\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(source.url)
@@ -243,7 +242,7 @@ export default function RecipeDetailPage() {
                       href={source.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-rose-500 hover:text-rose-700 underline text-sm break-all"
+                      className="text-clay-500 hover:text-clay-700 underline text-sm break-all"
                     >
                       {source.label.trim() || source.url}
                     </a>
@@ -251,7 +250,7 @@ export default function RecipeDetailPage() {
                       <img
                         src={source.url}
                         alt={source.label || source.url}
-                        className="mt-2 max-h-40 rounded-lg object-cover border border-gray-200"
+                        className="mt-2 w-full max-h-48 rounded-2xl object-cover border border-stone-200"
                       />
                     )}
                   </li>
@@ -264,7 +263,7 @@ export default function RecipeDetailPage() {
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="text-sm text-red-400 hover:text-red-600 disabled:opacity-50 transition-colors"
+          className="text-sm text-stone-400 hover:text-red-500 disabled:opacity-50 transition-colors"
         >
           {deleting ? 'Verwijderen…' : 'Recept verwijderen'}
         </button>

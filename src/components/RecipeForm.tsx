@@ -69,50 +69,53 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
     }
   }
 
+  const inputClass = 'w-full border border-stone-200 rounded-2xl px-4 py-3 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent transition'
+  const labelClass = 'block text-sm font-medium text-stone-600 mb-1.5'
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-2xl px-4 py-3">
           {error}
         </p>
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Titel *</label>
+        <label className={labelClass}>Titel *</label>
         <input
           type="text"
           value={form.title}
           onChange={(e) => setField('title', e.target.value)}
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400"
+          className={inputClass}
           placeholder="bijv. Oma's lasagne"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Beschrijving</label>
+        <label className={labelClass}>Beschrijving</label>
         <textarea
           value={form.description}
           onChange={(e) => setField('description', e.target.value)}
           rows={2}
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400 resize-none"
+          className={`${inputClass} resize-none`}
           placeholder="Een korte notitie over dit recept"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Porties</label>
+        <label className={labelClass}>Porties</label>
         <input
           type="number"
           min={1}
           max={100}
           value={form.portions ?? 4}
           onChange={(e) => setField('portions', Math.max(1, parseInt(e.target.value) || 1))}
-          className="w-24 border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400"
+          className="w-24 border border-stone-200 rounded-2xl px-4 py-3 text-sm text-stone-700 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent transition"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Ingrediënten</label>
+        <label className={labelClass}>Ingrediënten</label>
         <IngredientEditor
           nodes={form.ingredients}
           onChange={(v) => setField('ingredients', v)}
@@ -121,7 +124,7 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Stappen</label>
+        <label className={labelClass}>Stappen</label>
         <IngredientEditor
           nodes={form.steps}
           onChange={(v) => setField('steps', v)}
@@ -131,7 +134,7 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Bronnen</label>
+        <label className={labelClass}>Bronnen</label>
         <SourceEditor
           sources={form.sources ?? []}
           onChange={(v) => setField('sources', v)}
@@ -139,12 +142,12 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+        <label className={labelClass}>Tags</label>
         <input
           type="text"
           value={tagInput}
           onChange={(e) => setTagInput(e.target.value)}
-          className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-rose-400"
+          className={inputClass}
           placeholder="diner, snel, italiaans (kommagescheiden)"
         />
       </div>
@@ -152,7 +155,7 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
       <button
         type="submit"
         disabled={saving}
-        className="w-full bg-rose-500 hover:bg-rose-600 disabled:bg-rose-300 text-white font-semibold py-3 rounded-xl transition-colors"
+        className="w-full bg-clay-500 hover:bg-clay-600 disabled:bg-clay-300 text-white font-semibold py-3.5 rounded-2xl transition-colors text-sm"
       >
         {saving ? 'Opslaan…' : submitLabel}
       </button>

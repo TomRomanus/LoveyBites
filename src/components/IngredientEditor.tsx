@@ -90,25 +90,28 @@ interface NodeRowProps {
   onChange: (nodes: IngredientNode[]) => void
 }
 
+const actionBtnClass = 'text-xs text-clay-400 hover:text-clay-600 shrink-0 min-h-[2rem] min-w-[2rem] flex items-center justify-center transition-colors'
+const removeBtnClass = 'text-stone-300 hover:text-red-400 shrink-0 min-h-[2rem] min-w-[2rem] flex items-center justify-center transition-colors'
+
 function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange }: NodeRowProps) {
   const indent = depth * 16
 
   if (node.kind === 'leaf') {
     return (
       <div style={{ paddingLeft: indent }} className="flex items-center gap-1.5">
-        <span className="text-gray-300 text-xs shrink-0">–</span>
+        <span className="text-stone-300 text-xs shrink-0">–</span>
         <input
           type="text"
           value={node.text}
           onChange={(e) => onChange(replaceAt(nodes, path, { kind: 'leaf', text: e.target.value }))}
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400"
+          className="flex-1 border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent transition"
           placeholder={labels.leafPlaceholder}
         />
         <button
           type="button"
           title="Item erna toevoegen"
           onClick={() => onChange(insertAfter(nodes, path, { kind: 'leaf', text: '' }))}
-          className="text-xs text-rose-400 hover:text-rose-600 px-1 shrink-0"
+          className={actionBtnClass}
         >
           +item
         </button>
@@ -116,7 +119,7 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange }: NodeRow
           type="button"
           title="Sectie erna toevoegen"
           onClick={() => onChange(insertAfter(nodes, path, { kind: 'group', title: '', children: [{ kind: 'leaf', text: '' }] }))}
-          className="text-xs text-rose-400 hover:text-rose-600 px-1 shrink-0"
+          className={actionBtnClass}
         >
           +sec
         </button>
@@ -124,7 +127,7 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange }: NodeRow
           <button
             type="button"
             onClick={() => onChange(removeAt(nodes, path))}
-            className="text-gray-300 hover:text-red-400 px-1 shrink-0"
+            className={removeBtnClass}
             aria-label="Verwijderen"
           >
             ✕
@@ -138,19 +141,19 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange }: NodeRow
   return (
     <div style={{ paddingLeft: indent }}>
       <div className="flex items-center gap-1.5">
-        <span className="text-rose-300 text-xs shrink-0">§</span>
+        <span className="text-clay-300 text-xs shrink-0">§</span>
         <input
           type="text"
           value={node.title}
           onChange={(e) => onChange(replaceAt(nodes, path, { ...node, title: e.target.value }))}
-          className="flex-1 border border-rose-200 bg-rose-50 rounded-lg px-3 py-1.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-rose-400"
+          className="flex-1 border border-clay-200 bg-clay-50 rounded-xl px-3 py-2 text-sm font-semibold text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent transition"
           placeholder={labels.groupPlaceholder}
         />
         <button
           type="button"
           title="Item erna toevoegen (zelfde niveau)"
           onClick={() => onChange(insertAfter(nodes, path, { kind: 'leaf', text: '' }))}
-          className="text-xs text-rose-400 hover:text-rose-600 px-1 shrink-0"
+          className={actionBtnClass}
         >
           +item
         </button>
@@ -158,7 +161,7 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange }: NodeRow
           type="button"
           title="Sectie erna toevoegen (zelfde niveau)"
           onClick={() => onChange(insertAfter(nodes, path, { kind: 'group', title: '', children: [{ kind: 'leaf', text: '' }] }))}
-          className="text-xs text-rose-400 hover:text-rose-600 px-1 shrink-0"
+          className={actionBtnClass}
         >
           +sec
         </button>
@@ -166,7 +169,7 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange }: NodeRow
           <button
             type="button"
             onClick={() => onChange(removeAt(nodes, path))}
-            className="text-gray-300 hover:text-red-400 px-1 shrink-0"
+            className={removeBtnClass}
             aria-label="Sectie verwijderen"
           >
             ✕
@@ -174,7 +177,7 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange }: NodeRow
         )}
       </div>
 
-      <div className="mt-1 ml-4 pl-3 border-l-2 border-rose-100 space-y-1.5">
+      <div className="mt-1.5 ml-4 pl-3 border-l-2 border-clay-100 space-y-1.5">
         {node.children.map((child, i) => (
           <NodeRow
             key={i}
@@ -190,7 +193,7 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange }: NodeRow
         <button
           type="button"
           onClick={() => onChange(appendChild(nodes, path, { kind: 'leaf', text: '' }))}
-          className="text-xs text-rose-400 hover:text-rose-600 font-medium ml-4"
+          className="text-xs text-clay-400 hover:text-clay-600 font-medium ml-4 py-1 transition-colors"
         >
           {labels.addLeafInGroup}
         </button>
@@ -221,7 +224,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
   const availableSections = commonSections?.filter((name) => !existingTitles.has(name)) ?? []
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-2">
       {nodes.map((node, i) => (
         <NodeRow
           key={i}
@@ -239,14 +242,14 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
         <button
           type="button"
           onClick={() => onChange([...nodes, { kind: 'leaf', text: '' }])}
-          className="text-sm text-rose-500 hover:text-rose-700 font-medium"
+          className="text-sm text-clay-500 hover:text-clay-700 font-medium transition-colors"
         >
           {labels.addLeaf}
         </button>
         <button
           type="button"
           onClick={() => addSection('')}
-          className="text-sm text-rose-500 hover:text-rose-700 font-medium"
+          className="text-sm text-clay-500 hover:text-clay-700 font-medium transition-colors"
         >
           {labels.addGroup}
         </button>
@@ -257,7 +260,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
                 key={name}
                 type="button"
                 onClick={() => addSection(name)}
-                className="text-xs bg-rose-50 text-rose-500 hover:bg-rose-100 border border-rose-200 rounded-full px-2.5 py-0.5 transition-colors"
+                className="text-xs bg-clay-50 text-clay-500 hover:bg-clay-100 border border-clay-200 rounded-full px-3 py-1 transition-colors"
               >
                 + {name}
               </button>

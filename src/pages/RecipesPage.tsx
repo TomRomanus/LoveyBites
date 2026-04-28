@@ -9,13 +9,18 @@ function UserMenu() {
   const { user, signOutUser } = useAuth()
   if (!user) return null
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2.5">
       {user.photoURL && (
-        <img src={user.photoURL} alt={user.displayName ?? ''} className="w-8 h-8 rounded-full" referrerPolicy="no-referrer" />
+        <img
+          src={user.photoURL}
+          alt={user.displayName ?? ''}
+          className="w-8 h-8 rounded-full ring-2 ring-stone-200"
+          referrerPolicy="no-referrer"
+        />
       )}
       <button
         onClick={signOutUser}
-        className="text-sm text-gray-400 hover:text-rose-500 transition-colors"
+        className="text-sm text-stone-400 hover:text-clay-500 transition-colors"
       >
         Uitloggen
       </button>
@@ -36,22 +41,22 @@ export default function RecipesPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-orange-50">
-      <header className="bg-white border-b border-rose-100 px-4 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-stone-50">
+      <header className="bg-white border-b border-stone-200 px-4 py-4 flex items-center justify-between sticky top-0 z-10">
         <div className="w-20" />
-        <h1 className="text-2xl font-bold text-rose-500 tracking-tight">
-          🍴 LoveyBites
+        <h1 className="font-display text-2xl font-bold italic text-stone-900 tracking-tight">
+          LoveyBites
         </h1>
         <UserMenu />
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-6">
         {loading && (
-          <p className="text-center text-gray-400 mt-12">Recepten laden…</p>
+          <p className="text-center text-stone-400 mt-12">Recepten laden…</p>
         )}
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-700">
             {error}
           </div>
         )}
@@ -59,12 +64,12 @@ export default function RecipesPage() {
         {!loading && !error && recipes.length === 0 && (
           <div className="text-center mt-16">
             <p className="text-4xl mb-3">🍽️</p>
-            <p className="text-gray-500 mb-6">Nog geen recepten — voeg je eerste toe!</p>
+            <p className="text-stone-400 mb-6">Nog geen recepten — voeg je eerste toe!</p>
           </div>
         )}
 
         {!loading && !error && recipes.length > 0 && (
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             {recipes.map((r) => (
               <RecipeCard key={r.id} recipe={r} />
             ))}
@@ -74,7 +79,7 @@ export default function RecipesPage() {
 
       <Link
         to="/new"
-        className="fixed bottom-6 right-6 bg-rose-500 hover:bg-rose-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl transition-colors"
+        className="fixed bottom-8 right-5 bg-clay-500 hover:bg-clay-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl transition-colors"
         aria-label="Recept toevoegen"
       >
         +

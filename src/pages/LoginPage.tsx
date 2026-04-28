@@ -67,41 +67,43 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-orange-50 flex flex-col items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-sm border border-rose-100 px-8 py-10 w-full max-w-sm text-center">
+    <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center px-4">
+      <div className="bg-white rounded-3xl shadow-md border border-stone-200 px-6 py-8 sm:px-10 sm:py-10 w-full max-w-sm text-center">
         <p className="text-5xl mb-3">🍴</p>
-        <h1 className="text-3xl font-bold text-rose-500 tracking-tight mb-1">LoveyBites</h1>
-        <p className="text-gray-400 text-sm mb-8">Ons eigen receptenboekje</p>
+        <h1 className="font-display text-4xl font-bold italic text-stone-900 tracking-tight mb-1">
+          LoveyBites
+        </h1>
+        <p className="text-stone-400 text-sm mb-8">Ons eigen receptenboekje</p>
 
         <form onSubmit={handleEmailSubmit} className="text-left mb-4 space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">E-mailadres</label>
+            <label className="block text-sm font-medium text-stone-600 mb-1.5">E-mailadres</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
               disabled={isLoading}
-              className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:opacity-50"
+              className="w-full border border-stone-200 rounded-2xl px-4 py-3 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent disabled:opacity-50 transition"
               placeholder="jij@email.com"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Wachtwoord</label>
+            <label className="block text-sm font-medium text-stone-600 mb-1.5">Wachtwoord</label>
             <input
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
               disabled={isLoading}
-              className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:opacity-50"
+              className="w-full border border-stone-200 rounded-2xl px-4 py-3 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent disabled:opacity-50 transition"
               placeholder="••••••••"
             />
           </div>
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-xl px-4 py-3 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-clay-500 hover:bg-clay-600 text-white font-semibold rounded-2xl px-4 py-3.5 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-1"
           >
             {isLoading ? 'Bezig…' : isSignUp ? 'Account aanmaken' : 'Inloggen'}
           </button>
@@ -109,22 +111,22 @@ export default function LoginPage() {
 
         <button
           onClick={() => { setIsSignUp(v => !v); setSignInError(null) }}
-          className="text-xs text-gray-400 hover:text-gray-600 transition-colors mb-2"
+          className="text-xs text-stone-400 hover:text-stone-600 transition-colors mb-2"
         >
           {isSignUp ? 'Al een account? Inloggen' : 'Nog geen account? Aanmaken'}
         </button>
 
         {googleEnabled && (
           <>
-            <div className="flex items-center my-4">
-              <div className="flex-1 border-t border-gray-200" />
-              <span className="px-3 text-xs text-gray-400">of</span>
-              <div className="flex-1 border-t border-gray-200" />
+            <div className="flex items-center my-5">
+              <div className="flex-1 border-t border-stone-200" />
+              <span className="px-3 text-xs text-stone-400">of</span>
+              <div className="flex-1 border-t border-stone-200" />
             </div>
             <button
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full flex items-center justify-center bg-white border border-gray-300 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              className="w-full flex items-center justify-center bg-white border border-stone-200 rounded-2xl px-4 py-3.5 text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
             >
               <GoogleIcon />
               Inloggen met Google
@@ -133,7 +135,7 @@ export default function LoginPage() {
         )}
 
         {(authError || signInError) && (
-          <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">
+          <div className="mt-5 bg-red-50 border border-red-200 rounded-2xl p-3 text-sm text-red-700">
             {authError ?? signInError}
           </div>
         )}
