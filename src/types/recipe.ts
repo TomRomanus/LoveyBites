@@ -3,6 +3,8 @@ import type { Timestamp } from 'firebase/firestore'
 export interface IngredientLeaf {
   kind: 'leaf'
   text: string
+  id?: string
+  ingredientRefs?: string[]
 }
 
 export interface IngredientGroup {

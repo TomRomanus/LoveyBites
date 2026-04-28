@@ -64,12 +64,28 @@ function IngredientList({ nodes, pathPrefix, depth, checked, onToggle }: Ingredi
   )
 }
 
+function collectIngredientMap(nodes: TreeNode[]): Map<string, string> {
+  const map = new Map<string, string>()
+  function traverse(ns: TreeNode[]) {
+    for (const node of ns) {
+      if (node.kind === 'leaf' && node.id) {
+        map.set(node.id, node.text)
+      } else if (node.kind === 'group') {
+        traverse(node.children)
+      }
+    }
+  }
+  traverse(nodes)
+  return map
+}
+
 interface StepListProps {
   nodes: TreeNode[]
   depth: number
+  ingredientMap: Map<string, string>
 }
 
-function StepList({ nodes, depth }: StepListProps) {
+function StepList({ nodes, depth, ingredientMap }: StepListProps) {
   let leafCounter = 0
   const headingClass =
     depth === 0
@@ -82,12 +98,29 @@ function StepList({ nodes, depth }: StepListProps) {
         if (node.kind === 'leaf') {
           leafCounter++
           const num = leafCounter
+          const stepIngredients = (node.ingredientRefs ?? [])
+            .map((id) => ingredientMap.get(id))
+            .filter((t): t is string => t !== undefined)
           return (
-            <li key={i} className="flex gap-4">
-              <span className="shrink-0 w-7 h-7 bg-clay-100 text-clay-600 rounded-full flex items-center justify-center text-sm font-semibold font-display">
-                {num}
-              </span>
-              <p className="text-stone-700 pt-0.5 leading-relaxed">{node.text}</p>
+            <li key={i}>
+              {stepIngredients.length > 0 && (
+                <div className="mb-1.5 pl-11 flex flex-wrap gap-1">
+                  {stepIngredients.map((text, j) => (
+                    <span
+                      key={j}
+                      className="text-xs bg-clay-50 text-clay-600 border border-clay-200 rounded-full px-2 py-0.5"
+                    >
+                      {text}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-4">
+                <span className="shrink-0 w-7 h-7 bg-clay-100 text-clay-600 rounded-full flex items-center justify-center text-sm font-semibold font-display">
+                  {num}
+                </span>
+                <p className="text-stone-700 pt-0.5 leading-relaxed">{node.text}</p>
+              </div>
             </li>
           )
         }
@@ -96,7 +129,7 @@ function StepList({ nodes, depth }: StepListProps) {
           <li key={i}>
             {node.title && <p className={headingClass}>{node.title}</p>}
             <div className={depth > 0 ? 'pl-3 border-l border-stone-200' : ''}>
-              <StepList nodes={node.children} depth={depth + 1} />
+              <StepList nodes={node.children} depth={depth + 1} ingredientMap={ingredientMap} />
             </div>
           </li>
         )
@@ -226,7 +259,13 @@ export default function RecipeDetailPage() {
         {recipe.steps.length > 0 && (
           <section>
             <h2 className="font-display text-xl font-semibold italic text-stone-900 mb-4">Stappen</h2>
-            <StepList nodes={recipe.steps} depth={0} />
+            <StepList
+              nodes={recipe.steps}
+              depth={0}
+              ingredientMap={collectIngredientMap(
+                scaleIngredients(recipe.ingredients, selectedPortions / (recipe.portions ?? 4))
+              )}
+            />
           </section>
         )}
 

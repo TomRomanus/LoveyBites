@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { RecipeInput } from '../types/recipe'
+import type { RecipeInput, IngredientNode } from '../types/recipe'
 import IngredientEditor, { pruneEmpty } from './IngredientEditor'
 import SourceEditor from './SourceEditor'
 
@@ -7,6 +7,27 @@ interface Props {
   initial?: Partial<RecipeInput>
   onSubmit: (data: RecipeInput) => Promise<void>
   submitLabel: string
+}
+
+function ensureIngredientIds(nodes: IngredientNode[]): IngredientNode[] {
+  return nodes.map((node) => {
+    if (node.kind === 'leaf') {
+      return node.id ? node : { ...node, id: crypto.randomUUID() }
+    }
+    return { ...node, children: ensureIngredientIds(node.children) }
+  })
+}
+
+function collectIngredientOptions(nodes: IngredientNode[]): Array<{ id: string; text: string }> {
+  const options: Array<{ id: string; text: string }> = []
+  for (const node of nodes) {
+    if (node.kind === 'leaf' && node.id && node.text.trim()) {
+      options.push({ id: node.id, text: node.text.trim() })
+    } else if (node.kind === 'group') {
+      options.push(...collectIngredientOptions(node.children))
+    }
+  }
+  return options
 }
 
 const emptyInput = (): RecipeInput => ({
@@ -33,7 +54,10 @@ const stepLabels = {
 }
 
 export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
-  const [form, setForm] = useState<RecipeInput>({ ...emptyInput(), ...initial })
+  const [form, setForm] = useState<RecipeInput>(() => {
+    const base = { ...emptyInput(), ...initial }
+    return { ...base, ingredients: ensureIngredientIds(base.ingredients) }
+  })
   const [tagInput, setTagInput] = useState((initial?.tags ?? []).join(', '))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -71,6 +95,8 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
 
   const inputClass = 'w-full border border-stone-200 rounded-2xl px-4 py-3 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent transition'
   const labelClass = 'block text-sm font-medium text-stone-600 mb-1.5'
+
+  const ingredientOptions = collectIngredientOptions(form.ingredients)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -118,7 +144,7 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
         <label className={labelClass}>Ingrediënten</label>
         <IngredientEditor
           nodes={form.ingredients}
-          onChange={(v) => setField('ingredients', v)}
+          onChange={(v) => setField('ingredients', ensureIngredientIds(v))}
           commonSections={['Deeg', 'Vulling', 'Marinade', 'Coating', 'Saus', 'Glazuur']}
         />
       </div>
@@ -130,6 +156,8 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
           onChange={(v) => setField('steps', v)}
           labels={stepLabels}
           commonSections={['Voorbereiding', 'Bereiding', 'Assembleren']}
+          ingredientOptions={ingredientOptions}
+          leafMultiline
         />
       </div>
 

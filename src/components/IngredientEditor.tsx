@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { IngredientNode } from '../types/recipe'
 
 // --- Pure tree mutation helpers ---
@@ -80,6 +81,11 @@ const defaultLabels: EditorLabels = {
 
 // --- Recursive node row ---
 
+interface IngredientOption {
+  id: string
+  text: string
+}
+
 interface NodeRowProps {
   node: IngredientNode
   path: number[]
@@ -88,50 +94,126 @@ interface NodeRowProps {
   nodes: IngredientNode[]
   labels: EditorLabels
   onChange: (nodes: IngredientNode[]) => void
+  ingredientOptions?: IngredientOption[]
+  leafMultiline?: boolean
 }
 
 const actionBtnClass = 'text-xs text-clay-400 hover:text-clay-600 shrink-0 min-h-[2rem] min-w-[2rem] flex items-center justify-center transition-colors'
 const removeBtnClass = 'text-stone-300 hover:text-red-400 shrink-0 min-h-[2rem] min-w-[2rem] flex items-center justify-center transition-colors'
 
-function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange }: NodeRowProps) {
+function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange, ingredientOptions, leafMultiline }: NodeRowProps) {
   const indent = depth * 16
+  const [pickerOpen, setPickerOpen] = useState(false)
 
   if (node.kind === 'leaf') {
+    const selectedIds = new Set(node.ingredientRefs ?? [])
+    const selectedIngredients = ingredientOptions?.filter((opt) => selectedIds.has(opt.id)) ?? []
+
+    function toggleIngredient(id: string) {
+      const cur = node.ingredientRefs ?? []
+      const newRefs = selectedIds.has(id) ? cur.filter((r) => r !== id) : [...cur, id]
+      onChange(replaceAt(nodes, path, { ...node, ingredientRefs: newRefs.length > 0 ? newRefs : undefined }))
+    }
+
     return (
-      <div style={{ paddingLeft: indent }} className="flex items-center gap-1.5">
-        <span className="text-stone-300 text-xs shrink-0">–</span>
-        <input
-          type="text"
-          value={node.text}
-          onChange={(e) => onChange(replaceAt(nodes, path, { kind: 'leaf', text: e.target.value }))}
-          className="flex-1 border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent transition"
-          placeholder={labels.leafPlaceholder}
-        />
-        <button
-          type="button"
-          title="Item erna toevoegen"
-          onClick={() => onChange(insertAfter(nodes, path, { kind: 'leaf', text: '' }))}
-          className={actionBtnClass}
-        >
-          +item
-        </button>
-        <button
-          type="button"
-          title="Sectie erna toevoegen"
-          onClick={() => onChange(insertAfter(nodes, path, { kind: 'group', title: '', children: [{ kind: 'leaf', text: '' }] }))}
-          className={actionBtnClass}
-        >
-          +sec
-        </button>
-        {!isOnly && (
-          <button
-            type="button"
-            onClick={() => onChange(removeAt(nodes, path))}
-            className={removeBtnClass}
-            aria-label="Verwijderen"
-          >
-            ✕
-          </button>
+      <div style={{ paddingLeft: indent }}>
+        <div className="flex items-start gap-1.5">
+          <span className="text-stone-300 text-xs shrink-0 mt-2.5">–</span>
+          {leafMultiline ? (
+            <textarea
+              value={node.text}
+              onChange={(e) => onChange(replaceAt(nodes, path, { ...node, text: e.target.value }))}
+              rows={2}
+              className="flex-1 border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent transition resize-none"
+              placeholder={labels.leafPlaceholder}
+            />
+          ) : (
+            <input
+              type="text"
+              value={node.text}
+              onChange={(e) => onChange(replaceAt(nodes, path, { ...node, text: e.target.value }))}
+              className="flex-1 border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent transition"
+              placeholder={labels.leafPlaceholder}
+            />
+          )}
+          <div className="flex flex-col gap-0.5 shrink-0">
+            <button
+              type="button"
+              title="Item erna toevoegen"
+              onClick={() => onChange(insertAfter(nodes, path, { kind: 'leaf', text: '' }))}
+              className={actionBtnClass}
+            >
+              +item
+            </button>
+            <button
+              type="button"
+              title="Sectie erna toevoegen"
+              onClick={() => onChange(insertAfter(nodes, path, { kind: 'group', title: '', children: [{ kind: 'leaf', text: '' }] }))}
+              className={actionBtnClass}
+            >
+              +sec
+            </button>
+            {!isOnly && (
+              <button
+                type="button"
+                onClick={() => onChange(removeAt(nodes, path))}
+                className={removeBtnClass}
+                aria-label="Verwijderen"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+
+        {ingredientOptions && ingredientOptions.length > 0 && (
+          <div className="ml-4 mt-1.5">
+            {!pickerOpen ? (
+              <div className="flex flex-wrap items-center gap-1">
+                {selectedIngredients.map((opt) => (
+                  <span
+                    key={opt.id}
+                    className="text-xs bg-clay-50 text-clay-600 border border-clay-200 rounded-full px-2 py-0.5"
+                  >
+                    {opt.text}
+                  </span>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setPickerOpen(true)}
+                  className="text-xs text-stone-300 hover:text-clay-400 transition-colors"
+                >
+                  {selectedIngredients.length > 0 ? '±' : '+ ingrediënten'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-1.5 pb-1">
+                <div className="flex flex-wrap gap-1">
+                  {ingredientOptions.map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => toggleIngredient(opt.id)}
+                      className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
+                        selectedIds.has(opt.id)
+                          ? 'bg-clay-500 border-clay-500 text-white'
+                          : 'border-stone-200 text-stone-400 hover:border-clay-300 hover:text-clay-500'
+                      }`}
+                    >
+                      {opt.text}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPickerOpen(false)}
+                  className="text-xs text-stone-400 hover:text-clay-500 transition-colors"
+                >
+                  Klaar
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
     )
@@ -188,6 +270,8 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange }: NodeRow
             nodes={nodes}
             labels={labels}
             onChange={onChange}
+            ingredientOptions={ingredientOptions}
+            leafMultiline={leafMultiline}
           />
         ))}
         <button
@@ -209,9 +293,11 @@ interface IngredientEditorProps {
   onChange: (nodes: IngredientNode[]) => void
   labels?: Partial<EditorLabels>
   commonSections?: string[]
+  ingredientOptions?: IngredientOption[]
+  leafMultiline?: boolean
 }
 
-export default function IngredientEditor({ nodes, onChange, labels: labelOverrides, commonSections }: IngredientEditorProps) {
+export default function IngredientEditor({ nodes, onChange, labels: labelOverrides, commonSections, ingredientOptions, leafMultiline }: IngredientEditorProps) {
   const labels = { ...defaultLabels, ...labelOverrides }
 
   function addSection(title: string) {
@@ -235,6 +321,8 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
           nodes={nodes}
           labels={labels}
           onChange={onChange}
+          ingredientOptions={ingredientOptions}
+          leafMultiline={leafMultiline}
         />
       ))}
 
