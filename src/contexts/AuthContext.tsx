@@ -3,6 +3,8 @@ import type { ReactNode } from 'react'
 import {
   onAuthStateChanged,
   signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   signOut,
 } from 'firebase/auth'
 import type { User } from 'firebase/auth'
@@ -18,6 +20,8 @@ interface AuthContextValue {
   loading: boolean
   authError: string | null
   signInWithGoogle: () => Promise<void>
+  signInWithEmail: (email: string, password: string) => Promise<void>
+  signUpWithEmail: (email: string, password: string) => Promise<void>
   signOutUser: () => Promise<void>
 }
 
@@ -53,13 +57,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithPopup(auth, googleProvider)
   }
 
+  async function signInWithEmail(email: string, password: string) {
+    setAuthError(null)
+    await signInWithEmailAndPassword(auth, email, password)
+  }
+
+  async function signUpWithEmail(email: string, password: string) {
+    setAuthError(null)
+    await createUserWithEmailAndPassword(auth, email, password)
+  }
+
   async function signOutUser() {
     await signOut(auth)
     setAuthError(null)
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, authError, signInWithGoogle, signOutUser }}>
+    <AuthContext.Provider value={{ user, loading, authError, signInWithGoogle, signInWithEmail, signUpWithEmail, signOutUser }}>
       {children}
     </AuthContext.Provider>
   )

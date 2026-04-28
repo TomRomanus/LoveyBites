@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
+const googleEnabled = import.meta.env.VITE_ENABLE_GOOGLE_LOGIN !== 'false'
+
 function GoogleIcon() {
   return (
     <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -14,20 +16,53 @@ function GoogleIcon() {
 }
 
 export default function LoginPage() {
-  const { user, signInWithGoogle, authError } = useAuth()
-  const [isSigningIn, setIsSigningIn] = useState(false)
+  const { user, signInWithGoogle, signInWithEmail, signUpWithEmail, authError } = useAuth()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isSignUp, setIsSignUp] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [signInError, setSignInError] = useState<string | null>(null)
 
   if (user) return <Navigate to="/" replace />
 
-  async function handleSignIn() {
-    setIsSigningIn(true)
+  async function handleEmailSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setIsLoading(true)
+    setSignInError(null)
+    try {
+      if (isSignUp) {
+        await signUpWithEmail(email, password)
+      } else {
+        await signInWithEmail(email, password)
+      }
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code
+      if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+        setSignInError('Ongeldig e-mailadres of wachtwoord.')
+      } else if (code === 'auth/email-already-in-use') {
+        setSignInError('Dit e-mailadres is al in gebruik.')
+      } else if (code === 'auth/weak-password') {
+        setSignInError('Wachtwoord moet minimaal 6 tekens zijn.')
+      } else {
+        setSignInError('Inloggen mislukt. Probeer het opnieuw.')
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setIsLoading(true)
+    setSignInError(null)
     try {
       await signInWithGoogle()
-    } catch {
-      // authError is set by the context for access-denied cases;
-      // popup-closed errors are silently ignored
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code
+      if (code !== 'auth/popup-closed-by-user' && code !== 'auth/cancelled-popup-request') {
+        setSignInError('Inloggen mislukt. Probeer het opnieuw.')
+      }
     } finally {
-      setIsSigningIn(false)
+      setIsLoading(false)
     }
   }
 
@@ -38,18 +73,68 @@ export default function LoginPage() {
         <h1 className="text-3xl font-bold text-rose-500 tracking-tight mb-1">LoveyBites</h1>
         <p className="text-gray-400 text-sm mb-8">Ons eigen receptenboekje</p>
 
+        <form onSubmit={handleEmailSubmit} className="text-left mb-4 space-y-3">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">E-mailadres</label>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required
+              disabled={isLoading}
+              className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:opacity-50"
+              placeholder="jij@email.com"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Wachtwoord</label>
+            <input
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              required
+              disabled={isLoading}
+              className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-400 disabled:opacity-50"
+              placeholder="••••••••"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-xl px-4 py-3 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? 'Bezig…' : isSignUp ? 'Account aanmaken' : 'Inloggen'}
+          </button>
+        </form>
+
         <button
-          onClick={handleSignIn}
-          disabled={isSigningIn}
-          className="w-full flex items-center justify-center bg-white border border-gray-300 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          onClick={() => { setIsSignUp(v => !v); setSignInError(null) }}
+          className="text-xs text-gray-400 hover:text-gray-600 transition-colors mb-2"
         >
-          <GoogleIcon />
-          {isSigningIn ? 'Bezig met inloggen…' : 'Inloggen met Google'}
+          {isSignUp ? 'Al een account? Inloggen' : 'Nog geen account? Aanmaken'}
         </button>
 
-        {authError && (
+        {googleEnabled && (
+          <>
+            <div className="flex items-center my-4">
+              <div className="flex-1 border-t border-gray-200" />
+              <span className="px-3 text-xs text-gray-400">of</span>
+              <div className="flex-1 border-t border-gray-200" />
+            </div>
+            <button
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
+              className="w-full flex items-center justify-center bg-white border border-gray-300 rounded-lg px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            >
+              <GoogleIcon />
+              Inloggen met Google
+            </button>
+          </>
+        )}
+
+        {(authError || signInError) && (
           <div className="mt-4 bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-700">
-            {authError}
+            {authError ?? signInError}
           </div>
         )}
       </div>
