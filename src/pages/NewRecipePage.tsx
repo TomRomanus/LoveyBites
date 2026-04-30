@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import RecipeForm from '../components/RecipeForm'
+import RecipeImport from '../components/RecipeImport'
 import { createRecipe, updateRecipe, getRecipe } from '../services/recipes'
 import type { RecipeInput } from '../types/recipe'
 
@@ -9,6 +10,7 @@ export default function NewRecipePage() {
   const navigate = useNavigate()
   const isEdit = Boolean(id)
   const [initial, setInitial] = useState<Partial<RecipeInput> | undefined>(undefined)
+  const [formKey, setFormKey] = useState(0)
   const [loading, setLoading] = useState(isEdit)
 
   useEffect(() => {
@@ -18,6 +20,11 @@ export default function NewRecipePage() {
       setLoading(false)
     })
   }, [id])
+
+  function handleExtracted(data: Partial<RecipeInput>) {
+    setInitial(data)
+    setFormKey((k) => k + 1)
+  }
 
   async function handleSubmit(data: RecipeInput) {
     if (id) {
@@ -44,8 +51,10 @@ export default function NewRecipePage() {
         </h1>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-6">
+      <main className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+        {!isEdit && <RecipeImport onExtracted={handleExtracted} />}
         <RecipeForm
+          key={formKey}
           initial={initial}
           onSubmit={handleSubmit}
           submitLabel={isEdit ? 'Wijzigingen opslaan' : 'Recept toevoegen'}
