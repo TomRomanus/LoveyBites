@@ -188,22 +188,25 @@ function UserMenu() {
   const { user, signOutUser } = useAuth()
   if (!user) return null
   return (
-    <div className="flex items-center gap-2.5">
-      {user.photoURL && (
+    <button
+      onClick={signOutUser}
+      className="flex items-center gap-2 text-stone-400 hover:text-clay-500 transition-colors"
+      title="Uitloggen"
+    >
+      {user.photoURL ? (
         <img
           src={user.photoURL}
           alt={user.displayName ?? ''}
           className="w-8 h-8 rounded-full ring-2 ring-stone-200"
           referrerPolicy="no-referrer"
         />
+      ) : (
+        <svg className="w-5 h-5 sm:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+        </svg>
       )}
-      <button
-        onClick={signOutUser}
-        className="text-sm text-stone-400 hover:text-clay-500 transition-colors"
-      >
-        Uitloggen
-      </button>
-    </div>
+      <span className="text-sm hidden sm:inline">Uitloggen</span>
+    </button>
   )
 }
 
@@ -292,7 +295,7 @@ export default function RecipesPage() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </Link>
-        <h1 className="font-display text-2xl font-bold italic text-stone-900 tracking-tight">
+        <h1 className="flex-1 text-center font-display text-2xl font-bold italic text-stone-900 tracking-tight">
           LoveyBites
         </h1>
         <UserMenu />

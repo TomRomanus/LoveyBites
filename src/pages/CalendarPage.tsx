@@ -443,7 +443,7 @@ export default function CalendarPage() {
       </header>
 
       {/* Controls */}
-      <div className="bg-white border-b border-stone-100 px-4 py-3 flex items-center justify-between gap-3">
+      <div className="bg-white border-b border-stone-100 px-4 py-3 flex items-start flex-row flex-wrap sm:items-center justify-between gap-2 sm:gap-3">
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate(-1)}
@@ -475,7 +475,7 @@ export default function CalendarPage() {
         </div>
 
         {/* View toggle */}
-        <div className="flex gap-1 bg-stone-100 rounded-xl p-1">
+        <div className="flex gap-1 bg-stone-100 rounded-xl p-1 self-end sm:self-auto">
           <button
             onClick={() => { setView('week'); setAnchor(startOfWeek(today)) }}
             className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${

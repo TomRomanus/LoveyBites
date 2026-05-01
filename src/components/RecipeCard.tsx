@@ -12,10 +12,10 @@ export default function RecipeCard({ recipe, onAddToCalendar }: Props) {
     <div className="relative group">
       <Link
         to={`/recipe/${recipe.id}`}
-        className="block bg-white rounded-2xl border border-stone-200 shadow-sm hover:shadow-md hover:border-stone-300 transition-all duration-200 overflow-hidden"
+        className="block bg-white rounded-2xl border border-stone-200 shadow-sm hover:shadow-md hover:border-stone-300 transition-all duration-200"
       >
         <div className="p-5 pr-14">
-          <h2 className="font-display text-lg font-semibold text-stone-900 mb-1 truncate">{recipe.title}</h2>
+          <h2 className="font-display text-lg font-semibold text-stone-900 mb-1 text-balance">{recipe.title}</h2>
           {recipe.description && (
             <p className="text-sm text-stone-500 line-clamp-2 mb-3">{recipe.description}</p>
           )}
