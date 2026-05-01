@@ -1,83 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getRecipe, deleteRecipe, updateRecipe } from '../services/recipes'
-import type { Recipe, IngredientNode as TreeNode } from '../types/recipe'
+import type { Recipe } from '../types/recipe'
 import { scaleIngredients } from '../utils/scaleIngredient'
 import StarRating from '../components/StarRating'
-
-interface IngredientListProps {
-  nodes: TreeNode[]
-  pathPrefix: string
-  depth: number
-  checked: Set<string>
-  onToggle: (path: string) => void
-}
-
-function IngredientList({ nodes, pathPrefix, depth, checked, onToggle }: IngredientListProps) {
-  return (
-    <ul className="space-y-2">
-      {nodes.map((node, i) => {
-        const path = `${pathPrefix}${i}`
-        if (node.kind === 'leaf') {
-          const isChecked = checked.has(path)
-          return (
-            <li
-              key={path}
-              onClick={() => onToggle(path)}
-              className="flex items-center gap-3 cursor-pointer select-none py-0.5"
-            >
-              <span
-                className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
-                  isChecked ? 'bg-clay-500 border-clay-500 text-white' : 'border-stone-300'
-                }`}
-              >
-                {isChecked && <span className="text-xs leading-none">✓</span>}
-              </span>
-              <span className={isChecked ? 'line-through text-stone-300' : 'text-stone-700'}>
-                {node.text}
-              </span>
-            </li>
-          )
-        }
-
-        const headingClass =
-          depth === 0
-            ? 'font-display text-sm font-semibold text-stone-800 mt-5 mb-2 italic'
-            : 'text-xs font-semibold text-stone-500 uppercase tracking-wider mt-4 mb-1'
-
-        return (
-          <li key={path}>
-            {node.title && <p className={headingClass}>{node.title}</p>}
-            <div className={depth > 0 ? 'pl-3 border-l border-stone-200' : ''}>
-              <IngredientList
-                nodes={node.children}
-                pathPrefix={`${path}.`}
-                depth={depth + 1}
-                checked={checked}
-                onToggle={onToggle}
-              />
-            </div>
-          </li>
-        )
-      })}
-    </ul>
-  )
-}
-
-function collectIngredientMap(nodes: TreeNode[]): Map<string, string> {
-  const map = new Map<string, string>()
-  function traverse(ns: TreeNode[]) {
-    for (const node of ns) {
-      if (node.kind === 'leaf' && node.id) {
-        map.set(node.id, node.text)
-      } else if (node.kind === 'group') {
-        traverse(node.children)
-      }
-    }
-  }
-  traverse(nodes)
-  return map
-}
+import CookModeView, { IngredientList, collectIngredientMap } from '../components/CookModeView'
+import type { IngredientNode as TreeNode } from '../types/recipe'
 
 interface StepListProps {
   nodes: TreeNode[]
@@ -146,6 +74,7 @@ export default function RecipeDetailPage() {
   const [checked, setChecked] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState(false)
   const [selectedPortions, setSelectedPortions] = useState(4)
+  const [cookMode, setCookMode] = useState(false)
 
   useEffect(() => {
     if (recipe) setSelectedPortions(recipe.portions ?? 4)
@@ -192,8 +121,22 @@ export default function RecipeDetailPage() {
     )
   }
 
+  const scaledIngredients = scaleIngredients(recipe.ingredients, selectedPortions / (recipe.portions ?? 4))
+
   return (
     <div className="min-h-screen bg-stone-50">
+      {cookMode && (
+        <CookModeView
+          recipe={recipe}
+          scaledIngredients={scaledIngredients}
+          selectedPortions={selectedPortions}
+          onPortionsChange={setSelectedPortions}
+          checked={checked}
+          onToggle={toggleCheck}
+          onClose={() => setCookMode(false)}
+        />
+      )}
+
       <header className="bg-white border-b border-stone-200 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link to="/" className="text-clay-400 hover:text-clay-600 text-xl w-8 flex items-center justify-center">←</Link>
         <h1 className="flex-1 font-display text-xl font-bold italic text-stone-900 truncate">{recipe.title}</h1>
@@ -247,7 +190,7 @@ export default function RecipeDetailPage() {
               </div>
             </div>
             <IngredientList
-              nodes={scaleIngredients(recipe.ingredients, selectedPortions / (recipe.portions ?? 4))}
+              nodes={scaledIngredients}
               pathPrefix=""
               depth={0}
               checked={checked}
@@ -258,13 +201,19 @@ export default function RecipeDetailPage() {
 
         {recipe.steps.length > 0 && (
           <section>
-            <h2 className="font-display text-xl font-semibold italic text-stone-900 mb-4">Stappen</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-xl font-semibold italic text-stone-900">Stappen</h2>
+              <button
+                onClick={() => setCookMode(true)}
+                className="text-sm font-medium text-clay-500 hover:text-clay-700 border border-clay-300 hover:border-clay-500 rounded-full px-4 py-1.5 transition-colors"
+              >
+                Start koken
+              </button>
+            </div>
             <StepList
               nodes={recipe.steps}
               depth={0}
-              ingredientMap={collectIngredientMap(
-                scaleIngredients(recipe.ingredients, selectedPortions / (recipe.portions ?? 4))
-              )}
+              ingredientMap={collectIngredientMap(scaledIngredients)}
             />
           </section>
         )}
