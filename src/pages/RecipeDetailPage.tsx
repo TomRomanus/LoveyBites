@@ -81,6 +81,32 @@ export default function RecipeDetailPage() {
   }, [recipe])
 
   useEffect(() => {
+    if (!recipe) return
+    let wakeLock: WakeLockSentinel | null = null
+
+    async function acquire() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen')
+        }
+      } catch {
+        // Not supported or denied — non-critical
+      }
+    }
+
+    function onVisibilityChange() {
+      if (document.visibilityState === 'visible') acquire()
+    }
+
+    acquire()
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange)
+      wakeLock?.release()
+    }
+  }, [recipe])
+
+  useEffect(() => {
     if (!id) return
     getRecipe(id)
       .then(setRecipe)
