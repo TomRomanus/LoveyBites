@@ -243,25 +243,93 @@ interface EntryPillProps {
   entry: MealPlanEntry
   recipeTitle?: string
   onDelete: () => void
-  compact?: boolean
 }
 
-function EntryPill({ entry, recipeTitle, onDelete, compact }: EntryPillProps) {
+function EntryPill({ entry, recipeTitle, onDelete }: EntryPillProps) {
   const label = entry.customDescription ?? recipeTitle ?? '…'
   return (
-    <div className={`group flex items-center gap-1 bg-clay-50 border border-clay-200 rounded-lg text-clay-700 ${
-      compact ? 'px-1.5 py-0.5' : 'px-2 py-1'
-    }`}>
-      <span className={`flex-1 truncate ${compact ? 'text-xs' : 'text-sm'}`}>{label}</span>
+    <div className="group flex items-center gap-1.5 bg-clay-50 border border-clay-200 rounded-lg px-2.5 py-1.5 text-clay-700">
+      <span className="flex-1 text-sm leading-snug">{label}</span>
       <button
         onClick={e => { e.stopPropagation(); onDelete() }}
-        className="opacity-0 group-hover:opacity-100 focus:opacity-100 text-clay-400 hover:text-red-500 transition-opacity flex-shrink-0 ml-0.5"
+        className="sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 text-clay-300 hover:text-red-500 transition-opacity flex-shrink-0"
         aria-label="Verwijder"
       >
-        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
+    </div>
+  )
+}
+
+// ── Day detail modal (month view) ────────────────────────────────────────────
+
+interface DayDetailModalProps {
+  date: string
+  entries: MealPlanEntry[]
+  recipeMap: Map<string, Recipe>
+  onDelete: (id: string) => void
+  onAdd: () => void
+  onClose: () => void
+}
+
+function DayDetailModal({ date, entries, recipeMap, onDelete, onAdd, onClose }: DayDetailModalProps) {
+  const displayDate = new Date(date + 'T00:00:00').toLocaleDateString('nl-NL', {
+    weekday: 'long', day: 'numeric', month: 'long',
+  })
+
+  return (
+    <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="relative bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col max-h-[70vh]">
+        <div className="px-5 pt-5 pb-4 border-b border-stone-100 flex items-center justify-between flex-shrink-0">
+          <h2 className="font-display text-lg font-bold italic text-stone-900 capitalize">{displayDate}</h2>
+          <button onClick={onClose} className="text-stone-400 hover:text-stone-600 p-1">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-5 py-4">
+          {entries.length === 0 ? (
+            <p className="text-stone-400 text-sm italic text-center py-6">Niets gepland</p>
+          ) : (
+            <ul className="space-y-2">
+              {entries.map(e => {
+                const label = e.customDescription ?? recipeMap.get(e.recipeId ?? '')?.title ?? '…'
+                return (
+                  <li key={e.id} className="flex items-center gap-3 bg-clay-50 border border-clay-200 rounded-xl px-3 py-2.5">
+                    <span className="flex-1 text-sm text-clay-700">{label}</span>
+                    <button
+                      onClick={() => onDelete(e.id)}
+                      className="text-clay-300 hover:text-red-500 transition-colors flex-shrink-0"
+                      aria-label="Verwijder"
+                    >
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+
+        <div className="px-5 py-4 border-t border-stone-100 flex-shrink-0">
+          <button
+            onClick={onAdd}
+            className="w-full py-2.5 rounded-xl bg-clay-500 hover:bg-clay-600 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Maaltijd toevoegen
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
@@ -279,6 +347,7 @@ export default function CalendarPage() {
   const [entries, setEntries] = useState<MealPlanEntry[]>([])
   const [recipeMap, setRecipeMap] = useState<Map<string, Recipe>>(new Map())
   const [modalDate, setModalDate] = useState<string | null>(null)
+  const [detailDate, setDetailDate] = useState<string | null>(null)
   const [showIngredients, setShowIngredients] = useState(false)
 
   // Compute visible date range based on view
@@ -339,6 +408,14 @@ export default function CalendarPage() {
     return `${NL_MONTHS[anchor.getMonth()]} ${anchor.getFullYear()}`
   })()
 
+  const isCurrentPeriod = view === 'week'
+    ? toISO(anchor) === toISO(startOfWeek(today))
+    : anchor.getMonth() === today.getMonth() && anchor.getFullYear() === today.getFullYear()
+
+  function goToToday() {
+    setAnchor(view === 'week' ? startOfWeek(today) : startOfMonth(today))
+  }
+
   // Shopping list defaults
   const shoppingStart = toISO(startOfWeek(today))
   const shoppingEnd = toISO(addDays(startOfWeek(today), 6))
@@ -376,7 +453,17 @@ export default function CalendarPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <span className="text-sm font-medium text-stone-700 min-w-[11rem] text-center capitalize">{periodLabel}</span>
+          <button
+            onClick={goToToday}
+            disabled={isCurrentPeriod}
+            className={`text-sm font-medium min-w-[11rem] text-center capitalize transition-colors ${
+              isCurrentPeriod
+                ? 'text-stone-700 cursor-default'
+                : 'text-clay-500 hover:text-clay-700 underline underline-offset-2'
+            }`}
+          >
+            {periodLabel}
+          </button>
           <button
             onClick={() => navigate(1)}
             className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:border-clay-300 text-stone-500 hover:text-clay-600 transition-colors"
@@ -390,7 +477,7 @@ export default function CalendarPage() {
         {/* View toggle */}
         <div className="flex gap-1 bg-stone-100 rounded-xl p-1">
           <button
-            onClick={() => { setView('week'); setAnchor(startOfWeek(anchor)) }}
+            onClick={() => { setView('week'); setAnchor(startOfWeek(today)) }}
             className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
               view === 'week' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700'
             }`}
@@ -398,7 +485,7 @@ export default function CalendarPage() {
             Week
           </button>
           <button
-            onClick={() => { setView('month'); setAnchor(startOfMonth(anchor)) }}
+            onClick={() => { setView('month'); setAnchor(startOfMonth(today)) }}
             className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
               view === 'month' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700'
             }`}
@@ -409,103 +496,161 @@ export default function CalendarPage() {
       </div>
 
       {/* Calendar grid */}
-      <main className="flex-1 p-4">
-        {/* Day headers */}
-        <div className="grid grid-cols-7 mb-2">
-          {NL_DAYS_SHORT.map(d => (
-            <div key={d} className="text-center text-xs font-semibold text-stone-400 uppercase tracking-wider py-1">
-              {d}
-            </div>
-          ))}
-        </div>
-
+      <main className="flex-1 p-3 sm:p-4">
         {view === 'week' && (
-          <div className="grid grid-cols-7 gap-2">
-            {days.map(day => {
-              const dayEntries = entriesForDay(day)
-              const isToday = isSameDay(day, today)
-              const iso = toISO(day)
-              return (
-                <div
-                  key={iso}
-                  className="min-h-[8rem] bg-white rounded-2xl border border-stone-200 p-2 flex flex-col gap-1.5"
-                >
-                  {/* Day number */}
-                  <div className="flex items-center justify-between">
-                    <span className={`text-sm font-semibold leading-none flex items-center justify-center w-6 h-6 rounded-full ${
-                      isToday ? 'bg-clay-500 text-white' : 'text-stone-700'
-                    }`}>
-                      {day.getDate()}
-                    </span>
+          <>
+            {/* Mobile: vertical list */}
+            <div className="flex flex-col gap-2 sm:hidden">
+              {days.map((day, i) => {
+                const dayEntries = entriesForDay(day)
+                const isToday = isSameDay(day, today)
+                const iso = toISO(day)
+                return (
+                  <div key={iso} className="bg-white rounded-2xl border border-stone-200 px-4 py-3 flex items-start gap-4">
+                    <div className="flex flex-col items-center w-8 flex-shrink-0 pt-0.5">
+                      <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider leading-none mb-1">
+                        {NL_DAYS_SHORT[i]}
+                      </span>
+                      <span className={`text-xl font-bold leading-none flex items-center justify-center w-8 h-8 rounded-full ${
+                        isToday ? 'bg-clay-500 text-white' : 'text-stone-800'
+                      }`}>
+                        {day.getDate()}
+                      </span>
+                    </div>
+                    <div className="flex-1 flex flex-col gap-1.5 min-h-[2.5rem] justify-center">
+                      {dayEntries.length === 0 && (
+                        <p className="text-sm text-stone-300 italic">Niets gepland</p>
+                      )}
+                      {dayEntries.map(e => (
+                        <EntryPill
+                          key={e.id}
+                          entry={e}
+                          recipeTitle={e.recipeId ? recipeMap.get(e.recipeId)?.title : undefined}
+                          onDelete={() => handleDelete(e.id)}
+                        />
+                      ))}
+                    </div>
                     <button
                       onClick={() => setModalDate(iso)}
-                      className="w-5 h-5 flex items-center justify-center rounded-full text-stone-300 hover:text-clay-500 hover:bg-clay-50 transition-colors"
+                      className="w-8 h-8 flex items-center justify-center rounded-full text-stone-300 hover:text-clay-500 hover:bg-clay-50 transition-colors flex-shrink-0"
                       aria-label="Maaltijd toevoegen"
                     >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                       </svg>
                     </button>
                   </div>
-                  {/* Entries */}
-                  <div className="flex flex-col gap-1 flex-1">
-                    {dayEntries.map(e => (
-                      <EntryPill
-                        key={e.id}
-                        entry={e}
-                        recipeTitle={e.recipeId ? recipeMap.get(e.recipeId)?.title : undefined}
-                        onDelete={() => handleDelete(e.id)}
-                      />
-                    ))}
+                )
+              })}
+            </div>
+
+            {/* Desktop: 7-column grid */}
+            <div className="hidden sm:block">
+              <div className="grid grid-cols-7 mb-2">
+                {NL_DAYS_SHORT.map(d => (
+                  <div key={d} className="text-center text-xs font-semibold text-stone-400 uppercase tracking-wider py-1">
+                    {d}
                   </div>
-                </div>
-              )
-            })}
-          </div>
+                ))}
+              </div>
+              <div className="grid grid-cols-7 gap-2">
+                {days.map(day => {
+                  const dayEntries = entriesForDay(day)
+                  const isToday = isSameDay(day, today)
+                  const iso = toISO(day)
+                  return (
+                    <div key={iso} className="min-h-[8rem] bg-white rounded-2xl border border-stone-200 p-2 flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className={`text-sm font-semibold leading-none flex items-center justify-center w-6 h-6 rounded-full ${
+                          isToday ? 'bg-clay-500 text-white' : 'text-stone-700'
+                        }`}>
+                          {day.getDate()}
+                        </span>
+                        <button
+                          onClick={() => setModalDate(iso)}
+                          className="w-5 h-5 flex items-center justify-center rounded-full text-stone-300 hover:text-clay-500 hover:bg-clay-50 transition-colors"
+                          aria-label="Maaltijd toevoegen"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div className="flex flex-col gap-1 flex-1">
+                        {dayEntries.map(e => (
+                          <EntryPill
+                            key={e.id}
+                            entry={e}
+                            recipeTitle={e.recipeId ? recipeMap.get(e.recipeId)?.title : undefined}
+                            onDelete={() => handleDelete(e.id)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </>
         )}
 
         {view === 'month' && (
-          <div className="grid grid-cols-7 gap-1">
-            {days.map(day => {
-              const dayEntries = entriesForDay(day)
-              const isToday = isSameDay(day, today)
-              const isCurrentMonth = day.getMonth() === monthStart.getMonth()
-              const iso = toISO(day)
-              return (
-                <div
-                  key={iso}
-                  onClick={() => setModalDate(iso)}
-                  className={`min-h-[4.5rem] rounded-xl border p-1.5 cursor-pointer flex flex-col gap-1 transition-colors hover:border-clay-300 ${
-                    isCurrentMonth
-                      ? 'bg-white border-stone-200'
-                      : 'bg-stone-50 border-stone-100'
-                  }`}
-                >
-                  <span className={`text-xs font-semibold leading-none self-start flex items-center justify-center w-5 h-5 rounded-full ${
-                    isToday ? 'bg-clay-500 text-white' : isCurrentMonth ? 'text-stone-700' : 'text-stone-300'
-                  }`}>
-                    {day.getDate()}
-                  </span>
-                  <div className="flex flex-col gap-0.5 flex-1 overflow-hidden">
-                    {dayEntries.slice(0, 2).map(e => (
-                      <EntryPill
-                        key={e.id}
-                        entry={e}
-                        recipeTitle={e.recipeId ? recipeMap.get(e.recipeId)?.title : undefined}
-                        onDelete={() => handleDelete(e.id)}
-                        compact
-                      />
-                    ))}
-                    {dayEntries.length > 2 && (
-                      <span className="text-xs text-stone-400 pl-0.5">+{dayEntries.length - 2}</span>
-                    )}
-                  </div>
+          <>
+            <div className="grid grid-cols-7 mb-1">
+              {NL_DAYS_SHORT.map(d => (
+                <div key={d} className="text-center text-xs font-semibold text-stone-400 uppercase tracking-wider py-1">
+                  {d}
                 </div>
-              )
-            })}
-          </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-1">
+              {days.map(day => {
+                const dayEntries = entriesForDay(day)
+                const isToday = isSameDay(day, today)
+                const isCurrentMonth = day.getMonth() === monthStart.getMonth()
+                const iso = toISO(day)
+                return (
+                  <button
+                    key={iso}
+                    onClick={() => setDetailDate(iso)}
+                    className={`min-h-[4.5rem] sm:min-h-[5.5rem] rounded-xl border p-1.5 flex flex-col items-start gap-1 transition-colors hover:border-clay-300 w-full ${
+                      isCurrentMonth ? 'bg-white border-stone-200' : 'bg-stone-50 border-stone-100'
+                    }`}
+                  >
+                    <span className={`text-xs font-semibold leading-none flex items-center justify-center w-5 h-5 rounded-full ${
+                      isToday ? 'bg-clay-500 text-white' : isCurrentMonth ? 'text-stone-700' : 'text-stone-300'
+                    }`}>
+                      {day.getDate()}
+                    </span>
+                    <div className="text-left w-full space-y-0.5">
+                      {dayEntries.slice(0, 2).map(e => (
+                        <span key={e.id} className="block text-[10px] sm:text-xs text-clay-700 truncate leading-tight">
+                          {e.customDescription ?? (e.recipeId ? recipeMap.get(e.recipeId)?.title : '') ?? ''}
+                        </span>
+                      ))}
+                      {dayEntries.length > 2 && (
+                        <span className="block text-[10px] sm:text-xs text-stone-400">+{dayEntries.length - 2}</span>
+                      )}
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </>
         )}
       </main>
+
+      {/* Day detail (month view) */}
+      {detailDate && (
+        <DayDetailModal
+          date={detailDate}
+          entries={entries.filter(e => e.date === detailDate)}
+          recipeMap={recipeMap}
+          onDelete={async (id) => { await handleDelete(id) }}
+          onAdd={() => setModalDate(detailDate)}
+          onClose={() => setDetailDate(null)}
+        />
+      )}
 
       {/* Add meal modal */}
       {modalDate && (
