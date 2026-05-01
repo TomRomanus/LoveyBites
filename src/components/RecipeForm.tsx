@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { RecipeInput, IngredientNode } from '../types/recipe'
 import IngredientEditor, { pruneEmpty } from './IngredientEditor'
 import SourceEditor from './SourceEditor'
+import AutoGrowTextarea from './AutoGrowTextarea'
 
 interface Props {
   initial?: Partial<RecipeInput>
@@ -119,7 +120,7 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
 
       <div>
         <label className={labelClass}>Beschrijving</label>
-        <textarea
+        <AutoGrowTextarea
           value={form.description}
           onChange={(e) => setField('description', e.target.value)}
           rows={2}

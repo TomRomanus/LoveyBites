@@ -3,6 +3,7 @@ import { getRecipes } from '../services/recipes'
 import { createMealPlanEntry } from '../services/mealPlan'
 import type { Recipe } from '../types/recipe'
 import { useAuth } from '../contexts/AuthContext'
+import AutoGrowTextarea from './AutoGrowTextarea'
 
 interface Props {
   date: string
@@ -158,7 +159,7 @@ export default function AddMealModal({ date, onClose, onSaved, preselectedRecipe
           {tab === 'custom' && (
             <div className="px-4 py-4 flex-1">
               <label className="block text-sm text-stone-500 mb-2">Beschrijving</label>
-              <textarea
+              <AutoGrowTextarea
                 autoFocus
                 value={customDescription}
                 onChange={e => setCustomDescription(e.target.value)}

@@ -132,6 +132,111 @@ function labelFromUrl(url: string): string {
   }
 }
 
+async function callAIWithImage(base64: string, mediaType: string): Promise<string> {
+  const provider = import.meta.env.VITE_AI_PROVIDER ?? 'anthropic'
+
+  const systemPrompt = `You are a recipe extraction assistant. Extract the recipe from the provided image and return ONLY a valid JSON object — no markdown, no explanation, just the JSON.
+
+The JSON must match this exact schema:
+{
+  "title": string,
+  "description": string,
+  "portions": number,
+  "ingredients": IngredientNode[],
+  "steps": IngredientNode[],
+  "tags": string[],
+  "imageUrl": string,
+  "sourceName": string
+}
+
+IngredientNode is either:
+- { "kind": "leaf", "text": "ingredient or step text" }
+- { "kind": "group", "title": "section name", "children": IngredientNode[] }
+
+Use groups when the recipe has distinct sections (e.g. "Dough", "Filling", or "Preparation", "Cooking").
+For steps, use groups like "Voorbereiding" and "Bereiding" if the recipe has multiple phases.
+For tags, generate 3–6 relevant lowercase tags describing the dish (e.g. cuisine type, meal type, main ingredient, dietary properties, cooking method). Examples: "italiaans", "pasta", "vegetarisch", "snel", "diner", "gegrild".
+Set "sourceName" and "imageUrl" to empty string.
+If a field is not available, use an empty string, 0, or empty array as appropriate.`
+
+  if (provider === 'openai') {
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY
+    if (!apiKey) throw new Error('VITE_OPENAI_API_KEY is not set in .env.local')
+
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          {
+            role: 'user',
+            content: [
+              { type: 'image_url', image_url: { url: `data:${mediaType};base64,${base64}` } },
+              { type: 'text', text: 'Extract the recipe from this image.' },
+            ],
+          },
+        ],
+        temperature: 0,
+      }),
+    })
+    if (!res.ok) throw new Error(`OpenAI API error: ${res.status} ${await res.text()}`)
+    const data = await res.json()
+    return data.choices[0].message.content
+  }
+
+  // Default: Anthropic
+  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
+  if (!apiKey) throw new Error('VITE_ANTHROPIC_API_KEY is not set in .env.local')
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+          { type: 'text', text: 'Extract the recipe from this image.' },
+        ],
+      }],
+    }),
+  })
+  if (!res.ok) throw new Error(`Anthropic API error: ${res.status} ${await res.text()}`)
+  const data = await res.json()
+  return data.content[0].text
+}
+
+export async function importRecipeFromImage(file: File): Promise<Partial<RecipeInput>> {
+  const mediaType = (file.type || 'image/jpeg') as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp'
+  const base64 = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve((reader.result as string).split(',')[1])
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+  const aiResponse = await callAIWithImage(base64, mediaType)
+  const { recipe } = parseAIResponse(aiResponse)
+  recipe.sources = []
+  return recipe
+}
+
+export async function importRecipeFromText(text: string): Promise<Partial<RecipeInput>> {
+  const aiResponse = await callAI(text)
+  const { recipe } = parseAIResponse(aiResponse)
+  recipe.sources = []
+  return recipe
+}
+
 export async function importRecipeFromUrl(url: string): Promise<Partial<RecipeInput>> {
   const isTikTok = /tiktok\.com/i.test(url)
 

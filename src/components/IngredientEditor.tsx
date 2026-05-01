@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { IngredientNode } from '../types/recipe'
+import AutoGrowTextarea from './AutoGrowTextarea'
 
 // --- Pure tree mutation helpers ---
 
@@ -120,7 +121,7 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange, ingredien
         <div className="flex items-start gap-1.5">
           <span className="text-stone-300 text-xs shrink-0 mt-2.5">–</span>
           {leafMultiline ? (
-            <textarea
+            <AutoGrowTextarea
               value={node.text}
               onChange={(e) => onChange(replaceAt(nodes, path, { ...node, text: e.target.value }))}
               rows={2}
