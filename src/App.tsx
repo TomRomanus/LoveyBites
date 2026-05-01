@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage'
 import RecipesPage from './pages/RecipesPage'
 import RecipeDetailPage from './pages/RecipeDetailPage'
 import NewRecipePage from './pages/NewRecipePage'
+import CalendarPage from './pages/CalendarPage'
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/recipe/:id" element={<ProtectedRoute><RecipeDetailPage /></ProtectedRoute>} />
           <Route path="/new" element={<ProtectedRoute><NewRecipePage /></ProtectedRoute>} />
           <Route path="/edit/:id" element={<ProtectedRoute><NewRecipePage /></ProtectedRoute>} />
+          <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

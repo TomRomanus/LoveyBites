@@ -6,6 +6,8 @@ import { scaleIngredients } from '../utils/scaleIngredient'
 import StarRating from '../components/StarRating'
 import CookModeView, { IngredientList, collectIngredientMap } from '../components/CookModeView'
 import type { IngredientNode as TreeNode } from '../types/recipe'
+import AddToCalendarModal from '../components/AddToCalendarModal'
+import { useAuth } from '../contexts/AuthContext'
 
 interface StepListProps {
   nodes: TreeNode[]
@@ -69,12 +71,15 @@ function StepList({ nodes, depth, ingredientMap }: StepListProps) {
 export default function RecipeDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [recipe, setRecipe] = useState<Recipe | null>(null)
   const [loading, setLoading] = useState(true)
   const [checked, setChecked] = useState<Set<string>>(new Set())
   const [deleting, setDeleting] = useState(false)
   const [selectedPortions, setSelectedPortions] = useState(4)
   const [cookMode, setCookMode] = useState(false)
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const [calendarSaved, setCalendarSaved] = useState(false)
 
   useEffect(() => {
     if (recipe) setSelectedPortions(recipe.portions ?? 4)
@@ -166,6 +171,21 @@ export default function RecipeDetailPage() {
       <header className="bg-white border-b border-stone-200 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
         <Link to="/" className="text-clay-400 hover:text-clay-600 text-xl w-8 flex items-center justify-center">←</Link>
         <h1 className="flex-1 font-display text-xl font-bold italic text-stone-900 truncate">{recipe.title}</h1>
+        <div className="relative flex items-center gap-3">
+          {calendarSaved && (
+            <span className="text-xs text-clay-600 font-medium">Toegevoegd!</span>
+          )}
+          <button
+            onClick={() => setCalendarOpen(true)}
+            className="text-stone-400 hover:text-clay-600 transition-colors"
+            aria-label="Voeg toe aan kalender"
+            title="Voeg toe aan kalender"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </button>
+        </div>
         <Link
           to={`/edit/${recipe.id}`}
           className="text-sm text-clay-500 hover:text-clay-700 font-medium"
@@ -282,6 +302,18 @@ export default function RecipeDetailPage() {
           {deleting ? 'Verwijderen…' : 'Recept verwijderen'}
         </button>
       </main>
+
+      {calendarOpen && recipe && (
+        <AddToCalendarModal
+          recipe={recipe}
+          onClose={() => setCalendarOpen(false)}
+          onSaved={() => {
+            setCalendarOpen(false)
+            setCalendarSaved(true)
+            setTimeout(() => setCalendarSaved(false), 2500)
+          }}
+        />
+      )}
     </div>
   )
 }

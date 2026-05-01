@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import RecipeCard from '../components/RecipeCard'
+import AddToCalendarModal from '../components/AddToCalendarModal'
 import { getRecipes } from '../services/recipes'
 import type { Recipe, IngredientNode } from '../types/recipe'
 import { useAuth } from '../contexts/AuthContext'
@@ -210,6 +211,7 @@ export default function RecipesPage() {
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [calendarRecipe, setCalendarRecipe] = useState<Recipe | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [tagSearch, setTagSearch] = useState('')
@@ -281,7 +283,15 @@ export default function RecipesPage() {
   return (
     <div className="min-h-screen bg-stone-50">
       <header className="bg-white border-b border-stone-200 px-4 py-4 flex items-center justify-between sticky top-0 z-10">
-        <div className="w-20" />
+        <Link
+          to="/calendar"
+          className="w-20 flex items-center gap-1.5 text-stone-400 hover:text-clay-600 transition-colors text-sm font-medium"
+          aria-label="Weekmenu"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </Link>
         <h1 className="font-display text-2xl font-bold italic text-stone-900 tracking-tight">
           LoveyBites
         </h1>
@@ -397,7 +407,7 @@ export default function RecipesPage() {
         {!loading && !error && sortedRecipes.length > 0 && (
           <div className="grid gap-3">
             {sortedRecipes.map((r) => (
-              <RecipeCard key={r.id} recipe={r} />
+              <RecipeCard key={r.id} recipe={r} onAddToCalendar={setCalendarRecipe} />
             ))}
           </div>
         )}
@@ -410,6 +420,14 @@ export default function RecipesPage() {
       >
         +
       </Link>
+
+      {calendarRecipe && (
+        <AddToCalendarModal
+          recipe={calendarRecipe}
+          onClose={() => setCalendarRecipe(null)}
+          onSaved={() => setCalendarRecipe(null)}
+        />
+      )}
     </div>
   )
 }
