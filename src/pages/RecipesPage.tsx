@@ -11,6 +11,71 @@ function extractIngredientTexts(nodes: IngredientNode[]): string[] {
   )
 }
 
+type SortOption = 'default' | 'name-asc' | 'name-desc' | 'rating-desc' | 'rating-asc'
+
+const SORT_LABELS: Record<SortOption, string> = {
+  'default': 'Standaard',
+  'name-asc': 'Naam A→Z',
+  'name-desc': 'Naam Z→A',
+  'rating-desc': 'Score hoog→laag',
+  'rating-asc': 'Score laag→hoog',
+}
+
+interface SortDropdownProps {
+  sortOption: SortOption
+  open: boolean
+  dropdownRef: React.RefObject<HTMLDivElement>
+  onSelect: (opt: SortOption) => void
+  onToggleOpen: () => void
+}
+
+function SortDropdown({ sortOption, open, dropdownRef, onSelect, onToggleOpen }: SortDropdownProps) {
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={onToggleOpen}
+        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm font-medium transition-colors ${
+          sortOption !== 'default'
+            ? 'bg-clay-50 border-clay-300 text-clay-700'
+            : 'bg-white border-stone-200 text-stone-600 hover:border-stone-300'
+        }`}
+      >
+        <span>{SORT_LABELS[sortOption]}</span>
+        <svg
+          className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''}`}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute left-0 top-full mt-1.5 w-48 bg-white border border-stone-200 rounded-2xl shadow-lg z-20 overflow-hidden">
+          <ul className="py-1">
+            {(Object.keys(SORT_LABELS) as SortOption[]).map(opt => (
+              <li key={opt}>
+                <button
+                  onClick={() => onSelect(opt)}
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left hover:bg-stone-50 transition-colors"
+                >
+                  <span
+                    className={`w-4 h-4 rounded-full border flex-shrink-0 flex items-center justify-center transition-colors ${
+                      sortOption === opt ? 'bg-clay-500 border-clay-500' : 'border-stone-300'
+                    }`}
+                  >
+                    {sortOption === opt && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </span>
+                  <span>{SORT_LABELS[opt]}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface TagFilterDropdownProps {
   allTags: string[]
   filteredTags: string[]
@@ -149,7 +214,10 @@ export default function RecipesPage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [tagSearch, setTagSearch] = useState('')
   const [tagDropdownOpen, setTagDropdownOpen] = useState(false)
+  const [sortOption, setSortOption] = useState<SortOption>('default')
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const sortDropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     getRecipes()
@@ -163,6 +231,9 @@ export default function RecipesPage() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setTagDropdownOpen(false)
         setTagSearch('')
+      }
+      if (sortDropdownRef.current && !sortDropdownRef.current.contains(e.target as Node)) {
+        setSortDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', handleMouseDown)
@@ -187,6 +258,16 @@ export default function RecipesPage() {
       if (!selectedTags.some(tag => recipe.tags.includes(tag))) return false
     }
     return true
+  })
+
+  const sortedRecipes = [...filteredRecipes].sort((a, b) => {
+    switch (sortOption) {
+      case 'name-asc':    return a.title.localeCompare(b.title)
+      case 'name-desc':   return b.title.localeCompare(a.title)
+      case 'rating-desc': return (b.rating ?? 0) - (a.rating ?? 0)
+      case 'rating-asc':  return (a.rating ?? 0) - (b.rating ?? 0)
+      default: return 0
+    }
   })
 
   const hasActiveFilters = searchQuery.trim() !== '' || selectedTags.length > 0
@@ -238,6 +319,13 @@ export default function RecipesPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              <SortDropdown
+                sortOption={sortOption}
+                open={sortDropdownOpen}
+                dropdownRef={sortDropdownRef}
+                onSelect={opt => { setSortOption(opt); setSortDropdownOpen(false) }}
+                onToggleOpen={() => setSortDropdownOpen(prev => !prev)}
+              />
               <TagFilterDropdown
                 allTags={allTags}
                 filteredTags={filteredTags}
@@ -306,9 +394,9 @@ export default function RecipesPage() {
           </div>
         )}
 
-        {!loading && !error && filteredRecipes.length > 0 && (
+        {!loading && !error && sortedRecipes.length > 0 && (
           <div className="grid gap-3">
-            {filteredRecipes.map((r) => (
+            {sortedRecipes.map((r) => (
               <RecipeCard key={r.id} recipe={r} />
             ))}
           </div>
