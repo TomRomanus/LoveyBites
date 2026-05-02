@@ -1,6 +1,23 @@
 import type { RecipeInput, IngredientNode } from '../types/recipe'
 
-const CORS_PROXY = 'https://corsproxy.io/?url='
+const PROXIES = [
+  (u: string) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
+  (u: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+]
+
+async function fetchViaProxy(url: string): Promise<string> {
+  let lastError: Error | undefined
+  for (const proxy of PROXIES) {
+    try {
+      const res = await fetch(proxy(url))
+      if (res.ok) return res.text()
+      lastError = new Error(`Proxy returned ${res.status}`)
+    } catch (e) {
+      lastError = e as Error
+    }
+  }
+  throw lastError ?? new Error('Kon de pagina niet ophalen')
+}
 
 async function callAI(content: string): Promise<string> {
   const provider = import.meta.env.VITE_AI_PROVIDER ?? 'anthropic'
@@ -244,14 +261,11 @@ export async function importRecipeFromUrl(url: string): Promise<Partial<RecipeIn
 
   if (isTikTok) {
     const oembedUrl = `https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`
-    const proxyRes = await fetch(`${CORS_PROXY}${encodeURIComponent(oembedUrl)}`)
-    if (!proxyRes.ok) throw new Error('Kon TikTok-video niet ophalen')
-    const oembed = await proxyRes.json()
+    const text = await fetchViaProxy(oembedUrl)
+    const oembed = JSON.parse(text)
     content = `TikTok video by @${oembed.author_name ?? 'unknown'}\nCaption: ${oembed.title ?? ''}\nThumbnail: ${oembed.thumbnail_url ?? ''}\nURL: ${url}`
   } else {
-    const proxyRes = await fetch(`${CORS_PROXY}${encodeURIComponent(url)}`)
-    if (!proxyRes.ok) throw new Error('Kon de pagina niet ophalen')
-    const html = await proxyRes.text()
+    const html = await fetchViaProxy(url)
     const text = stripHtml(html)
     content = `URL: ${url}\n\n${text.slice(0, 60_000)}`
   }
