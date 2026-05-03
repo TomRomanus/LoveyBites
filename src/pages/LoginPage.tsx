@@ -4,6 +4,14 @@ import { useAuth } from '../contexts/AuthContext'
 
 const googleEnabled = import.meta.env.VITE_ENABLE_GOOGLE_LOGIN !== 'false'
 
+const NL_DAYS = ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag']
+const NL_MONTHS = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']
+
+function todayFull() {
+  const d = new Date()
+  return `${NL_DAYS[d.getDay()]} ${d.getDate()} ${NL_MONTHS[d.getMonth()]} ${d.getFullYear()}`
+}
+
 export default function LoginPage() {
   const { user, signInWithGoogle, signInWithEmail, signUpWithEmail, authError } = useAuth()
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
@@ -74,25 +82,22 @@ export default function LoginPage() {
     <div className="lb-paper" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
       {/* Masthead */}
       <div style={{ padding: '70px 28px 0', flexShrink: 0 }}>
-        <div className="lb-eyebrow" style={{ marginBottom: 14 }}>SINDS 2026 · JOUW KEUKEN</div>
+        <div className="lb-eyebrow" style={{ marginBottom: 14 }}>SINDS 2026</div>
         <h1 style={{ margin: 0, fontSize: 58, lineHeight: 1.0, letterSpacing: '-0.025em' }}>
-          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 600, color: 'var(--ink)' }}>Lovey</span>
-          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'normal', fontWeight: 600, color: 'var(--ink)' }}>Bites</span>
+          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 600, color: 'var(--bordeaux)' }}>Lovey</span>
+          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 600, color: 'var(--ink)' }}>Bites</span>
         </h1>
-        <div className="lb-divider-ornament" style={{ marginTop: 18 }}>
-          <span>jouw eigen kookboek</span>
-        </div>
       </div>
 
-      {/* Color block */}
-      <div style={{ padding: '0 28px' }}>
-        <div className="lb-color-block" style={{
-          '--block-bg': 'var(--bordeaux)',
-          height: 130,
-          borderRadius: 18,
-        } as React.CSSProperties}>
-          <div className="lb-color-block-corner">EDITIE I · MEI</div>
-          <div className="lb-color-block-title" style={{ fontSize: 28 }}>Welkom thuis</div>
+      {/* Welcome */}
+      <div style={{ padding: '0 28px', marginTop: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ flex: 1, height: '0.5px', background: 'var(--line)' }} />
+          <div style={{ textAlign: 'center' }}>
+            <div className="lb-eyebrow" style={{ marginBottom: 3 }}>{todayFull()}</div>
+            <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500, fontSize: 28, color: 'var(--ink)', letterSpacing: '-0.02em', lineHeight: 1.05 }}>Smakelijk</div>
+          </div>
+          <div style={{ flex: 1, height: '0.5px', background: 'var(--line)' }} />
         </div>
       </div>
 
@@ -150,7 +155,7 @@ export default function LoginPage() {
               background: 'var(--bordeaux-tint)',
               color: 'var(--bordeaux)',
               padding: '10px 14px',
-              borderRadius: 12,
+              borderRadius: '0 12px 12px 0',
               fontSize: 13,
               fontWeight: 500,
               borderLeft: '3px solid var(--bordeaux)',
@@ -188,7 +193,7 @@ export default function LoginPage() {
         )}
 
         <div style={{ textAlign: 'center', marginTop: 18, marginBottom: 32, fontSize: 12, color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
-          Door door te gaan beloof je jezelf goed te voeden.
+          Als het mislukt, is er altijd nog de frituur.
         </div>
       </form>
     </div>

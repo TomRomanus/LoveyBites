@@ -11,6 +11,7 @@ export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <div style={{ maxWidth: 480, margin: '0 auto', minHeight: '100dvh', position: 'relative' }}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<ProtectedRoute><RecipesPage /></ProtectedRoute>} />
@@ -19,6 +20,7 @@ export default function App() {
           <Route path="/edit/:id" element={<ProtectedRoute><NewRecipePage /></ProtectedRoute>} />
           <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
         </Routes>
+        </div>
       </BrowserRouter>
     </AuthProvider>
   )
