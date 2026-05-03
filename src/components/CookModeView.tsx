@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import type { Recipe, IngredientNode as TreeNode } from '../types/recipe'
 
-// ─── Shared helpers (also exported for RecipeDetailPage) ──────────────────────
+// ─── Shared helpers (exported for RecipeDetailPage) ───────────────────────────
 
 export interface IngredientListProps {
   nodes: TreeNode[]
@@ -13,47 +13,47 @@ export interface IngredientListProps {
 
 export function IngredientList({ nodes, pathPrefix, depth, checked, onToggle }: IngredientListProps) {
   return (
-    <ul className="space-y-2">
+    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
       {nodes.map((node, i) => {
         const path = `${pathPrefix}${i}`
         if (node.kind === 'leaf') {
           const isChecked = checked.has(path)
           return (
-            <li
-              key={path}
-              onClick={() => onToggle(path)}
-              className="flex items-center gap-3 cursor-pointer select-none py-0.5"
-            >
-              <span
-                className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
-                  isChecked ? 'bg-clay-500 border-clay-500 text-white' : 'border-stone-300'
-                }`}
-              >
-                {isChecked && <span className="text-xs leading-none">✓</span>}
+            <li key={path} onClick={() => onToggle(path)}
+              style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', userSelect: 'none', padding: '2px 0' }}>
+              <span className="lb-check" data-checked={isChecked}>
+                {isChecked && (
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12l5 5L20 7" />
+                  </svg>
+                )}
               </span>
-              <span className={isChecked ? 'line-through text-stone-300' : 'text-stone-700'}>
+              <span style={{ textDecoration: isChecked ? 'line-through' : 'none', color: isChecked ? 'var(--stone-2)' : 'var(--ink)', fontSize: 15 }}>
                 {node.text}
               </span>
             </li>
           )
         }
 
-        const headingClass =
-          depth === 0
-            ? 'font-display text-sm font-semibold text-stone-800 mt-5 mb-2 italic'
-            : 'text-xs font-semibold text-stone-500 uppercase tracking-wider mt-4 mb-1'
-
         return (
           <li key={path}>
-            {node.title && <p className={headingClass}>{node.title}</p>}
-            <div className={depth > 0 ? 'pl-3 border-l border-stone-200' : ''}>
-              <IngredientList
-                nodes={node.children}
-                pathPrefix={`${path}.`}
-                depth={depth + 1}
-                checked={checked}
-                onToggle={onToggle}
-              />
+            {node.title && (
+              <p style={{
+                fontFamily: depth === 0 ? 'var(--serif)' : 'var(--mono)',
+                fontStyle: depth === 0 ? 'italic' : 'normal',
+                fontSize: depth === 0 ? 15 : 10,
+                fontWeight: 500,
+                color: depth === 0 ? 'var(--bordeaux)' : 'var(--stone)',
+                textTransform: depth === 0 ? 'none' : 'uppercase',
+                letterSpacing: depth === 0 ? 'normal' : '0.08em',
+                marginTop: depth === 0 ? 16 : 12,
+                marginBottom: 8,
+              }}>
+                {node.title}
+              </p>
+            )}
+            <div style={depth > 0 ? { paddingLeft: 12, borderLeft: '0.5px solid var(--line)' } : {}}>
+              <IngredientList nodes={node.children} pathPrefix={`${path}.`} depth={depth + 1} checked={checked} onToggle={onToggle} />
             </div>
           </li>
         )
@@ -90,12 +90,7 @@ function flattenSteps(nodes: TreeNode[], sectionTitle?: string, counter = { n: 0
   const result: FlatStep[] = []
   for (const node of nodes) {
     if (node.kind === 'leaf') {
-      result.push({
-        text: node.text,
-        sectionTitle,
-        ingredientRefs: node.ingredientRefs,
-        globalIndex: counter.n++,
-      })
+      result.push({ text: node.text, sectionTitle, ingredientRefs: node.ingredientRefs, globalIndex: counter.n++ })
     } else {
       result.push(...flattenSteps(node.children, node.title, counter))
     }
@@ -103,55 +98,9 @@ function flattenSteps(nodes: TreeNode[], sectionTitle?: string, counter = { n: 0
   return result
 }
 
-// ─── Bottom sheet ─────────────────────────────────────────────────────────────
-
-interface BottomSheetProps {
-  open: boolean
-  onClose: () => void
-  title: string
-  children: React.ReactNode
-}
-
-function BottomSheet({ open, onClose, title, children }: BottomSheetProps) {
-  return (
-    <>
-      {/* Backdrop */}
-      <div
-        className={`fixed inset-0 bg-black/40 z-40 transition-opacity duration-300 ${
-          open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-        onClick={onClose}
-      />
-      {/* Sheet */}
-      <div
-        className={`fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl shadow-2xl flex flex-col transition-transform duration-300 max-h-[82vh] ${
-          open ? 'translate-y-0' : 'translate-y-full'
-        }`}
-      >
-        {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-1 shrink-0">
-          <div className="w-10 h-1 bg-stone-200 rounded-full" />
-        </div>
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-stone-100 shrink-0">
-          <h3 className="font-display text-lg font-semibold italic text-stone-900">{title}</h3>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center text-stone-400 hover:text-stone-600 text-xl leading-none"
-          >
-            ×
-          </button>
-        </div>
-        {/* Scrollable content */}
-        <div className="overflow-y-auto px-5 py-4 flex-1">
-          {children}
-        </div>
-      </div>
-    </>
-  )
-}
-
 // ─── Cook mode view ───────────────────────────────────────────────────────────
+
+type CookTab = 'step' | 'ingredients' | 'overview'
 
 interface CookModeViewProps {
   recipe: Recipe
@@ -177,20 +126,16 @@ export default function CookModeView({
   const total = steps.length
 
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [showIngredients, setShowIngredients] = useState(false)
-  const [showAllSteps, setShowAllSteps] = useState(false)
+  const [tab, setTab] = useState<CookTab>('step')
+  const overviewRef = useRef<HTMLDivElement>(null)
 
-  const allStepsRef = useRef<HTMLDivElement>(null)
-
-  // Scroll active step into view when opening all-steps sheet
   useEffect(() => {
-    if (showAllSteps && allStepsRef.current) {
-      const active = allStepsRef.current.querySelector('[data-active="true"]')
+    if (tab === 'overview' && overviewRef.current) {
+      const active = overviewRef.current.querySelector('[data-active="true"]')
       active?.scrollIntoView({ block: 'center', behavior: 'smooth' })
     }
-  }, [showAllSteps])
+  }, [tab])
 
-  // Prevent body scroll while cook mode is open
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
@@ -202,223 +147,265 @@ export default function CookModeView({
   const current = steps[currentIndex]
   const next = steps[currentIndex + 1]
 
-  const progressPct = total > 1 ? (currentIndex / (total - 1)) * 100 : 100
-
   function goTo(index: number) {
     setCurrentIndex(Math.max(0, Math.min(total - 1, index)))
-    setShowAllSteps(false)
+    setTab('step')
   }
 
   const currentIngredients = (current.ingredientRefs ?? [])
     .map((id) => ingredientMap.get(id))
     .filter((t): t is string => t !== undefined)
 
+  const dark = { background: '#1f1d1a', color: '#f8f4ed' }
+  const muted = 'rgba(248,244,237,0.55)'
+
   return (
-    <div className="fixed inset-0 z-50 bg-stone-50 flex flex-col select-none">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, ...dark, display: 'flex', flexDirection: 'column', userSelect: 'none' }}>
       {/* Header */}
-      <header className="bg-white border-b border-stone-200 px-4 py-3 flex items-center gap-3 shrink-0">
-        <button
-          onClick={onClose}
-          className="text-clay-400 hover:text-clay-600 text-xl w-8 h-8 flex items-center justify-center"
-          aria-label="Sluit kookmodus"
-        >
-          ←
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '54px 20px 14px' }}>
+        <button onClick={onClose} style={{
+          background: 'rgba(255,255,255,0.1)', border: 0, color: '#f8f4ed',
+          width: 40, height: 40, borderRadius: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
         </button>
-        <h1 className="flex-1 font-display text-lg font-bold italic text-stone-900 truncate">
-          {recipe.title}
-        </h1>
-        <span className="text-sm text-stone-400 font-medium shrink-0">
-          {currentIndex + 1}/{total}
-        </span>
-      </header>
-
-      {/* Progress bar */}
-      <div className="h-1 bg-stone-200 shrink-0">
-        <div
-          className="h-full bg-clay-500 transition-all duration-300"
-          style={{ width: `${progressPct}%` }}
-        />
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.1em', color: 'rgba(248,244,237,0.6)', textTransform: 'uppercase' }}>
+          Kookmodus · scherm blijft aan
+        </div>
+        <div style={{ width: 40 }} />
       </div>
 
-      {/* Steps area */}
-      <div className="flex-1 overflow-hidden flex flex-col justify-center gap-3 px-4 py-4">
-        {/* Previous step */}
-        <div
-          className={`transition-opacity duration-200 ${prev ? 'opacity-35' : 'opacity-0 pointer-events-none'}`}
-          onClick={() => prev && goTo(currentIndex - 1)}
-        >
-          {prev && (
-            <div className="px-4 py-3 cursor-pointer">
-              {prev.sectionTitle && (
-                <p className="text-xs uppercase tracking-wider text-stone-400 mb-0.5">{prev.sectionTitle}</p>
+      {/* Tab row */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 4, padding: '0 20px 8px' }}>
+        {([['step', 'Stappen'], ['ingredients', 'Ingrediënten'], ['overview', 'Overzicht']] as const).map(([v, l]) => (
+          <button key={v} onClick={() => setTab(v)} style={{
+            background: tab === v ? 'rgba(248,244,237,0.12)' : 'transparent',
+            color: tab === v ? '#f8f4ed' : 'rgba(248,244,237,0.5)',
+            border: 0, padding: '8px 14px', borderRadius: 16, fontSize: 13, fontWeight: 500, cursor: 'pointer',
+            fontFamily: 'var(--sans)',
+          }}>{l}</button>
+        ))}
+      </div>
+
+      {/* Content area */}
+      <div style={{ flex: 1, overflow: 'auto', paddingBottom: tab === 'step' ? 120 : 40 }}>
+        {/* ── Step view ── */}
+        {tab === 'step' && (
+          <div style={{ padding: '24px 28px 0', display: 'flex', flexDirection: 'column', gap: 18 }}>
+            {/* Previous peek */}
+            {prev ? (
+              <button onClick={() => goTo(currentIndex - 1)} style={{
+                textAlign: 'left', background: 'rgba(248,244,237,0.04)', border: 0, borderRadius: 14,
+                padding: '12px 14px', color: muted, cursor: 'pointer',
+              }}>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 4, opacity: 0.7 }}>
+                  ← STAP {currentIndex} · VORIGE
+                </div>
+                <div style={{
+                  fontSize: 13, lineHeight: 1.4, fontFamily: 'var(--serif)', fontStyle: 'italic',
+                  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                } as React.CSSProperties}>
+                  {prev.text}
+                </div>
+              </button>
+            ) : <div style={{ height: 8 }} />}
+
+            {/* Current step */}
+            <div style={{ background: 'rgba(248,244,237,0.04)', borderRadius: 18, padding: '22px 24px', border: '0.5px solid rgba(248,244,237,0.10)' }}>
+              {current.sectionTitle && (
+                <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bordeaux-soft)', marginBottom: 10 }}>
+                  {current.sectionTitle}
+                </div>
               )}
-              <p className="text-sm text-stone-600 line-clamp-2 leading-relaxed">{prev.text}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Current step card */}
-        <div className="bg-white rounded-2xl shadow-md px-5 py-5 mx-0">
-          {current.sectionTitle && (
-            <p className="text-xs uppercase tracking-wider text-stone-400 mb-2 font-medium">
-              {current.sectionTitle}
-            </p>
-          )}
-          {currentIngredients.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {currentIngredients.map((text, j) => (
-                <span
-                  key={j}
-                  className="text-xs bg-clay-50 text-clay-600 border border-clay-200 rounded-full px-2.5 py-0.5"
-                >
-                  {text}
-                </span>
-              ))}
-            </div>
-          )}
-          <p className="text-lg leading-relaxed text-stone-800 select-text">{current.text}</p>
-        </div>
-
-        {/* Next step */}
-        <div
-          className={`transition-opacity duration-200 ${next ? 'opacity-35' : 'opacity-0 pointer-events-none'}`}
-          onClick={() => next && goTo(currentIndex + 1)}
-        >
-          {next && (
-            <div className="px-4 py-3 cursor-pointer">
-              {next.sectionTitle && (
-                <p className="text-xs uppercase tracking-wider text-stone-400 mb-0.5">{next.sectionTitle}</p>
+              {currentIngredients.length > 0 && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                  {currentIngredients.map((text, j) => (
+                    <span key={j} style={{
+                      fontSize: 12, background: 'rgba(243,222,224,0.15)', color: 'var(--bordeaux-soft)',
+                      border: '1px solid rgba(243,222,224,0.25)', borderRadius: 20, padding: '3px 10px',
+                    }}>{text}</span>
+                  ))}
+                </div>
               )}
-              <p className="text-sm text-stone-600 line-clamp-2 leading-relaxed">{next.text}</p>
+              <div className="lb-eyebrow" style={{ color: 'rgba(248,244,237,0.5)' }}>STAP {currentIndex + 1} VAN {total}</div>
+              <div className="lb-display" style={{ marginTop: 14, fontSize: 28, color: '#f8f4ed', lineHeight: 1.3 }}>
+                {current.text}
+              </div>
             </div>
-          )}
-        </div>
+
+            {/* Next peek */}
+            {next ? (
+              <button onClick={() => goTo(currentIndex + 1)} style={{
+                textAlign: 'left', background: 'rgba(248,244,237,0.04)', border: 0, borderRadius: 14,
+                padding: '12px 14px', color: muted, cursor: 'pointer',
+              }}>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 4, opacity: 0.7 }}>
+                  STAP {currentIndex + 2} · VOLGENDE →
+                </div>
+                <div style={{
+                  fontSize: 13, lineHeight: 1.4, fontFamily: 'var(--serif)', fontStyle: 'italic',
+                  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                } as React.CSSProperties}>
+                  {next.text}
+                </div>
+              </button>
+            ) : null}
+          </div>
+        )}
+
+        {/* ── Ingredients view ── */}
+        {tab === 'ingredients' && (
+          <div style={{ padding: '20px 24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <div className="lb-eyebrow" style={{ color: 'rgba(248,244,237,0.5)' }}>INGREDIËNTEN</div>
+              <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(248,244,237,0.1)', borderRadius: 16, padding: 3 }}>
+                <button onClick={() => onPortionsChange(Math.max(1, selectedPortions - 1))} style={{
+                  width: 28, height: 28, borderRadius: 12, background: 'rgba(248,244,237,0.1)', border: 0,
+                  color: '#f8f4ed', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M5 12h14" /></svg>
+                </button>
+                <div style={{ minWidth: 36, textAlign: 'center', fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15, color: '#f8f4ed' }}>
+                  {selectedPortions}
+                </div>
+                <button onClick={() => onPortionsChange(selectedPortions + 1)} style={{
+                  width: 28, height: 28, borderRadius: 12, background: 'rgba(248,244,237,0.1)', border: 0,
+                  color: '#f8f4ed', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                </button>
+              </div>
+            </div>
+            {scaledIngredients.flatMap((node, ni) => {
+              if (node.kind === 'group') {
+                return [
+                  node.title ? (
+                    <div key={`h${ni}`} style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--bordeaux-soft)', fontSize: 14, marginBottom: 8, marginTop: ni > 0 ? 16 : 0 }}>
+                      {node.title}
+                    </div>
+                  ) : null,
+                  ...node.children.filter(c => c.kind === 'leaf').map((c, ci) => {
+                    if (c.kind !== 'leaf') return null
+                    const k = `${ni}-${ci}`
+                    const isChecked = checked.has(k)
+                    return (
+                      <button key={k} onClick={() => onToggle(k)} style={{
+                        display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', width: '100%',
+                        background: 'transparent', border: 0, borderBottom: '0.5px solid rgba(248,244,237,0.08)',
+                        color: isChecked ? 'rgba(248,244,237,0.4)' : '#f8f4ed',
+                        textDecoration: isChecked ? 'line-through' : 'none', textAlign: 'left', cursor: 'pointer',
+                      }}>
+                        <span style={{
+                          width: 22, height: 22, borderRadius: 6,
+                          border: '1.5px solid ' + (isChecked ? 'transparent' : 'rgba(248,244,237,0.4)'),
+                          background: isChecked ? 'var(--bordeaux)' : 'transparent',
+                          display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                        }}>
+                          {isChecked && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7" /></svg>}
+                        </span>
+                        <span style={{ fontSize: 15, flex: 1 }}>{c.text}</span>
+                      </button>
+                    )
+                  }),
+                ].filter(Boolean)
+              }
+              if (node.kind === 'leaf') {
+                const k = `root-${ni}`
+                const isChecked = checked.has(k)
+                return [(
+                  <button key={k} onClick={() => onToggle(k)} style={{
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', width: '100%',
+                    background: 'transparent', border: 0, borderBottom: '0.5px solid rgba(248,244,237,0.08)',
+                    color: isChecked ? 'rgba(248,244,237,0.4)' : '#f8f4ed',
+                    textDecoration: isChecked ? 'line-through' : 'none', textAlign: 'left', cursor: 'pointer',
+                  }}>
+                    <span style={{
+                      width: 22, height: 22, borderRadius: 6,
+                      border: '1.5px solid ' + (isChecked ? 'transparent' : 'rgba(248,244,237,0.4)'),
+                      background: isChecked ? 'var(--bordeaux)' : 'transparent',
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    }}>
+                      {isChecked && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7" /></svg>}
+                    </span>
+                    <span style={{ fontSize: 15, flex: 1 }}>{node.text}</span>
+                  </button>
+                )]
+              }
+              return []
+            })}
+          </div>
+        )}
+
+        {/* ── Overview view ── */}
+        {tab === 'overview' && (
+          <div ref={overviewRef} style={{ padding: '20px 24px' }}>
+            <div className="lb-eyebrow" style={{ color: 'rgba(248,244,237,0.5)', marginBottom: 14 }}>
+              ALLE STAPPEN · TIK OM TE SPRINGEN
+            </div>
+            {steps.map((s, i) => (
+              <button key={i} data-active={i === currentIndex} onClick={() => { setCurrentIndex(i); setTab('step') }} style={{
+                display: 'flex', alignItems: 'flex-start', gap: 14, padding: '14px 0', width: '100%',
+                background: 'transparent', border: 0, borderBottom: '0.5px solid rgba(248,244,237,0.08)',
+                color: '#f8f4ed', textAlign: 'left', cursor: 'pointer',
+              }}>
+                <span style={{
+                  fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22,
+                  color: i === currentIndex ? 'var(--bordeaux-soft)' : 'rgba(248,244,237,0.5)',
+                  minWidth: 28,
+                }}>{i + 1}</span>
+                <div style={{ flex: 1, fontSize: 15, lineHeight: 1.45, opacity: i === currentIndex ? 1 : 0.85 }}>
+                  {s.sectionTitle && <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'rgba(248,244,237,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{s.sectionTitle}</div>}
+                  {s.text}
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Bottom bar */}
-      <div className="bg-white border-t border-stone-200 px-3 py-3 flex items-center gap-2 shrink-0 safe-area-bottom">
-        <button
-          onClick={() => goTo(currentIndex - 1)}
-          disabled={currentIndex === 0}
-          className="flex-1 h-11 rounded-xl border border-stone-200 text-stone-600 font-medium text-sm disabled:opacity-30 disabled:cursor-default hover:enabled:bg-stone-50 transition-colors"
-        >
-          ← Vorige
-        </button>
-
-        <button
-          onClick={() => setShowIngredients(true)}
-          className="h-11 px-3 rounded-xl border border-stone-200 text-stone-600 text-sm font-medium hover:bg-stone-50 transition-colors"
-          aria-label="Ingrediënten bekijken"
-        >
-          🥕
-        </button>
-
-        <button
-          onClick={() => setShowAllSteps(true)}
-          className="h-11 px-3 rounded-xl border border-stone-200 text-stone-600 text-sm font-medium hover:bg-stone-50 transition-colors"
-          aria-label="Alle stappen bekijken"
-        >
-          ☰
-        </button>
-
-        <button
-          onClick={() => goTo(currentIndex + 1)}
-          disabled={currentIndex === total - 1}
-          className="flex-1 h-11 rounded-xl bg-clay-500 text-white font-medium text-sm disabled:opacity-30 disabled:cursor-default hover:enabled:bg-clay-600 transition-colors"
-        >
-          Volgende →
-        </button>
-      </div>
-
-      {/* Ingredients bottom sheet */}
-      <BottomSheet
-        open={showIngredients}
-        onClose={() => setShowIngredients(false)}
-        title="Ingrediënten"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-sm text-stone-500">Porties</span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => onPortionsChange(Math.max(1, selectedPortions - 1))}
-              className="w-9 h-9 rounded-full border border-stone-300 text-stone-500 hover:border-clay-400 hover:text-clay-500 flex items-center justify-center text-sm font-medium transition-colors"
-            >
-              −
+      {/* Bottom controls (step view only) */}
+      {tab === 'step' && (
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          padding: '16px 20px 36px',
+          background: 'linear-gradient(to top, #1f1d1a 70%, transparent)',
+        }}>
+          <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+            {Array.from({ length: total }).map((_, i) => (
+              <div key={i} style={{
+                flex: 1, height: 3, borderRadius: 2,
+                background: i <= currentIndex ? 'var(--bordeaux-soft)' : 'rgba(248,244,237,0.15)',
+                transition: 'background 0.2s',
+              }} />
+            ))}
+          </div>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button onClick={() => goTo(currentIndex - 1)} disabled={currentIndex === 0} style={{
+              width: 56, height: 56, borderRadius: 28,
+              background: 'rgba(248,244,237,0.1)', border: 0,
+              color: currentIndex === 0 ? 'rgba(248,244,237,0.3)' : '#f8f4ed',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: currentIndex === 0 ? 'default' : 'pointer',
+            }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
             </button>
-            <span className="text-sm text-stone-600 min-w-[4rem] text-center">
-              {selectedPortions} {selectedPortions === 1 ? 'portie' : 'porties'}
-            </span>
             <button
-              onClick={() => onPortionsChange(selectedPortions + 1)}
-              className="w-9 h-9 rounded-full border border-stone-300 text-stone-500 hover:border-clay-400 hover:text-clay-500 flex items-center justify-center text-sm font-medium transition-colors"
-            >
-              +
+              onClick={() => currentIndex < total - 1 ? goTo(currentIndex + 1) : onClose()}
+              style={{
+                flex: 1, height: 56, borderRadius: 28, background: 'var(--bordeaux)', border: 0,
+                color: '#f8f4ed', fontSize: 16, fontWeight: 500, fontFamily: 'var(--sans)',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer',
+              }}>
+              {currentIndex < total - 1 ? (
+                <>Volgende stap <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg></>
+              ) : 'Klaar · Sluiten'}
             </button>
           </div>
         </div>
-        <IngredientList
-          nodes={scaledIngredients}
-          pathPrefix=""
-          depth={0}
-          checked={checked}
-          onToggle={onToggle}
-        />
-      </BottomSheet>
-
-      {/* All steps bottom sheet */}
-      <BottomSheet
-        open={showAllSteps}
-        onClose={() => setShowAllSteps(false)}
-        title="Alle stappen"
-      >
-        <div ref={allStepsRef} className="space-y-1">
-          {steps.map((step, i) => {
-            const isPast = i < currentIndex
-            const isCurrent = i === currentIndex
-            return (
-              <button
-                key={i}
-                data-active={isCurrent}
-                onClick={() => goTo(i)}
-                className={`w-full text-left px-3 py-3 rounded-xl transition-colors ${
-                  isCurrent
-                    ? 'bg-clay-50 border-l-4 border-clay-400 pl-3'
-                    : isPast
-                    ? 'opacity-40 hover:opacity-60'
-                    : 'hover:bg-stone-50'
-                }`}
-              >
-                {step.sectionTitle && i > 0 && steps[i - 1].sectionTitle !== step.sectionTitle && (
-                  <p className="text-xs uppercase tracking-wider text-stone-400 mb-1">
-                    {step.sectionTitle}
-                  </p>
-                )}
-                {step.sectionTitle && i === 0 && (
-                  <p className="text-xs uppercase tracking-wider text-stone-400 mb-1">
-                    {step.sectionTitle}
-                  </p>
-                )}
-                <div className="flex items-start gap-3">
-                  <span
-                    className={`shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold font-display mt-0.5 ${
-                      isCurrent
-                        ? 'bg-clay-500 text-white'
-                        : isPast
-                        ? 'bg-stone-200 text-stone-400'
-                        : 'bg-clay-100 text-clay-600'
-                    }`}
-                  >
-                    {i + 1}
-                  </span>
-                  <p className={`text-sm leading-relaxed ${isCurrent ? 'text-stone-800 font-medium' : 'text-stone-600'}`}>
-                    {step.text}
-                  </p>
-                </div>
-              </button>
-            )
-          })}
-        </div>
-      </BottomSheet>
+      )}
     </div>
   )
 }

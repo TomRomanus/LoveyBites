@@ -1,318 +1,370 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { getRecipe, deleteRecipe, updateRecipe } from '../services/recipes'
 import type { Recipe } from '../types/recipe'
 import { scaleIngredients } from '../utils/scaleIngredient'
-import StarRating from '../components/StarRating'
-import CookModeView, { IngredientList, collectIngredientMap } from '../components/CookModeView'
-import type { IngredientNode as TreeNode } from '../types/recipe'
+import CookModeView, { collectIngredientMap } from '../components/CookModeView'
 import AddToCalendarModal from '../components/AddToCalendarModal'
-import { useAuth } from '../contexts/AuthContext'
+import { DEFAULT_RECIPE_COLOR, flattenIngredientSections, flattenSteps } from '../utils/recipeDisplay'
 
-interface StepListProps {
-  nodes: TreeNode[]
-  depth: number
-  ingredientMap: Map<string, string>
+function scaleItem(text: string, ratio: number): string {
+  if (ratio === 1) return text
+  const m = text.match(/^(\d+(?:\.\d+)?(?:\/\d+)?)\s*(.+)/)
+  if (!m) return text
+  let num: number
+  if (m[1].includes('/')) {
+    const [a, b] = m[1].split('/').map(Number)
+    num = a / b
+  } else {
+    num = parseFloat(m[1])
+  }
+  const scaled = num * ratio
+  let display: string
+  if (scaled >= 10) display = String(Math.round(scaled))
+  else if (Number.isInteger(scaled)) display = String(scaled)
+  else display = scaled.toFixed(1).replace(/\.0$/, '')
+  return display + ' ' + m[2]
 }
 
-function StepList({ nodes, depth, ingredientMap }: StepListProps) {
-  let leafCounter = 0
-  const headingClass =
-    depth === 0
-      ? 'font-display text-sm font-semibold text-stone-800 mt-5 mb-2 italic'
-      : 'text-xs font-semibold text-stone-500 uppercase tracking-wider mt-4 mb-1'
-
+function Stars({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
+  const dim = 20
   return (
-    <ol className="space-y-4">
-      {nodes.map((node, i) => {
-        if (node.kind === 'leaf') {
-          leafCounter++
-          const num = leafCounter
-          const stepIngredients = (node.ingredientRefs ?? [])
-            .map((id) => ingredientMap.get(id))
-            .filter((t): t is string => t !== undefined)
-          return (
-            <li key={i}>
-              {stepIngredients.length > 0 && (
-                <div className="mb-1.5 pl-11 flex flex-wrap gap-1">
-                  {stepIngredients.map((text, j) => (
-                    <span
-                      key={j}
-                      className="text-xs bg-clay-50 text-clay-600 border border-clay-200 rounded-full px-2 py-0.5"
-                    >
-                      {text}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <div className="flex gap-4">
-                <span className="shrink-0 w-7 h-7 bg-clay-100 text-clay-600 rounded-full flex items-center justify-center text-sm font-semibold font-display">
-                  {num}
-                </span>
-                <p className="text-stone-700 pt-0.5 leading-relaxed">{node.text}</p>
-              </div>
-            </li>
-          )
-        }
-
+    <div className="lb-stars" data-size="md">
+      {Array.from({ length: 5 }).map((_, i) => {
+        const filled = i < value
         return (
-          <li key={i}>
-            {node.title && <p className={headingClass}>{node.title}</p>}
-            <div className={depth > 0 ? 'pl-3 border-l border-stone-200' : ''}>
-              <StepList nodes={node.children} depth={depth + 1} ingredientMap={ingredientMap} />
-            </div>
-          </li>
+          <button key={i} type="button"
+            onClick={onChange ? () => onChange(i + 1 === value ? 0 : i + 1) : undefined}
+            disabled={!onChange}
+            style={{ cursor: onChange ? 'pointer' : 'default', width: dim, height: dim, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 0, padding: 0 }}>
+            <svg width={dim} height={dim} viewBox="0 0 24 24"
+              fill={filled ? 'var(--bordeaux)' : 'none'}
+              stroke={filled ? 'var(--bordeaux)' : 'var(--stone-2)'} strokeWidth="1.4">
+              <path d="M12 3l3 6 6.5 1-4.7 4.6 1.1 6.4L12 18l-5.9 3 1.1-6.4L2.5 10 9 9l3-6z" strokeLinejoin="round" />
+            </svg>
+          </button>
         )
       })}
-    </ol>
+    </div>
+  )
+}
+
+function PortionStepper({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', background: 'var(--paper-2)', borderRadius: 16, padding: 3 }}>
+      <button onClick={() => onChange(Math.max(1, value - 1))} style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M5 12h14" /></svg>
+      </button>
+      <div style={{ minWidth: 56, textAlign: 'center', fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--ink)' }}>
+        {value} <span style={{ fontSize: 10, color: 'var(--stone)', fontFamily: 'var(--mono)', fontStyle: 'normal', letterSpacing: '0.04em' }}>PERS</span>
+      </div>
+      <button onClick={() => onChange(value + 1)} style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+      </button>
+    </div>
   )
 }
 
 export default function RecipeDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { user } = useAuth()
   const [recipe, setRecipe] = useState<Recipe | null>(null)
   const [loading, setLoading] = useState(true)
   const [checked, setChecked] = useState<Set<string>>(new Set())
-  const [deleting, setDeleting] = useState(false)
-  const [selectedPortions, setSelectedPortions] = useState(4)
+  const [portions, setPortions] = useState(4)
   const [cookMode, setCookMode] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
-  const [calendarSaved, setCalendarSaved] = useState(false)
-
-  useEffect(() => {
-    if (recipe) setSelectedPortions(recipe.portions ?? 4)
-  }, [recipe])
-
-  useEffect(() => {
-    if (!recipe) return
-    let wakeLock: WakeLockSentinel | null = null
-
-    async function acquire() {
-      try {
-        if ('wakeLock' in navigator) {
-          wakeLock = await navigator.wakeLock.request('screen')
-        }
-      } catch {
-        // Not supported or denied — non-critical
-      }
-    }
-
-    function onVisibilityChange() {
-      if (document.visibilityState === 'visible') acquire()
-    }
-
-    acquire()
-    document.addEventListener('visibilitychange', onVisibilityChange)
-    return () => {
-      document.removeEventListener('visibilitychange', onVisibilityChange)
-      wakeLock?.release()
-    }
-  }, [recipe])
+  const [showActions, setShowActions] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     if (!id) return
-    getRecipe(id)
-      .then(setRecipe)
-      .finally(() => setLoading(false))
+    getRecipe(id).then(r => {
+      setRecipe(r)
+      if (r) setPortions(r.portions ?? 4)
+    }).finally(() => setLoading(false))
   }, [id])
 
-  function toggleCheck(path: string) {
-    setChecked((prev) => {
-      const next = new Set(prev)
-      next.has(path) ? next.delete(path) : next.add(path)
-      return next
-    })
+  // Wake lock while viewing recipe
+  useEffect(() => {
+    if (!recipe) return
+    let wakeLock: WakeLockSentinel | null = null
+    async function acquire() {
+      try {
+        if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen')
+      } catch { /* non-critical */ }
+    }
+    function onVisChange() { if (document.visibilityState === 'visible') acquire() }
+    acquire()
+    document.addEventListener('visibilitychange', onVisChange)
+    return () => { document.removeEventListener('visibilitychange', onVisChange); wakeLock?.release() }
+  }, [recipe])
+
+  function toggleCheck(key: string) {
+    setChecked(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n })
   }
 
-  async function handleRatingChange(rating: number) {
+  async function handleRating(rating: number) {
     if (!id || !recipe) return
     await updateRecipe(id, { rating })
     setRecipe({ ...recipe, rating })
   }
 
   async function handleDelete() {
-    if (!id || !confirm('Dit recept verwijderen?')) return
+    if (!id) return
     setDeleting(true)
     await deleteRecipe(id)
     navigate('/')
   }
 
   if (loading) {
-    return <p className="text-center text-stone-400 mt-16">Laden…</p>
-  }
-
-  if (!recipe) {
     return (
-      <div className="text-center mt-16">
-        <p className="text-stone-500 mb-4">Recept niet gevonden.</p>
-        <Link to="/" className="text-clay-500 hover:underline">← Terug naar recepten</Link>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
+        Laden…
       </div>
     )
   }
 
-  const scaledIngredients = scaleIngredients(recipe.ingredients, selectedPortions / (recipe.portions ?? 4))
+  if (!recipe) {
+    return (
+      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+        <p style={{ color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic' }}>Recept niet gevonden.</p>
+        <button onClick={() => navigate('/')} className="lb-btn lb-btn--ghost" style={{ marginTop: 16 }}>← Terug</button>
+      </div>
+    )
+  }
+
+  const color = recipe.color ?? DEFAULT_RECIPE_COLOR
+  const ratio = portions / (recipe.portions ?? 4)
+  const scaledIngredients = scaleIngredients(recipe.ingredients, ratio)
+  const ingredientSections = flattenIngredientSections(scaledIngredients)
+  const stepSections = flattenSteps(recipe.steps)
+  const shortId = recipe.id.slice(-2).toUpperCase()
+
+  if (cookMode) {
+    return (
+      <CookModeView
+        recipe={recipe}
+        scaledIngredients={scaledIngredients}
+        selectedPortions={portions}
+        onPortionsChange={setPortions}
+        checked={checked}
+        onToggle={toggleCheck}
+        onClose={() => setCookMode(false)}
+      />
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-stone-50">
-      {cookMode && (
-        <CookModeView
-          recipe={recipe}
-          scaledIngredients={scaledIngredients}
-          selectedPortions={selectedPortions}
-          onPortionsChange={setSelectedPortions}
-          checked={checked}
-          onToggle={toggleCheck}
-          onClose={() => setCookMode(false)}
-        />
-      )}
-
-      <header className="bg-white border-b border-stone-200 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
-        <Link to="/" className="text-clay-400 hover:text-clay-600 text-xl w-8 flex items-center justify-center">←</Link>
-        <h1 className="flex-1 font-display text-xl font-bold italic text-stone-900 truncate">{recipe.title}</h1>
-        <div className="relative flex items-center gap-3">
-          {calendarSaved && (
-            <span className="text-xs text-clay-600 font-medium">Toegevoegd!</span>
-          )}
-          <button
-            onClick={() => setCalendarOpen(true)}
-            className="text-stone-400 hover:text-clay-600 transition-colors"
-            aria-label="Voeg toe aan kalender"
-            title="Voeg toe aan kalender"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-          </button>
-        </div>
-        <Link
-          to={`/edit/${recipe.id}`}
-          className="text-sm text-clay-500 hover:text-clay-700 font-medium"
-        >
-          Bewerken
-        </Link>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-4 py-6 space-y-8">
-        <div className="space-y-3">
-          {recipe.description && (
-            <p className="text-stone-500 italic leading-relaxed">{recipe.description}</p>
-          )}
-          <div>
-            <p className="text-xs text-stone-400 mb-1.5 uppercase tracking-wider font-medium">Beoordeling</p>
-            <StarRating value={recipe.rating ?? 0} onChange={handleRatingChange} />
+    <div className="lb-paper" style={{ minHeight: '100dvh', position: 'relative' }}>
+      {/* Hero color block */}
+      <div style={{ position: 'relative' }}>
+        <div className="lb-color-block" style={{
+          '--block-bg': color,
+          height: 240,
+          padding: '60px 22px 24px',
+          borderRadius: 0,
+        } as React.CSSProperties}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1, position: 'relative' }}>
+            <button onClick={() => navigate('/')}
+              style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,250,240,0.16)', backdropFilter: 'blur(8px)', border: 0, color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
+            </button>
+            <button onClick={() => setShowActions(true)}
+              style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,250,240,0.16)', backdropFilter: 'blur(8px)', border: 0, color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" /></svg>
+            </button>
+          </div>
+          <div style={{ zIndex: 1, position: 'relative' }}>
+            <div className="lb-color-block-corner" style={{ marginBottom: 8 }}>RECEPT № {shortId}</div>
+            <div className="lb-color-block-title" style={{ fontSize: 34, lineHeight: 1.0, letterSpacing: '-0.025em' }}>{recipe.title}</div>
           </div>
         </div>
+      </div>
 
+      {/* Tags + description + rating */}
+      <div style={{ padding: '20px 22px 0' }}>
         {recipe.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {recipe.tags.map((tag) => (
-              <span key={tag} className="text-xs bg-clay-50 text-clay-600 px-3 py-1 rounded-full font-medium">
-                {tag}
-              </span>
-            ))}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+            {recipe.tags.map(t => <span key={t} className="lb-tag">{t}</span>)}
           </div>
         )}
+        {recipe.description && (
+          <p style={{ margin: '0 0 14px', color: 'var(--ink-2)', fontSize: 15, lineHeight: 1.55, fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
+            {recipe.description}
+          </p>
+        )}
+        <Stars value={recipe.rating ?? 0} onChange={handleRating} />
+      </div>
 
-        {recipe.ingredients.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-xl font-semibold italic text-stone-900">Ingrediënten</h2>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setSelectedPortions((p) => Math.max(1, p - 1))}
-                  className="w-10 h-10 rounded-full border border-stone-300 text-stone-500 hover:border-clay-400 hover:text-clay-500 flex items-center justify-center text-sm font-medium transition-colors"
-                  aria-label="Minder porties"
-                >−</button>
-                <span className="text-sm text-stone-600 min-w-[4.5rem] text-center">
-                  {selectedPortions} {selectedPortions === 1 ? 'portie' : 'porties'}
-                </span>
-                <button
-                  onClick={() => setSelectedPortions((p) => p + 1)}
-                  className="w-10 h-10 rounded-full border border-stone-300 text-stone-500 hover:border-clay-400 hover:text-clay-500 flex items-center justify-center text-sm font-medium transition-colors"
-                  aria-label="Meer porties"
-                >+</button>
+      {/* Cook mode CTA */}
+      <div style={{ padding: '20px 22px 0' }}>
+        <button onClick={() => setCookMode(true)} className="lb-btn lb-btn--primary" style={{ width: '100%', height: 52, borderRadius: 26, fontSize: 16 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 4v16l13-8L7 4z" /></svg>
+          Start kookmodus
+        </button>
+      </div>
+
+      {/* Ingredients */}
+      {ingredientSections.some(s => s.items.length > 0) && (
+        <div style={{ padding: '28px 22px 0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div>
+              <div className="lb-eyebrow">DEEL I</div>
+              <h2 style={{ margin: '4px 0 0', fontSize: 24, fontFamily: 'var(--serif)', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.05 }}>
+                <span style={{ fontStyle: 'italic' }}>Ingred</span>
+                <span style={{ fontFamily: 'var(--sans)', fontStyle: 'normal', fontWeight: 700, letterSpacing: '-0.03em' }}>iënten</span>
+              </h2>
+            </div>
+            <PortionStepper value={portions} onChange={setPortions} />
+          </div>
+
+          {ingredientSections.map((sec, si) => (
+            <div key={si} style={{ marginBottom: 16 }}>
+              {sec.section && (
+                <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bordeaux)', marginBottom: 8, fontWeight: 500 }}>
+                  {sec.section}
+                </div>
+              )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {sec.items.map((item, ii) => {
+                  const key = `${si}-${ii}`
+                  const isChecked = checked.has(key)
+                  return (
+                    <button key={ii} onClick={() => toggleCheck(key)} style={{
+                      display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
+                      background: 'transparent', border: 0, textAlign: 'left',
+                      borderBottom: '0.5px solid var(--line-soft)', cursor: 'pointer',
+                    }}>
+                      <span className="lb-check" data-checked={isChecked ? 'true' : 'false'}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M5 12l5 5L20 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      </span>
+                      <span style={{ flex: 1, fontSize: 15, color: isChecked ? 'var(--stone)' : 'var(--ink)', textDecoration: isChecked ? 'line-through' : 'none' }}>
+                        {item}
+                      </span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
-            <IngredientList
-              nodes={scaledIngredients}
-              pathPrefix=""
-              depth={0}
-              checked={checked}
-              onToggle={toggleCheck}
-            />
-          </section>
-        )}
+          ))}
+        </div>
+      )}
 
-        {recipe.steps.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-xl font-semibold italic text-stone-900">Stappen</h2>
-              <button
-                onClick={() => setCookMode(true)}
-                className="text-sm font-medium text-clay-500 hover:text-clay-700 border border-clay-300 hover:border-clay-500 rounded-full px-4 py-1.5 transition-colors"
-              >
-                Start koken
+      {/* Steps */}
+      {stepSections.length > 0 && (
+        <div style={{ padding: '28px 22px 0' }}>
+          <div className="lb-eyebrow">DEEL II</div>
+          <h2 style={{ margin: '4px 0 16px', fontSize: 24, fontFamily: 'var(--serif)', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.05 }}>
+            <span style={{ fontStyle: 'italic' }}>Bere</span>
+            <span style={{ fontFamily: 'var(--sans)', fontStyle: 'normal', fontWeight: 700, letterSpacing: '-0.03em' }}>iding</span>
+          </h2>
+          {(() => {
+            let num = 0
+            return stepSections.map((step, i) => {
+              num++
+              return (
+                <div key={i}>
+                  {step.phase && (
+                    <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bordeaux)', marginBottom: 10, marginTop: i > 0 ? 18 : 0, fontWeight: 500 }}>
+                      {step.phase}
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', gap: 14, padding: '8px 0' }}>
+                    <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 30, flexShrink: 0, lineHeight: 1, paddingTop: 1 }}>
+                      {num}
+                    </div>
+                    <div style={{ fontSize: 15, color: 'var(--ink)', lineHeight: 1.55, flex: 1 }}>{step.text}</div>
+                  </div>
+                </div>
+              )
+            })
+          })()}
+        </div>
+      )}
+
+      {/* Sources */}
+      {(recipe.sources ?? []).length > 0 && (
+        <div style={{ padding: '28px 22px 0' }}>
+          <div className="lb-eyebrow">BRONNEN</div>
+          <div style={{ marginTop: 10 }}>
+            {(recipe.sources ?? []).map((s, i) => (
+              <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" style={{
+                display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0',
+                color: 'var(--ink)', textDecoration: 'none', borderBottom: '0.5px solid var(--line-soft)',
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--bordeaux)" strokeWidth={1.6}><path d="M10 14a4 4 0 005.66 0l3-3a4 4 0 00-5.66-5.66l-1 1" /><path d="M14 10a4 4 0 00-5.66 0l-3 3a4 4 0 005.66 5.66l1-1" /></svg>
+                <span style={{ fontSize: 14, fontStyle: 'italic', fontFamily: 'var(--serif)' }}>{s.label || s.url}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Bottom actions */}
+      <div style={{ padding: '32px 22px 120px', display: 'flex', gap: 10 }}>
+        <button onClick={() => setCalendarOpen(true)} className="lb-btn lb-btn--ghost" style={{ flex: 1 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
+          Plannen
+        </button>
+        <button onClick={() => navigate(`/edit/${recipe.id}`)} className="lb-btn lb-btn--ghost" style={{ flex: 1 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M16 3l5 5-12 12H4v-5L16 3z" /></svg>
+          Bewerken
+        </button>
+      </div>
+
+      {/* Action sheet */}
+      {showActions && (
+        <>
+          <div className="lb-sheet-backdrop" onClick={() => setShowActions(false)} />
+          <div className="lb-sheet" style={{ paddingBottom: 30 }}>
+            <div className="lb-sheet-grabber" />
+            <div style={{ padding: '14px 12px' }}>
+              {[
+                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>, label: 'Toevoegen aan planning', action: () => { setShowActions(false); setCalendarOpen(true) } },
+                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M16 3l5 5-12 12H4v-5L16 3z" /></svg>, label: 'Recept bewerken', action: () => { setShowActions(false); navigate(`/edit/${recipe.id}`) } },
+                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13" /></svg>, label: 'Recept verwijderen', action: () => { setShowActions(false); setConfirmDelete(true) }, destructive: true },
+              ].map((item, i) => (
+                <button key={i} onClick={item.action} style={{
+                  display: 'flex', alignItems: 'center', gap: 14, width: '100%',
+                  padding: '14px 16px', background: 'transparent', border: 0, borderRadius: 12,
+                  color: item.destructive ? 'var(--bordeaux)' : 'var(--ink)',
+                  fontSize: 15, fontWeight: 500, cursor: 'pointer',
+                }}>
+                  {item.icon} {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Delete confirm */}
+      {confirmDelete && (
+        <>
+          <div className="lb-sheet-backdrop" onClick={() => setConfirmDelete(false)} />
+          <div className="lb-pop-in" style={{
+            position: 'fixed', top: '50%', left: 24, right: 24,
+            transform: 'translateY(-50%)', background: 'var(--paper)',
+            borderRadius: 18, padding: 24, zIndex: 202,
+          }}>
+            <h3 className="lb-display" style={{ margin: 0, fontSize: 22, textAlign: 'center' }}>Dit recept verwijderen?</h3>
+            <p style={{ margin: '10px 0 22px', textAlign: 'center', fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5 }}>
+              "{recipe.title}" wordt uit je boek gehaald.
+            </p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button onClick={() => setConfirmDelete(false)} className="lb-btn lb-btn--ghost" style={{ flex: 1 }}>Annuleren</button>
+              <button onClick={handleDelete} disabled={deleting} className="lb-btn lb-btn--primary" style={{ flex: 1 }}>
+                {deleting ? <span className="lb-spinner" /> : 'Verwijderen'}
               </button>
             </div>
-            <StepList
-              nodes={recipe.steps}
-              depth={0}
-              ingredientMap={collectIngredientMap(scaledIngredients)}
-            />
-          </section>
-        )}
+          </div>
+        </>
+      )}
 
-        {(recipe.sources ?? []).length > 0 && (
-          <section>
-            <h2 className="font-display text-xl font-semibold italic text-stone-900 mb-3">Bronnen</h2>
-            <ul className="space-y-3">
-              {(recipe.sources ?? []).map((source, i) => {
-                const isImage = /\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i.test(source.url)
-                return (
-                  <li key={i}>
-                    <a
-                      href={source.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-clay-500 hover:text-clay-700 underline text-sm break-all"
-                    >
-                      {source.label.trim() || source.url}
-                    </a>
-                    {isImage && (
-                      <img
-                        src={source.url}
-                        alt={source.label || source.url}
-                        className="mt-2 w-full max-h-48 rounded-2xl object-cover border border-stone-200"
-                      />
-                    )}
-                  </li>
-                )
-              })}
-            </ul>
-          </section>
-        )}
-
-        <button
-          onClick={handleDelete}
-          disabled={deleting}
-          className="text-sm text-stone-400 hover:text-red-500 disabled:opacity-50 transition-colors"
-        >
-          {deleting ? 'Verwijderen…' : 'Recept verwijderen'}
-        </button>
-      </main>
-
-      {calendarOpen && recipe && (
-        <AddToCalendarModal
-          recipe={recipe}
-          onClose={() => setCalendarOpen(false)}
-          onSaved={() => {
-            setCalendarOpen(false)
-            setCalendarSaved(true)
-            setTimeout(() => setCalendarSaved(false), 2500)
-          }}
-        />
+      {calendarOpen && (
+        <AddToCalendarModal recipe={recipe} onClose={() => setCalendarOpen(false)} onSaved={() => setCalendarOpen(false)} />
       )}
     </div>
   )

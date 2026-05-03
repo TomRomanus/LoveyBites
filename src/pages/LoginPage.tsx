@@ -4,33 +4,33 @@ import { useAuth } from '../contexts/AuthContext'
 
 const googleEnabled = import.meta.env.VITE_ENABLE_GOOGLE_LOGIN !== 'false'
 
-function GoogleIcon() {
-  return (
-    <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-    </svg>
-  )
-}
-
 export default function LoginPage() {
   const { user, signInWithGoogle, signInWithEmail, signUpWithEmail, authError } = useAuth()
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [isSignUp, setIsSignUp] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [signInError, setSignInError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [shake, setShake] = useState(false)
 
   if (user) return <Navigate to="/" replace />
 
-  async function handleEmailSubmit(e: React.FormEvent) {
+  function triggerShake() {
+    setShake(false)
+    requestAnimationFrame(() => setShake(true))
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setIsLoading(true)
-    setSignInError(null)
+    setError(null)
+    if (!email || !password) {
+      setError('Vul e-mail en wachtwoord in.')
+      triggerShake()
+      return
+    }
+    setLoading(true)
     try {
-      if (isSignUp) {
+      if (mode === 'signup') {
         await signUpWithEmail(email, password)
       } else {
         await signInWithEmail(email, password)
@@ -38,108 +38,159 @@ export default function LoginPage() {
     } catch (err: unknown) {
       const code = (err as { code?: string }).code
       if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
-        setSignInError('Ongeldig e-mailadres of wachtwoord.')
+        setError('Ongeldig e-mailadres of wachtwoord.')
       } else if (code === 'auth/email-already-in-use') {
-        setSignInError('Dit e-mailadres is al in gebruik.')
+        setError('Dit e-mailadres is al in gebruik.')
       } else if (code === 'auth/weak-password') {
-        setSignInError('Wachtwoord moet minimaal 6 tekens zijn.')
+        setError('Wachtwoord moet minimaal 6 tekens zijn.')
       } else {
-        setSignInError('Inloggen mislukt. Probeer het opnieuw.')
+        setError('Inloggen mislukt. Probeer het opnieuw.')
       }
+      triggerShake()
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
-  async function handleGoogleSignIn() {
-    setIsLoading(true)
-    setSignInError(null)
+  async function handleGoogle() {
+    setError(null)
+    setLoading(true)
     try {
       await signInWithGoogle()
     } catch (err: unknown) {
       const code = (err as { code?: string }).code
       if (code !== 'auth/popup-closed-by-user' && code !== 'auth/cancelled-popup-request') {
-        setSignInError('Inloggen mislukt. Probeer het opnieuw.')
+        setError('Inloggen mislukt. Probeer het opnieuw.')
+        triggerShake()
       }
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
+  const displayError = authError ?? error
+
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center px-4">
-      <div className="bg-white rounded-3xl shadow-md border border-stone-200 px-6 py-8 sm:px-10 sm:py-10 w-full max-w-sm text-center">
-        <p className="text-5xl mb-3">🍴</p>
-        <h1 className="font-display text-4xl font-bold italic text-stone-900 tracking-tight mb-1">
-          LoveyBites
+    <div className="lb-paper" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+      {/* Masthead */}
+      <div style={{ padding: '70px 28px 0', flexShrink: 0 }}>
+        <div className="lb-eyebrow" style={{ marginBottom: 14 }}>SINDS 2026 · JOUW KEUKEN</div>
+        <h1 style={{ margin: 0, fontSize: 58, lineHeight: 1.0, letterSpacing: '-0.025em' }}>
+          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 600, color: 'var(--ink)' }}>Lovey</span>
+          <span style={{ fontFamily: 'var(--sans)', fontStyle: 'normal', fontWeight: 700, color: 'var(--bordeaux)', letterSpacing: '-0.04em' }}>Bites</span>
         </h1>
-        <p className="text-stone-400 text-sm mb-8">Ons eigen receptenboekje</p>
+        <div className="lb-divider-ornament" style={{ marginTop: 18 }}>
+          <span>jouw eigen kookboek</span>
+        </div>
+      </div>
 
-        <form onSubmit={handleEmailSubmit} className="text-left mb-4 space-y-3">
-          <div>
-            <label className="block text-sm font-medium text-stone-600 mb-1.5">E-mailadres</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-              disabled={isLoading}
-              className="w-full border border-stone-200 rounded-2xl px-4 py-3 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent disabled:opacity-50 transition"
-              placeholder="jij@email.com"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-stone-600 mb-1.5">Wachtwoord</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-              disabled={isLoading}
-              className="w-full border border-stone-200 rounded-2xl px-4 py-3 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent disabled:opacity-50 transition"
-              placeholder="••••••••"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-clay-500 hover:bg-clay-600 text-white font-semibold rounded-2xl px-4 py-3.5 text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+      {/* Color block */}
+      <div style={{ padding: '0 28px' }}>
+        <div className="lb-color-block" style={{
+          '--block-bg': 'var(--bordeaux)',
+          height: 130,
+          borderRadius: 18,
+        } as React.CSSProperties}>
+          <div className="lb-color-block-corner">EDITIE I · MEI</div>
+          <div className="lb-color-block-title" style={{ fontSize: 28 }}>Welkom thuis</div>
+        </div>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit} style={{ padding: '24px 28px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {/* Mode toggle */}
+        <div style={{ display: 'flex', background: 'var(--paper-2)', padding: 4, borderRadius: 14, marginBottom: 6 }}>
+          {(['signin', 'signup'] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => { setMode(m); setError(null) }}
+              style={{
+                flex: 1,
+                background: mode === m ? 'var(--cream-card)' : 'transparent',
+                border: 0,
+                height: 36,
+                borderRadius: 10,
+                fontFamily: 'var(--sans)',
+                fontSize: 13,
+                fontWeight: 600,
+                color: mode === m ? 'var(--ink)' : 'var(--stone)',
+                boxShadow: mode === m ? '0 1px 3px rgba(0,0,0,0.06)' : 'none',
+                cursor: 'pointer',
+              }}
+            >
+              {m === 'signin' ? 'Inloggen' : 'Registreren'}
+            </button>
+          ))}
+        </div>
+
+        <input
+          className="lb-input"
+          type="email"
+          placeholder="E-mailadres"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          disabled={loading}
+          autoComplete="email"
+        />
+        <input
+          className="lb-input"
+          type="password"
+          placeholder="Wachtwoord"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          disabled={loading}
+          autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+        />
+
+        {displayError && (
+          <div
+            className={shake ? 'lb-shake' : ''}
+            style={{
+              background: 'var(--bordeaux-tint)',
+              color: 'var(--bordeaux)',
+              padding: '10px 14px',
+              borderRadius: 12,
+              fontSize: 13,
+              fontWeight: 500,
+              borderLeft: '3px solid var(--bordeaux)',
+            }}
           >
-            {isLoading ? 'Bezig…' : isSignUp ? 'Account aanmaken' : 'Inloggen'}
-          </button>
-        </form>
+            {displayError}
+          </div>
+        )}
 
-        <button
-          onClick={() => { setIsSignUp(v => !v); setSignInError(null) }}
-          className="text-xs text-stone-400 hover:text-stone-600 transition-colors mb-2"
-        >
-          {isSignUp ? 'Al een account? Inloggen' : 'Nog geen account? Aanmaken'}
+        <button type="submit" className="lb-btn lb-btn--primary" style={{ marginTop: 4 }} disabled={loading}>
+          {loading
+            ? <span className="lb-spinner" style={{ borderColor: 'var(--cream-card)', borderRightColor: 'transparent' }} />
+            : mode === 'signin' ? 'Inloggen' : 'Account aanmaken'
+          }
         </button>
 
         {googleEnabled && (
           <>
-            <div className="flex items-center my-5">
-              <div className="flex-1 border-t border-stone-200" />
-              <span className="px-3 text-xs text-stone-400">of</span>
-              <div className="flex-1 border-t border-stone-200" />
-            </div>
+            <div className="lb-divider-ornament"><span>of</span></div>
             <button
-              onClick={handleGoogleSignIn}
-              disabled={isLoading}
-              className="w-full flex items-center justify-center bg-white border border-stone-200 rounded-2xl px-4 py-3.5 text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+              type="button"
+              onClick={handleGoogle}
+              className="lb-btn lb-btn--ghost"
+              disabled={loading}
             >
-              <GoogleIcon />
-              Inloggen met Google
+              <svg width="18" height="18" viewBox="0 0 24 24">
+                <path d="M21 12.2c0-.7-.1-1.3-.2-1.9H12v3.7h5.1c-.2 1.2-.9 2.2-1.9 2.9v2.4h3.1c1.8-1.7 2.7-4.1 2.7-7.1z" fill="#4285F4" />
+                <path d="M12 21c2.6 0 4.7-.9 6.3-2.3l-3.1-2.4c-.9.6-2 1-3.2 1-2.5 0-4.5-1.6-5.3-3.9H3.6v2.4C5.2 18.9 8.3 21 12 21z" fill="#34A853" />
+                <path d="M6.7 13.4c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V7H3.6C2.9 8.5 2.5 10.2 2.5 12s.4 3.5 1.1 5l3.1-2.4-1-1.2z" fill="#FBBC05" />
+                <path d="M12 5.5c1.4 0 2.7.5 3.7 1.4l2.7-2.7C16.7 2.7 14.6 1.8 12 1.8 8.3 1.8 5.2 4 3.6 7l3.1 2.4c.8-2.3 2.8-3.9 5.3-3.9z" fill="#EA4335" />
+              </svg>
+              Doorgaan met Google
             </button>
           </>
         )}
 
-        {(authError || signInError) && (
-          <div className="mt-5 bg-red-50 border border-red-200 rounded-2xl p-3 text-sm text-red-700">
-            {authError ?? signInError}
-          </div>
-        )}
-      </div>
+        <div style={{ textAlign: 'center', marginTop: 18, marginBottom: 32, fontSize: 12, color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
+          Door door te gaan beloof je jezelf goed te voeden.
+        </div>
+      </form>
     </div>
   )
 }

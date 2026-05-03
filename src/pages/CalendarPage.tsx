@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { getMealPlanEntries, deleteMealPlanEntry } from '../services/mealPlan'
-import { getRecipe } from '../services/recipes'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getMealPlanEntries, deleteMealPlanEntry, createMealPlanEntry } from '../services/mealPlan'
+import { getRecipes, getRecipe } from '../services/recipes'
 import type { MealPlanEntry, Recipe, IngredientNode } from '../types/recipe'
-import AddMealModal from '../components/AddMealModal'
+import { useAuth } from '../contexts/AuthContext'
+import { DEFAULT_RECIPE_COLOR } from '../utils/recipeDisplay'
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
 
@@ -23,7 +24,7 @@ function addDays(d: Date, n: number): Date {
 function startOfWeek(d: Date): Date {
   const r = new Date(d)
   const day = r.getDay()
-  const diff = day === 0 ? -6 : 1 - day // Monday = start
+  const diff = day === 0 ? -6 : 1 - day
   r.setDate(r.getDate() + diff)
   r.setHours(0, 0, 0, 0)
   return r
@@ -49,11 +50,9 @@ function weekDays(weekStart: Date): Date[] {
 
 function calendarGrid(monthStart: Date): Date[] {
   const gridStart = startOfWeek(monthStart)
-  const gridEnd = (() => {
-    const end = endOfMonth(monthStart)
-    const endWeekStart = startOfWeek(end)
-    return addDays(endWeekStart, 6)
-  })()
+  const end = endOfMonth(monthStart)
+  const endWeekStart = startOfWeek(end)
+  const gridEnd = addDays(endWeekStart, 6)
   const days: Date[] = []
   let cur = gridStart
   while (cur <= gridEnd) {
@@ -69,21 +68,23 @@ function extractLeafTexts(nodes: IngredientNode[]): string[] {
   )
 }
 
-const NL_DAYS_SHORT = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
-const NL_MONTHS = [
-  'januari', 'februari', 'maart', 'april', 'mei', 'juni',
-  'juli', 'augustus', 'september', 'oktober', 'november', 'december',
-]
+// Monday-first grid header labels
+const NL_DAYS_GRID = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
+// Indexed by d.getDay() (0 = Sunday)
+const NL_DAYS_SHORT = ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za']
+const NL_DAYS_LONG = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag']
+const NL_MONTHS = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']
+const NL_MONTHS_SHORT = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
 
-// ── Ingredients modal ─────────────────────────────────────────────────────────
+// ── Shopping List Sheet ───────────────────────────────────────────────────────
 
-interface IngredientsModalProps {
+interface ShoppingListSheetProps {
   defaultStart: string
   defaultEnd: string
   onClose: () => void
 }
 
-function IngredientsModal({ defaultStart, defaultEnd, onClose }: IngredientsModalProps) {
+function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSheetProps) {
   const [from, setFrom] = useState(defaultStart)
   const [to, setTo] = useState(defaultEnd)
   const [entries, setEntries] = useState<MealPlanEntry[]>([])
@@ -114,159 +115,106 @@ function IngredientsModal({ defaultStart, defaultEnd, onClose }: IngredientsModa
 
   useEffect(() => { fetchIngredients() }, [])
 
-  // Group ingredients by date → entry → recipe
-  const sections: { label: string; ingredients: string[]; isCustom?: boolean; description?: string }[] = []
+  const sections: { label: string; day: string; ingredients: string[]; isCustom?: boolean; description?: string }[] = []
   entries.forEach(entry => {
-    const dateLabel = new Date(entry.date + 'T00:00:00').toLocaleDateString('nl-NL', {
-      weekday: 'long', day: 'numeric', month: 'long',
-    })
     if (entry.recipeId) {
       const recipe = recipeMap.get(entry.recipeId)
       if (recipe) {
         sections.push({
-          label: `${dateLabel} — ${recipe.title}`,
+          label: recipe.title,
+          day: entry.date,
           ingredients: extractLeafTexts(recipe.ingredients),
         })
       }
     } else if (entry.customDescription) {
-      sections.push({
-        label: dateLabel,
-        isCustom: true,
-        description: entry.customDescription,
-        ingredients: [],
-      })
+      sections.push({ label: entry.date, day: entry.date, isCustom: true, description: entry.customDescription, ingredients: [] })
     }
   })
 
   function buildCopyText() {
     return sections.map(s => {
-      if (s.isCustom) return `${s.label}\n  ${s.description}`
-      return `${s.label}\n${s.ingredients.map(i => `  • ${i}`).join('\n')}`
+      if (s.isCustom) return `${s.day}\n  ${s.description}`
+      return `${s.label} (${s.day}):\n${s.ingredients.map(i => `  - ${i}`).join('\n')}`
     }).join('\n\n')
   }
 
   async function handleCopy() {
     await navigator.clipboard.writeText(buildCopyText())
     setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
+    setTimeout(() => setCopied(false), 1500)
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col max-h-[85vh]">
-        <div className="px-5 pt-5 pb-4 border-b border-stone-100 flex-shrink-0">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-lg font-bold italic text-stone-900">Boodschappenlijst</h2>
-            <button onClick={onClose} className="text-stone-400 hover:text-stone-600 p-1">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+    <>
+      <div className="lb-sheet-backdrop" onClick={onClose} />
+      <div className="lb-sheet" style={{ paddingBottom: 30, height: '88%' }}>
+        <div className="lb-sheet-grabber" />
+        <div style={{ padding: '12px 22px 0' }}>
+          <div className="lb-eyebrow">BOODSCHAPPENLIJST</div>
+          <h3 className="lb-display" style={{ margin: '4px 0 0', fontSize: 26 }}>
+            <span style={{ fontStyle: 'italic' }}>Wat we </span><b>nodig hebben</b>
+          </h3>
+        </div>
+        <div style={{ padding: '14px 22px 0', display: 'flex', gap: 8 }}>
+          <div style={{ flex: 1 }}>
+            <div className="lb-eyebrow" style={{ marginBottom: 4 }}>VAN</div>
+            <input className="lb-input" type="date" value={from} onChange={e => setFrom(e.target.value)} />
           </div>
-          <div className="flex gap-3 items-end">
-            <div className="flex-1">
-              <label className="block text-xs text-stone-400 mb-1 font-medium uppercase tracking-wider">Van</label>
-              <input
-                type="date"
-                value={from}
-                onChange={e => setFrom(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-stone-200 text-sm focus:outline-none focus:border-clay-400"
-              />
-            </div>
-            <div className="flex-1">
-              <label className="block text-xs text-stone-400 mb-1 font-medium uppercase tracking-wider">Tot</label>
-              <input
-                type="date"
-                value={to}
-                onChange={e => setTo(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-stone-200 text-sm focus:outline-none focus:border-clay-400"
-              />
-            </div>
-            <button
-              onClick={fetchIngredients}
-              disabled={loading}
-              className="px-4 py-2 rounded-xl bg-clay-500 hover:bg-clay-600 disabled:opacity-50 text-white text-sm font-medium transition-colors"
-            >
+          <div style={{ flex: 1 }}>
+            <div className="lb-eyebrow" style={{ marginBottom: 4 }}>TOT</div>
+            <input className="lb-input" type="date" value={to} onChange={e => setTo(e.target.value)} />
+          </div>
+          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+            <button onClick={fetchIngredients} disabled={loading} className="lb-btn lb-btn--ghost lb-btn--small" style={{ height: 46 }}>
               {loading ? '…' : 'Laden'}
             </button>
           </div>
         </div>
-
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-5">
+        <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '14px 22px' }}>
           {loading && (
-            <p className="text-center text-stone-400 py-8">Laden…</p>
+            <div style={{ textAlign: 'center', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic', padding: 30 }}>Laden…</div>
           )}
           {fetched && !loading && sections.length === 0 && (
-            <p className="text-center text-stone-400 py-8">Geen maaltijden gepland in deze periode.</p>
+            <div style={{ textAlign: 'center', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic', padding: 30 }}>
+              Geen geplande recepten in deze periode.
+            </div>
           )}
           {!loading && sections.map((s, i) => (
-            <div key={i}>
-              <p className="text-sm font-semibold text-stone-700 mb-1.5 capitalize">{s.label}</p>
+            <div key={i} style={{ marginBottom: 16, paddingBottom: 14, borderBottom: '0.5px solid var(--line-soft)' }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.day}</div>
+              <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, fontWeight: 500, marginTop: 2, marginBottom: 6, color: 'var(--bordeaux)' }}>{s.label}</div>
               {s.isCustom ? (
-                <p className="text-sm text-stone-500 italic pl-2">{s.description}</p>
+                <div style={{ fontSize: 14, color: 'var(--ink-2)', fontStyle: 'italic' }}>{s.description}</div>
               ) : (
-                <ul className="space-y-1">
-                  {s.ingredients.map((ing, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm text-stone-600">
-                      <span className="text-clay-400 mt-0.5 flex-shrink-0">•</span>
-                      <span>{ing}</span>
-                    </li>
-                  ))}
-                </ul>
+                s.ingredients.map((x, j) => (
+                  <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, padding: '4px 0' }}>
+                    <span style={{ color: 'var(--bordeaux)', fontFamily: 'var(--serif)' }}>·</span>
+                    <span>{x}</span>
+                  </div>
+                ))
               )}
             </div>
           ))}
         </div>
-
         {fetched && sections.length > 0 && (
-          <div className="px-4 py-4 border-t border-stone-100 flex-shrink-0">
-            <button
-              onClick={handleCopy}
-              className="w-full py-2.5 rounded-xl border border-stone-200 text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+          <div style={{ padding: '0 22px 14px' }}>
+            <button onClick={handleCopy} className="lb-btn lb-btn--primary" style={{ width: '100%' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
               </svg>
-              {copied ? 'Gekopieerd!' : 'Kopiëren'}
+              {copied ? 'Gekopieerd!' : 'Kopieer naar klembord'}
             </button>
           </div>
         )}
       </div>
-    </div>
+    </>
   )
 }
 
-// ── Entry pill ────────────────────────────────────────────────────────────────
+// ── Day Detail Sheet ──────────────────────────────────────────────────────────
 
-interface EntryPillProps {
-  entry: MealPlanEntry
-  recipeTitle?: string
-  onDelete: () => void
-}
-
-function EntryPill({ entry, recipeTitle, onDelete }: EntryPillProps) {
-  const label = entry.customDescription ?? recipeTitle ?? '…'
-  return (
-    <div className="group flex items-center gap-1.5 bg-clay-50 border border-clay-200 rounded-lg px-2.5 py-1.5 text-clay-700">
-      <span className="flex-1 text-sm leading-snug">{label}</span>
-      <button
-        onClick={e => { e.stopPropagation(); onDelete() }}
-        className="sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 text-clay-300 hover:text-red-500 transition-opacity flex-shrink-0"
-        aria-label="Verwijder"
-      >
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </div>
-  )
-}
-
-// ── Day detail modal (month view) ────────────────────────────────────────────
-
-interface DayDetailModalProps {
-  date: string
+interface DayDetailSheetProps {
+  date: Date
   entries: MealPlanEntry[]
   recipeMap: Map<string, Recipe>
   onDelete: (id: string) => void
@@ -274,61 +222,341 @@ interface DayDetailModalProps {
   onClose: () => void
 }
 
-function DayDetailModal({ date, entries, recipeMap, onDelete, onAdd, onClose }: DayDetailModalProps) {
-  const displayDate = new Date(date + 'T00:00:00').toLocaleDateString('nl-NL', {
-    weekday: 'long', day: 'numeric', month: 'long',
-  })
-
+function DayDetailSheet({ date, entries, recipeMap, onDelete, onAdd, onClose }: DayDetailSheetProps) {
+  const nav = useNavigate()
   return (
-    <div className="fixed inset-0 z-40 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col max-h-[70vh]">
-        <div className="px-5 pt-5 pb-4 border-b border-stone-100 flex items-center justify-between flex-shrink-0">
-          <h2 className="font-display text-lg font-bold italic text-stone-900 capitalize">{displayDate}</h2>
-          <button onClick={onClose} className="text-stone-400 hover:text-stone-600 p-1">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <>
+      <div className="lb-sheet-backdrop" onClick={onClose} />
+      <div className="lb-sheet" style={{ paddingBottom: 30 }}>
+        <div className="lb-sheet-grabber" />
+        <div style={{ padding: '12px 22px 0' }}>
+          <div className="lb-eyebrow">{NL_DAYS_LONG[date.getDay()].toUpperCase()}</div>
+          <h3 className="lb-display" style={{ margin: '4px 0 0', fontSize: 26 }}>
+            <span style={{ fontStyle: 'italic' }}>{NL_MONTHS[date.getMonth()]} </span><b>{date.getDate()}</b>
+          </h3>
         </div>
-
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        <div style={{ padding: '16px 22px', overflow: 'auto', flex: 1, minHeight: 0 }}>
           {entries.length === 0 ? (
-            <p className="text-stone-400 text-sm italic text-center py-6">Niets gepland</p>
-          ) : (
-            <ul className="space-y-2">
-              {entries.map(e => {
-                const label = e.customDescription ?? recipeMap.get(e.recipeId ?? '')?.title ?? '…'
-                return (
-                  <li key={e.id} className="flex items-center gap-3 bg-clay-50 border border-clay-200 rounded-xl px-3 py-2.5">
-                    <span className="flex-1 text-sm text-clay-700">{label}</span>
-                    <button
-                      onClick={() => onDelete(e.id)}
-                      className="text-clay-300 hover:text-red-500 transition-colors flex-shrink-0"
-                      aria-label="Verwijder"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </div>
-
-        <div className="px-5 py-4 border-t border-stone-100 flex-shrink-0">
-          <button
-            onClick={onAdd}
-            className="w-full py-2.5 rounded-xl bg-clay-500 hover:bg-clay-600 text-white text-sm font-medium transition-colors flex items-center justify-center gap-2"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
+            <div style={{ padding: '20px 0', color: 'var(--stone)', fontStyle: 'italic', fontFamily: 'var(--serif)', textAlign: 'center' }}>
+              Nog niets gepland.
+            </div>
+          ) : entries.map(e => {
+            const recipe = recipeMap.get(e.recipeId ?? '')
+            return (
+              <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '0.5px solid var(--line-soft)' }}>
+                {recipe ? (
+                  <div className="lb-color-block" style={{ '--block-bg': recipe.color ?? DEFAULT_RECIPE_COLOR, width: 48, height: 48, borderRadius: 10, padding: 0 } as React.CSSProperties} />
+                ) : (
+                  <div style={{ width: 48, height: 48, borderRadius: 10, background: 'var(--paper-3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--stone)' }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round"><path d="M5 6h14M5 12h14M5 18h9" /></svg>
+                  </div>
+                )}
+                <div onClick={() => recipe && nav(`/recipe/${recipe.id}`)}
+                  style={{ flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, cursor: recipe ? 'pointer' : 'default' }}>
+                  {recipe ? recipe.title : e.customDescription}
+                </div>
+                <button onClick={() => onDelete(e.id)} style={{ background: 'none', border: 0, color: 'var(--stone)', padding: 8, cursor: 'pointer' }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
+                  </svg>
+                </button>
+              </div>
+            )
+          })}
+          <button onClick={onAdd} className="lb-btn lb-btn--ghost" style={{ width: '100%', marginTop: 14 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
             Maaltijd toevoegen
           </button>
         </div>
+      </div>
+    </>
+  )
+}
+
+// ── Add Meal Sheet ────────────────────────────────────────────────────────────
+
+interface AddMealSheetProps {
+  date: string
+  onClose: () => void
+  onSaved: () => void
+}
+
+function AddMealSheet({ date, onClose, onSaved }: AddMealSheetProps) {
+  const { user } = useAuth()
+  const [tab, setTab] = useState<'recipe' | 'custom'>('recipe')
+  const [recipes, setRecipes] = useState<Recipe[]>([])
+  const [search, setSearch] = useState('')
+  const [custom, setCustom] = useState('')
+  const [saving, setSaving] = useState(false)
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => { getRecipes().then(setRecipes) }, [])
+  useEffect(() => { if (tab === 'recipe') searchRef.current?.focus() }, [tab])
+
+  const filtered = search.trim()
+    ? recipes.filter(r => r.title.toLowerCase().includes(search.toLowerCase()))
+    : recipes
+
+  const dateObj = new Date(date + 'T00:00:00')
+
+  async function handleSelectRecipe(recipeId: string) {
+    if (!user) return
+    setSaving(true)
+    try {
+      await createMealPlanEntry({ date, recipeId, createdBy: user.uid })
+      onSaved()
+    } finally { setSaving(false) }
+  }
+
+  async function handleSaveCustom() {
+    if (!user || !custom.trim()) return
+    setSaving(true)
+    try {
+      await createMealPlanEntry({ date, customDescription: custom.trim(), createdBy: user.uid })
+      onSaved()
+    } finally { setSaving(false) }
+  }
+
+  return (
+    <>
+      <div className="lb-sheet-backdrop" onClick={onClose} />
+      <div className="lb-sheet" style={{ paddingBottom: 30, height: '78%' }}>
+        <div className="lb-sheet-grabber" />
+        <div style={{ padding: '12px 22px 0' }}>
+          <div className="lb-eyebrow">{NL_DAYS_LONG[dateObj.getDay()]}, {NL_MONTHS_SHORT[dateObj.getMonth()]} {dateObj.getDate()}</div>
+          <h3 className="lb-display" style={{ margin: '4px 0 14px', fontSize: 24 }}>
+            <span style={{ fontStyle: 'italic' }}>Maaltijd </span><b>toevoegen</b>
+          </h3>
+        </div>
+        <div style={{ padding: '0 22px 12px' }}>
+          <div style={{ display: 'flex', background: 'var(--paper-2)', padding: 3, borderRadius: 12 }}>
+            {([['recipe', 'Uit boek'], ['custom', 'Eigen tekst']] as const).map(([v, l]) => (
+              <button key={v} onClick={() => setTab(v)} style={{
+                flex: 1, height: 32, borderRadius: 9, border: 0,
+                background: tab === v ? 'var(--cream-card)' : 'transparent',
+                fontSize: 13, fontWeight: 500, color: tab === v ? 'var(--ink)' : 'var(--stone)',
+                fontFamily: 'var(--sans)', cursor: 'pointer',
+              }}>{l}</button>
+            ))}
+          </div>
+        </div>
+        <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '6px 22px 0' }}>
+          {tab === 'recipe' && (
+            <>
+              <input ref={searchRef} className="lb-input" placeholder="Zoek recept" value={search}
+                onChange={e => setSearch(e.target.value)} style={{ marginBottom: 14 }} />
+              {filtered.length === 0 && (
+                <div style={{ textAlign: 'center', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic', padding: 20 }}>
+                  Geen recepten gevonden
+                </div>
+              )}
+              {filtered.map(r => (
+                <button key={r.id} onClick={() => handleSelectRecipe(r.id)} disabled={saving} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
+                  background: 'transparent', border: 0, borderBottom: '0.5px solid var(--line-soft)',
+                  width: '100%', textAlign: 'left', cursor: 'pointer',
+                }}>
+                  <div className="lb-color-block" style={{ '--block-bg': r.color ?? DEFAULT_RECIPE_COLOR, width: 42, height: 42, borderRadius: 8, padding: 0 } as React.CSSProperties} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15, fontWeight: 500 }}>{r.title}</div>
+                    {r.tags.length > 0 && <div style={{ fontSize: 11, color: 'var(--stone)' }}>{r.tags.slice(0, 2).join(' · ')}</div>}
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--stone)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 6l6 6-6 6" />
+                  </svg>
+                </button>
+              ))}
+            </>
+          )}
+          {tab === 'custom' && (
+            <>
+              <input className="lb-input" autoFocus placeholder="bv. Afhalen, Restjes, Uit eten" value={custom}
+                onChange={e => setCustom(e.target.value)} />
+              <button onClick={handleSaveCustom} disabled={!custom.trim() || saving}
+                className="lb-btn lb-btn--primary" style={{ width: '100%', marginTop: 14 }}>
+                {saving ? 'Opslaan…' : 'Aan planning toevoegen'}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ── Week View ─────────────────────────────────────────────────────────────────
+
+interface WeekViewProps {
+  anchor: Date
+  today: Date
+  entries: MealPlanEntry[]
+  recipeMap: Map<string, Recipe>
+  onAdd: (iso: string) => void
+  onDelete: (id: string) => void
+}
+
+function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekViewProps) {
+  const nav = useNavigate()
+  const days = weekDays(anchor)
+  const entriesForDay = (day: Date) => entries.filter(e => e.date === toISO(day))
+
+  return (
+    <div style={{ padding: '12px 16px 120px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+      {days.map(day => {
+        const dayEntries = entriesForDay(day)
+        const isToday = isSameDay(day, today)
+        const hasRecipe = dayEntries.some(e => e.recipeId)
+        const highlight = isToday && hasRecipe
+        const iso = toISO(day)
+        return (
+          <div key={iso} style={{
+            background: 'var(--cream-card)',
+            borderRadius: 16,
+            border: `0.5px solid ${highlight ? 'var(--bordeaux)' : 'var(--line)'}`,
+            padding: '10px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+          }}>
+            {/* Day indicator */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 32, flexShrink: 0 }}>
+              <span style={{
+                fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.1em',
+                color: isToday ? 'var(--bordeaux)' : 'var(--stone)',
+                textTransform: 'uppercase', fontWeight: 600, lineHeight: 1, marginBottom: 3,
+              }}>
+                {NL_DAYS_SHORT[day.getDay()]}
+              </span>
+              <span style={{
+                fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 20, fontWeight: 500,
+                lineHeight: 1, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                borderRadius: 16,
+                background: isToday ? 'var(--bordeaux)' : 'transparent',
+                color: isToday ? 'var(--cream-card)' : 'var(--ink)',
+              }}>
+                {day.getDate()}
+              </span>
+            </div>
+
+            {/* Entry pills */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minHeight: 36, justifyContent: 'center' }}>
+              {dayEntries.length === 0 ? (
+                <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 13, color: 'var(--stone-2)' }}>
+                  Niets gepland
+                </span>
+              ) : dayEntries.map(e => {
+                const recipe = recipeMap.get(e.recipeId ?? '')
+                const color = recipe?.color ?? DEFAULT_RECIPE_COLOR
+                return (
+                  <div key={e.id} style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    background: recipe ? color + '18' : 'var(--paper-2)',
+                    border: `1px solid ${recipe ? color + '40' : 'var(--line)'}`,
+                    borderRadius: 8, padding: '5px 8px',
+                  }}>
+                    <div style={{
+                      width: 8, height: 8, borderRadius: 4, flexShrink: 0,
+                      background: recipe ? color : 'var(--stone-2)',
+                    }} />
+                    <span onClick={() => recipe && nav(`/recipe/${recipe.id}`)} style={{
+                      flex: 1, fontSize: 13, fontFamily: 'var(--serif)', fontStyle: 'italic',
+                      color: 'var(--ink)', cursor: recipe ? 'pointer' : 'default',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    }}>
+                      {recipe ? recipe.title : e.customDescription}
+                    </span>
+                    <button onClick={() => onDelete(e.id)} style={{
+                      background: 'none', border: 0, color: 'var(--stone-2)', padding: 2,
+                      cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center',
+                    }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Add button */}
+            <button onClick={() => onAdd(iso)} style={{
+              width: 30, height: 30, borderRadius: 15, background: 'var(--paper-2)', border: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--stone)', cursor: 'pointer', flexShrink: 0,
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
+// ── Month View ────────────────────────────────────────────────────────────────
+
+interface MonthViewProps {
+  anchor: Date
+  today: Date
+  entries: MealPlanEntry[]
+  recipeMap: Map<string, Recipe>
+  onPickDay: (day: Date) => void
+}
+
+function MonthView({ anchor, today, entries, recipeMap, onPickDay }: MonthViewProps) {
+  const monthStart = startOfMonth(anchor)
+  const days = calendarGrid(monthStart)
+  const entriesForDay = (day: Date) => entries.filter(e => e.date === toISO(day))
+
+  return (
+    <div style={{ padding: '20px 16px 120px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 8 }}>
+        {NL_DAYS_GRID.map(d => (
+          <div key={d} style={{ textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.08em', color: 'var(--stone)', fontWeight: 600 }}>{d}</div>
+        ))}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+        {days.map(day => {
+          const dayEntries = entriesForDay(day)
+          const isToday = isSameDay(day, today)
+          const inMonth = day.getMonth() === monthStart.getMonth()
+          const hasRecipe = dayEntries.some(e => e.recipeId)
+          const highlight = isToday && hasRecipe
+          const todayNoRecipe = isToday && !hasRecipe
+          return (
+            <button key={toISO(day)} onClick={() => onPickDay(day)} style={{
+              minHeight: 76, background: highlight ? 'var(--bordeaux)' : 'var(--cream-card)',
+              border: `0.5px solid ${highlight ? 'var(--bordeaux)' : todayNoRecipe ? 'var(--bordeaux)' : 'var(--line)'}`,
+              borderRadius: 8, padding: 5, opacity: inMonth ? 1 : 0.35,
+              display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 3,
+              color: highlight ? 'var(--cream-card)' : 'var(--ink)', textAlign: 'left', cursor: 'pointer',
+            }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 600, opacity: 0.85 }}>{day.getDate()}</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', flex: 1 }}>
+                {dayEntries.slice(0, 2).map(e => {
+                  const recipe = recipeMap.get(e.recipeId ?? '')
+                  const label = recipe ? recipe.title : e.customDescription ?? ''
+                  const color = recipe?.color ?? DEFAULT_RECIPE_COLOR
+                  return (
+                    <div key={e.id} style={{
+                      fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 9, lineHeight: 1.1,
+                      padding: '2px 4px',
+                      background: highlight ? 'rgba(255,255,255,0.18)' : (recipe ? color + '22' : 'var(--paper-2)'),
+                      color: highlight ? 'var(--cream-card)' : (recipe ? color : 'var(--ink-2)'),
+                      borderLeft: `2px solid ${highlight ? 'rgba(255,255,255,0.5)' : (recipe ? color : 'var(--stone-2)')}`,
+                      borderRadius: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500,
+                    }}>{label}</div>
+                  )
+                })}
+                {dayEntries.length > 2 && (
+                  <div style={{ fontFamily: 'var(--mono)', fontSize: 8, color: highlight ? 'rgba(255,255,255,0.7)' : 'var(--stone)', paddingLeft: 4 }}>+{dayEntries.length - 2}</div>
+                )}
+              </div>
+            </button>
+          )
+        })}
       </div>
     </div>
   )
@@ -339,6 +567,7 @@ function DayDetailModal({ date, entries, recipeMap, onDelete, onAdd, onClose }: 
 type ViewMode = 'week' | 'month'
 
 export default function CalendarPage() {
+  const nav = useNavigate()
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
@@ -347,19 +576,16 @@ export default function CalendarPage() {
   const [entries, setEntries] = useState<MealPlanEntry[]>([])
   const [recipeMap, setRecipeMap] = useState<Map<string, Recipe>>(new Map())
   const [modalDate, setModalDate] = useState<string | null>(null)
-  const [detailDate, setDetailDate] = useState<string | null>(null)
-  const [showIngredients, setShowIngredients] = useState(false)
+  const [detailDay, setDetailDay] = useState<Date | null>(null)
+  const [showShopping, setShowShopping] = useState(false)
 
-  // Compute visible date range based on view
   const { visibleStart, visibleEnd } = (() => {
     if (view === 'week') {
-      const ws = view === 'week' ? anchor : startOfWeek(anchor)
-      return { visibleStart: ws, visibleEnd: addDays(ws, 6) }
-    } else {
-      const ms = startOfMonth(anchor)
-      const grid = calendarGrid(ms)
-      return { visibleStart: grid[0], visibleEnd: grid[grid.length - 1] }
+      return { visibleStart: anchor, visibleEnd: addDays(anchor, 6) }
     }
+    const ms = startOfMonth(anchor)
+    const grid = calendarGrid(ms)
+    return { visibleStart: grid[0], visibleEnd: grid[grid.length - 1] }
   })()
 
   const loadEntries = useCallback(async () => {
@@ -377,17 +603,12 @@ export default function CalendarPage() {
 
   useEffect(() => { loadEntries() }, [loadEntries])
 
-  function entriesForDay(day: Date): MealPlanEntry[] {
-    const iso = toISO(day)
-    return entries.filter(e => e.date === iso)
-  }
-
   async function handleDelete(id: string) {
     await deleteMealPlanEntry(id)
     setEntries(prev => prev.filter(e => e.id !== id))
   }
 
-  function navigate(dir: -1 | 1) {
+  function movePeriod(dir: -1 | 1) {
     setAnchor(prev => {
       if (view === 'week') return addDays(prev, dir * 7)
       const d = new Date(prev)
@@ -396,16 +617,16 @@ export default function CalendarPage() {
     })
   }
 
-  // Period label
   const periodLabel = (() => {
     if (view === 'week') {
-      const end = addDays(anchor, 6)
-      if (anchor.getMonth() === end.getMonth()) {
-        return `${anchor.getDate()}–${end.getDate()} ${NL_MONTHS[anchor.getMonth()]} ${anchor.getFullYear()}`
+      const ws = anchor
+      const end = addDays(ws, 6)
+      if (ws.getMonth() === end.getMonth()) {
+        return `${NL_MONTHS_SHORT[ws.getMonth()]} ${ws.getDate()}`
       }
-      return `${anchor.getDate()} ${NL_MONTHS[anchor.getMonth()]} – ${end.getDate()} ${NL_MONTHS[end.getMonth()]} ${end.getFullYear()}`
+      return `${NL_MONTHS_SHORT[ws.getMonth()]} ${ws.getDate()} – ${end.getDate()}`
     }
-    return `${NL_MONTHS[anchor.getMonth()]} ${anchor.getFullYear()}`
+    return NL_MONTHS[anchor.getMonth()]
   })()
 
   const isCurrentPeriod = view === 'week'
@@ -416,257 +637,115 @@ export default function CalendarPage() {
     setAnchor(view === 'week' ? startOfWeek(today) : startOfMonth(today))
   }
 
-  // Shopping list defaults
   const shoppingStart = toISO(startOfWeek(today))
   const shoppingEnd = toISO(addDays(startOfWeek(today), 6))
 
-  // Weekly view days
-  const days = view === 'week' ? weekDays(anchor) : calendarGrid(startOfMonth(anchor))
-  const monthStart = startOfMonth(anchor)
-
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col">
+    <div className="lb-paper" style={{ minHeight: '100dvh', position: 'relative' }}>
       {/* Header */}
-      <header className="bg-white border-b border-stone-200 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
-        <Link to="/" className="text-clay-400 hover:text-clay-600 text-xl w-8 flex items-center justify-center">←</Link>
-        <h1 className="flex-1 font-display text-xl font-bold italic text-stone-900">Weekmenu</h1>
-        <button
-          onClick={() => setShowIngredients(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-stone-200 text-sm text-stone-600 hover:border-clay-300 hover:text-clay-600 transition-colors"
-          title="Boodschappenlijst"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-          </svg>
-          <span className="hidden sm:inline">Boodschappen</span>
-        </button>
-      </header>
-
-      {/* Controls */}
-      <div className="bg-white border-b border-stone-100 px-4 py-3 flex items-start flex-row flex-wrap sm:items-center justify-between gap-2 sm:gap-3">
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:border-clay-300 text-stone-500 hover:text-clay-600 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+      <div style={{ padding: '54px 20px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <button onClick={() => nav('/')} className="lb-icon-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-          <button
-            onClick={goToToday}
-            disabled={isCurrentPeriod}
-            className={`text-sm font-medium min-w-[11rem] text-center capitalize transition-colors ${
-              isCurrentPeriod
-                ? 'text-stone-700 cursor-default'
-                : 'text-clay-500 hover:text-clay-700 underline underline-offset-2'
-            }`}
-          >
-            {periodLabel}
-          </button>
-          <button
-            onClick={() => navigate(1)}
-            className="w-8 h-8 flex items-center justify-center rounded-full border border-stone-200 hover:border-clay-300 text-stone-500 hover:text-clay-600 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+          <button onClick={() => setShowShopping(true)} className="lb-btn lb-btn--ghost lb-btn--small">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18" /><path d="M16 10a4 4 0 01-8 0" />
             </svg>
+            Lijst
           </button>
         </div>
+        <div style={{ marginTop: 16 }}>
+          <div className="lb-eyebrow">DE WEEK VOORUIT</div>
+          <h1 className="lb-display" style={{ margin: '8px 0 0', fontSize: 34 }}>
+            {view === 'week' ? (
+              <><span style={{ fontStyle: 'italic' }}>Week van </span><b>{periodLabel}</b></>
+            ) : (
+              <><span style={{ fontStyle: 'italic' }}>{NL_MONTHS[anchor.getMonth()]} </span><b>{anchor.getFullYear()}</b></>
+            )}
+          </h1>
+        </div>
+      </div>
 
-        {/* View toggle */}
-        <div className="flex gap-1 bg-stone-100 rounded-xl p-1 self-end sm:self-auto">
-          <button
-            onClick={() => { setView('week'); setAnchor(startOfWeek(today)) }}
-            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-              view === 'week' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700'
-            }`}
-          >
-            Week
+      {/* Controls */}
+      <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ display: 'flex', background: 'var(--paper-2)', padding: 4, borderRadius: 14 }}>
+          {([['week', 'Week'], ['month', 'Maand']] as const).map(([v, l]) => (
+            <button key={v} onClick={() => { setView(v); setAnchor(v === 'week' ? startOfWeek(today) : startOfMonth(today)) }} style={{
+              flex: 1, height: 38, borderRadius: 10, border: 0,
+              background: view === v ? 'var(--cream-card)' : 'transparent',
+              fontSize: 14, fontWeight: 600, color: view === v ? 'var(--ink)' : 'var(--stone)',
+              boxShadow: view === v ? '0 1px 3px rgba(0,0,0,0.06)' : 'none', fontFamily: 'var(--sans)', cursor: 'pointer',
+            }}>{l}</button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button onClick={() => movePeriod(-1)} className="lb-icon-btn" style={{ width: 42, height: 42 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
           </button>
-          <button
-            onClick={() => { setView('month'); setAnchor(startOfMonth(today)) }}
-            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-              view === 'month' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700'
-            }`}
-          >
-            Maand
+          <button onClick={goToToday} disabled={isCurrentPeriod} className="lb-btn lb-btn--ghost lb-btn--small"
+            style={{ flex: 1, height: 42, borderRadius: 21, fontSize: 14, opacity: isCurrentPeriod ? 0.45 : 1 }}>
+            Vandaag
+          </button>
+          <button onClick={() => movePeriod(1)} className="lb-icon-btn" style={{ width: 42, height: 42 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 6l6 6-6 6" />
+            </svg>
           </button>
         </div>
       </div>
 
-      {/* Calendar grid */}
-      <main className="flex-1 p-3 sm:p-4">
-        {view === 'week' && (
-          <>
-            {/* Mobile: vertical list */}
-            <div className="flex flex-col gap-2 sm:hidden">
-              {days.map((day, i) => {
-                const dayEntries = entriesForDay(day)
-                const isToday = isSameDay(day, today)
-                const iso = toISO(day)
-                return (
-                  <div key={iso} className="bg-white rounded-2xl border border-stone-200 px-4 py-3 flex items-start gap-4">
-                    <div className="flex flex-col items-center w-8 flex-shrink-0 pt-0.5">
-                      <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider leading-none mb-1">
-                        {NL_DAYS_SHORT[i]}
-                      </span>
-                      <span className={`text-xl font-bold leading-none flex items-center justify-center w-8 h-8 rounded-full ${
-                        isToday ? 'bg-clay-500 text-white' : 'text-stone-800'
-                      }`}>
-                        {day.getDate()}
-                      </span>
-                    </div>
-                    <div className="flex-1 flex flex-col gap-1.5 min-h-[2.5rem] justify-center">
-                      {dayEntries.length === 0 && (
-                        <p className="text-sm text-stone-300 italic">Niets gepland</p>
-                      )}
-                      {dayEntries.map(e => (
-                        <EntryPill
-                          key={e.id}
-                          entry={e}
-                          recipeTitle={e.recipeId ? recipeMap.get(e.recipeId)?.title : undefined}
-                          onDelete={() => handleDelete(e.id)}
-                        />
-                      ))}
-                    </div>
-                    <button
-                      onClick={() => setModalDate(iso)}
-                      className="w-8 h-8 flex items-center justify-center rounded-full text-stone-300 hover:text-clay-500 hover:bg-clay-50 transition-colors flex-shrink-0"
-                      aria-label="Maaltijd toevoegen"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                      </svg>
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Desktop: 7-column grid */}
-            <div className="hidden sm:block">
-              <div className="grid grid-cols-7 mb-2">
-                {NL_DAYS_SHORT.map(d => (
-                  <div key={d} className="text-center text-xs font-semibold text-stone-400 uppercase tracking-wider py-1">
-                    {d}
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-2">
-                {days.map(day => {
-                  const dayEntries = entriesForDay(day)
-                  const isToday = isSameDay(day, today)
-                  const iso = toISO(day)
-                  return (
-                    <div key={iso} className="min-h-[8rem] bg-white rounded-2xl border border-stone-200 p-2 flex flex-col gap-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className={`text-sm font-semibold leading-none flex items-center justify-center w-6 h-6 rounded-full ${
-                          isToday ? 'bg-clay-500 text-white' : 'text-stone-700'
-                        }`}>
-                          {day.getDate()}
-                        </span>
-                        <button
-                          onClick={() => setModalDate(iso)}
-                          className="w-5 h-5 flex items-center justify-center rounded-full text-stone-300 hover:text-clay-500 hover:bg-clay-50 transition-colors"
-                          aria-label="Maaltijd toevoegen"
-                        >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                          </svg>
-                        </button>
-                      </div>
-                      <div className="flex flex-col gap-1 flex-1">
-                        {dayEntries.map(e => (
-                          <EntryPill
-                            key={e.id}
-                            entry={e}
-                            recipeTitle={e.recipeId ? recipeMap.get(e.recipeId)?.title : undefined}
-                            onDelete={() => handleDelete(e.id)}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          </>
-        )}
-
-        {view === 'month' && (
-          <>
-            <div className="grid grid-cols-7 mb-1">
-              {NL_DAYS_SHORT.map(d => (
-                <div key={d} className="text-center text-xs font-semibold text-stone-400 uppercase tracking-wider py-1">
-                  {d}
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-1">
-              {days.map(day => {
-                const dayEntries = entriesForDay(day)
-                const isToday = isSameDay(day, today)
-                const isCurrentMonth = day.getMonth() === monthStart.getMonth()
-                const iso = toISO(day)
-                return (
-                  <button
-                    key={iso}
-                    onClick={() => setDetailDate(iso)}
-                    className={`min-h-[4.5rem] sm:min-h-[5.5rem] rounded-xl border p-1.5 flex flex-col items-start gap-1 transition-colors hover:border-clay-300 w-full ${
-                      isCurrentMonth ? 'bg-white border-stone-200' : 'bg-stone-50 border-stone-100'
-                    }`}
-                  >
-                    <span className={`text-xs font-semibold leading-none flex items-center justify-center w-5 h-5 rounded-full ${
-                      isToday ? 'bg-clay-500 text-white' : isCurrentMonth ? 'text-stone-700' : 'text-stone-300'
-                    }`}>
-                      {day.getDate()}
-                    </span>
-                    <div className="text-left w-full space-y-0.5">
-                      {dayEntries.slice(0, 2).map(e => (
-                        <span key={e.id} className="block text-[10px] sm:text-xs text-clay-700 truncate leading-tight">
-                          {e.customDescription ?? (e.recipeId ? recipeMap.get(e.recipeId)?.title : '') ?? ''}
-                        </span>
-                      ))}
-                      {dayEntries.length > 2 && (
-                        <span className="block text-[10px] sm:text-xs text-stone-400">+{dayEntries.length - 2}</span>
-                      )}
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          </>
-        )}
-      </main>
-
-      {/* Day detail (month view) */}
-      {detailDate && (
-        <DayDetailModal
-          date={detailDate}
-          entries={entries.filter(e => e.date === detailDate)}
+      {/* Calendar views */}
+      {view === 'week' ? (
+        <WeekView
+          anchor={anchor}
+          today={today}
+          entries={entries}
           recipeMap={recipeMap}
-          onDelete={async (id) => { await handleDelete(id) }}
-          onAdd={() => setModalDate(detailDate)}
-          onClose={() => setDetailDate(null)}
+          onAdd={setModalDate}
+          onDelete={handleDelete}
+        />
+      ) : (
+        <MonthView
+          anchor={anchor}
+          today={today}
+          entries={entries}
+          recipeMap={recipeMap}
+          onPickDay={setDetailDay}
         />
       )}
 
-      {/* Add meal modal */}
+      {/* Day detail sheet (month view) */}
+      {detailDay && (
+        <DayDetailSheet
+          date={detailDay}
+          entries={entries.filter(e => e.date === toISO(detailDay))}
+          recipeMap={recipeMap}
+          onDelete={async (id) => { await handleDelete(id) }}
+          onAdd={() => { setModalDate(toISO(detailDay)); setDetailDay(null) }}
+          onClose={() => setDetailDay(null)}
+        />
+      )}
+
+      {/* Add meal sheet */}
       {modalDate && (
-        <AddMealModal
+        <AddMealSheet
           date={modalDate}
           onClose={() => setModalDate(null)}
           onSaved={() => { setModalDate(null); loadEntries() }}
         />
       )}
 
-      {/* Ingredients modal */}
-      {showIngredients && (
-        <IngredientsModal
+      {/* Shopping list sheet */}
+      {showShopping && (
+        <ShoppingListSheet
           defaultStart={shoppingStart}
           defaultEnd={shoppingEnd}
-          onClose={() => setShowIngredients(false)}
+          onClose={() => setShowShopping(false)}
         />
       )}
     </div>

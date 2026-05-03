@@ -12,42 +12,41 @@ type Mode = 'url' | 'text' | 'photo' | 'manual'
 const MODES: { id: Mode; label: string; description: string; icon: React.ReactNode }[] = [
   {
     id: 'url',
-    label: 'Importeer via link',
-    description: 'Plak een link van een receptenwebsite of TikTok',
+    label: 'Vanaf URL',
+    description: 'Plak een receptlink of TikTok-video',
     icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
+        <path d="M10 14a4 4 0 005.66 0l3-3a4 4 0 00-5.66-5.66l-1 1" /><path d="M14 10a4 4 0 00-5.66 0l-3 3a4 4 0 005.66 5.66l1-1" />
       </svg>
     ),
   },
   {
     id: 'text',
-    label: 'Typ of plak een recept',
-    description: 'Schrijf het recept op zoals je het kent',
+    label: 'Vanuit tekst',
+    description: 'Plak ruwe tekst van waar dan ook',
     icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round">
+        <path d="M5 6h14M5 12h14M5 18h9" />
       </svg>
     ),
   },
   {
     id: 'photo',
-    label: 'Foto van een recept',
-    description: 'Maak een foto van een receptenboek of geschreven recept',
+    label: 'Vanuit foto',
+    description: 'Upload een foto uit een kookboek',
     icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round">
+        <rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="11" r="2" /><path d="M3 17l5-5 4 4 3-3 6 6" strokeLinejoin="round" />
       </svg>
     ),
   },
   {
     id: 'manual',
-    label: 'Handmatig invullen',
-    description: 'Vul het recept zelf stap voor stap in',
+    label: 'Zelf invullen',
+    description: 'Tik het zelf in',
     icon: (
-      <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round">
+        <path d="M3 21l3.5-1L20 6.5 17.5 4 4 17.5 3 21z" />
       </svg>
     ),
   },
@@ -55,33 +54,6 @@ const MODES: { id: Mode; label: string; description: string; icon: React.ReactNo
 
 const isImportMode = (m: Mode | null): m is 'url' | 'text' | 'photo' =>
   m === 'url' || m === 'text' || m === 'photo'
-
-function ImportStepper({ step }: { step: 1 | 2 }) {
-  return (
-    <div className="flex items-center gap-0">
-      {/* Step 1 */}
-      <div className="flex items-center gap-2">
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${step === 1 ? 'bg-clay-500 text-white' : 'bg-clay-100 text-clay-500'}`}>
-          {step > 1 ? (
-            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-            </svg>
-          ) : '1'}
-        </div>
-        <span className={`text-xs font-medium ${step === 1 ? 'text-stone-700' : 'text-stone-400'}`}>Importeren</span>
-      </div>
-      {/* Connector */}
-      <div className="flex-1 h-px bg-stone-200 mx-3 min-w-6" />
-      {/* Step 2 */}
-      <div className="flex items-center gap-2">
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${step === 2 ? 'bg-clay-500 text-white' : 'bg-stone-100 text-stone-400'}`}>
-          2
-        </div>
-        <span className={`text-xs font-medium ${step === 2 ? 'text-stone-700' : 'text-stone-400'}`}>Bewerken</span>
-      </div>
-    </div>
-  )
-}
 
 export default function NewRecipePage() {
   const { id } = useParams<{ id: string }>()
@@ -128,74 +100,107 @@ export default function NewRecipePage() {
   }
 
   if (loading) {
-    return <p className="text-center text-stone-400 mt-16">Laden…</p>
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
+        Laden…
+      </div>
+    )
   }
 
   const showForm = mode === 'manual' || extracted
-  const showStepper = isImportMode(mode)
 
-  return (
-    <div className="min-h-screen bg-stone-50">
-      <header className="bg-white border-b border-stone-200 px-4 py-4 flex items-center gap-3 sticky top-0 z-10">
-        {mode !== null && !isEdit ? (
-          <button onClick={handleBack} className="text-clay-400 hover:text-clay-600 text-xl w-8 flex items-center justify-center">
-            ←
-          </button>
-        ) : (
-          <Link to={id ? `/recipe/${id}` : '/'} className="text-clay-400 hover:text-clay-600 text-xl w-8 flex items-center justify-center">
-            ←
-          </Link>
-        )}
-        <h1 className="font-display text-xl font-bold italic text-stone-900">
-          {isEdit ? 'Recept bewerken' : 'Nieuw recept'}
-        </h1>
-      </header>
-
-      {/* Selection screen */}
-      {!isEdit && mode === null && (
-        <main className="max-w-2xl mx-auto px-4 py-8 space-y-3">
-          <p className="text-sm text-stone-500 mb-5">Hoe wil je het recept toevoegen?</p>
+  // Import chooser
+  if (!isEdit && mode === null) {
+    return (
+      <div className="lb-paper" style={{ minHeight: '100dvh' }}>
+        <div style={{ padding: '54px 20px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Link to="/" style={{ background: 'none', border: 0, fontSize: 14, color: 'var(--ink-2)', textDecoration: 'none' }}>Annuleren</Link>
+        </div>
+        <div style={{ padding: '8px 24px 0' }}>
+          <div className="lb-eyebrow">NIEUW RECEPT</div>
+          <h1 style={{ margin: '6px 0 0', fontSize: 34, lineHeight: 1.05, fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500 }}>
+            <span style={{ fontStyle: 'italic' }}>Waar </span>
+            <span style={{ fontFamily: 'var(--sans)', fontStyle: 'normal', fontWeight: 700, letterSpacing: '-0.03em' }}>begint</span>
+            <span style={{ fontStyle: 'italic' }}> dit?</span>
+          </h1>
+          <p style={{ margin: '8px 0 24px', fontSize: 14, color: 'var(--stone)', lineHeight: 1.5, fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
+            We vullen het formulier voor je in. Daarna pas je aan wat nodig is.
+          </p>
+        </div>
+        <div style={{ padding: '0 20px 40px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           {MODES.map(({ id: modeId, label, description, icon }) => (
-            <button
-              key={modeId}
-              onClick={() => handleSelectMode(modeId)}
-              className="w-full flex items-center gap-4 bg-white border border-stone-200 hover:border-clay-300 hover:bg-clay-50 rounded-2xl px-5 py-4 text-left transition-colors group"
-            >
-              <span className="text-clay-400 group-hover:text-clay-600 transition-colors shrink-0">
+            <button key={modeId} onClick={() => handleSelectMode(modeId)} className="lb-card"
+              style={{ display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: '18px 18px', textAlign: 'left', cursor: 'pointer', border: 'none' }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 {icon}
-              </span>
-              <span className="flex-1 min-w-0">
-                <span className="block text-sm font-semibold text-stone-800">{label}</span>
-                <span className="block text-xs text-stone-400 mt-0.5">{description}</span>
-              </span>
-              <span className="text-stone-300 group-hover:text-clay-400 transition-colors text-lg">→</span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 17, fontWeight: 500, color: 'var(--ink)' }}>{label}</div>
+                <div style={{ fontSize: 12, color: 'var(--stone)', marginTop: 2 }}>{description}</div>
+              </div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--stone)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 6l6 6-6 6" />
+              </svg>
             </button>
           ))}
-        </main>
-      )}
+        </div>
+      </div>
+    )
+  }
 
-      {/* Import step */}
-      {!isEdit && isImportMode(mode) && !extracted && (
-        <main className="max-w-2xl mx-auto px-4 py-6 space-y-5">
-          <ImportStepper step={1} />
+  // Import flows
+  if (!isEdit && isImportMode(mode) && !extracted) {
+    return (
+      <div className="lb-paper" style={{ minHeight: '100dvh' }}>
+        <div style={{ padding: '54px 20px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <button onClick={handleBack} style={{ background: 'none', border: 0, fontSize: 14, color: 'var(--ink-2)', cursor: 'pointer' }}>Terug</button>
+          <div style={{ fontSize: 17, fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--ink)' }}>
+            {MODES.find(m => m.id === mode)?.label}
+          </div>
+          <div style={{ width: 60 }} />
+        </div>
+        <div style={{ padding: '20px 22px' }}>
           {mode === 'url' && <RecipeImport onExtracted={handleExtracted} />}
           {mode === 'text' && <RecipeTextImport onExtracted={handleExtracted} />}
           {mode === 'photo' && <RecipePhotoImport onExtracted={handleExtracted} />}
-        </main>
-      )}
+        </div>
+      </div>
+    )
+  }
 
-      {/* Edit step */}
-      {(isEdit || showForm) && (
-        <main className="max-w-2xl mx-auto px-4 py-6 space-y-5">
-          {showStepper && <ImportStepper step={2} />}
-          <RecipeForm
-            key={formKey}
-            initial={initial}
-            onSubmit={handleSubmit}
-            submitLabel={isEdit ? 'Wijzigingen opslaan' : 'Recept toevoegen'}
-          />
-        </main>
-      )}
+  // Edit form
+  return (
+    <div className="lb-paper" style={{ minHeight: '100dvh' }}>
+      {/* Sticky header */}
+      <div style={{
+        position: 'sticky', top: 0,
+        background: 'rgba(248, 244, 237, 0.92)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        zIndex: 10,
+        padding: '54px 20px 14px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        borderBottom: '0.5px solid var(--line)',
+      }}>
+        {mode !== null && !isEdit ? (
+          <button onClick={handleBack} style={{ background: 'none', border: 0, fontSize: 14, color: 'var(--ink-2)', cursor: 'pointer' }}>Annuleren</button>
+        ) : (
+          <Link to={id ? `/recipe/${id}` : '/'} style={{ fontSize: 14, color: 'var(--ink-2)', textDecoration: 'none' }}>Annuleren</Link>
+        )}
+        <div style={{ fontSize: 17, fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--ink)' }}>
+          {isEdit ? 'Bewerk' : 'Nieuw'}
+        </div>
+        <div style={{ width: 60 }} />
+      </div>
+
+      <div style={{ padding: '0 20px 120px' }}>
+        <RecipeForm
+          key={formKey}
+          initial={initial}
+          onSubmit={handleSubmit}
+          submitLabel={isEdit ? 'Wijzigingen opslaan' : 'Recept toevoegen'}
+        />
+      </div>
     </div>
   )
 }

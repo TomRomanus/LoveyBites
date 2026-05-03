@@ -1,22 +1,14 @@
 import type { RecipeInput, IngredientNode } from '../types/recipe'
-
-const PROXIES = [
-  (u: string) => `https://corsproxy.io/?url=${encodeURIComponent(u)}`,
-  (u: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
-]
+import { auth } from '../lib/firebase'
 
 async function fetchViaProxy(url: string): Promise<string> {
-  let lastError: Error | undefined
-  for (const proxy of PROXIES) {
-    try {
-      const res = await fetch(proxy(url))
-      if (res.ok) return res.text()
-      lastError = new Error(`Proxy returned ${res.status}`)
-    } catch (e) {
-      lastError = e as Error
-    }
-  }
-  throw lastError ?? new Error('Kon de pagina niet ophalen')
+  const user = auth.currentUser
+  if (!user) throw new Error('Niet ingelogd')
+  const token = await user.getIdToken()
+  const endpoint = `https://europe-west1-loveybites-2e816.cloudfunctions.net/fetchProxy?url=${encodeURIComponent(url)}`
+  const res = await fetch(endpoint, { headers: { Authorization: `Bearer ${token}` } })
+  if (!res.ok) throw new Error(`Kon de pagina niet ophalen (${res.status})`)
+  return res.text()
 }
 
 async function callAI(content: string): Promise<string> {

@@ -37,59 +37,48 @@ export default function SourceEditor({ sources, onChange }: Props) {
     }
   }
 
-  const inputClass = 'border border-stone-200 rounded-xl px-3 py-2 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent transition'
-
   return (
-    <div className="space-y-2">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {sources.map((source, i) => (
-        <div key={i} className="flex flex-col sm:flex-row gap-2">
+        <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <input
             type="text"
             value={source.label}
             onChange={(e) => update(i, 'label', e.target.value)}
             placeholder="Naam (optioneel)"
-            className={`w-full sm:w-1/3 ${inputClass}`}
+            className="lb-input"
+            style={{ flex: 1 }}
           />
           <input
             type="url"
             value={source.url}
             onChange={(e) => update(i, 'url', e.target.value)}
             placeholder="https://..."
-            className={`flex-1 ${inputClass}`}
+            className="lb-input"
+            style={{ flex: 1.5 }}
           />
           <button
             type="button"
             onClick={() => remove(i)}
-            className="self-end sm:self-center text-stone-300 hover:text-red-400 transition-colors min-h-[2rem] min-w-[2rem] flex items-center justify-center"
+            style={{ background: 'none', border: 0, color: 'var(--stone)', cursor: 'pointer', padding: 8, display: 'flex', alignItems: 'center', flexShrink: 0 }}
             aria-label="Verwijder bron"
           >
-            ✕
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
           </button>
         </div>
       ))}
-      <div className="flex gap-4 pt-1">
-        <button
-          type="button"
-          onClick={add}
-          className="text-sm text-clay-500 hover:text-clay-700 transition-colors font-medium"
-        >
+      <div style={{ display: 'flex', gap: 16, paddingTop: 4 }}>
+        <button type="button" onClick={add}
+          style={{ background: 'none', border: 0, fontSize: 13, color: 'var(--bordeaux)', fontWeight: 500, cursor: 'pointer', padding: 0 }}>
           + Bron toevoegen
         </button>
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className="text-sm text-clay-500 hover:text-clay-700 disabled:text-clay-300 transition-colors font-medium"
-        >
+        <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading}
+          style={{ background: 'none', border: 0, fontSize: 13, color: uploading ? 'var(--stone)' : 'var(--bordeaux)', fontWeight: 500, cursor: uploading ? 'default' : 'pointer', padding: 0 }}>
           {uploading ? 'Uploaden…' : '+ Afbeelding uploaden'}
         </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleFileChange}
-        />
+        <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
       </div>
     </div>
   )

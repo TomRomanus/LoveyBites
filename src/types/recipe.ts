@@ -40,6 +40,7 @@ export interface Recipe {
   sources?: Source[]
   tags: string[]
   imageUrl: string
+  color?: string
   portions?: number
   rating?: number
   createdAt: Timestamp
