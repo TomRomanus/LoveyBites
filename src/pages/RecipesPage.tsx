@@ -184,10 +184,10 @@ export default function RecipesPage() {
           <h1 style={{ margin: 0, fontSize: 42, lineHeight: 1.05, fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)', whiteSpace: 'nowrap' }}>
             Ons kookboek
           </h1>
-          <Link to="/calendar" title="Weekmenu"
-            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: 22, background: 'var(--paper)', boxShadow: '0 1px 2px rgba(31,29,26,0.04), 0 0 0 0.5px var(--line)', color: 'var(--ink)', flexShrink: 0 }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round">
-              <path d="M5 8h14l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 8zM9 8V6a3 3 0 016 0v2" strokeLinejoin="round" />
+          <Link to="/new" title="Recept toevoegen"
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 18, background: 'var(--paper)', boxShadow: '0 1px 2px rgba(31,29,26,0.04), 0 0 0 0.5px var(--line)', color: 'var(--bordeaux)', flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+              <path d="M12 5v14M5 12h14" />
             </svg>
           </Link>
         </div>
@@ -235,6 +235,9 @@ export default function RecipesPage() {
 
       {/* Search + filters */}
       <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {!loading && !error && (
+          <div className="lb-eyebrow">{sorted.length} {sorted.length === 1 ? 'RECEPT' : 'RECEPTEN'}</div>
+        )}
         <div style={{ position: 'relative' }}>
           <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--stone)', pointerEvents: 'none' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}><circle cx="11" cy="11" r="7" /><path d="M16.5 16.5L21 21" strokeLinecap="round" /></svg>
@@ -325,8 +328,7 @@ export default function RecipesPage() {
       )}
 
       {!loading && !error && sorted.length > 0 && (
-        <div style={{ padding: '20px 20px 120px' }}>
-          <div className="lb-eyebrow" style={{ marginBottom: 4 }}>{sorted.length} {sorted.length === 1 ? 'RECEPT' : 'RECEPTEN'}</div>
+        <div style={{ padding: '10px 20px 120px' }}>
           {sorted.map((r, i) => (
             <RecipeCard
               key={r.id}
@@ -339,23 +341,6 @@ export default function RecipesPage() {
         </div>
       )}
 
-      {/* FAB */}
-      <Link
-        to="/new"
-        style={{
-          position: 'fixed', right: 20, bottom: 32,
-          height: 44, borderRadius: 22, padding: '0 20px',
-          background: 'var(--bordeaux)', color: 'var(--cream-card)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-          boxShadow: '0 4px 16px rgba(107, 31, 42, 0.30)',
-          zIndex: 50, textDecoration: 'none',
-          fontFamily: 'var(--sans)', fontSize: 13, fontWeight: 600, letterSpacing: '0.03em',
-        }}
-        aria-label="Recept toevoegen"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-        Toevoegen
-      </Link>
 
       {showFilters && (
         <FilterSheet activeTags={activeTags} allTags={allTags} onChange={setActiveTags} onClose={() => setShowFilters(false)} />

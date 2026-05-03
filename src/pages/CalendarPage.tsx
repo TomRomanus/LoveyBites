@@ -644,12 +644,7 @@ export default function CalendarPage() {
     <div className="lb-paper" style={{ minHeight: '100dvh', position: 'relative' }}>
       {/* Header */}
       <div style={{ padding: '54px 20px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <button onClick={() => nav('/')} className="lb-icon-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
           <button onClick={() => setShowShopping(true)} className="lb-btn lb-btn--ghost lb-btn--small">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18" /><path d="M16 10a4 4 0 01-8 0" />
@@ -748,6 +743,7 @@ export default function CalendarPage() {
           onClose={() => setShowShopping(false)}
         />
       )}
+
     </div>
   )
 }
