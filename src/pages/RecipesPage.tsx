@@ -179,8 +179,7 @@ export default function RecipesPage() {
           </Link>
         </div>
         <h1 style={{ margin: '8px 0 0', fontSize: 42, lineHeight: 1.05, fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)', whiteSpace: 'nowrap' }}>
-          <span style={{ fontStyle: 'italic' }}>Jouw</span>{' '}
-          <span style={{ fontFamily: 'var(--sans)', fontStyle: 'normal', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--bordeaux)' }}>boek</span>
+          Jouw boek
         </h1>
       </div>
 

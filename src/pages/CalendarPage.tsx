@@ -152,7 +152,7 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
         <div style={{ padding: '12px 22px 0' }}>
           <div className="lb-eyebrow">BOODSCHAPPENLIJST</div>
           <h3 className="lb-display" style={{ margin: '4px 0 0', fontSize: 26 }}>
-            <span style={{ fontStyle: 'italic' }}>Wat we </span><b>nodig hebben</b>
+            Wat we <b>nodig hebben</b>
           </h3>
         </div>
         <div style={{ padding: '14px 22px 0', display: 'flex', gap: 8 }}>
@@ -232,7 +232,7 @@ function DayDetailSheet({ date, entries, recipeMap, onDelete, onAdd, onClose }: 
         <div style={{ padding: '12px 22px 0' }}>
           <div className="lb-eyebrow">{NL_DAYS_LONG[date.getDay()].toUpperCase()}</div>
           <h3 className="lb-display" style={{ margin: '4px 0 0', fontSize: 26 }}>
-            <span style={{ fontStyle: 'italic' }}>{NL_MONTHS[date.getMonth()]} </span><b>{date.getDate()}</b>
+            {NL_MONTHS[date.getMonth()]} <b>{date.getDate()}</b>
           </h3>
         </div>
         <div style={{ padding: '16px 22px', overflow: 'auto', flex: 1, minHeight: 0 }}>
@@ -325,7 +325,7 @@ function AddMealSheet({ date, onClose, onSaved }: AddMealSheetProps) {
         <div style={{ padding: '12px 22px 0' }}>
           <div className="lb-eyebrow">{NL_DAYS_LONG[dateObj.getDay()]}, {NL_MONTHS_SHORT[dateObj.getMonth()]} {dateObj.getDate()}</div>
           <h3 className="lb-display" style={{ margin: '4px 0 14px', fontSize: 24 }}>
-            <span style={{ fontStyle: 'italic' }}>Maaltijd </span><b>toevoegen</b>
+            Maaltijd <b>toevoegen</b>
           </h3>
         </div>
         <div style={{ padding: '0 22px 12px' }}>
@@ -661,9 +661,9 @@ export default function CalendarPage() {
           <div className="lb-eyebrow">DE WEEK VOORUIT</div>
           <h1 className="lb-display" style={{ margin: '8px 0 0', fontSize: 34 }}>
             {view === 'week' ? (
-              <><span style={{ fontStyle: 'italic' }}>Week van </span><b>{periodLabel}</b></>
+              <>Week van <b>{periodLabel}</b></>
             ) : (
-              <><span style={{ fontStyle: 'italic' }}>{NL_MONTHS[anchor.getMonth()]} </span><b>{anchor.getFullYear()}</b></>
+              <>{NL_MONTHS[anchor.getMonth()]} <b>{anchor.getFullYear()}</b></>
             )}
           </h1>
         </div>

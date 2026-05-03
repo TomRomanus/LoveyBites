@@ -77,7 +77,7 @@ export default function LoginPage() {
         <div className="lb-eyebrow" style={{ marginBottom: 14 }}>SINDS 2026 · JOUW KEUKEN</div>
         <h1 style={{ margin: 0, fontSize: 58, lineHeight: 1.0, letterSpacing: '-0.025em' }}>
           <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 600, color: 'var(--ink)' }}>Lovey</span>
-          <span style={{ fontFamily: 'var(--sans)', fontStyle: 'normal', fontWeight: 700, color: 'var(--bordeaux)', letterSpacing: '-0.04em' }}>Bites</span>
+          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'normal', fontWeight: 600, color: 'var(--ink)' }}>Bites</span>
         </h1>
         <div className="lb-divider-ornament" style={{ marginTop: 18 }}>
           <span>jouw eigen kookboek</span>
