@@ -225,18 +225,16 @@ export default function RecipesPage() {
                       {todayRecipe.description}
                     </p>
                   )}
-                  {(todayRecipe.rating ?? 0) > 0 && (
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, marginTop: 8 }}>
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <svg key={i} width="13" height="13" viewBox="0 0 24 24"
-                          fill={i < (todayRecipe.rating ?? 0) ? 'var(--bordeaux)' : 'none'}
-                          stroke={i < (todayRecipe.rating ?? 0) ? 'var(--bordeaux)' : 'var(--stone-2)'}
-                          strokeWidth="1.4">
-                          <path d="M12 3l3 6 6.5 1-4.7 4.6 1.1 6.4L12 18l-5.9 3 1.1-6.4L2.5 10 9 9l3-6z" strokeLinejoin="round" />
-                        </svg>
-                      ))}
-                    </div>
-                  )}
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, marginTop: 8 }}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <svg key={i} width="13" height="13" viewBox="0 0 24 24"
+                        fill={i < (todayRecipe.rating ?? 0) ? 'var(--bordeaux)' : 'none'}
+                        stroke={i < (todayRecipe.rating ?? 0) ? 'var(--bordeaux)' : 'var(--stone-2)'}
+                        strokeWidth="1.4">
+                        <path d="M12 3l3 6 6.5 1-4.7 4.6 1.1 6.4L12 18l-5.9 3 1.1-6.4L2.5 10 9 9l3-6z" strokeLinejoin="round" />
+                      </svg>
+                    ))}
+                  </div>
                 </div>
               </div>
             </Link>
