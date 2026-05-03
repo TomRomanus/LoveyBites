@@ -2,8 +2,13 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import RecipeCard from '../components/RecipeCard'
 import AddToCalendarModal from '../components/AddToCalendarModal'
-import { getRecipes } from '../services/recipes'
+import { getRecipes, getRecipe } from '../services/recipes'
+import { getMealPlanEntries } from '../services/mealPlan'
 import type { Recipe, IngredientNode } from '../types/recipe'
+
+function toISO(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 
 function extractIngredientTexts(nodes: IngredientNode[]): string[] {
   return nodes.flatMap(n =>
@@ -118,12 +123,6 @@ function SortSheet({ sort, onChange, onClose }: {
   )
 }
 
-function todayLabel() {
-  const d = new Date()
-  const dag = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag'][d.getDay()]
-  const maand = ['JAN', 'FEB', 'MRT', 'APR', 'MEI', 'JUN', 'JUL', 'AUG', 'SEP', 'OKT', 'NOV', 'DEC'][d.getMonth()]
-  return `${dag.toUpperCase().slice(0, 2)} ${d.getDate()} ${maand}`
-}
 
 export default function RecipesPage() {
   const navigate = useNavigate()
@@ -136,6 +135,18 @@ export default function RecipesPage() {
   const [sort, setSort] = useState<SortOption>('default')
   const [showFilters, setShowFilters] = useState(false)
   const [showSort, setShowSort] = useState(false)
+  const [todayRecipe, setTodayRecipe] = useState<Recipe | null>(null)
+
+  useEffect(() => {
+    const today = toISO(new Date())
+    getMealPlanEntries(today, today).then(async entries => {
+      const entry = entries.find(e => e.recipeId)
+      if (entry?.recipeId) {
+        const recipe = await getRecipe(entry.recipeId)
+        setTodayRecipe(recipe)
+      }
+    }).catch(() => {})
+  }, [])
 
   useEffect(() => {
     getRecipes()
@@ -168,20 +179,59 @@ export default function RecipesPage() {
   return (
     <div className="lb-paper" style={{ minHeight: '100dvh', position: 'relative' }}>
       {/* Editorial masthead */}
-      <div style={{ padding: '60px 20px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-          <div className="lb-eyebrow">EDITIE I · {todayLabel()}</div>
+      <div style={{ padding: '24px 20px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <h1 style={{ margin: 0, fontSize: 42, lineHeight: 1.05, fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)', whiteSpace: 'nowrap' }}>
+            Ons kookboek
+          </h1>
           <Link to="/calendar" title="Weekmenu"
-            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: 22, background: 'var(--paper)', boxShadow: '0 1px 2px rgba(31,29,26,0.04), 0 0 0 0.5px var(--line)', color: 'var(--ink)', marginTop: -6 }}>
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, borderRadius: 22, background: 'var(--paper)', boxShadow: '0 1px 2px rgba(31,29,26,0.04), 0 0 0 0.5px var(--line)', color: 'var(--ink)', flexShrink: 0 }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round">
               <path d="M5 8h14l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 8zM9 8V6a3 3 0 016 0v2" strokeLinejoin="round" />
             </svg>
           </Link>
         </div>
-        <h1 style={{ margin: '8px 0 0', fontSize: 42, lineHeight: 1.05, fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ink)', whiteSpace: 'nowrap' }}>
-          Jouw boek
-        </h1>
       </div>
+
+      {/* Today's menu */}
+      {todayRecipe && (
+        <div style={{ padding: '20px 20px 0' }}>
+          <div className="lb-eyebrow" style={{ marginBottom: 8 }}>Op het menu vandaag</div>
+          <Link to={`/recipe/${todayRecipe.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+            <div className="lb-card" style={{ overflow: 'hidden' }}>
+              <div style={{
+                height: 72, background: 'var(--bordeaux)',
+                display: 'flex', alignItems: 'flex-end', padding: '0 14px 12px',
+                position: 'relative', overflow: 'hidden',
+              }}>
+                <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(120% 80% at 100% 0%, rgba(255,255,255,0.10), transparent 60%), radial-gradient(80% 60% at 0% 100%, rgba(0,0,0,0.18), transparent 60%)', pointerEvents: 'none' }} />
+                <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 20, fontWeight: 500, color: 'rgba(255,250,240,0.96)', lineHeight: 1.05, letterSpacing: '-0.02em', position: 'relative', zIndex: 1 }}>
+                  {todayRecipe.title}
+                </div>
+              </div>
+              <div style={{ padding: '10px 14px 12px' }}>
+                {todayRecipe.description && (
+                  <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {todayRecipe.description}
+                  </p>
+                )}
+                {(todayRecipe.rating ?? 0) > 0 && (
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, marginTop: 8 }}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <svg key={i} width="13" height="13" viewBox="0 0 24 24"
+                        fill={i < (todayRecipe.rating ?? 0) ? 'var(--bordeaux)' : 'none'}
+                        stroke={i < (todayRecipe.rating ?? 0) ? 'var(--bordeaux)' : 'var(--stone-2)'}
+                        strokeWidth="1.4">
+                        <path d="M12 3l3 6 6.5 1-4.7 4.6 1.1 6.4L12 18l-5.9 3 1.1-6.4L2.5 10 9 9l3-6z" strokeLinejoin="round" />
+                      </svg>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </Link>
+        </div>
+      )}
 
       {/* Search + filters */}
       <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -275,14 +325,15 @@ export default function RecipesPage() {
       )}
 
       {!loading && !error && sorted.length > 0 && (
-        <div style={{ padding: '20px 20px 120px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div className="lb-eyebrow">{sorted.length} {sorted.length === 1 ? 'RECEPT' : 'RECEPTEN'}</div>
+        <div style={{ padding: '20px 20px 120px' }}>
+          <div className="lb-eyebrow" style={{ marginBottom: 4 }}>{sorted.length} {sorted.length === 1 ? 'RECEPT' : 'RECEPTEN'}</div>
           {sorted.map((r, i) => (
             <RecipeCard
               key={r.id}
               recipe={r}
-              variant={i === 0 ? 'feature' : 'default'}
+              variant="default"
               onAddToCalendar={setCalendarRecipe}
+              highlightTags={activeTags.length > 0 ? activeTags : undefined}
             />
           ))}
         </div>
@@ -292,15 +343,18 @@ export default function RecipesPage() {
       <Link
         to="/new"
         style={{
-          position: 'fixed', right: 24, bottom: 100, width: 56, height: 56, borderRadius: 28,
+          position: 'fixed', right: 20, bottom: 32,
+          height: 44, borderRadius: 22, padding: '0 20px',
           background: 'var(--bordeaux)', color: 'var(--cream-card)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 8px 24px rgba(107, 31, 42, 0.35)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          boxShadow: '0 4px 16px rgba(107, 31, 42, 0.30)',
           zIndex: 50, textDecoration: 'none',
+          fontFamily: 'var(--sans)', fontSize: 13, fontWeight: 600, letterSpacing: '0.03em',
         }}
         aria-label="Recept toevoegen"
       >
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+        Toevoegen
       </Link>
 
       {showFilters && (

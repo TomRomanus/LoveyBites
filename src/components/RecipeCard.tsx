@@ -6,6 +6,7 @@ interface Props {
   recipe: Recipe
   variant?: 'feature' | 'default'
   onAddToCalendar?: (recipe: Recipe) => void
+  highlightTags?: string[]
 }
 
 function Stars({ value }: { value: number }) {
@@ -23,7 +24,7 @@ function Stars({ value }: { value: number }) {
   )
 }
 
-export default function RecipeCard({ recipe, variant = 'default', onAddToCalendar }: Props) {
+export default function RecipeCard({ recipe, variant = 'default', onAddToCalendar, highlightTags }: Props) {
   const color = recipe.color ?? DEFAULT_RECIPE_COLOR
   const shortId = recipe.id.slice(-2).toUpperCase()
 
@@ -75,43 +76,28 @@ export default function RecipeCard({ recipe, variant = 'default', onAddToCalenda
   }
 
   return (
-    <div style={{ display: 'flex', gap: 14, padding: '6px 0', position: 'relative' }}>
-      <Link to={`/recipe/${recipe.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', gap: 14, flex: 1 }}>
-        {/* Small color block */}
-        <div className="lb-color-block" style={{
-          '--block-bg': color,
-          width: 84,
-          height: 84,
-          flexShrink: 0,
-          borderRadius: 12,
-          padding: '10px 12px',
-        } as React.CSSProperties}>
-          <div className="lb-color-block-corner" style={{ fontSize: 8 }}>№ {shortId}</div>
-          <div className="lb-color-block-title" style={{ fontSize: 12, lineHeight: 1.05 }}>
-            {recipe.title.split(' ').slice(0, 2).join(' ')}
+    <div style={{ padding: '10px 0', borderBottom: '0.5px solid var(--line)', position: 'relative' }}>
+      <Link to={`/recipe/${recipe.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+        <h3 style={{ margin: 0, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 18, fontWeight: 500, lineHeight: 1.15, letterSpacing: '-0.015em', color: 'var(--ink)' }}>
+          {recipe.title}
+        </h3>
+        <div style={{ width: 24, height: 1.5, background: 'var(--bordeaux)', borderRadius: 1, opacity: 0.6, margin: '4px 0' }} />
+        {recipe.description && (
+          <p style={{ margin: 0, fontSize: 12, color: 'var(--stone)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {recipe.description}
+          </p>
+        )}
+        {recipe.tags.length > 0 && (
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 4 }}>
+            {recipe.tags.map((t, i) => (
+              <span key={t}>
+                {i > 0 && <span style={{ color: 'rgba(107,31,42,0.40)' }}> · </span>}
+                <span style={{ color: highlightTags?.includes(t) ? 'var(--bordeaux)' : 'rgba(107,31,42,0.40)' }}>{t}</span>
+              </span>
+            ))}
           </div>
-        </div>
-        {/* Text content */}
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div>
-            <h3 style={{ margin: 0, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 18, fontWeight: 500, lineHeight: 1.15, letterSpacing: '-0.015em', color: 'var(--ink)' }}>
-              {recipe.title}
-            </h3>
-            {recipe.description && (
-              <p style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--stone)', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                {recipe.description}
-              </p>
-            )}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 6 }}>
-            <Stars value={recipe.rating ?? 0} />
-            {recipe.tags[0] && (
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                {recipe.tags[0]}
-              </div>
-            )}
-          </div>
-        </div>
+        )}
+        <Stars value={recipe.rating ?? 0} />
       </Link>
     </div>
   )
