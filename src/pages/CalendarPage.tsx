@@ -575,6 +575,7 @@ export default function CalendarPage() {
   const [anchor, setAnchor] = useState<Date>(startOfWeek(today))
   const [entries, setEntries] = useState<MealPlanEntry[]>([])
   const [recipeMap, setRecipeMap] = useState<Map<string, Recipe>>(new Map())
+  const [loading, setLoading] = useState(true)
   const [modalDate, setModalDate] = useState<string | null>(null)
   const [detailDay, setDetailDay] = useState<Date | null>(null)
   const [showShopping, setShowShopping] = useState(false)
@@ -599,6 +600,7 @@ export default function CalendarPage() {
     const map = new Map<string, Recipe>()
     pairs.forEach(p => p && map.set(p[0], p[1]))
     setRecipeMap(map)
+    setLoading(false)
   }, [toISO(visibleStart), toISO(visibleEnd)])
 
   useEffect(() => { loadEntries() }, [loadEntries])
@@ -695,7 +697,26 @@ export default function CalendarPage() {
       </div>
 
       {/* Calendar views */}
-      {view === 'week' ? (
+      {loading ? (
+        <div style={{ padding: '12px 16px 120px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} style={{
+              background: 'var(--cream-card)', borderRadius: 16,
+              border: '0.5px solid var(--line)', padding: '10px 14px',
+              display: 'flex', alignItems: 'center', gap: 12,
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 32, gap: 4 }}>
+                <div className="lb-skeleton" style={{ width: 16, height: 9 }} />
+                <div className="lb-skeleton" style={{ width: 32, height: 32, borderRadius: 16 }} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div className="lb-skeleton" style={{ height: 28, borderRadius: 8 }} />
+              </div>
+              <div className="lb-skeleton" style={{ width: 30, height: 30, borderRadius: 15, flexShrink: 0 }} />
+            </div>
+          ))}
+        </div>
+      ) : view === 'week' ? (
         <WeekView
           anchor={anchor}
           today={today}

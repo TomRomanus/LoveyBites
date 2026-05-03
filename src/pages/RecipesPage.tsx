@@ -136,6 +136,7 @@ export default function RecipesPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [showSort, setShowSort] = useState(false)
   const [todayRecipe, setTodayRecipe] = useState<Recipe | null>(null)
+  const [todayLoading, setTodayLoading] = useState(true)
 
   useEffect(() => {
     const today = toISO(new Date())
@@ -145,7 +146,7 @@ export default function RecipesPage() {
         const recipe = await getRecipe(entry.recipeId)
         setTodayRecipe(recipe)
       }
-    }).catch(() => {})
+    }).catch(() => {}).finally(() => setTodayLoading(false))
   }, [])
 
   useEffect(() => {
@@ -194,42 +195,52 @@ export default function RecipesPage() {
       </div>
 
       {/* Today's menu */}
-      {todayRecipe && (
+      {(todayLoading || todayRecipe) && (
         <div style={{ padding: '20px 20px 0' }}>
           <div className="lb-eyebrow" style={{ marginBottom: 8 }}>Op het menu vandaag</div>
-          <Link to={`/recipe/${todayRecipe.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+          {todayLoading ? (
             <div className="lb-card" style={{ overflow: 'hidden' }}>
-              <div style={{
-                height: 72, background: 'var(--bordeaux)',
-                display: 'flex', alignItems: 'flex-end', padding: '0 14px 12px',
-                position: 'relative', overflow: 'hidden',
-              }}>
-                <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(120% 80% at 100% 0%, rgba(255,255,255,0.10), transparent 60%), radial-gradient(80% 60% at 0% 100%, rgba(0,0,0,0.18), transparent 60%)', pointerEvents: 'none' }} />
-                <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 20, fontWeight: 500, color: 'rgba(255,250,240,0.96)', lineHeight: 1.05, letterSpacing: '-0.02em', position: 'relative', zIndex: 1 }}>
-                  {todayRecipe.title}
-                </div>
-              </div>
-              <div style={{ padding: '10px 14px 12px' }}>
-                {todayRecipe.description && (
-                  <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {todayRecipe.description}
-                  </p>
-                )}
-                {(todayRecipe.rating ?? 0) > 0 && (
-                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, marginTop: 8 }}>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <svg key={i} width="13" height="13" viewBox="0 0 24 24"
-                        fill={i < (todayRecipe.rating ?? 0) ? 'var(--bordeaux)' : 'none'}
-                        stroke={i < (todayRecipe.rating ?? 0) ? 'var(--bordeaux)' : 'var(--stone-2)'}
-                        strokeWidth="1.4">
-                        <path d="M12 3l3 6 6.5 1-4.7 4.6 1.1 6.4L12 18l-5.9 3 1.1-6.4L2.5 10 9 9l3-6z" strokeLinejoin="round" />
-                      </svg>
-                    ))}
-                  </div>
-                )}
+              <div className="lb-skeleton" style={{ height: 72, borderRadius: 0 }} />
+              <div style={{ padding: '10px 14px 12px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div className="lb-skeleton" style={{ height: 13, width: '55%' }} />
+                <div className="lb-skeleton" style={{ height: 13, width: '35%' }} />
               </div>
             </div>
-          </Link>
+          ) : todayRecipe ? (
+            <Link to={`/recipe/${todayRecipe.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+              <div className="lb-card" style={{ overflow: 'hidden' }}>
+                <div style={{
+                  height: 72, background: 'var(--bordeaux)',
+                  display: 'flex', alignItems: 'flex-end', padding: '0 14px 12px',
+                  position: 'relative', overflow: 'hidden',
+                }}>
+                  <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(120% 80% at 100% 0%, rgba(255,255,255,0.10), transparent 60%), radial-gradient(80% 60% at 0% 100%, rgba(0,0,0,0.18), transparent 60%)', pointerEvents: 'none' }} />
+                  <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 20, fontWeight: 500, color: 'rgba(255,250,240,0.96)', lineHeight: 1.05, letterSpacing: '-0.02em', position: 'relative', zIndex: 1 }}>
+                    {todayRecipe.title}
+                  </div>
+                </div>
+                <div style={{ padding: '10px 14px 12px' }}>
+                  {todayRecipe.description && (
+                    <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {todayRecipe.description}
+                    </p>
+                  )}
+                  {(todayRecipe.rating ?? 0) > 0 && (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, marginTop: 8 }}>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <svg key={i} width="13" height="13" viewBox="0 0 24 24"
+                          fill={i < (todayRecipe.rating ?? 0) ? 'var(--bordeaux)' : 'none'}
+                          stroke={i < (todayRecipe.rating ?? 0) ? 'var(--bordeaux)' : 'var(--stone-2)'}
+                          strokeWidth="1.4">
+                          <path d="M12 3l3 6 6.5 1-4.7 4.6 1.1 6.4L12 18l-5.9 3 1.1-6.4L2.5 10 9 9l3-6z" strokeLinejoin="round" />
+                        </svg>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Link>
+          ) : null}
         </div>
       )}
 
