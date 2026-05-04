@@ -152,7 +152,7 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
         </div>
 
         {/* Week grid */}
-        <div className="px-4 py-4">
+        <div className="px-4 pt-4 pb-8 sm:pb-4">
           {/* Day headers */}
           <div className="grid grid-cols-7 mb-2">
             {NL_DAYS_SHORT.map(d => (
