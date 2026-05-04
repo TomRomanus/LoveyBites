@@ -57,9 +57,9 @@ function PortionStepper({ value, onChange, label, dir }: { value: number; onChan
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M5 12h14" /></svg>
       </button>
       <div style={{ minWidth: 72, textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)', letterSpacing: '0.08em', textTransform: 'uppercase', overflow: 'hidden' }}>
-        <span key={value} className={dir ? (dir === 'up' ? 'lb-num-up' : 'lb-num-down') : ''} style={{ display: 'inline-block' }}>
-          {value} {label}
-        </span>
+        <span key={value} className={dir ? (dir === 'up' ? 'lb-num-down' : 'lb-num-up') : ''} style={{ display: 'inline-block' }}>
+          {value}
+        </span>{' '}{label}
       </div>
       <button onClick={() => onChange(value + 1)} style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
@@ -285,7 +285,7 @@ export default function RecipeDetailPage() {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M5 12l5 5L20 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
                       </span>
                       <span style={{ flex: 1, fontSize: 15, color: isChecked ? 'var(--stone)' : 'var(--ink)', textDecoration: isChecked ? 'line-through' : 'none', opacity: isChecked ? 0.5 : 1, transitionProperty: 'color, opacity', transition: 'color 0.2s ease, opacity 0.2s ease', overflow: 'hidden' }}>
-                        <span key={portions} className={portionDir ? (portionDir === 'up' ? 'lb-num-up' : 'lb-num-down') : ''} style={{ display: 'inline' }}>
+                        <span key={portions} className={portionDir ? (portionDir === 'up' ? 'lb-num-down' : 'lb-num-up') : ''} style={{ display: 'inline-block' }}>
                           {item}
                         </span>
                       </span>
@@ -413,7 +413,7 @@ export default function RecipeDetailPage() {
         document.body
       )}
 
-      {!calendarOpen && createPortal(
+      {!calendarOpen && !cookMode && createPortal(
         <button
           onClick={() => setCalendarOpen(true)}
           style={{
@@ -434,6 +434,7 @@ export default function RecipeDetailPage() {
       {calendarOpen && (
         <AddToCalendarModal recipe={recipe} onClose={() => setCalendarOpen(false)} onSaved={() => setCalendarOpen(false)} />
       )}
+
     </div>
   )
 }

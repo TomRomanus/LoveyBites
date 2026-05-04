@@ -451,6 +451,17 @@ textarea.lb-input {
 .lb-num-up   { animation: lb-num-up   360ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 .lb-num-down { animation: lb-num-down 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 
+@keyframes lb-num-right {
+  from { transform: translateX(40%); opacity: 0; }
+  to   { transform: translateX(0);   opacity: 1; }
+}
+@keyframes lb-num-left {
+  from { transform: translateX(-40%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+.lb-num-right { animation: lb-num-right 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.lb-num-left  { animation: lb-num-left  360ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
 @keyframes lb-check-badge {
   0%   { transform: scale(0); opacity: 0; }
   40%  { transform: scale(1.15); opacity: 1; }
