@@ -1,8 +1,9 @@
 import { useLayoutEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { AuthProvider } from './contexts/AuthContext'
+import { AuthProvider, useAuth } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import BottomNav from './components/BottomNav'
+import LoadingLogo from './components/LoadingLogo'
 import LoginPage from './pages/LoginPage'
 import RecipesPage from './pages/RecipesPage'
 import RecipeDetailPage from './pages/RecipeDetailPage'
@@ -12,6 +13,7 @@ import CalendarPage from './pages/CalendarPage'
 const NAV_ROUTES = ['/', '/calendar']
 
 function AppShell() {
+  const { loading } = useAuth()
   const location = useLocation()
   const showNav = NAV_ROUTES.includes(location.pathname)
 
@@ -19,6 +21,14 @@ function AppShell() {
     window.scrollTo(0, 0)
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#f8f4ed')
   }, [location.pathname])
+
+  if (loading) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--paper)' }}>
+        <LoadingLogo />
+      </div>
+    )
+  }
 
   return (
     <div style={{ maxWidth: 480, margin: '0 auto', minHeight: '100dvh', position: 'relative' }}>
