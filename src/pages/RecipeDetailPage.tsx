@@ -138,7 +138,7 @@ export default function RecipeDetailPage() {
 
   if (loading) {
     return (
-      <div className="lb-paper" style={{ minHeight: '100dvh' }}>
+      <div style={{ minHeight: '100dvh', background: 'var(--paper)' }}>
         <div className="lb-skeleton" style={{ height: 185, borderRadius: 0 }} />
         <div style={{ padding: '20px 22px 0' }}>
           <div className="lb-skeleton" style={{ height: 10, width: '30%', marginBottom: 10, borderRadius: 4 }} />
@@ -195,30 +195,28 @@ export default function RecipeDetailPage() {
   }
 
   return (
-    <div className="lb-paper" style={{ minHeight: '100dvh', position: 'relative' }}>
+    <div style={{ minHeight: '100dvh', position: 'relative', background: 'var(--paper)' }}>
       {/* Hero color block */}
-      <div style={{ position: 'relative' }}>
-        <div className="lb-color-block" style={{
-          '--block-bg': color,
-          minHeight: 185,
-          padding: '24px 22px 24px',
-          borderRadius: 0,
-          justifyContent: 'flex-start',
-        } as React.CSSProperties}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1, position: 'relative' }}>
-            <button onClick={() => navigate('/')}
-              style={{ width: 36, height: 36, borderRadius: 18, background: 'transparent', border: '0.5px solid rgba(255,250,240,0.45)', color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
-            </button>
-            <button onClick={() => setShowActions(true)}
-              style={{ width: 36, height: 36, borderRadius: 18, background: 'transparent', border: '0.5px solid rgba(255,250,240,0.45)', color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" /></svg>
-            </button>
-          </div>
-          <div style={{ zIndex: 1, position: 'relative', marginTop: 46 }}>
-            <div className="lb-color-block-corner" style={{ marginBottom: 8 }}>RECEPT</div>
-            <div className="lb-color-block-title" style={{ fontSize: 34, lineHeight: 1.0, letterSpacing: '-0.025em' }}>{recipe.title}</div>
-          </div>
+      <div className="lb-color-block" style={{
+        '--block-bg': color,
+        minHeight: 185,
+        padding: '24px 22px 24px',
+        borderRadius: 0,
+        justifyContent: 'flex-start',
+      } as React.CSSProperties}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <button onClick={() => navigate('/')}
+            style={{ width: 36, height: 36, borderRadius: 18, background: 'transparent', border: '0.5px solid rgba(255,250,240,0.45)', color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
+          </button>
+          <button onClick={() => setShowActions(true)}
+            style={{ width: 36, height: 36, borderRadius: 18, background: 'transparent', border: '0.5px solid rgba(255,250,240,0.45)', color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" /></svg>
+          </button>
+        </div>
+        <div style={{ marginTop: 46 }}>
+          <div className="lb-color-block-corner" style={{ marginBottom: 8 }}>RECEPT</div>
+          <div className="lb-color-block-title" style={{ fontSize: 34, lineHeight: 1.0, letterSpacing: '-0.025em' }}>{recipe.title}</div>
         </div>
       </div>
 

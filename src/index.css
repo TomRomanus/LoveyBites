@@ -47,7 +47,13 @@ html, body {
   padding: 0;
   font-family: var(--sans);
   color: var(--ink);
-  background: var(--paper);
+  background-color: var(--paper);
+  background-image:
+    radial-gradient(rgba(31, 29, 26, 0.025) 1px, transparent 1px),
+    radial-gradient(rgba(31, 29, 26, 0.02) 1px, transparent 1px);
+  background-size: 24px 24px, 13px 13px;
+  background-position: 0 0, 6px 6px;
+  background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   padding-top: env(safe-area-inset-top);
@@ -414,7 +420,7 @@ textarea.lb-input {
   to   { opacity: 1; transform: none; }
 }
 .lb-fade-in { animation: lb-fade-in 0.25s ease; }
-.lb-page-enter { animation: lb-page-enter 0.22s cubic-bezier(0.2, 0, 0.2, 1) both; }
+.lb-page-enter { animation: lb-page-enter 0.22s cubic-bezier(0.2, 0, 0.2, 1) both; background: var(--paper); }
 .lb-pop-in { animation: lb-pop-in 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .lb-shake { animation: lb-shake 0.4s ease; }
 
