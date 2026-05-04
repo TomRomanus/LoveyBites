@@ -17,6 +17,7 @@ function AppShell() {
 
   useLayoutEffect(() => {
     window.scrollTo(0, 0)
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#f8f4ed')
   }, [location.pathname])
 
   return (

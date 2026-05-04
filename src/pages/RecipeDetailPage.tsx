@@ -97,7 +97,10 @@ export default function RecipeDetailPage() {
     if (!id) return
     getRecipe(id).then(r => {
       setRecipe(r)
-      if (r) setPortions(r.portions ?? 4)
+      if (r) {
+        setPortions(r.portions ?? 4)
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', r.color ?? DEFAULT_RECIPE_COLOR)
+      }
     }).finally(() => setLoading(false))
   }, [id])
 

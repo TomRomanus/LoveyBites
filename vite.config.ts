@@ -12,8 +12,8 @@ export default defineConfig({
         name: 'LoveyBites',
         short_name: 'LoveyBites',
         description: 'Ons gedeelde receptenboek',
-        theme_color: '#fb7185',
-        background_color: '#fff7ed',
+        theme_color: '#f8f4ed',
+        background_color: '#f8f4ed',
         display: 'standalone',
         start_url: '/',
         icons: [
