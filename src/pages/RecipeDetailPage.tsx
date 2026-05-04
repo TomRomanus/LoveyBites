@@ -50,14 +50,16 @@ function Stars({ value, onChange }: { value: number; onChange?: (v: number) => v
   )
 }
 
-function PortionStepper({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) {
+function PortionStepper({ value, onChange, label, dir }: { value: number; onChange: (v: number) => void; label: string; dir: 'up' | 'down' | null }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', background: 'var(--paper-2)', borderRadius: 16, padding: 3 }}>
       <button onClick={() => onChange(Math.max(1, value - 1))} style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M5 12h14" /></svg>
       </button>
-      <div style={{ minWidth: 72, textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-        {value} {label}
+      <div style={{ minWidth: 72, textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)', letterSpacing: '0.08em', textTransform: 'uppercase', overflow: 'hidden' }}>
+        <span key={value} className={dir ? (dir === 'up' ? 'lb-num-up' : 'lb-num-down') : ''} style={{ display: 'inline-block' }}>
+          {value} {label}
+        </span>
       </div>
       <button onClick={() => onChange(value + 1)} style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
@@ -73,9 +75,21 @@ export default function RecipeDetailPage() {
   const [loading, setLoading] = useState(true)
   const [checked, setChecked] = useState<Set<string>>(new Set())
   const [portions, setPortions] = useState(4)
+  const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
+
+  function handlePortionChange(v: number) {
+    setPortionDir(v > portions ? 'up' : 'down')
+    setPortions(v)
+  }
   const [cookMode, setCookMode] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [showActions, setShowActions] = useState(false)
+  const [actionsClosing, setActionsClosing] = useState(false)
+
+  function closeActions() {
+    setActionsClosing(true)
+    setTimeout(() => { setShowActions(false); setActionsClosing(false) }, 260)
+  }
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -223,7 +237,7 @@ export default function RecipeDetailPage() {
                 Ingrediënten
               </h2>
             </div>
-            <PortionStepper value={portions} onChange={setPortions} label={recipe.portionsLabel || 'pers'} />
+            <PortionStepper value={portions} onChange={handlePortionChange} label={recipe.portionsLabel || 'pers'} dir={portionDir} />
           </div>
 
           {ingredientSections.map((sec, si) => (
@@ -249,8 +263,10 @@ export default function RecipeDetailPage() {
                       <span className="lb-check" data-checked={isChecked ? 'true' : 'false'}>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M5 12l5 5L20 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
                       </span>
-                      <span style={{ flex: 1, fontSize: 15, color: isChecked ? 'var(--stone)' : 'var(--ink)', textDecoration: isChecked ? 'line-through' : 'none' }}>
-                        {item}
+                      <span style={{ flex: 1, fontSize: 15, color: isChecked ? 'var(--stone)' : 'var(--ink)', textDecoration: isChecked ? 'line-through' : 'none', opacity: isChecked ? 0.5 : 1, transitionProperty: 'color, opacity', transition: 'color 0.2s ease, opacity 0.2s ease', overflow: 'hidden' }}>
+                        <span key={portions} className={portionDir ? (portionDir === 'up' ? 'lb-num-up' : 'lb-num-down') : ''} style={{ display: 'inline' }}>
+                          {item}
+                        </span>
                       </span>
                     </button>
                   )
@@ -330,13 +346,13 @@ export default function RecipeDetailPage() {
 
       {showActions && createPortal(
         <>
-          <div className="lb-sheet-backdrop" onClick={() => setShowActions(false)} />
-          <div className="lb-sheet" style={{ paddingBottom: 30 }}>
+          <div className={`lb-sheet-backdrop${actionsClosing ? ' lb-sheet-backdrop--exit' : ''}`} onClick={closeActions} />
+          <div className={`lb-sheet${actionsClosing ? ' lb-sheet--exit' : ''}`} style={{ paddingBottom: 30 }}>
             <div className="lb-sheet-grabber" />
             <div style={{ padding: '14px 12px' }}>
               {[
-                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M16 3l5 5-12 12H4v-5L16 3z" /></svg>, label: 'Recept bewerken', action: () => { setShowActions(false); navigate(`/edit/${recipe.id}`) } },
-                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13" /></svg>, label: 'Recept verwijderen', action: () => { setShowActions(false); setConfirmDelete(true) }, destructive: true },
+                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M16 3l5 5-12 12H4v-5L16 3z" /></svg>, label: 'Recept bewerken', action: () => { closeActions(); navigate(`/edit/${recipe.id}`) } },
+                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13" /></svg>, label: 'Recept verwijderen', action: () => { closeActions(); setConfirmDelete(true) }, destructive: true },
               ].map((item, i) => (
                 <button key={i} onClick={item.action} style={{
                   display: 'flex', alignItems: 'center', gap: 14, width: '100%',
