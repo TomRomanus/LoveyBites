@@ -4,6 +4,7 @@ export interface MealPlanEntry {
   id: string
   date: string
   recipeId?: string
+  recipeTitle?: string
   customDescription?: string
   createdAt: Timestamp
   createdBy: string
