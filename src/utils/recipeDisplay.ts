@@ -32,16 +32,16 @@ function collectLeafTexts(nodes: IngredientNode[]): string[] {
   )
 }
 
-/** Flatten a tree of step nodes into `{ phase, text }[]` for cook mode. */
+/** Flatten a tree of step nodes into `{ phase, text, ingredientRefs }[]` for display. */
 export function flattenSteps(
   nodes: IngredientNode[],
-): { phase: string; text: string }[] {
-  const steps: { phase: string; text: string }[] = []
+): { phase: string; text: string; ingredientRefs?: string[] }[] {
+  const steps: { phase: string; text: string; ingredientRefs?: string[] }[] = []
 
   function traverse(ns: IngredientNode[], phase: string) {
     for (const n of ns) {
       if (n.kind === 'leaf') {
-        steps.push({ phase, text: n.text })
+        steps.push({ phase, text: n.text, ingredientRefs: n.ingredientRefs })
       } else {
         traverse(n.children, n.title || phase)
       }

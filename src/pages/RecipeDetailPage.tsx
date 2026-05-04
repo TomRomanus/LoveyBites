@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getRecipe, deleteRecipe, updateRecipe } from '../services/recipes'
 import type { Recipe } from '../types/recipe'
@@ -49,14 +50,14 @@ function Stars({ value, onChange }: { value: number; onChange?: (v: number) => v
   )
 }
 
-function PortionStepper({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+function PortionStepper({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', background: 'var(--paper-2)', borderRadius: 16, padding: 3 }}>
       <button onClick={() => onChange(Math.max(1, value - 1))} style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M5 12h14" /></svg>
       </button>
-      <div style={{ minWidth: 56, textAlign: 'center', fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--ink)' }}>
-        {value} <span style={{ fontSize: 10, color: 'var(--stone)', fontFamily: 'var(--mono)', fontStyle: 'normal', letterSpacing: '0.04em' }}>PERS</span>
+      <div style={{ minWidth: 72, textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        {value} {label}
       </div>
       <button onClick={() => onChange(value + 1)} style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
@@ -140,7 +141,7 @@ export default function RecipeDetailPage() {
   const scaledIngredients = scaleIngredients(recipe.ingredients, ratio)
   const ingredientSections = flattenIngredientSections(scaledIngredients)
   const stepSections = flattenSteps(recipe.steps)
-  const shortId = recipe.id.slice(-2).toUpperCase()
+  const ingredientMap = collectIngredientMap(scaledIngredients)
 
   if (cookMode) {
     return (
@@ -162,22 +163,23 @@ export default function RecipeDetailPage() {
       <div style={{ position: 'relative' }}>
         <div className="lb-color-block" style={{
           '--block-bg': color,
-          height: 240,
-          padding: '60px 22px 24px',
+          minHeight: 185,
+          padding: '24px 22px 24px',
           borderRadius: 0,
+          justifyContent: 'flex-start',
         } as React.CSSProperties}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1, position: 'relative' }}>
             <button onClick={() => navigate('/')}
-              style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,250,240,0.16)', backdropFilter: 'blur(8px)', border: 0, color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
+              style={{ width: 36, height: 36, borderRadius: 18, background: 'transparent', border: '0.5px solid rgba(255,250,240,0.45)', color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
             </button>
             <button onClick={() => setShowActions(true)}
-              style={{ width: 44, height: 44, borderRadius: 22, background: 'rgba(255,250,240,0.16)', backdropFilter: 'blur(8px)', border: 0, color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" /></svg>
+              style={{ width: 36, height: 36, borderRadius: 18, background: 'transparent', border: '0.5px solid rgba(255,250,240,0.45)', color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" /></svg>
             </button>
           </div>
-          <div style={{ zIndex: 1, position: 'relative' }}>
-            <div className="lb-color-block-corner" style={{ marginBottom: 8 }}>RECEPT № {shortId}</div>
+          <div style={{ zIndex: 1, position: 'relative', marginTop: 46 }}>
+            <div className="lb-color-block-corner" style={{ marginBottom: 8 }}>RECEPT</div>
             <div className="lb-color-block-title" style={{ fontSize: 34, lineHeight: 1.0, letterSpacing: '-0.025em' }}>{recipe.title}</div>
           </div>
         </div>
@@ -186,12 +188,17 @@ export default function RecipeDetailPage() {
       {/* Tags + description + rating */}
       <div style={{ padding: '20px 22px 0' }}>
         {recipe.tags.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
-            {recipe.tags.map(t => <span key={t} className="lb-tag">{t}</span>)}
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, textTransform: 'uppercase', letterSpacing: '0.14em', marginBottom: 12, color: 'var(--stone)' }}>
+            {recipe.tags.map((t, i) => (
+              <span key={t}>
+                {i > 0 && <span> · </span>}
+                <span>{t}</span>
+              </span>
+            ))}
           </div>
         )}
         {recipe.description && (
-          <p style={{ margin: '0 0 14px', color: 'var(--ink-2)', fontSize: 15, lineHeight: 1.55, fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
+          <p style={{ margin: '0 0 14px', color: 'var(--ink-2)', fontSize: 15, lineHeight: 1.55 }}>
             {recipe.description}
           </p>
         )}
@@ -212,20 +219,22 @@ export default function RecipeDetailPage() {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
             <div>
               <div className="lb-eyebrow">DEEL I</div>
-              <h2 style={{ margin: '4px 0 0', fontSize: 24, fontFamily: 'var(--serif)', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.05 }}>
-                <span style={{ fontStyle: 'italic' }}>Ingred</span>
-                <span style={{ fontFamily: 'var(--sans)', fontStyle: 'normal', fontWeight: 700, letterSpacing: '-0.03em' }}>iënten</span>
+              <h2 style={{ margin: '4px 0 0', fontSize: 24, fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.05 }}>
+                Ingrediënten
               </h2>
             </div>
-            <PortionStepper value={portions} onChange={setPortions} />
+            <PortionStepper value={portions} onChange={setPortions} label={recipe.portionsLabel || 'pers'} />
           </div>
 
           {ingredientSections.map((sec, si) => (
             <div key={si} style={{ marginBottom: 16 }}>
               {sec.section && (
-                <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bordeaux)', marginBottom: 8, fontWeight: 500 }}>
-                  {sec.section}
-                </div>
+                <>
+                  <div style={{ fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bordeaux)', marginBottom: 3, fontWeight: 500 }}>
+                    {sec.section}
+                  </div>
+                  <div style={{ width: 22, height: 1.5, background: 'var(--bordeaux)', borderRadius: 1, opacity: 0.55, marginBottom: 8 }} />
+                </>
               )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {sec.items.map((item, ii) => {
@@ -256,26 +265,38 @@ export default function RecipeDetailPage() {
       {stepSections.length > 0 && (
         <div style={{ padding: '28px 22px 0' }}>
           <div className="lb-eyebrow">DEEL II</div>
-          <h2 style={{ margin: '4px 0 16px', fontSize: 24, fontFamily: 'var(--serif)', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.05 }}>
-            <span style={{ fontStyle: 'italic' }}>Bere</span>
-            <span style={{ fontFamily: 'var(--sans)', fontStyle: 'normal', fontWeight: 700, letterSpacing: '-0.03em' }}>iding</span>
+          <h2 style={{ margin: '4px 0 16px', fontSize: 24, fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.05 }}>
+            Instructies
           </h2>
           {(() => {
             let num = 0
+            let prevPhase = ''
             return stepSections.map((step, i) => {
               num++
+              const showPhase = step.phase !== prevPhase
+              if (showPhase) prevPhase = step.phase
               return (
                 <div key={i}>
-                  {step.phase && (
-                    <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bordeaux)', marginBottom: 10, marginTop: i > 0 ? 18 : 0, fontWeight: 500 }}>
-                      {step.phase}
-                    </div>
+                  {showPhase && step.phase && (
+                    <>
+                      <div style={{ fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bordeaux)', marginBottom: 3, marginTop: i > 0 ? 20 : 0, fontWeight: 500 }}>
+                        {step.phase}
+                      </div>
+                      <div style={{ width: 22, height: 1.5, background: 'var(--bordeaux)', borderRadius: 1, opacity: 0.55, marginBottom: 8 }} />
+                    </>
                   )}
-                  <div style={{ display: 'flex', gap: 14, padding: '8px 0' }}>
-                    <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 30, flexShrink: 0, lineHeight: 1, paddingTop: 1 }}>
+                  <div style={{ display: 'flex', gap: 14, padding: '8px 0', borderBottom: '0.5px solid var(--line-soft)' }}>
+                    <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 22, flexShrink: 0, lineHeight: 1.1, paddingTop: 1 }}>
                       {num}
                     </div>
-                    <div style={{ fontSize: 15, color: 'var(--ink)', lineHeight: 1.55, flex: 1 }}>{step.text}</div>
+                    <div style={{ flex: 1 }}>
+                      {step.ingredientRefs && step.ingredientRefs.length > 0 && (
+                        <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(107,31,42,0.55)', marginBottom: 5 }}>
+                          {step.ingredientRefs.map(id => ingredientMap.get(id) ?? id).join(' · ')}
+                        </div>
+                      )}
+                      <div style={{ fontSize: 15, color: 'var(--ink)', lineHeight: 1.55 }}>{step.text}</div>
+                    </div>
                   </div>
                 </div>
               )
@@ -287,8 +308,11 @@ export default function RecipeDetailPage() {
       {/* Sources */}
       {(recipe.sources ?? []).length > 0 && (
         <div style={{ padding: '28px 22px 0' }}>
-          <div className="lb-eyebrow">BRONNEN</div>
-          <div style={{ marginTop: 10 }}>
+          <div className="lb-eyebrow">DEEL III</div>
+          <h2 style={{ margin: '4px 0 16px', fontSize: 24, fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500, letterSpacing: '-0.02em', lineHeight: 1.05 }}>
+            Bronnen
+          </h2>
+          <div style={{ marginTop: 0 }}>
             {(recipe.sources ?? []).map((s, i) => (
               <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" style={{
                 display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0',
@@ -302,27 +326,15 @@ export default function RecipeDetailPage() {
         </div>
       )}
 
-      {/* Bottom actions */}
-      <div style={{ padding: '32px 22px 120px', display: 'flex', gap: 10 }}>
-        <button onClick={() => setCalendarOpen(true)} className="lb-btn lb-btn--ghost" style={{ flex: 1 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
-          Plannen
-        </button>
-        <button onClick={() => navigate(`/edit/${recipe.id}`)} className="lb-btn lb-btn--ghost" style={{ flex: 1 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M16 3l5 5-12 12H4v-5L16 3z" /></svg>
-          Bewerken
-        </button>
-      </div>
+      <div style={{ paddingBottom: 100 }} />
 
-      {/* Action sheet */}
-      {showActions && (
+      {showActions && createPortal(
         <>
           <div className="lb-sheet-backdrop" onClick={() => setShowActions(false)} />
           <div className="lb-sheet" style={{ paddingBottom: 30 }}>
             <div className="lb-sheet-grabber" />
             <div style={{ padding: '14px 12px' }}>
               {[
-                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round"><rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>, label: 'Toevoegen aan planning', action: () => { setShowActions(false); setCalendarOpen(true) } },
                 { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M16 3l5 5-12 12H4v-5L16 3z" /></svg>, label: 'Recept bewerken', action: () => { setShowActions(false); navigate(`/edit/${recipe.id}`) } },
                 { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13" /></svg>, label: 'Recept verwijderen', action: () => { setShowActions(false); setConfirmDelete(true) }, destructive: true },
               ].map((item, i) => (
@@ -337,11 +349,11 @@ export default function RecipeDetailPage() {
               ))}
             </div>
           </div>
-        </>
+        </>,
+        document.body
       )}
 
-      {/* Delete confirm */}
-      {confirmDelete && (
+      {confirmDelete && createPortal(
         <>
           <div className="lb-sheet-backdrop" onClick={() => setConfirmDelete(false)} />
           <div className="lb-pop-in" style={{
@@ -351,7 +363,7 @@ export default function RecipeDetailPage() {
           }}>
             <h3 className="lb-display" style={{ margin: 0, fontSize: 22, textAlign: 'center' }}>Dit recept verwijderen?</h3>
             <p style={{ margin: '10px 0 22px', textAlign: 'center', fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5 }}>
-              "{recipe.title}" wordt uit je boek gehaald.
+              "{recipe.title}" wordt uit ons kookboek gehaald.
             </p>
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setConfirmDelete(false)} className="lb-btn lb-btn--ghost" style={{ flex: 1 }}>Annuleren</button>
@@ -360,7 +372,26 @@ export default function RecipeDetailPage() {
               </button>
             </div>
           </div>
-        </>
+        </>,
+        document.body
+      )}
+
+      {createPortal(
+        <button
+          onClick={() => setCalendarOpen(true)}
+          style={{
+            position: 'fixed', bottom: 'max(28px, env(safe-area-inset-bottom))', right: 22,
+            width: 52, height: 52, borderRadius: 26,
+            background: 'var(--bordeaux)', color: 'var(--cream-card)',
+            border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 4px 16px rgba(107,31,42,0.35)',
+            cursor: 'pointer', zIndex: 90,
+          }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
+            <rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" />
+          </svg>
+        </button>,
+        document.body
       )}
 
       {calendarOpen && (

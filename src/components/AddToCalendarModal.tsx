@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { getMealPlanEntries, createMealPlanEntry } from '../services/mealPlan'
 import type { MealPlanEntry, Recipe } from '../types/recipe'
 import { useAuth } from '../contexts/AuthContext'
@@ -86,7 +87,7 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
     return `${weekStart.getDate()} ${NL_MONTHS[weekStart.getMonth()]} – ${weekEnd.getDate()} ${NL_MONTHS[weekEnd.getMonth()]}`
   })()
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col">
@@ -202,6 +203,7 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
           </p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

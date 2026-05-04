@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import RecipeCard from '../components/RecipeCard'
 import AddToCalendarModal from '../components/AddToCalendarModal'
@@ -45,7 +46,7 @@ function FilterSheet({ activeTags, allTags, onChange, onClose }: {
   const toggle = (t: string) =>
     onChange(activeTags.includes(t) ? activeTags.filter(x => x !== t) : [...activeTags, t])
 
-  return (
+  return createPortal(
     <>
       <div className="lb-sheet-backdrop" onClick={onClose} />
       <div className="lb-sheet" style={{ paddingBottom: 30 }}>
@@ -83,7 +84,8 @@ function FilterSheet({ activeTags, allTags, onChange, onClose }: {
           <button onClick={onClose} className="lb-btn lb-btn--primary" style={{ width: '100%' }}>Toepassen</button>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   )
 }
 
@@ -93,7 +95,7 @@ function SortSheet({ sort, onChange, onClose }: {
   onClose: () => void
 }) {
   const opts = (Object.keys(SORT_LABELS) as SortOption[])
-  return (
+  return createPortal(
     <>
       <div className="lb-sheet-backdrop" onClick={onClose} />
       <div className="lb-sheet" style={{ paddingBottom: 30 }}>
@@ -119,7 +121,8 @@ function SortSheet({ sort, onChange, onClose }: {
           ))}
         </div>
       </div>
-    </>
+    </>,
+    document.body
   )
 }
 
@@ -132,7 +135,7 @@ export default function RecipesPage() {
   const [calendarRecipe, setCalendarRecipe] = useState<Recipe | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTags, setActiveTags] = useState<string[]>([])
-  const [sort, setSort] = useState<SortOption>('default')
+  const [sort, setSort] = useState<SortOption>('name-asc')
   const [showFilters, setShowFilters] = useState(false)
   const [showSort, setShowSort] = useState(false)
   const [todayRecipe, setTodayRecipe] = useState<Recipe | null>(null)

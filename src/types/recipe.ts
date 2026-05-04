@@ -42,6 +42,7 @@ export interface Recipe {
   imageUrl: string
   color?: string
   portions?: number
+  portionsLabel?: string
   rating?: number
   createdAt: Timestamp
   updatedAt: Timestamp

@@ -196,20 +196,42 @@ export default function RecipeForm({ initial, onSubmit, submitLabel }: Props) {
             placeholder="Een regel of twee" />
         </Field>
         <div style={{ height: 14 }} />
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <span className="lb-eyebrow">PORTIES</span>
-          <div style={{ display: 'flex', alignItems: 'center', background: 'var(--paper-2)', borderRadius: 16, padding: 3 }}>
-            <button type="button" onClick={() => setField('portions', Math.max(1, (form.portions ?? 4) - 1))}
-              style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M5 12h14" /></svg>
-            </button>
-            <div style={{ minWidth: 56, textAlign: 'center', fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--ink)' }}>
-              {form.portions ?? 4} <span style={{ fontSize: 10, color: 'var(--stone)', fontFamily: 'var(--mono)', fontStyle: 'normal', letterSpacing: '0.04em' }}>PERS</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', background: 'var(--paper-2)', borderRadius: 16, padding: 3 }}>
+              {(['pers', 'stuks'] as const).map(opt => {
+                const active = (form.portionsLabel || 'pers') === opt
+                return (
+                  <button key={opt} type="button"
+                    onClick={() => setField('portionsLabel', opt === 'pers' ? undefined : opt)}
+                    style={{
+                      padding: '4px 12px', borderRadius: 12, border: 0,
+                      background: active ? 'var(--cream-card)' : 'transparent',
+                      color: active ? 'var(--ink)' : 'var(--stone)',
+                      fontFamily: 'var(--mono)', fontSize: 11, fontWeight: 500,
+                      textTransform: 'uppercase', letterSpacing: '0.06em', cursor: 'pointer',
+                      boxShadow: active ? '0 1px 2px rgba(0,0,0,0.06)' : 'none',
+                      transition: 'background 0.15s, color 0.15s',
+                    }}>
+                    {opt}
+                  </button>
+                )
+              })}
             </div>
-            <button type="button" onClick={() => setField('portions', (form.portions ?? 4) + 1)}
-              style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--paper-2)', borderRadius: 16, padding: 3 }}>
+              <button type="button" onClick={() => setField('portions', Math.max(1, (form.portions ?? 4) - 1))}
+                style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M5 12h14" /></svg>
+              </button>
+              <div style={{ minWidth: 72, textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                {form.portions ?? 4} {form.portionsLabel || 'pers'}
+              </div>
+              <button type="button" onClick={() => setField('portions', (form.portions ?? 4) + 1)}
+                style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+              </button>
+            </div>
           </div>
         </div>
         <div style={{ height: 14 }} />
