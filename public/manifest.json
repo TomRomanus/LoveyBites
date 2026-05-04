@@ -2,7 +2,7 @@
   "name": "LoveyBites",
   "short_name": "LoveyBites",
   "description": "Our shared recipe book",
-  "theme_color": "#f8f4ed",
+  "theme_color": "transparent",
   "background_color": "#f8f4ed",
   "display": "standalone",
   "start_url": "/",
