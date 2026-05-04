@@ -4,6 +4,7 @@ import RecipeForm from '../components/RecipeForm'
 import RecipeImport from '../components/RecipeImport'
 import RecipeTextImport from '../components/RecipeTextImport'
 import RecipePhotoImport from '../components/RecipePhotoImport'
+import LoadingLogo from '../components/LoadingLogo'
 import { createRecipe, updateRecipe, getRecipe } from '../services/recipes'
 import type { RecipeInput } from '../types/recipe'
 
@@ -101,8 +102,8 @@ export default function NewRecipePage() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
-        Laden…
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh', background: 'var(--paper)' }}>
+        <LoadingLogo />
       </div>
     )
   }
