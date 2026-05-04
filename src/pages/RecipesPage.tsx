@@ -247,6 +247,7 @@ export default function RecipesPage() {
 
       {/* Search + filters */}
       <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {loading && <div className="lb-skeleton" style={{ height: 11, width: '30%', borderRadius: 4 }} />}
         {!loading && !error && (
           <div className="lb-eyebrow">{sorted.length} {sorted.length === 1 ? 'RECEPT' : 'RECEPTEN'}</div>
         )}
@@ -272,6 +273,12 @@ export default function RecipesPage() {
           )}
         </div>
 
+        {loading && (
+          <div style={{ display: 'flex', gap: 8 }}>
+            <div className="lb-skeleton" style={{ flex: 1, height: 36, borderRadius: 10 }} />
+            <div className="lb-skeleton" style={{ flex: 1, height: 36, borderRadius: 10 }} />
+          </div>
+        )}
         {!loading && !error && recipes.length > 0 && (
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={() => setShowFilters(true)} className="lb-btn lb-btn--ghost lb-btn--small"
@@ -304,8 +311,16 @@ export default function RecipesPage() {
 
       {/* Content */}
       {loading && (
-        <div style={{ padding: '60px 20px', textAlign: 'center', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
-          Recepten laden…
+        <div style={{ padding: '10px 20px 120px' }}>
+          {[62, 48, 70, 55, 65, 50].map((titleW, i) => (
+            <div key={i} style={{ padding: '10px 0', borderBottom: '0.5px solid var(--line)' }}>
+              <div className="lb-skeleton" style={{ height: 18, width: `${titleW}%`, marginBottom: 6 }} />
+              <div style={{ width: 24, height: 1.5, background: 'var(--paper-3)', borderRadius: 1, margin: '4px 0 6px' }} />
+              <div className="lb-skeleton" style={{ height: 11, width: '78%', marginBottom: 3 }} />
+              <div className="lb-skeleton" style={{ height: 11, width: '55%', marginBottom: 6 }} />
+              <div className="lb-skeleton" style={{ height: 10, width: 70 }} />
+            </div>
+          ))}
         </div>
       )}
 
