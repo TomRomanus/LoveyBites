@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getRecipe, deleteRecipe, updateRecipe } from '../services/recipes'
 import type { Recipe } from '../types/recipe'
@@ -56,10 +57,26 @@ function PortionStepper({ value, onChange, label, dir }: { value: number; onChan
       <button onClick={() => onChange(Math.max(1, value - 1))} style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M5 12h14" /></svg>
       </button>
-      <div style={{ minWidth: 72, textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)', letterSpacing: '0.08em', textTransform: 'uppercase', overflow: 'hidden' }}>
-        <span key={value} className={dir ? (dir === 'up' ? 'lb-num-down' : 'lb-num-up') : ''} style={{ display: 'inline-block' }}>
-          {value}
-        </span>{' '}{label}
+      <div style={{ minWidth: 72, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <div style={{ overflow: 'hidden', position: 'relative' }}>
+          <AnimatePresence mode="popLayout" custom={dir}>
+            <motion.span
+              key={value}
+              custom={dir}
+              variants={{
+                enter: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? 10 : d === 'down' ? -10 : 0, opacity: 0 }),
+                center: { y: 0, opacity: 1 },
+                exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -10 : d === 'down' ? 10 : 0, opacity: 0 }),
+              }}
+              initial="enter" animate="center" exit="exit"
+              transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+              style={{ display: 'block' }}
+            >
+              {value}
+            </motion.span>
+          </AnimatePresence>
+        </div>
+        <span>{label}</span>
       </div>
       <button onClick={() => onChange(value + 1)} style={{ width: 30, height: 30, borderRadius: 13, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
@@ -84,12 +101,6 @@ export default function RecipeDetailPage() {
   const [cookMode, setCookMode] = useState(false)
   const [calendarOpen, setCalendarOpen] = useState(false)
   const [showActions, setShowActions] = useState(false)
-  const [actionsClosing, setActionsClosing] = useState(false)
-
-  function closeActions() {
-    setActionsClosing(true)
-    setTimeout(() => { setShowActions(false); setActionsClosing(false) }, 260)
-  }
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
@@ -281,13 +292,50 @@ export default function RecipeDetailPage() {
                       background: 'transparent', border: 0, textAlign: 'left',
                       borderBottom: '0.5px solid var(--line-soft)', cursor: 'pointer',
                     }}>
-                      <span className="lb-check" data-checked={isChecked ? 'true' : 'false'}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M5 12l5 5L20 7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                      </span>
-                      <span style={{ flex: 1, fontSize: 15, color: isChecked ? 'var(--stone)' : 'var(--ink)', textDecoration: isChecked ? 'line-through' : 'none', opacity: isChecked ? 0.5 : 1, transitionProperty: 'color, opacity', transition: 'color 0.2s ease, opacity 0.2s ease', overflow: 'hidden' }}>
-                        <span key={portions} className={portionDir ? (portionDir === 'up' ? 'lb-num-down' : 'lb-num-up') : ''} style={{ display: 'inline-block' }}>
-                          {item}
-                        </span>
+                      <motion.span
+                        initial={false}
+                        animate={{
+                          background: isChecked ? 'var(--bordeaux)' : 'transparent',
+                          borderColor: isChecked ? 'var(--bordeaux)' : 'var(--stone-2)',
+                          scale: isChecked ? [1, 0.82, 1] : 1,
+                        }}
+                        transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
+                        style={{ width: 22, height: 22, borderRadius: 6, border: '1.5px solid', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                          <motion.path
+                            d="M5 12l5 5L20 7"
+                            strokeLinecap="round" strokeLinejoin="round"
+                            initial={false}
+                            animate={{ pathLength: isChecked ? 1 : 0, opacity: isChecked ? 1 : 0 }}
+                            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                          />
+                        </svg>
+                      </motion.span>
+                      <span style={{ flex: 1, fontSize: 15, color: isChecked ? 'var(--stone)' : 'var(--ink)', opacity: isChecked ? 0.5 : 1, transitionProperty: 'color, opacity', transition: 'color 0.2s ease, opacity 0.2s ease', overflow: 'hidden', position: 'relative' }}>
+                        <AnimatePresence mode="popLayout" custom={portionDir}>
+                          <motion.span
+                            key={portions}
+                            custom={portionDir}
+                            variants={{
+                              enter: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? 8 : d === 'down' ? -8 : 0, opacity: 0 }),
+                              center: { y: 0, opacity: 1 },
+                              exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -8 : d === 'down' ? 8 : 0, opacity: 0 }),
+                            }}
+                            initial="enter" animate="center" exit="exit"
+                            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                            style={{ display: 'block', position: 'relative', width: 'fit-content' }}
+                          >
+                            {item}
+                            <motion.span
+                              aria-hidden
+                              initial={false}
+                              animate={{ scaleX: isChecked ? 1 : 0 }}
+                              transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                              style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: 1.5, background: 'currentColor', transformOrigin: 'left', pointerEvents: 'none' }}
+                            />
+                          </motion.span>
+                        </AnimatePresence>
                       </span>
                     </button>
                   )
@@ -356,7 +404,7 @@ export default function RecipeDetailPage() {
                 color: 'var(--ink)', textDecoration: 'none', borderBottom: '0.5px solid var(--line-soft)',
               }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--bordeaux)" strokeWidth={1.6}><path d="M10 14a4 4 0 005.66 0l3-3a4 4 0 00-5.66-5.66l-1 1" /><path d="M14 10a4 4 0 00-5.66 0l-3 3a4 4 0 005.66 5.66l1-1" /></svg>
-                <span style={{ fontSize: 14, fontStyle: 'italic', fontFamily: 'var(--serif)' }}>{s.label || s.url}</span>
+                <span style={{ fontSize: 14, fontStyle: 'italic', fontFamily: 'var(--serif)', color: 'var(--bordeaux)' }}>{s.label || s.url}</span>
               </a>
             ))}
           </div>
@@ -365,15 +413,34 @@ export default function RecipeDetailPage() {
 
       <div style={{ paddingBottom: 100 }} />
 
-      {showActions && createPortal(
-        <>
-          <div className={`lb-sheet-backdrop${actionsClosing ? ' lb-sheet-backdrop--exit' : ''}`} onClick={closeActions} />
-          <div className={`lb-sheet${actionsClosing ? ' lb-sheet--exit' : ''}`} style={{ paddingBottom: 30 }}>
+      {createPortal(
+        <AnimatePresence>
+          {showActions && <motion.div
+            key="actions-bd"
+            className="lb-sheet-backdrop"
+            style={{ animation: 'none' }}
+            variants={{
+              hidden: { opacity: 0, transition: { duration: 0.2 } },
+              visible: { opacity: 1, transition: { duration: 0.24 } },
+            }}
+            initial="hidden" animate="visible" exit="hidden"
+            onClick={() => setShowActions(false)}
+          />}
+          {showActions && <motion.div
+            key="actions-sheet"
+            className="lb-sheet"
+            style={{ animation: 'none', paddingBottom: 30 }}
+            variants={{
+              hidden: { y: '100%', transition: { type: 'tween', duration: 0.22, ease: [0.4, 0, 1, 1] } },
+              visible: { y: 0, transition: { type: 'spring', stiffness: 300, damping: 32 } },
+            }}
+            initial="hidden" animate="visible" exit="hidden"
+          >
             <div className="lb-sheet-grabber" />
             <div style={{ padding: '14px 12px' }}>
               {[
-                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M16 3l5 5-12 12H4v-5L16 3z" /></svg>, label: 'Recept bewerken', action: () => { closeActions(); navigate(`/edit/${recipe.id}`) } },
-                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13" /></svg>, label: 'Recept verwijderen', action: () => { closeActions(); setConfirmDelete(true) }, destructive: true },
+                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M16 3l5 5-12 12H4v-5L16 3z" /></svg>, label: 'Recept bewerken', action: () => { setShowActions(false); navigate(`/edit/${recipe.id}`) } },
+                { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13a2 2 0 002 2h6a2 2 0 002-2l1-13" /></svg>, label: 'Recept verwijderen', action: () => { setShowActions(false); setConfirmDelete(true) }, destructive: true },
               ].map((item, i) => (
                 <button key={i} onClick={item.action} style={{
                   display: 'flex', alignItems: 'center', gap: 14, width: '100%',
@@ -385,49 +452,77 @@ export default function RecipeDetailPage() {
                 </button>
               ))}
             </div>
-          </div>
-        </>,
+          </motion.div>}
+        </AnimatePresence>,
         document.body
       )}
 
-      {confirmDelete && createPortal(
-        <>
-          <div className="lb-sheet-backdrop" onClick={() => setConfirmDelete(false)} />
-          <div className="lb-pop-in" style={{
-            position: 'fixed', top: '50%', left: 24, right: 24,
-            transform: 'translateY(-50%)', background: 'var(--paper)',
-            borderRadius: 18, padding: 24, zIndex: 202,
-          }}>
-            <h3 className="lb-display" style={{ margin: 0, fontSize: 22, textAlign: 'center' }}>Dit recept verwijderen?</h3>
-            <p style={{ margin: '10px 0 22px', textAlign: 'center', fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5 }}>
-              "{recipe.title}" wordt uit ons kookboek gehaald.
-            </p>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setConfirmDelete(false)} className="lb-btn lb-btn--ghost" style={{ flex: 1 }}>Annuleren</button>
-              <button onClick={handleDelete} disabled={deleting} className="lb-btn lb-btn--primary" style={{ flex: 1 }}>
-                {deleting ? <span className="lb-spinner" /> : 'Verwijderen'}
-              </button>
-            </div>
-          </div>
-        </>,
+      {createPortal(
+        <AnimatePresence>
+          {confirmDelete && <motion.div
+            key="confirm-bd"
+            className="lb-sheet-backdrop"
+            style={{ animation: 'none', zIndex: 202 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setConfirmDelete(false)}
+          />}
+          {confirmDelete && <motion.div
+            key="confirm-dialog"
+            style={{
+              position: 'fixed', inset: 0, display: 'flex', alignItems: 'center',
+              justifyContent: 'center', padding: '0 24px', zIndex: 203, pointerEvents: 'none',
+            }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div
+              style={{ background: 'var(--paper)', borderRadius: 18, padding: 24, width: '100%', pointerEvents: 'auto' }}
+              initial={{ scale: 0.92, y: 8 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.92, y: 8 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+            >
+              <h3 className="lb-display" style={{ margin: 0, fontSize: 22, textAlign: 'center' }}>Dit recept verwijderen?</h3>
+              <p style={{ margin: '10px 0 22px', textAlign: 'center', fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5 }}>
+                "{recipe.title}" wordt uit ons kookboek gehaald.
+              </p>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button onClick={() => setConfirmDelete(false)} className="lb-btn lb-btn--ghost" style={{ flex: 1 }}>Annuleren</button>
+                <button onClick={handleDelete} disabled={deleting} className="lb-btn lb-btn--primary" style={{ flex: 1 }}>
+                  {deleting ? <span className="lb-spinner" /> : 'Verwijderen'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>}
+        </AnimatePresence>,
         document.body
       )}
 
-      {!calendarOpen && !cookMode && createPortal(
-        <button
-          onClick={() => setCalendarOpen(true)}
-          style={{
-            position: 'fixed', bottom: 'max(28px, env(safe-area-inset-bottom))', right: 22,
-            width: 52, height: 52, borderRadius: 26,
-            background: 'var(--bordeaux)', color: 'var(--cream-card)',
-            border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 16px rgba(107,31,42,0.35)',
-            cursor: 'pointer', zIndex: 90,
-          }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
-            <rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" />
-          </svg>
-        </button>,
+      {createPortal(
+        <AnimatePresence>
+          {!calendarOpen && !cookMode && (
+            <motion.button
+              key="calendar-fab"
+              onClick={() => setCalendarOpen(true)}
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.6, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+              style={{
+                position: 'fixed', bottom: 'max(28px, env(safe-area-inset-bottom))', right: 22,
+                width: 52, height: 52, borderRadius: 26,
+                background: 'var(--bordeaux)', color: 'var(--cream-card)',
+                border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 16px rgba(107,31,42,0.35)',
+                cursor: 'pointer', zIndex: 90,
+              }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
+                <rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" />
+              </svg>
+            </motion.button>
+          )}
+        </AnimatePresence>,
         document.body
       )}
 

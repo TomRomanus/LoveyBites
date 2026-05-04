@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { getMealPlanEntries, deleteMealPlanEntry, createMealPlanEntry } from '../services/mealPlan'
 import { getRecipes, getRecipe } from '../services/recipes'
@@ -146,8 +147,23 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
 
   return (
     <>
-      <div className="lb-sheet-backdrop" onClick={onClose} />
-      <div className="lb-sheet" style={{ paddingBottom: 30, height: '88%' }}>
+      <motion.div
+        className="lb-sheet-backdrop" style={{ animation: 'none' }}
+        variants={{
+          hidden: { opacity: 0, transition: { duration: 0.2 } },
+          visible: { opacity: 1, transition: { duration: 0.24 } },
+        }}
+        initial="hidden" animate="visible" exit="hidden"
+        onClick={onClose}
+      />
+      <motion.div
+        className="lb-sheet" style={{ animation: 'none', paddingBottom: 30, height: '88%' }}
+        variants={{
+          hidden: { y: '100%', transition: { type: 'tween', duration: 0.22, ease: [0.4, 0, 1, 1] } },
+          visible: { y: 0, transition: { type: 'spring', stiffness: 300, damping: 32 } },
+        }}
+        initial="hidden" animate="visible" exit="hidden"
+      >
         <div className="lb-sheet-grabber" />
         <div style={{ padding: '12px 22px 0' }}>
           <div className="lb-eyebrow">BOODSCHAPPENLIJST</div>
@@ -206,7 +222,7 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
             </button>
           </div>
         )}
-      </div>
+      </motion.div>
     </>
   )
 }
@@ -226,8 +242,23 @@ function DayDetailSheet({ date, entries, recipeMap, onDelete, onAdd, onClose }: 
   const nav = useNavigate()
   return (
     <>
-      <div className="lb-sheet-backdrop" onClick={onClose} />
-      <div className="lb-sheet" style={{ paddingBottom: 30 }}>
+      <motion.div
+        className="lb-sheet-backdrop" style={{ animation: 'none' }}
+        variants={{
+          hidden: { opacity: 0, transition: { duration: 0.2 } },
+          visible: { opacity: 1, transition: { duration: 0.24 } },
+        }}
+        initial="hidden" animate="visible" exit="hidden"
+        onClick={onClose}
+      />
+      <motion.div
+        className="lb-sheet" style={{ animation: 'none', paddingBottom: 30 }}
+        variants={{
+          hidden: { y: '100%', transition: { type: 'tween', duration: 0.22, ease: [0.4, 0, 1, 1] } },
+          visible: { y: 0, transition: { type: 'spring', stiffness: 300, damping: 32 } },
+        }}
+        initial="hidden" animate="visible" exit="hidden"
+      >
         <div className="lb-sheet-grabber" />
         <div style={{ padding: '12px 22px 0' }}>
           <div className="lb-eyebrow">{NL_DAYS_LONG[date.getDay()].toUpperCase()}</div>
@@ -268,7 +299,7 @@ function DayDetailSheet({ date, entries, recipeMap, onDelete, onAdd, onClose }: 
             Maaltijd toevoegen
           </button>
         </div>
-      </div>
+      </motion.div>
     </>
   )
 }
@@ -319,8 +350,23 @@ function AddMealSheet({ date, onClose, onSaved }: AddMealSheetProps) {
 
   return (
     <>
-      <div className="lb-sheet-backdrop" onClick={onClose} />
-      <div className="lb-sheet" style={{ paddingBottom: 30, height: '78%' }}>
+      <motion.div
+        className="lb-sheet-backdrop" style={{ animation: 'none' }}
+        variants={{
+          hidden: { opacity: 0, transition: { duration: 0.2 } },
+          visible: { opacity: 1, transition: { duration: 0.24 } },
+        }}
+        initial="hidden" animate="visible" exit="hidden"
+        onClick={onClose}
+      />
+      <motion.div
+        className="lb-sheet" style={{ animation: 'none', paddingBottom: 30, height: '78%' }}
+        variants={{
+          hidden: { y: '100%', transition: { type: 'tween', duration: 0.22, ease: [0.4, 0, 1, 1] } },
+          visible: { y: 0, transition: { type: 'spring', stiffness: 300, damping: 32 } },
+        }}
+        initial="hidden" animate="visible" exit="hidden"
+      >
         <div className="lb-sheet-grabber" />
         <div style={{ padding: '12px 22px 0' }}>
           <div className="lb-eyebrow">{NL_DAYS_LONG[dateObj.getDay()]}, {NL_MONTHS_SHORT[dateObj.getMonth()]} {dateObj.getDate()}</div>
@@ -329,16 +375,27 @@ function AddMealSheet({ date, onClose, onSaved }: AddMealSheetProps) {
           </h3>
         </div>
         <div style={{ padding: '0 22px 12px' }}>
+          <LayoutGroup>
           <div style={{ display: 'flex', background: 'var(--paper-2)', padding: 3, borderRadius: 12 }}>
             {([['recipe', 'Uit boek'], ['custom', 'Eigen tekst']] as const).map(([v, l]) => (
               <button key={v} onClick={() => setTab(v)} style={{
-                flex: 1, height: 32, borderRadius: 9, border: 0,
-                background: tab === v ? 'var(--cream-card)' : 'transparent',
+                position: 'relative', flex: 1, height: 32, borderRadius: 9, border: 0,
+                background: 'transparent',
                 fontSize: 13, fontWeight: 500, color: tab === v ? 'var(--ink)' : 'var(--stone)',
                 fontFamily: 'var(--sans)', cursor: 'pointer',
-              }}>{l}</button>
+              }}>
+                {tab === v && (
+                  <motion.div
+                    layoutId="meal-sheet-pill"
+                    style={{ position: 'absolute', inset: 0, borderRadius: 9, background: 'var(--cream-card)', zIndex: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <span style={{ position: 'relative', zIndex: 1 }}>{l}</span>
+              </button>
             ))}
           </div>
+          </LayoutGroup>
         </div>
         <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '6px 22px 0' }}>
           {tab === 'recipe' && (
@@ -379,7 +436,7 @@ function AddMealSheet({ date, onClose, onSaved }: AddMealSheetProps) {
             </>
           )}
         </div>
-      </div>
+      </motion.div>
     </>
   )
 }
@@ -668,16 +725,27 @@ export default function CalendarPage() {
 
       {/* Controls */}
       <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <LayoutGroup>
         <div style={{ display: 'flex', background: 'var(--paper-2)', padding: 4, borderRadius: 14 }}>
           {([['week', 'Week'], ['month', 'Maand']] as const).map(([v, l]) => (
             <button key={v} onClick={() => { setView(v); setAnchor(v === 'week' ? startOfWeek(today) : startOfMonth(today)) }} style={{
-              flex: 1, height: 38, borderRadius: 10, border: 0,
-              background: view === v ? 'var(--cream-card)' : 'transparent',
+              position: 'relative', flex: 1, height: 38, borderRadius: 10, border: 0,
+              background: 'transparent',
               fontSize: 14, fontWeight: 600, color: view === v ? 'var(--ink)' : 'var(--stone)',
-              boxShadow: view === v ? '0 1px 3px rgba(0,0,0,0.06)' : 'none', fontFamily: 'var(--sans)', cursor: 'pointer',
-            }}>{l}</button>
+              fontFamily: 'var(--sans)', cursor: 'pointer',
+            }}>
+              {view === v && (
+                <motion.div
+                  layoutId="cal-view-pill"
+                  style={{ position: 'absolute', inset: 0, borderRadius: 10, background: 'var(--cream-card)', zIndex: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span style={{ position: 'relative', zIndex: 1 }}>{l}</span>
+            </button>
           ))}
         </div>
+        </LayoutGroup>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button onClick={() => movePeriod(-1)} className="lb-icon-btn" style={{ width: 42, height: 42 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -736,34 +804,40 @@ export default function CalendarPage() {
       )}
 
       {/* Day detail sheet (month view) */}
-      {detailDay && (
-        <DayDetailSheet
-          date={detailDay}
-          entries={entries.filter(e => e.date === toISO(detailDay))}
-          recipeMap={recipeMap}
-          onDelete={async (id) => { await handleDelete(id) }}
-          onAdd={() => { setModalDate(toISO(detailDay)); setDetailDay(null) }}
-          onClose={() => setDetailDay(null)}
-        />
-      )}
+      <AnimatePresence>
+        {detailDay && (
+          <DayDetailSheet
+            date={detailDay}
+            entries={entries.filter(e => e.date === toISO(detailDay))}
+            recipeMap={recipeMap}
+            onDelete={async (id) => { await handleDelete(id) }}
+            onAdd={() => { setModalDate(toISO(detailDay)); setDetailDay(null) }}
+            onClose={() => setDetailDay(null)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Add meal sheet */}
-      {modalDate && (
-        <AddMealSheet
-          date={modalDate}
-          onClose={() => setModalDate(null)}
-          onSaved={() => { setModalDate(null); loadEntries() }}
-        />
-      )}
+      <AnimatePresence>
+        {modalDate && (
+          <AddMealSheet
+            date={modalDate}
+            onClose={() => setModalDate(null)}
+            onSaved={() => { setModalDate(null); loadEntries() }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Shopping list sheet */}
-      {showShopping && (
-        <ShoppingListSheet
-          defaultStart={shoppingStart}
-          defaultEnd={shoppingEnd}
-          onClose={() => setShowShopping(false)}
-        />
-      )}
+      <AnimatePresence>
+        {showShopping && (
+          <ShoppingListSheet
+            defaultStart={shoppingStart}
+            defaultEnd={shoppingEnd}
+            onClose={() => setShowShopping(false)}
+          />
+        )}
+      </AnimatePresence>
 
     </div>
   )

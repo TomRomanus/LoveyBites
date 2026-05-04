@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import type { Recipe, IngredientNode as TreeNode } from '../types/recipe'
 
 // ─── Shared helpers (exported for RecipeDetailPage) ───────────────────────────
@@ -124,14 +125,11 @@ export default function CookModeView({
   const steps = flattenSteps(recipe.steps)
   const total = steps.length
 
-  const [isExiting, setIsExiting] = useState(false)
+  const [visible, setVisible] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [displayIndex, setDisplayIndex] = useState(0)
   const [stepDir, setStepDir] = useState<'next' | 'prev' | null>(null)
   const [tab, setTab] = useState<CookTab>('step')
   const overviewRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
-  const lockRef = useRef(false)
 
   useEffect(() => {
     if (tab === 'overview' && overviewRef.current) {
@@ -151,53 +149,13 @@ export default function CookModeView({
 
   function goTo(index: number) {
     const newIndex = Math.max(0, Math.min(total - 1, index))
-    if (tab !== 'step' || newIndex === currentIndex) {
-      setCurrentIndex(newIndex)
-      setDisplayIndex(newIndex)
+    if (newIndex === currentIndex) {
       setTab('step')
       return
     }
-    if (lockRef.current) return
-    lockRef.current = true
-
-    const dir = newIndex > currentIndex ? 'next' : 'prev'
-    setStepDir(dir)
-    setDisplayIndex(newIndex)
-
-    const el = contentRef.current
-    if (!el) {
-      setCurrentIndex(newIndex)
-      lockRef.current = false
-      return
-    }
-
-    // Slide out
-    el.style.transition = 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease'
-    el.style.transform = dir === 'next' ? 'translateX(-40px)' : 'translateX(40px)'
-    el.style.opacity = '0'
-
-    setTimeout(() => {
-      // Snap to incoming position (no transition)
-      el.style.transition = 'none'
-      el.style.transform = dir === 'next' ? 'translateX(40px)' : 'translateX(-40px)'
-      el.style.opacity = '0'
-      setCurrentIndex(newIndex)
-
-      // Slide in — double rAF ensures React has rendered and browser has painted the snap
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          el.style.transition = 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease'
-          el.style.transform = 'translateX(0)'
-          el.style.opacity = '1'
-          setTimeout(() => {
-            el.style.transition = ''
-            el.style.transform = ''
-            el.style.opacity = ''
-            lockRef.current = false
-          }, 200)
-        })
-      })
-    }, 200)
+    setStepDir(newIndex > currentIndex ? 'next' : 'prev')
+    setCurrentIndex(newIndex)
+    setTab('step')
   }
 
   const currentIngredients = (current.ingredientRefs ?? [])
@@ -208,15 +166,22 @@ export default function CookModeView({
   const sectionHeaderColor = '#b8394e'
 
   function handleClose() {
-    setIsExiting(true)
-    setTimeout(onClose, 240)
+    setVisible(false)
   }
 
   return (
-    <div className={isExiting ? 'lb-modal-exit' : 'lb-modal-enter'} style={{
-      height: '100dvh', ...dark, display: 'flex', flexDirection: 'column', userSelect: 'none',
-      ...(isExiting && { animation: 'lb-modal-slide-down 220ms cubic-bezier(0.4, 0, 1, 1) both' }),
-    }}>
+    <AnimatePresence onExitComplete={onClose}>
+    {visible && <motion.div
+      key="cook-mode"
+      variants={{
+        hidden: { y: '100%', transition: { type: 'tween', duration: 0.22, ease: [0.4, 0, 1, 1] } },
+        visible: { y: 0, transition: { type: 'spring', stiffness: 260, damping: 28 } },
+      }}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      style={{ height: '100dvh', ...dark, display: 'flex', flexDirection: 'column', userSelect: 'none' }}
+    >
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '20px 20px 14px', flexShrink: 0 }}>
@@ -238,21 +203,52 @@ export default function CookModeView({
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 4, padding: '0 20px 8px', flexShrink: 0 }}>
-        {([['step', 'Instructies'], ['ingredients', 'Ingrediënten'], ['overview', 'Overzicht']] as const).map(([v, l]) => (
-          <button key={v} onClick={() => setTab(v)} style={{
-            background: tab === v ? 'rgba(248,244,237,0.12)' : 'transparent',
-            color: tab === v ? '#f8f4ed' : 'rgba(248,244,237,0.5)',
-            border: 0, padding: '8px 14px', borderRadius: 16, fontSize: 13, fontWeight: 500, cursor: 'pointer',
-            fontFamily: 'var(--sans)',
-          }}>{l}</button>
-        ))}
-      </div>
+      <LayoutGroup>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 4, padding: '0 20px 8px', flexShrink: 0 }}>
+          {([['step', 'Instructies'], ['ingredients', 'Ingrediënten'], ['overview', 'Overzicht']] as const).map(([v, l]) => (
+            <button key={v} onClick={() => setTab(v)} style={{
+              position: 'relative',
+              background: 'transparent',
+              color: tab === v ? '#f8f4ed' : 'rgba(248,244,237,0.5)',
+              border: 0, padding: '8px 14px', borderRadius: 16, fontSize: 13, fontWeight: 500, cursor: 'pointer',
+              fontFamily: 'var(--sans)',
+            }}>
+              {tab === v && (
+                <motion.div
+                  layoutId="cook-pill"
+                  style={{ position: 'absolute', inset: 0, borderRadius: 16, background: 'rgba(248,244,237,0.12)', zIndex: 0 }}
+                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                />
+              )}
+              <span style={{ position: 'relative', zIndex: 1 }}>{l}</span>
+            </button>
+          ))}
+        </div>
+      </LayoutGroup>
 
-      {/* ── Step content ── */}
+      {/* ── Tab panels ── */}
+      <AnimatePresence mode="wait">
       {tab === 'step' && (
-        <div style={{ flex: 1, overflow: 'hidden', minHeight: 0, position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <div ref={contentRef}>
+        <motion.div
+          key="step-panel"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          style={{ flex: 1, overflow: 'hidden', minHeight: 0, position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}
+        >
+          <AnimatePresence mode="popLayout" custom={stepDir}>
+          <motion.div
+            key={currentIndex}
+            custom={stepDir}
+            variants={{
+              enter: (dir: 'next' | 'prev' | null) => ({ x: dir === 'next' ? 40 : dir === 'prev' ? -40 : 0, opacity: 0 }),
+              center: { x: 0, opacity: 1 },
+              exit: (dir: 'next' | 'prev' | null) => ({ x: dir === 'next' ? -40 : dir === 'prev' ? 40 : 0, opacity: 0 }),
+            }}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ type: 'spring', stiffness: 400, damping: 38, mass: 0.8 }}
+          >
 
             {/* Prev step */}
             {steps[currentIndex - 1] && (
@@ -317,17 +313,23 @@ export default function CookModeView({
                 </button>
               </>
             )}
-          </div>
+          </motion.div>
+          </AnimatePresence>
 
           {/* Gradient fades */}
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 48, background: 'linear-gradient(to bottom, #1f1d1a, transparent)', pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 48, background: 'linear-gradient(to top, #1f1d1a, transparent)', pointerEvents: 'none' }} />
-        </div>
+        </motion.div>
       )}
 
       {/* ── Ingredients & Overview ── */}
       {tab !== 'step' && (
-        <div style={{ flex: 1, overflow: 'auto', paddingBottom: 40 }}>
+        <motion.div
+          key="list-panel"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          style={{ flex: 1, overflow: 'auto', paddingBottom: 40 }}
+        >
 
           {tab === 'ingredients' && (
             <div style={{ padding: '20px 24px' }}>
@@ -435,36 +437,60 @@ export default function CookModeView({
               ))}
             </div>
           )}
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
       {/* Bottom controls — step view only */}
+      <AnimatePresence>
       {tab === 'step' && (
-        <div style={{ padding: '20px 20px 36px', flexShrink: 0 }}>
+        <motion.div
+          key="bottom-controls"
+          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 12 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+          style={{ padding: '20px 20px 36px', flexShrink: 0 }}
+        >
 
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6 }}>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(248,244,237,0.3)', overflow: 'hidden' }}>
-              STAP{' '}
-              <span key={displayIndex} className={stepDir === 'next' ? 'lb-num-right' : stepDir === 'prev' ? 'lb-num-left' : ''} style={{ display: 'inline-block', animationDuration: '200ms' }}>
-                {displayIndex + 1}
-              </span>
-              {' '}VAN {total}
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(248,244,237,0.3)', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 5 }}>
+              STAP
+              <AnimatePresence mode="popLayout" custom={stepDir}>
+                <motion.span
+                  key={currentIndex}
+                  custom={stepDir}
+                  variants={{
+                    enter: (dir: 'next' | 'prev' | null) => ({ x: dir === 'next' ? 8 : dir === 'prev' ? -8 : 0, opacity: 0 }),
+                    center: { x: 0, opacity: 1 },
+                    exit: (dir: 'next' | 'prev' | null) => ({ x: dir === 'next' ? -8 : dir === 'prev' ? 8 : 0, opacity: 0 }),
+                  }}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                  style={{ display: 'inline-block' }}
+                >
+                  {currentIndex + 1}
+                </motion.span>
+              </AnimatePresence>
+              VAN {total}
             </div>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginBottom: 20, alignItems: 'center' }}>
             {Array.from({ length: total }).map((_, i) => (
-              <div key={i} style={{
-                width: i === displayIndex ? 18 : 5,
-                height: 5,
-                borderRadius: 3,
-                background: i < displayIndex
-                  ? 'rgba(248,244,237,0.34)'
-                  : i === displayIndex
-                    ? '#f3dee0'
-                    : 'rgba(248,244,237,0.13)',
-                transition: 'width 0.2s ease, background 0.2s ease',
-              }} />
+              <motion.div
+                key={i}
+                animate={{
+                  width: i === currentIndex ? 18 : 5,
+                  background: i < currentIndex
+                    ? 'rgba(248,244,237,0.34)'
+                    : i === currentIndex
+                      ? '#f3dee0'
+                      : 'rgba(248,244,237,0.13)',
+                }}
+                transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+                style={{ height: 5, borderRadius: 3, flexShrink: 0 }}
+              />
             ))}
           </div>
 
@@ -487,17 +513,45 @@ export default function CookModeView({
               style={{
                 flex: 1, height: 52, borderRadius: 26, background: 'var(--bordeaux)', border: 0,
                 color: '#f8f4ed', fontSize: 16, fontWeight: 500, fontFamily: 'var(--sans)',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 cursor: currentIndex < total - 1 ? 'pointer' : 'default',
                 opacity: currentIndex === total - 1 ? 0.5 : 1,
+                overflow: 'hidden',
               }}>
-              {currentIndex < total - 1 ? (
-                <>Volgende stap <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg></>
-              ) : 'Klaar'}
+              <AnimatePresence mode="popLayout" custom={stepDir}>
+                {currentIndex < total - 1 ? (
+                  <motion.span key="next-label" custom={stepDir}
+                    variants={{
+                      enter: (dir: 'next' | 'prev' | null) => ({ opacity: 0, x: dir === 'prev' ? -16 : 16 }),
+                      center: { opacity: 1, x: 0 },
+                      exit: (dir: 'next' | 'prev' | null) => ({ opacity: 0, x: dir === 'prev' ? 16 : -16 }),
+                    }}
+                    initial="enter" animate="center" exit="exit"
+                    transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                  >
+                    Volgende stap <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </motion.span>
+                ) : (
+                  <motion.span key="done-label" custom={stepDir}
+                    variants={{
+                      enter: (dir: 'next' | 'prev' | null) => ({ opacity: 0, x: dir === 'prev' ? -16 : 16 }),
+                      center: { opacity: 1, x: 0 },
+                      exit: (dir: 'next' | 'prev' | null) => ({ opacity: 0, x: dir === 'prev' ? 16 : -16 }),
+                    }}
+                    initial="enter" animate="center" exit="exit"
+                    transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                  >
+                    Klaar
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </button>
           </div>
-        </div>
+        </motion.div>
       )}
-    </div>
+      </AnimatePresence>
+    </motion.div>}
+    </AnimatePresence>
   )
 }

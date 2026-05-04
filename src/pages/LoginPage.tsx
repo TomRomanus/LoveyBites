@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
 
 const googleEnabled = import.meta.env.VITE_ENABLE_GOOGLE_LOGIN !== 'false'
@@ -19,21 +20,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [shake, setShake] = useState(false)
+  const [modeDir, setModeDir] = useState<'forward' | 'back'>('forward')
 
   if (user) return <Navigate to="/" replace />
-
-  function triggerShake() {
-    setShake(false)
-    requestAnimationFrame(() => setShake(true))
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     if (!email || !password) {
       setError('Vul e-mail en wachtwoord in.')
-      triggerShake()
       return
     }
     setLoading(true)
@@ -54,7 +49,6 @@ export default function LoginPage() {
       } else {
         setError('Inloggen mislukt. Probeer het opnieuw.')
       }
-      triggerShake()
     } finally {
       setLoading(false)
     }
@@ -69,7 +63,6 @@ export default function LoginPage() {
       const code = (err as { code?: string }).code
       if (code !== 'auth/popup-closed-by-user' && code !== 'auth/cancelled-popup-request') {
         setError('Inloggen mislukt. Probeer het opnieuw.')
-        triggerShake()
       }
     } finally {
       setLoading(false)
@@ -81,16 +74,26 @@ export default function LoginPage() {
   return (
     <div className="lb-paper" style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
       {/* Masthead */}
-      <div style={{ padding: '70px 28px 0', flexShrink: 0 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.2, 0, 0.2, 1] }}
+        style={{ padding: '70px 28px 0', flexShrink: 0 }}
+      >
         <div className="lb-eyebrow" style={{ marginBottom: 14 }}>SINDS 2026</div>
         <h1 style={{ margin: 0, fontSize: 58, lineHeight: 1.0, letterSpacing: '-0.025em' }}>
           <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 600, color: 'var(--bordeaux)' }}>Lovey</span>
           <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 600, color: 'var(--ink)' }}>Bites</span>
         </h1>
-      </div>
+      </motion.div>
 
       {/* Welcome */}
-      <div style={{ padding: '0 28px', marginTop: 20 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.2, 0, 0.2, 1], delay: 0.12 }}
+        style={{ padding: '0 28px', marginTop: 20 }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ flex: 1, height: '0.5px', background: 'var(--line)' }} />
           <div style={{ textAlign: 'center' }}>
@@ -99,35 +102,51 @@ export default function LoginPage() {
           </div>
           <div style={{ flex: 1, height: '0.5px', background: 'var(--line)' }} />
         </div>
-      </div>
+      </motion.div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} style={{ padding: '24px 28px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <motion.form
+        onSubmit={handleSubmit}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.2, 0, 0.2, 1], delay: 0.22 }}
+        style={{ padding: '24px 28px 0', display: 'flex', flexDirection: 'column', gap: 12 }}
+      >
         {/* Mode toggle */}
-        <div style={{ display: 'flex', background: 'var(--paper-2)', padding: 4, borderRadius: 14, marginBottom: 6 }}>
-          {(['signin', 'signup'] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => { setMode(m); setError(null) }}
-              style={{
-                flex: 1,
-                background: mode === m ? 'var(--cream-card)' : 'transparent',
-                border: 0,
-                height: 36,
-                borderRadius: 10,
-                fontFamily: 'var(--sans)',
-                fontSize: 13,
-                fontWeight: 600,
-                color: mode === m ? 'var(--ink)' : 'var(--stone)',
-                boxShadow: mode === m ? '0 1px 3px rgba(0,0,0,0.06)' : 'none',
-                cursor: 'pointer',
-              }}
-            >
-              {m === 'signin' ? 'Inloggen' : 'Registreren'}
-            </button>
-          ))}
-        </div>
+        <LayoutGroup>
+          <div style={{ display: 'flex', background: 'var(--paper-2)', padding: 4, borderRadius: 14, marginBottom: 6 }}>
+            {(['signin', 'signup'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => { setModeDir(m === 'signup' ? 'forward' : 'back'); setMode(m); setError(null) }}
+                style={{
+                  flex: 1, position: 'relative',
+                  background: 'transparent',
+                  border: 0, height: 36, borderRadius: 10,
+                  fontFamily: 'var(--sans)', fontSize: 13, fontWeight: 600,
+                  color: mode === m ? 'var(--ink)' : 'var(--stone)',
+                  cursor: 'pointer',
+                }}
+              >
+                {mode === m && (
+                  <motion.div
+                    layoutId="login-pill"
+                    style={{
+                      position: 'absolute', inset: 0, borderRadius: 10,
+                      background: 'var(--cream-card)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                    }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+                <span style={{ position: 'relative', zIndex: 1 }}>
+                  {m === 'signin' ? 'Inloggen' : 'Registreren'}
+                </span>
+              </button>
+            ))}
+          </div>
+        </LayoutGroup>
 
         <input
           className="lb-input"
@@ -148,28 +167,50 @@ export default function LoginPage() {
           autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
         />
 
-        {displayError && (
-          <div
-            className={shake ? 'lb-shake' : ''}
-            style={{
-              background: 'var(--bordeaux-tint)',
-              color: 'var(--bordeaux)',
-              padding: '10px 14px',
-              borderRadius: '0 12px 12px 0',
-              fontSize: 13,
-              fontWeight: 500,
-              borderLeft: '3px solid var(--bordeaux)',
-            }}
-          >
-            {displayError}
-          </div>
-        )}
+        <AnimatePresence>
+          {displayError && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                background: 'var(--bordeaux-tint)',
+                color: 'var(--bordeaux)',
+                padding: '10px 14px',
+                borderRadius: '0 12px 12px 0',
+                fontSize: 13,
+                fontWeight: 500,
+                borderLeft: '3px solid var(--bordeaux)',
+              }}
+            >
+              {displayError}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <button type="submit" className="lb-btn lb-btn--primary" style={{ marginTop: 4 }} disabled={loading}>
-          {loading
-            ? <span className="lb-spinner" style={{ borderColor: 'var(--cream-card)', borderRightColor: 'transparent' }} />
-            : mode === 'signin' ? 'Inloggen' : 'Account aanmaken'
-          }
+        <button type="submit" className="lb-btn lb-btn--primary" style={{ marginTop: 4, overflow: 'hidden' }} disabled={loading}>
+          <AnimatePresence mode="wait" custom={modeDir}>
+            {loading ? (
+              <motion.span key="spinner" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.12 }}>
+                <span className="lb-spinner" style={{ borderColor: 'var(--cream-card)', borderRightColor: 'transparent' }} />
+              </motion.span>
+            ) : (
+              <motion.span
+                key={mode}
+                custom={modeDir}
+                variants={{
+                  enter: (d: 'forward' | 'back') => ({ opacity: 0, x: d === 'forward' ? 16 : -16 }),
+                  center: { opacity: 1, x: 0 },
+                  exit: (d: 'forward' | 'back') => ({ opacity: 0, x: d === 'forward' ? -16 : 16 }),
+                }}
+                initial="enter" animate="center" exit="exit"
+                transition={{ duration: 0.15 }}
+              >
+                {mode === 'signin' ? 'Inloggen' : 'Account aanmaken'}
+              </motion.span>
+            )}
+          </AnimatePresence>
         </button>
 
         {googleEnabled && (
@@ -195,7 +236,7 @@ export default function LoginPage() {
         <div style={{ textAlign: 'center', marginTop: 18, marginBottom: 32, fontSize: 12, color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
           Als het mislukt, is er altijd nog de frituur.
         </div>
-      </form>
+      </motion.form>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { getMealPlanEntries, createMealPlanEntry, deleteMealPlanEntry } from '../services/mealPlan'
 import { getRecipes } from '../services/recipes'
 import type { MealPlanEntry, Recipe } from '../types/recipe'
@@ -49,14 +50,14 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
   const { user } = useAuth()
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const [isExiting, setIsExiting] = useState(false)
+  const [visible, setVisible] = useState(true)
 
   function handleClose() {
-    setIsExiting(true)
-    setTimeout(onClose, 260)
+    setVisible(false)
   }
 
   const [weekStart, setWeekStart] = useState<Date>(() => startOfWeek(today))
+  const [weekDir, setWeekDir] = useState<'next' | 'prev'>('next')
   const [entries, setEntries] = useState<MealPlanEntry[]>([])
   const [recipeMap, setRecipeMap] = useState<Map<string, { title: string; color: string }>>(new Map())
   const [saving, setSaving] = useState<string | null>(null)
@@ -110,9 +111,26 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
   })()
 
   return createPortal(
+    <AnimatePresence onExitComplete={onClose}>
+    {visible && (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className={`absolute inset-0 bg-black/40 ${isExiting ? 'lb-backdrop-out' : 'lb-backdrop-in'}`} onClick={handleClose} />
-      <div className={`relative bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col ${isExiting ? 'lb-modal-exit' : 'lb-modal-enter'}`}>
+      <motion.div
+        className="absolute inset-0 bg-black/40"
+        variants={{
+          hidden: { opacity: 0, transition: { duration: 0.2 } },
+          visible: { opacity: 1, transition: { duration: 0.24 } },
+        }}
+        initial="hidden" animate="visible" exit="hidden"
+        onClick={handleClose}
+      />
+      <motion.div
+        className="relative bg-white w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col"
+        variants={{
+          hidden: { y: '100%', transition: { type: 'tween', duration: 0.22, ease: [0.4, 0, 1, 1] } },
+          visible: { y: 0, transition: { type: 'spring', stiffness: 300, damping: 32 } },
+        }}
+        initial="hidden" animate="visible" exit="hidden"
+      >
         {/* Header */}
         <div className="px-5 pt-5 pb-3 border-b border-paper-3 flex-shrink-0">
           <div className="flex items-start justify-between gap-3 mb-1">
@@ -132,16 +150,34 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
           {/* Week navigation */}
           <div className="flex items-center justify-between mt-3">
             <button
-              onClick={() => setWeekStart(prev => addDays(prev, -7))}
+              onClick={() => { setWeekDir('prev'); setWeekStart(prev => addDays(prev, -7)) }}
               className="w-7 h-7 flex items-center justify-center rounded-full border border-paper-3 hover:border-bordeaux-soft text-stone hover:text-bordeaux-dark transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
-            <span className="text-sm font-medium text-ink-2 capitalize">{weekLabel}</span>
+            <div style={{ overflow: 'hidden' }}>
+              <AnimatePresence mode="popLayout" custom={weekDir}>
+                <motion.span
+                  key={toISO(weekStart)}
+                  custom={weekDir}
+                  variants={{
+                    enter: (d: 'next' | 'prev') => ({ x: d === 'next' ? 24 : -24, opacity: 0 }),
+                    center: { x: 0, opacity: 1 },
+                    exit: (d: 'next' | 'prev') => ({ x: d === 'next' ? -24 : 24, opacity: 0 }),
+                  }}
+                  initial="enter" animate="center" exit="exit"
+                  transition={{ type: 'spring', stiffness: 420, damping: 36 }}
+                  className="text-sm font-medium text-ink-2 capitalize"
+                  style={{ display: 'block' }}
+                >
+                  {weekLabel}
+                </motion.span>
+              </AnimatePresence>
+            </div>
             <button
-              onClick={() => setWeekStart(prev => addDays(prev, 7))}
+              onClick={() => { setWeekDir('next'); setWeekStart(prev => addDays(prev, 7)) }}
               className="w-7 h-7 flex items-center justify-center rounded-full border border-paper-3 hover:border-bordeaux-soft text-stone hover:text-bordeaux-dark transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -153,6 +189,18 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
 
         {/* Week grid */}
         <div className="px-4 pt-4 pb-8 sm:pb-4">
+          <AnimatePresence mode="popLayout" custom={weekDir}>
+          <motion.div
+            key={toISO(weekStart)}
+            custom={weekDir}
+            variants={{
+              enter: (d: 'next' | 'prev') => ({ x: d === 'next' ? 48 : -48, opacity: 0 }),
+              center: { x: 0, opacity: 1 },
+              exit: (d: 'next' | 'prev') => ({ x: d === 'next' ? -48 : 48, opacity: 0 }),
+            }}
+            initial="enter" animate="center" exit="exit"
+            transition={{ type: 'spring', stiffness: 380, damping: 36 }}
+          >
           {/* Day headers */}
           <div className="grid grid-cols-7 mb-2">
             {NL_DAYS_SHORT.map(d => (
@@ -173,63 +221,91 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
               const hasThisRecipe = dayEntries.some(e => e.recipeId === recipe.id)
 
               return (
-                <button
+                <motion.button
                   key={iso}
                   onClick={() => handleDayClick(day)}
                   disabled={isSaving}
-                  style={{ paddingLeft: 4, paddingRight: 4, boxShadow: hasThisRecipe ? '0 0 0 2px rgba(107,31,42,0.40)' : '0 0 0 0px rgba(107,31,42,0)', transition: 'box-shadow 140ms ease' }}
+                  animate={{ boxShadow: hasThisRecipe ? '0 0 0 2px rgba(107,31,42,0.40)' : '0 0 0 0px rgba(107,31,42,0.00)' }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  style={{ paddingLeft: 4, paddingRight: 4 }}
                   className="flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all text-left bg-white border-paper-3 hover:border-bordeaux-soft hover:bg-bordeaux-tint active:scale-95 disabled:cursor-default"
                 >
                   {/* Day number */}
                   <span style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', flexShrink: 0, fontSize: 14, fontWeight: 600, lineHeight: 1, color: isToday ? 'var(--cream-card)' : 'var(--ink-2)', background: isToday ? 'var(--bordeaux)' : 'transparent' }}>
                     {day.getDate()}
-                    {isRecentlySaved && (
-                      <span className="lb-check-badge" style={{
-                        position: 'absolute', inset: 0, borderRadius: '50%',
-                        background: 'var(--bordeaux)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M5 13l4 4L19 7" />
-                        </svg>
-                      </span>
-                    )}
+                    <AnimatePresence>
+                      {isRecentlySaved && (
+                        <motion.span
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ type: 'spring', stiffness: 420, damping: 22 }}
+                          style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'var(--bordeaux)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M5 13l4 4L19 7" />
+                          </svg>
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
                   </span>
                   {/* Existing entries */}
                   <div style={{ width: '100%', alignSelf: 'stretch', display: 'flex', flexDirection: 'column', gap: 2, height: 42, overflow: 'hidden', flexShrink: 0 }}>
-                    {dayEntries.slice(0, 2).map((e, i) => {
+                    <AnimatePresence>
+                    {dayEntries.slice(0, 2).map((e) => {
                       const recipeData = e.recipeId ? recipeMap.get(e.recipeId) : undefined
                       const label = recipeData?.title ?? e.recipeTitle ?? e.customDescription ?? ''
                       const color = recipeData?.color ?? null
-                      const isNew = newEntryIds.has(e.id)
                       return (
-                        <div key={e.id} className={isNew ? 'lb-chip-slide-in' : ''} style={{
-                          width: '100%', flexShrink: 0, borderRadius: 3, padding: '1px 3px',
-                          fontFamily: 'var(--mono)', fontSize: 7, letterSpacing: '0.03em',
-                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                          background: color ? color + '18' : 'var(--paper-2)',
-                          color: color ? color : 'var(--stone)',
-                        }}>
+                        <motion.div
+                          key={e.id}
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.9 }}
+                          transition={{ type: 'spring', stiffness: 420, damping: 30 }}
+                          style={{
+                            width: '100%', flexShrink: 0, borderRadius: 3, padding: '1px 3px',
+                            fontFamily: 'var(--mono)', fontSize: 7, letterSpacing: '0.03em',
+                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                            background: color ? color + '18' : 'var(--paper-2)',
+                            color: color ? color : 'var(--stone)',
+                          }}
+                        >
                           {label}
-                        </div>
+                        </motion.div>
                       )
                     })}
+                    </AnimatePresence>
+                    <AnimatePresence>
                     {dayEntries.length > 2 && (
-                      <div key={dayEntries.length - 2} className="lb-chip-slide-in" style={{ fontFamily: 'var(--mono)', fontSize: 7, color: 'var(--stone)', letterSpacing: '0.03em', flexShrink: 0 }}>
+                      <motion.div
+                        key="overflow"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        style={{ fontFamily: 'var(--mono)', fontSize: 7, color: 'var(--stone)', letterSpacing: '0.03em', flexShrink: 0 }}
+                      >
                         +{dayEntries.length - 2}
-                      </div>
+                      </motion.div>
                     )}
+                    </AnimatePresence>
                   </div>
-                </button>
+                </motion.button>
               )
             })}
           </div>
+          </motion.div>
+          </AnimatePresence>
 
           <p className="text-xs text-stone text-center mt-3">
             Klik om toe te voegen · nogmaals klikken verwijdert
           </p>
         </div>
-      </div>
-    </div>,
+      </motion.div>
+    </div>
+    )}
+    </AnimatePresence>,
     document.body
   )
 }

@@ -1,5 +1,6 @@
 import { useLayoutEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import BottomNav from './components/BottomNav'
@@ -32,7 +33,14 @@ function AppShell() {
 
   return (
     <div style={{ maxWidth: 480, margin: '0 auto', minHeight: '100dvh', position: 'relative' }}>
-      <div key={location.pathname} className="lb-page-enter">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.22, ease: [0.2, 0, 0.2, 1] }}
+        >
         <Routes location={location}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<ProtectedRoute><RecipesPage /></ProtectedRoute>} />
@@ -41,7 +49,8 @@ function AppShell() {
           <Route path="/edit/:id" element={<ProtectedRoute><NewRecipePage /></ProtectedRoute>} />
           <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
         </Routes>
-      </div>
+        </motion.div>
+      </AnimatePresence>
       {showNav && <BottomNav />}
     </div>
   )

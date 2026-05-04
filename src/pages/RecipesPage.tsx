@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import RecipeCard from '../components/RecipeCard'
 import AddToCalendarModal from '../components/AddToCalendarModal'
@@ -35,21 +36,34 @@ function CheckIcon() {
   )
 }
 
+const sheetVariants = {
+  hidden: { y: '100%', transition: { type: 'tween' as const, duration: 0.22, ease: [0.4, 0, 1, 1] as const } },
+  visible: { y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 32 } },
+}
+const backdropVariants = {
+  hidden: { opacity: 0, transition: { duration: 0.2 } },
+  visible: { opacity: 1, transition: { duration: 0.24 } },
+}
+
 function FilterSheet({ activeTags, allTags, onChange, onClose }: {
   activeTags: string[]
   allTags: string[]
   onChange: (tags: string[]) => void
   onClose: () => void
 }) {
+  const [visible, setVisible] = useState(true)
   const [q, setQ] = useState('')
   const filtered = allTags.filter(t => t.toLowerCase().includes(q.toLowerCase()))
   const toggle = (t: string) =>
     onChange(activeTags.includes(t) ? activeTags.filter(x => x !== t) : [...activeTags, t])
 
   return createPortal(
-    <>
-      <div className="lb-sheet-backdrop" onClick={onClose} />
-      <div className="lb-sheet" style={{ paddingBottom: 30 }}>
+    <AnimatePresence onExitComplete={onClose}>
+      {visible && <motion.div key="filter-bd" className="lb-sheet-backdrop" style={{ animation: 'none' }}
+        variants={backdropVariants} initial="hidden" animate="visible" exit="hidden"
+        onClick={() => setVisible(false)} />}
+      {visible && <motion.div key="filter-sheet" className="lb-sheet" style={{ animation: 'none', paddingBottom: 30 }}
+        variants={sheetVariants} initial="hidden" animate="visible" exit="hidden">
         <div className="lb-sheet-grabber" />
         <div style={{ padding: '12px 20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <h3 className="lb-display" style={{ margin: 0, fontSize: 22 }}>Filter op tag</h3>
@@ -69,22 +83,46 @@ function FilterSheet({ activeTags, allTags, onChange, onClose }: {
           </div>
         </div>
         <div style={{ padding: '16px 20px 20px', display: 'flex', flexWrap: 'wrap', gap: 8, overflowY: 'auto', flex: 1 }}>
-          {filtered.map(t => (
-            <button key={t} type="button" className="lb-tag" data-active={activeTags.includes(t) ? 'true' : 'false'}
-              onClick={() => toggle(t)} style={{ cursor: 'pointer', gap: activeTags.includes(t) ? 4 : 0 }}>
-              {activeTags.includes(t) && <CheckIcon />}
-              {t}
-            </button>
-          ))}
+          {filtered.map(t => {
+            const isActive = activeTags.includes(t)
+            return (
+              <motion.button
+                key={t}
+                type="button"
+                className="lb-tag"
+                data-active={isActive ? 'true' : 'false'}
+                onClick={() => toggle(t)}
+                layout
+                transition={{ layout: { type: 'spring', stiffness: 400, damping: 32 } }}
+                style={{ cursor: 'pointer', gap: 4 }}
+              >
+                <AnimatePresence mode="popLayout">
+                  {isActive && (
+                    <motion.span
+                      key="check"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: 'spring', stiffness: 420, damping: 25 }}
+                      style={{ display: 'inline-flex' }}
+                    >
+                      <CheckIcon />
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+                {t}
+              </motion.button>
+            )
+          })}
           {filtered.length === 0 && (
             <div style={{ fontSize: 13, color: 'var(--stone)' }}>Geen tags voor "{q}".</div>
           )}
         </div>
         <div style={{ padding: '0 20px 14px', flexShrink: 0 }}>
-          <button onClick={onClose} className="lb-btn lb-btn--primary" style={{ width: '100%' }}>Toepassen</button>
+          <button onClick={() => setVisible(false)} className="lb-btn lb-btn--primary" style={{ width: '100%' }}>Toepassen</button>
         </div>
-      </div>
-    </>,
+      </motion.div>}
+    </AnimatePresence>,
     document.body
   )
 }
@@ -94,18 +132,22 @@ function SortSheet({ sort, onChange, onClose }: {
   onChange: (v: SortOption) => void
   onClose: () => void
 }) {
+  const [visible, setVisible] = useState(true)
   const opts = (Object.keys(SORT_LABELS) as SortOption[])
   return createPortal(
-    <>
-      <div className="lb-sheet-backdrop" onClick={onClose} />
-      <div className="lb-sheet" style={{ paddingBottom: 30 }}>
+    <AnimatePresence onExitComplete={onClose}>
+      {visible && <motion.div key="sort-bd" className="lb-sheet-backdrop" style={{ animation: 'none' }}
+        variants={backdropVariants} initial="hidden" animate="visible" exit="hidden"
+        onClick={() => setVisible(false)} />}
+      {visible && <motion.div key="sort-sheet" className="lb-sheet" style={{ animation: 'none', paddingBottom: 30 }}
+        variants={sheetVariants} initial="hidden" animate="visible" exit="hidden">
         <div className="lb-sheet-grabber" />
         <div style={{ padding: '12px 20px 0' }}>
           <h3 className="lb-display" style={{ margin: 0, fontSize: 22 }}>Sorteren</h3>
         </div>
         <div style={{ padding: '14px 12px 16px' }}>
           {opts.map(o => (
-            <button key={o} onClick={() => onChange(o)} style={{
+            <button key={o} onClick={() => { onChange(o); setVisible(false) }} style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               width: '100%', padding: '14px 16px', background: 'transparent', border: 0,
               fontFamily: 'var(--sans)', fontSize: 15, color: 'var(--ink)', borderRadius: 12,
@@ -120,8 +162,8 @@ function SortSheet({ sort, onChange, onClose }: {
             </button>
           ))}
         </div>
-      </div>
-    </>,
+      </motion.div>}
+    </AnimatePresence>,
     document.body
   )
 }
@@ -249,7 +291,21 @@ export default function RecipesPage() {
       <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {loading && <div className="lb-skeleton" style={{ height: 11, width: '30%', borderRadius: 4 }} />}
         {!loading && !error && (
-          <div className="lb-eyebrow">{sorted.length} {sorted.length === 1 ? 'RECEPT' : 'RECEPTEN'}</div>
+          <div className="lb-eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 4, overflow: 'hidden' }}>
+            <AnimatePresence mode="popLayout">
+              <motion.span
+                key={sorted.length}
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 6 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                style={{ display: 'block' }}
+              >
+                {sorted.length}
+              </motion.span>
+            </AnimatePresence>
+            {sorted.length === 1 ? 'RECEPT' : 'RECEPTEN'}
+          </div>
         )}
         <div style={{ position: 'relative' }}>
           <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--stone)', pointerEvents: 'none' }}>
@@ -262,15 +318,25 @@ export default function RecipesPage() {
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery('')} style={{
-              position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
-              background: 'var(--paper-3)', border: 0, width: 26, height: 26, borderRadius: 13,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-2)', cursor: 'pointer',
-            }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
-            </button>
-          )}
+          <AnimatePresence>
+            {searchQuery && (
+              <motion.button
+                key="clear"
+                onClick={() => setSearchQuery('')}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+                style={{
+                  position: 'absolute', right: 8, top: '50%', translateY: '-50%',
+                  background: 'var(--paper-3)', border: 0, width: 26, height: 26, borderRadius: 13,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-2)', cursor: 'pointer',
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
 
         {loading && (
@@ -356,15 +422,25 @@ export default function RecipesPage() {
 
       {!loading && !error && sorted.length > 0 && (
         <div style={{ padding: '10px 20px 120px' }}>
-          {sorted.map((r, i) => (
-            <RecipeCard
-              key={r.id}
-              recipe={r}
-              variant="default"
-              onAddToCalendar={setCalendarRecipe}
-              highlightTags={activeTags.length > 0 ? activeTags : undefined}
-            />
-          ))}
+          <AnimatePresence initial={false}>
+            {sorted.map((r) => (
+              <motion.div
+                key={r.id}
+                layout
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.18, layout: { type: 'spring', stiffness: 350, damping: 35 } }}
+              >
+                <RecipeCard
+                  recipe={r}
+                  variant="default"
+                  onAddToCalendar={setCalendarRecipe}
+                  highlightTags={activeTags.length > 0 ? activeTags : undefined}
+                />
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       )}
 
@@ -373,7 +449,7 @@ export default function RecipesPage() {
         <FilterSheet activeTags={activeTags} allTags={allTags} onChange={setActiveTags} onClose={() => setShowFilters(false)} />
       )}
       {showSort && (
-        <SortSheet sort={sort} onChange={v => { setSort(v); setShowSort(false) }} onClose={() => setShowSort(false)} />
+        <SortSheet sort={sort} onChange={setSort} onClose={() => setShowSort(false)} />
       )}
 
       {calendarRecipe && (
