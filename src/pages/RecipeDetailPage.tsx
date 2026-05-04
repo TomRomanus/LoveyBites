@@ -413,7 +413,7 @@ export default function RecipeDetailPage() {
         document.body
       )}
 
-      {createPortal(
+      {!calendarOpen && createPortal(
         <button
           onClick={() => setCalendarOpen(true)}
           style={{
