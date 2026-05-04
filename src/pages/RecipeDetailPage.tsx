@@ -138,8 +138,8 @@ export default function RecipeDetailPage() {
 
   if (loading) {
     return (
-      <div className="lb-paper" style={{ minHeight: '100dvh', marginTop: 'calc(0px - env(safe-area-inset-top))' }}>
-        <div className="lb-skeleton" style={{ height: 'calc(185px + env(safe-area-inset-top))', borderRadius: 0 }} />
+      <div className="lb-paper" style={{ minHeight: '100dvh' }}>
+        <div className="lb-skeleton" style={{ height: 185, borderRadius: 0 }} />
         <div style={{ padding: '20px 22px 0' }}>
           <div className="lb-skeleton" style={{ height: 10, width: '30%', marginBottom: 10, borderRadius: 4 }} />
           <div className="lb-skeleton" style={{ height: 34, width: '60%', marginBottom: 10 }} />
@@ -195,13 +195,13 @@ export default function RecipeDetailPage() {
   }
 
   return (
-    <div className="lb-paper" style={{ minHeight: '100dvh', position: 'relative', marginTop: 'calc(0px - env(safe-area-inset-top))' }}>
+    <div className="lb-paper" style={{ minHeight: '100dvh', position: 'relative' }}>
       {/* Hero color block */}
       <div style={{ position: 'relative' }}>
         <div className="lb-color-block" style={{
           '--block-bg': color,
           minHeight: 185,
-          padding: 'calc(24px + env(safe-area-inset-top)) 22px 24px',
+          padding: '24px 22px 24px',
           borderRadius: 0,
           justifyContent: 'flex-start',
         } as React.CSSProperties}>
