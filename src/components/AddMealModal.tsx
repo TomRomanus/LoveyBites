@@ -68,23 +68,23 @@ export default function AddMealModal({ date, onClose, onSaved, preselectedRecipe
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="relative bg-white w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col max-h-[85vh]">
         {/* Header */}
-        <div className="px-5 pt-5 pb-3 border-b border-stone-100 flex-shrink-0">
+        <div className="px-5 pt-5 pb-3 border-b border-paper-3 flex-shrink-0">
           <div className="flex items-center justify-between mb-1">
-            <h2 className="font-display text-lg font-bold italic text-stone-900">Maaltijd toevoegen</h2>
-            <button onClick={onClose} className="text-stone-400 hover:text-stone-600 p-1">
+            <h2 className="font-serif text-lg font-bold italic text-ink">Maaltijd toevoegen</h2>
+            <button onClick={onClose} className="text-stone hover:text-ink-2 p-1">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
-          <p className="text-sm text-stone-400 capitalize">{displayDate}</p>
+          <p className="text-sm text-stone capitalize">{displayDate}</p>
 
           {/* Tabs */}
-          <div className="flex gap-1 mt-3 bg-stone-100 rounded-xl p-1">
+          <div className="flex gap-1 mt-3 bg-paper-2 rounded-xl p-1">
             <button
               onClick={() => setTab('recipe')}
               className={`flex-1 text-sm py-1.5 rounded-lg font-medium transition-colors ${
-                tab === 'recipe' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700'
+                tab === 'recipe' ? 'bg-white text-ink shadow-sm' : 'text-stone hover:text-ink-2'
               }`}
             >
               Recept
@@ -92,7 +92,7 @@ export default function AddMealModal({ date, onClose, onSaved, preselectedRecipe
             <button
               onClick={() => setTab('custom')}
               className={`flex-1 text-sm py-1.5 rounded-lg font-medium transition-colors ${
-                tab === 'custom' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-700'
+                tab === 'custom' ? 'bg-white text-ink shadow-sm' : 'text-stone hover:text-ink-2'
               }`}
             >
               Eigen beschrijving
@@ -104,9 +104,9 @@ export default function AddMealModal({ date, onClose, onSaved, preselectedRecipe
         <div className="flex-1 overflow-hidden flex flex-col">
           {tab === 'recipe' && (
             <>
-              <div className="px-4 py-3 border-b border-stone-100 flex-shrink-0">
+              <div className="px-4 py-3 border-b border-paper-3 flex-shrink-0">
                 <div className="relative">
-                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400 pointer-events-none"
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone pointer-events-none"
                     fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" />
                   </svg>
@@ -116,36 +116,36 @@ export default function AddMealModal({ date, onClose, onSaved, preselectedRecipe
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                     placeholder="Zoek recept…"
-                    className="w-full pl-9 pr-4 py-2 rounded-xl border border-stone-200 bg-stone-50 text-sm focus:outline-none focus:border-clay-400 placeholder-stone-400"
+                    className="w-full pl-9 pr-4 py-2 rounded-xl border border-paper-3 bg-paper text-sm focus:outline-none focus:border-bordeaux placeholder-stone"
                   />
                 </div>
               </div>
               <ul className="overflow-y-auto flex-1 py-1">
                 {filtered.length === 0 && (
-                  <li className="px-4 py-8 text-center text-sm text-stone-400">Geen recepten gevonden</li>
+                  <li className="px-4 py-8 text-center text-sm text-stone">Geen recepten gevonden</li>
                 )}
                 {filtered.map(r => (
                   <li key={r.id}>
                     <button
                       onClick={() => setSelectedRecipeId(r.id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-stone-50 transition-colors ${
-                        selectedRecipeId === r.id ? 'bg-clay-50' : ''
+                      className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-paper transition-colors ${
+                        selectedRecipeId === r.id ? 'bg-bordeaux-tint' : ''
                       }`}
                     >
                       {r.imageUrl ? (
-                        <img src={r.imageUrl} alt="" className="w-10 h-10 rounded-xl object-cover flex-shrink-0 bg-stone-100" />
+                        <img src={r.imageUrl} alt="" className="w-10 h-10 rounded-xl object-cover flex-shrink-0 bg-paper-2" />
                       ) : (
-                        <div className="w-10 h-10 rounded-xl bg-stone-100 flex-shrink-0 flex items-center justify-center text-stone-300">
+                        <div className="w-10 h-10 rounded-xl bg-paper-2 flex-shrink-0 flex items-center justify-center text-stone-2">
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" />
                           </svg>
                         </div>
                       )}
                       <span className={`flex-1 text-sm font-medium truncate ${
-                        selectedRecipeId === r.id ? 'text-clay-700' : 'text-stone-800'
+                        selectedRecipeId === r.id ? 'text-bordeaux-dark' : 'text-ink'
                       }`}>{r.title}</span>
                       {selectedRecipeId === r.id && (
-                        <svg className="w-4 h-4 text-clay-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <svg className="w-4 h-4 text-bordeaux flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       )}
@@ -158,31 +158,31 @@ export default function AddMealModal({ date, onClose, onSaved, preselectedRecipe
 
           {tab === 'custom' && (
             <div className="px-4 py-4 flex-1">
-              <label className="block text-sm text-stone-500 mb-2">Beschrijving</label>
+              <label className="block text-sm text-stone mb-2">Beschrijving</label>
               <AutoGrowTextarea
                 autoFocus
                 value={customDescription}
                 onChange={e => setCustomDescription(e.target.value)}
                 placeholder="bijv. Uit eten, Restjes, Afhalen…"
                 rows={4}
-                className="w-full px-3 py-2.5 rounded-xl border border-stone-200 bg-stone-50 text-sm focus:outline-none focus:border-clay-400 placeholder-stone-400 resize-none"
+                className="w-full px-3 py-2.5 rounded-xl border border-paper-3 bg-paper text-sm focus:outline-none focus:border-bordeaux placeholder-stone resize-none"
               />
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="px-4 py-4 border-t border-stone-100 flex gap-2 flex-shrink-0">
+        <div className="px-4 py-4 border-t border-paper-3 flex gap-2 flex-shrink-0">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-stone-200 text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors"
+            className="flex-1 py-2.5 rounded-xl border border-paper-3 text-sm font-medium text-ink-2 hover:bg-paper transition-colors"
           >
             Annuleren
           </button>
           <button
             onClick={handleSave}
             disabled={!canSave || saving}
-            className="flex-1 py-2.5 rounded-xl bg-clay-500 hover:bg-clay-600 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+            className="flex-1 py-2.5 rounded-xl bg-bordeaux hover:bg-bordeaux-dark disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
           >
             {saving ? 'Opslaan…' : 'Opslaan'}
           </button>

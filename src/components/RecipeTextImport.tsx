@@ -33,10 +33,10 @@ export default function RecipeTextImport({ onExtracted }: Props) {
   if (done) return null
 
   return (
-    <div className="bg-clay-50 border border-clay-200 rounded-2xl px-5 py-4 space-y-3">
+    <div className="bg-bordeaux-tint border border-bordeaux-soft rounded-2xl px-5 py-4 space-y-3">
       <div>
-        <p className="text-sm font-semibold text-clay-700">Typ of plak een recept</p>
-        <p className="text-xs text-clay-500 mt-0.5">Schrijf het recept op zoals je het kent, de AI structureert het voor je</p>
+        <p className="text-sm font-semibold text-bordeaux-dark">Typ of plak een recept</p>
+        <p className="text-xs text-bordeaux mt-0.5">Schrijf het recept op zoals je het kent, de AI structureert het voor je</p>
       </div>
 
       <form onSubmit={handleConvert} className="space-y-2">
@@ -46,13 +46,13 @@ export default function RecipeTextImport({ onExtracted }: Props) {
           placeholder={'Bijv: 200g bloem, 2 eieren, 100ml melk…\n\nMeng de bloem met de eieren…'}
           disabled={loading}
           rows={5}
-          className="w-full border border-clay-200 rounded-xl px-3 py-2 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent transition bg-white disabled:opacity-50 resize-none"
+          className="w-full border border-bordeaux-soft rounded-xl px-3 py-2 text-sm text-ink-2 placeholder:text-stone-2 focus:outline-none focus:ring-2 focus:ring-bordeaux focus:border-transparent transition bg-white disabled:opacity-50 resize-none"
         />
         <div className="flex justify-end">
           <button
             type="submit"
             disabled={loading || !text.trim()}
-            className="bg-clay-500 hover:bg-clay-600 disabled:bg-clay-300 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors whitespace-nowrap"
+            className="bg-bordeaux hover:bg-bordeaux-dark disabled:bg-bordeaux-soft text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors whitespace-nowrap"
           >
             {loading ? (
               <span className="flex items-center gap-1.5">

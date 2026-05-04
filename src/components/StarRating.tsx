@@ -24,7 +24,7 @@ export default function StarRating({ value, onChange, size = 'md' }: StarRatingP
           onMouseEnter={() => !readonly && setHovered(star)}
           className={`${starSize} leading-none transition-colors ${
             readonly ? 'cursor-default' : 'cursor-pointer'
-          } ${star <= active ? 'text-honey-500' : 'text-stone-200'}`}
+          } ${star <= active ? 'text-honey-500' : 'text-stone-2'}`}
           aria-label={`${star} ster`}
         >
           ★

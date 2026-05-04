@@ -42,10 +42,10 @@ export default function RecipePhotoImport({ onExtracted }: Props) {
   if (done) return null
 
   return (
-    <div className="bg-clay-50 border border-clay-200 rounded-2xl px-5 py-4 space-y-3">
+    <div className="bg-bordeaux-tint border border-bordeaux-soft rounded-2xl px-5 py-4 space-y-3">
       <div>
-        <p className="text-sm font-semibold text-clay-700">Foto van een recept</p>
-        <p className="text-xs text-clay-500 mt-0.5">Maak een foto van een receptenboek of geschreven recept</p>
+        <p className="text-sm font-semibold text-bordeaux-dark">Foto van een recept</p>
+        <p className="text-xs text-bordeaux mt-0.5">Maak een foto van een receptenboek of geschreven recept</p>
       </div>
 
       <form onSubmit={handleConvert} className="space-y-3">
@@ -63,12 +63,12 @@ export default function RecipePhotoImport({ onExtracted }: Props) {
             <img
               src={preview}
               alt="Geselecteerde foto"
-              className="w-full max-h-48 object-cover rounded-xl border border-clay-200"
+              className="w-full max-h-48 object-cover rounded-xl border border-bordeaux-soft"
             />
             <button
               type="button"
               onClick={() => { setPreview(null); setFile(null); if (inputRef.current) inputRef.current.value = '' }}
-              className="absolute top-2 right-2 bg-white/80 hover:bg-white text-stone-600 rounded-full w-7 h-7 flex items-center justify-center text-sm shadow"
+              className="absolute top-2 right-2 bg-white/80 hover:bg-white text-ink-2 rounded-full w-7 h-7 flex items-center justify-center text-sm shadow"
             >
               ✕
             </button>
@@ -77,7 +77,7 @@ export default function RecipePhotoImport({ onExtracted }: Props) {
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="w-full border-2 border-dashed border-clay-200 rounded-xl py-6 flex flex-col items-center gap-2 text-clay-400 hover:border-clay-400 hover:text-clay-600 transition-colors bg-white"
+            className="w-full border-2 border-dashed border-bordeaux-soft rounded-xl py-6 flex flex-col items-center gap-2 text-bordeaux hover:border-bordeaux hover:text-bordeaux-dark transition-colors bg-white"
           >
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -92,7 +92,7 @@ export default function RecipePhotoImport({ onExtracted }: Props) {
             <button
               type="submit"
               disabled={loading}
-              className="bg-clay-500 hover:bg-clay-600 disabled:bg-clay-300 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors whitespace-nowrap"
+              className="bg-bordeaux hover:bg-bordeaux-dark disabled:bg-bordeaux-soft text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors whitespace-nowrap"
             >
               {loading ? (
                 <span className="flex items-center gap-1.5">

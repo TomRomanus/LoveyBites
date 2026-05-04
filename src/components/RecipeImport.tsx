@@ -32,10 +32,10 @@ export default function RecipeImport({ onExtracted }: Props) {
   if (done) return null
 
   return (
-    <div className="bg-clay-50 border border-clay-200 rounded-2xl px-5 py-4 space-y-3">
+    <div className="bg-bordeaux-tint border border-bordeaux-soft rounded-2xl px-5 py-4 space-y-3">
       <div>
-        <p className="text-sm font-semibold text-clay-700">Importeer via link</p>
-        <p className="text-xs text-clay-500 mt-0.5">Plak een link van een receptenwebsite of TikTok</p>
+        <p className="text-sm font-semibold text-bordeaux-dark">Importeer via link</p>
+        <p className="text-xs text-bordeaux mt-0.5">Plak een link van een receptenwebsite of TikTok</p>
       </div>
 
       <form onSubmit={handleImport} className="flex gap-2">
@@ -45,12 +45,12 @@ export default function RecipeImport({ onExtracted }: Props) {
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://…"
           disabled={loading}
-          className="flex-1 min-w-0 border border-clay-200 rounded-xl px-3 py-2 text-sm text-stone-700 placeholder:text-stone-300 focus:outline-none focus:ring-2 focus:ring-clay-500 focus:border-transparent transition bg-white disabled:opacity-50"
+          className="flex-1 min-w-0 border border-bordeaux-soft rounded-xl px-3 py-2 text-sm text-ink-2 placeholder:text-stone-2 focus:outline-none focus:ring-2 focus:ring-bordeaux focus:border-transparent transition bg-white disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={loading || !url.trim()}
-          className="bg-clay-500 hover:bg-clay-600 disabled:bg-clay-300 text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors whitespace-nowrap"
+          className="bg-bordeaux hover:bg-bordeaux-dark disabled:bg-bordeaux-soft text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors whitespace-nowrap"
         >
           {loading ? (
             <span className="flex items-center gap-1.5">
