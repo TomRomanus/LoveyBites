@@ -290,7 +290,7 @@ function DayDetailSheet({ date, entries, recipeMap, onDelete, onAdd, onClose }: 
   return (
     <>
       <motion.div
-        className="lb-sheet-backdrop" style={{ animation: 'none' }}
+        className="lb-sheet-backdrop" style={{ animation: 'none', backdropFilter: 'blur(1px)', WebkitBackdropFilter: 'blur(1px)' }}
         variants={{
           hidden: { opacity: 0, transition: { duration: 0.2 } },
           visible: { opacity: 1, transition: { duration: 0.24 } },
@@ -750,9 +750,10 @@ interface MonthViewProps {
   entries: MealPlanEntry[]
   recipeMap: Map<string, Recipe>
   onPickDay: (day: Date) => void
+  selectedDay?: Date | null
 }
 
-function MonthView({ anchor, today, entries, recipeMap, onPickDay }: MonthViewProps) {
+function MonthView({ anchor, today, entries, recipeMap, onPickDay, selectedDay }: MonthViewProps) {
   const monthStart = startOfMonth(anchor)
   const days = calendarGrid(monthStart)
   const entriesForDay = (day: Date) => entries.filter(e => e.date === toISO(day))
@@ -769,8 +770,12 @@ function MonthView({ anchor, today, entries, recipeMap, onPickDay }: MonthViewPr
           const dayEntries = entriesForDay(day)
           const isToday = isSameDay(day, today)
           const inMonth = day.getMonth() === monthStart.getMonth()
+          const isSelected = selectedDay ? isSameDay(day, selectedDay) : false
           return (
-            <button key={toISO(day)} onClick={() => onPickDay(day)} style={{
+            <motion.button key={toISO(day)} onClick={() => onPickDay(day)}
+              animate={{ boxShadow: isSelected ? '0 0 0 2px rgba(107,31,42,0.40)' : '0 0 0 0px rgba(107,31,42,0.00)' }}
+              transition={{ duration: 0.15, ease: [0.25, 0, 0, 1] }}
+              style={{
               background: 'var(--cream-card)',
               border: '0.5px solid var(--line)',
               borderRadius: 10,
@@ -829,7 +834,7 @@ function MonthView({ anchor, today, entries, recipeMap, onPickDay }: MonthViewPr
                 )}
                 </AnimatePresence>
               </div>
-            </button>
+            </motion.button>
           )
         })}
       </div>
@@ -1108,6 +1113,7 @@ export default function CalendarPage() {
                 entries={entries}
                 recipeMap={recipeMap}
                 onPickDay={setDetailDay}
+                selectedDay={detailDay}
               />
             )}
           </motion.div>
