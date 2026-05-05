@@ -114,7 +114,7 @@ export default function LoginPage() {
       >
         {/* Mode toggle */}
         <LayoutGroup>
-          <div style={{ display: 'flex', background: 'var(--paper-2)', padding: 4, borderRadius: 14, marginBottom: 6 }}>
+          <div style={{ display: 'flex', background: 'var(--paper-2)', padding: 4, borderRadius: 24, marginBottom: 6 }}>
             {(['signin', 'signup'] as const).map((m) => (
               <button
                 key={m}
@@ -123,7 +123,7 @@ export default function LoginPage() {
                 style={{
                   flex: 1, position: 'relative',
                   background: 'transparent',
-                  border: 0, height: 36, borderRadius: 10,
+                  border: 0, height: 36, borderRadius: 18,
                   fontFamily: 'var(--sans)', fontSize: 13, fontWeight: 600,
                   color: mode === m ? 'var(--ink)' : 'var(--stone)',
                   cursor: 'pointer',
@@ -133,7 +133,7 @@ export default function LoginPage() {
                   <motion.div
                     layoutId="login-pill"
                     style={{
-                      position: 'absolute', inset: 0, borderRadius: 10,
+                      position: 'absolute', inset: 0, borderRadius: 18,
                       background: 'var(--cream-card)',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                     }}

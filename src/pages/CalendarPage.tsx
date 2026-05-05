@@ -362,23 +362,31 @@ interface AddMealSheetProps {
 function AddMealSheet({ date, onClose, onSaved }: AddMealSheetProps) {
   const { user } = useAuth()
   const [tab, setTab] = useState<'recipe' | 'custom'>('recipe')
+  const [tabDir, setTabDir] = useState(0)
   const [recipes, setRecipes] = useState<Recipe[]>([])
   const [search, setSearch] = useState('')
   const [custom, setCustom] = useState('')
   const [saving, setSaving] = useState(false)
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const searchRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => { getRecipes().then(setRecipes) }, [])
   useEffect(() => { if (tab === 'recipe') searchRef.current?.focus() }, [tab])
 
   const filtered = search.trim()
-    ? recipes.filter(r => r.title.toLowerCase().includes(search.toLowerCase()))
+    ? recipes.filter(r => {
+        const q = search.toLowerCase()
+        if (r.title.toLowerCase().includes(q)) return true
+        if (r.description?.toLowerCase().includes(q)) return true
+        return extractLeafTexts(r.ingredients).some(t => t.toLowerCase().includes(q))
+      })
     : recipes
 
   const dateObj = new Date(date + 'T00:00:00')
 
   async function handleSelectRecipe(recipeId: string) {
     if (!user) return
+    setSelectedId(recipeId)
     setSaving(true)
     try {
       await createMealPlanEntry({ date, recipeId, createdBy: user.uid })
@@ -398,13 +406,13 @@ function AddMealSheet({ date, onClose, onSaved }: AddMealSheetProps) {
   return (
     <>
       <motion.div
-        className="lb-sheet-backdrop" style={{ animation: 'none' }}
         variants={{
           hidden: { opacity: 0, transition: { duration: 0.2 } },
           visible: { opacity: 1, transition: { duration: 0.24 } },
         }}
         initial="hidden" animate="visible" exit="hidden"
         onClick={onClose}
+        style={{ position: 'fixed', inset: 0, background: 'rgba(31,29,26,0.12)', backdropFilter: 'blur(1px)', WebkitBackdropFilter: 'blur(1px)', zIndex: 200 }}
       />
       <motion.div
         className="lb-sheet" style={{ animation: 'none', paddingBottom: 30, height: '78%' }}
@@ -423,10 +431,10 @@ function AddMealSheet({ date, onClose, onSaved }: AddMealSheetProps) {
         </div>
         <div style={{ padding: '0 22px 12px' }}>
           <LayoutGroup>
-          <div style={{ display: 'flex', background: 'var(--paper-2)', padding: 3, borderRadius: 12 }}>
-            {([['recipe', 'Uit boek'], ['custom', 'Eigen tekst']] as const).map(([v, l]) => (
-              <button key={v} onClick={() => setTab(v)} style={{
-                position: 'relative', flex: 1, height: 32, borderRadius: 9, border: 0,
+          <div style={{ display: 'flex', background: 'var(--paper-2)', padding: 3, borderRadius: 20 }}>
+            {([['recipe', 'Uit kookboek'], ['custom', 'Eigen tekst']] as const).map(([v, l]) => (
+              <button key={v} onClick={() => { setTabDir(v === 'custom' ? 1 : -1); setTab(v) }} style={{
+                position: 'relative', flex: 1, height: 32, borderRadius: 16, border: 0,
                 background: 'transparent',
                 fontSize: 13, fontWeight: 500, color: tab === v ? 'var(--ink)' : 'var(--stone)',
                 fontFamily: 'var(--sans)', cursor: 'pointer',
@@ -434,7 +442,7 @@ function AddMealSheet({ date, onClose, onSaved }: AddMealSheetProps) {
                 {tab === v && (
                   <motion.div
                     layoutId="meal-sheet-pill"
-                    style={{ position: 'absolute', inset: 0, borderRadius: 9, background: 'var(--cream-card)', zIndex: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
+                    style={{ position: 'absolute', inset: 0, borderRadius: 16, background: 'var(--cream-card)', zIndex: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
                     transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                   />
                 )}
@@ -444,44 +452,148 @@ function AddMealSheet({ date, onClose, onSaved }: AddMealSheetProps) {
           </div>
           </LayoutGroup>
         </div>
-        <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '6px 22px 0' }}>
+        <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative' }}>
+        <AnimatePresence mode="wait" initial={false} custom={tabDir}>
           {tab === 'recipe' && (
+          <motion.div
+            key="recipe"
+            custom={tabDir}
+            initial={{ opacity: 0, y: tabDir * 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: tabDir * -16 }}
+            transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
+            style={{ padding: '6px 22px 0', height: '100%', overflowY: 'auto', overflowX: 'hidden' }}
+          >
             <>
-              <input ref={searchRef} className="lb-input" placeholder="Zoek recept" value={search}
-                onChange={e => setSearch(e.target.value)} style={{ marginBottom: 14 }} />
-              {filtered.length === 0 && (
-                <div style={{ textAlign: 'center', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic', padding: 20 }}>
-                  Geen recepten gevonden
-                </div>
-              )}
-              {filtered.map(r => (
-                <button key={r.id} onClick={() => handleSelectRecipe(r.id)} disabled={saving} style={{
-                  display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0',
-                  background: 'transparent', border: 0, borderBottom: '0.5px solid var(--line-soft)',
-                  width: '100%', textAlign: 'left', cursor: 'pointer',
-                }}>
-                  <div className="lb-color-block" style={{ '--block-bg': r.color ?? DEFAULT_RECIPE_COLOR, width: 42, height: 42, borderRadius: 8, padding: 0 } as React.CSSProperties} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15, fontWeight: 500 }}>{r.title}</div>
-                    {r.tags.length > 0 && <div style={{ fontSize: 11, color: 'var(--stone)' }}>{r.tags.slice(0, 2).join(' · ')}</div>}
-                  </div>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--stone)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 6l6 6-6 6" />
-                  </svg>
-                </button>
-              ))}
+              <div style={{ position: 'relative', marginBottom: 14 }}>
+                <input ref={searchRef} className="lb-input" placeholder="Zoek recept of ingrediënt" value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  style={{ paddingRight: search ? 42 : 14 }} />
+                <AnimatePresence>
+                  {search && (
+                    <motion.button
+                      key="clear"
+                      onClick={() => setSearch('')}
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+                      style={{
+                        position: 'absolute', right: 8, top: '50%', translateY: '-50%',
+                        background: 'var(--paper-3)', border: 0, width: 26, height: 26, borderRadius: 13,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        color: 'var(--ink-2)', cursor: 'pointer',
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
+                    </motion.button>
+                  )}
+                </AnimatePresence>
+              </div>
+              <AnimatePresence mode="wait">
+                {filtered.length === 0 && (
+                  <motion.div
+                    key="empty"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
+                    style={{ textAlign: 'center', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic', padding: 20 }}
+                  >
+                    Geen recepten gevonden
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <AnimatePresence>
+                {filtered.map((r, i) => (
+                  <motion.div
+                    key={r.id}
+                    layout
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.18, delay: Math.min(i * 0.03, 0.15), layout: { type: 'spring', stiffness: 350, damping: 35 } }}
+                  >
+                    <motion.button
+                      onClick={() => handleSelectRecipe(r.id)}
+                      disabled={saving}
+                      whileTap={{ scale: 0.98 }}
+                      style={{
+                        display: 'block', padding: '10px 0',
+                        border: 0, borderBottom: '0.5px solid var(--line)',
+                        width: '100%', textAlign: 'left', cursor: 'pointer', borderRadius: 4,
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ margin: 0, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 18, fontWeight: 500, lineHeight: 1.15, letterSpacing: '-0.015em', color: 'var(--ink)' }}>
+                            {r.title}
+                          </div>
+                          <div style={{ width: 24, height: 1.5, background: 'var(--bordeaux)', borderRadius: 1, opacity: 0.6, margin: '4px 0' }} />
+                          {r.tags.length > 0 && (
+                            <div style={{ fontFamily: 'var(--mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                              {r.tags.map((t, i) => (
+                                <span key={t}>
+                                  {i > 0 && <span style={{ color: 'rgba(107,31,42,0.40)' }}> · </span>}
+                                  <span style={{ color: 'rgba(107,31,42,0.40)' }}>{t}</span>
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <AnimatePresence mode="wait" initial={false}>
+                          {selectedId === r.id ? (
+                            <motion.div key="check"
+                              initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
+                              transition={{ type: 'spring', stiffness: 420, damping: 22 }}
+                              style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--stone)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M5 12l5 5L20 7" />
+                              </svg>
+                            </motion.div>
+                          ) : (
+                            <motion.div key="chevron"
+                              initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
+                              transition={{ duration: 0.1 }}
+                              style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}
+                            >
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--stone)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M9 6l6 6-6 6" />
+                              </svg>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    </motion.button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </>
+          </motion.div>
           )}
           {tab === 'custom' && (
+          <motion.div
+            key="custom"
+            custom={tabDir}
+            initial={{ opacity: 0, y: tabDir * -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: tabDir * 16 }}
+            transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
+            style={{ padding: '6px 22px 0', height: '100%', overflowY: 'auto' }}
+          >
             <>
               <input className="lb-input" autoFocus placeholder="bv. Afhalen, Restjes, Uit eten" value={custom}
                 onChange={e => setCustom(e.target.value)} />
-              <button onClick={handleSaveCustom} disabled={!custom.trim() || saving}
+              <motion.button onClick={handleSaveCustom} disabled={!custom.trim() || saving}
+                whileTap={{ scale: 0.97 }}
                 className="lb-btn lb-btn--primary" style={{ width: '100%', marginTop: 14 }}>
                 {saving ? 'Opslaan…' : 'Aan planning toevoegen'}
-              </button>
+              </motion.button>
             </>
+          </motion.div>
           )}
+        </AnimatePresence>
         </div>
       </motion.div>
     </>
@@ -546,7 +658,7 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
             </div>
 
             {/* Recipe zone */}
-            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5, paddingRight: 6 }}>
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5, paddingRight: 6, paddingTop: 2 }}>
               <AnimatePresence initial={false}>
                 {dayEntries.map(e => {
                   const recipe = recipeMap.get(e.recipeId ?? '')
