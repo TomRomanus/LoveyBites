@@ -44,6 +44,16 @@ const pageVariants = {
   }),
 }
 
+const weekContainerVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.045, delayChildren: 0.06 } },
+}
+
+const weekRowVariants = {
+  hidden: { opacity: 0, y: 5 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.2, ease: [0.2, 0, 0, 1] } },
+}
+
 // ── Date helpers ──────────────────────────────────────────────────────────────
 
 function toISO(d: Date): string {
@@ -495,13 +505,13 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
   const entriesForDay = (day: Date) => entries.filter(e => e.date === toISO(day))
 
   return (
-    <div style={{ padding: '12px 20px 120px' }}>
+    <motion.div initial="hidden" animate="visible" variants={weekContainerVariants} style={{ padding: '12px 20px 120px' }}>
       {days.map((day, idx) => {
         const dayEntries = entriesForDay(day)
         const isToday = isSameDay(day, today)
         const iso = toISO(day)
         return (
-          <div key={iso} style={{
+          <motion.div key={iso} variants={weekRowVariants} style={{
             display: 'flex',
             alignItems: 'flex-start',
             gap: 5,
@@ -544,18 +554,18 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
                   return (
                     <motion.div
                       key={e.id}
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 20 }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.2, ease: 'easeInOut' }}
+                      initial={{ opacity: 0, height: 0, x: -6 }}
+                      animate={{ opacity: 1, height: 'auto', x: 0 }}
+                      exit={{ opacity: 0, height: 0, x: 0 }}
+                      transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
                       style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 5 }}
                     >
-                      <div style={{ width: 2.5, height: 16, borderRadius: 2, flexShrink: 0, background: recipe ? color : 'var(--stone)' }} />
+                      <div style={{ width: 2.5, alignSelf: 'stretch', borderRadius: 2, flexShrink: 0, background: recipe ? color : 'var(--stone)' }} />
                       <span
                         onClick={() => recipe && nav(`/recipe/${recipe.id}`)}
                         style={{
                           flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 13.5,
-                          lineHeight: 1, fontWeight: recipe ? 500 : 400,
+                          lineHeight: 1.25, fontWeight: recipe ? 500 : 400,
                           color: recipe ? 'var(--ink)' : 'var(--ink-2)',
                           cursor: recipe ? 'pointer' : 'default',
                           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
@@ -563,14 +573,15 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
                       >
                         {recipe ? recipe.title : e.customDescription}
                       </span>
-                      <button
+                      <motion.button
                         onClick={() => onDelete(e.id)}
+                        whileTap={{ scale: 0.78 }}
                         style={{ background: 'none', border: 0, padding: 0, marginLeft: 1, color: 'var(--stone-2)', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center' }}
                       >
                         <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
                           <path d="M18 6L6 18M6 6l12 12" />
                         </svg>
-                      </button>
+                      </motion.button>
                     </motion.div>
                   )
                 })}
@@ -579,18 +590,19 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
 
             {/* Separator + add */}
             <div style={{ width: 0, alignSelf: 'stretch', borderLeft: '0.5px solid var(--line)', flexShrink: 0 }} />
-            <button
+            <motion.button
               onClick={() => onAdd(iso)}
+              whileTap={{ scale: 0.78 }}
               style={{ background: 'none', border: 0, padding: 2, color: 'var(--bordeaux)', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', marginTop: 3 }}
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
                 <path d="M12 5v14M5 12h14" />
               </svg>
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         )
       })}
-    </div>
+    </motion.div>
   )
 }
 
@@ -794,8 +806,9 @@ export default function CalendarPage() {
               )}
             </h1>
           </div>
-          <button
+          <motion.button
             onClick={() => setShowShopping(true)}
+            whileTap={{ scale: 0.88 }}
             style={{
               width: 40, height: 40, borderRadius: 20, border: 0,
               background: 'var(--paper)',
@@ -808,7 +821,7 @@ export default function CalendarPage() {
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18" /><path d="M16 10a4 4 0 01-8 0" />
             </svg>
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -848,20 +861,21 @@ export default function CalendarPage() {
           </div>
         </LayoutGroup>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <button onClick={() => movePeriod(-1)} className="lb-icon-btn" style={{ width: 40, height: 40 }}>
+          <motion.button onClick={() => movePeriod(-1)} className="lb-icon-btn" whileTap={{ scale: 0.88 }} style={{ width: 40, height: 40 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6" />
             </svg>
-          </button>
-          <button onClick={goToToday} disabled={isCurrentPeriod} className="lb-btn lb-btn--ghost lb-btn--small"
+          </motion.button>
+          <motion.button onClick={goToToday} disabled={isCurrentPeriod} className="lb-btn lb-btn--ghost lb-btn--small"
+            whileTap={{ scale: 0.95 }}
             style={{ flex: 1, height: 40, borderRadius: 20, fontSize: 13, opacity: isCurrentPeriod ? 0.45 : 1 }}>
             Vandaag
-          </button>
-          <button onClick={() => movePeriod(1)} className="lb-icon-btn" style={{ width: 40, height: 40 }}>
+          </motion.button>
+          <motion.button onClick={() => movePeriod(1)} className="lb-icon-btn" whileTap={{ scale: 0.88 }} style={{ width: 40, height: 40 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 6l6 6-6 6" />
             </svg>
-          </button>
+          </motion.button>
         </div>
       </div>
 
