@@ -263,15 +263,12 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, scale: 0.9 }}
                           transition={{ type: 'spring', stiffness: 420, damping: 30 }}
-                          style={{
-                            width: '100%', flexShrink: 0, borderRadius: 3, padding: '1px 3px',
-                            fontFamily: 'var(--mono)', fontSize: 7, letterSpacing: '0.03em',
-                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                            background: color ? color + '18' : 'var(--paper-2)',
-                            color: color ? color : 'var(--stone)',
-                          }}
+                          style={{ width: '100%', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 3, padding: '0 2px' }}
                         >
-                          {label}
+                          <div style={{ width: 2.5, height: 10, borderRadius: 2, flexShrink: 0, background: color ?? 'var(--stone)' }} />
+                          <span style={{ fontFamily: 'var(--mono)', fontSize: 7, letterSpacing: '0.03em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, color: color ?? 'var(--stone)' }}>
+                            {label}
+                          </span>
                         </motion.div>
                       )
                     })}

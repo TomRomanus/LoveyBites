@@ -548,10 +548,10 @@ function AddMealSheet({ date, existingRecipeIds, onClose, onSaved }: AddMealShee
                             <motion.div key="check"
                               initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
                               transition={{ type: 'spring', stiffness: 420, damping: 22 }}
-                              style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}
+                              style={{ flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22, borderRadius: '50%', background: 'var(--bordeaux)' }}
                             >
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--stone)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M5 12l5 5L20 7" />
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M5 13l4 4L19 7" />
                               </svg>
                             </motion.div>
                           ) : (
@@ -653,7 +653,11 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
               <span style={{
                 fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 17,
                 fontWeight: 500, lineHeight: 1,
-                color: isToday ? 'var(--bordeaux)' : 'var(--ink-2)',
+                color: isToday ? 'var(--cream-card)' : 'var(--ink-2)',
+                background: isToday ? 'var(--bordeaux)' : 'transparent',
+                borderRadius: '50%',
+                width: 22, height: 22,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 {day.getDate()}
               </span>
