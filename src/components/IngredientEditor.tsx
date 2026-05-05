@@ -250,25 +250,20 @@ function NodeRow({ node, path, depth, isOnly, isLast, nodes, labels, onChange, i
     }
 
     const refsPanel = ordered && (
-      <div style={{ marginBottom: 1 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {selectedIngredients.length === 0 ? (
-            <button type="button" onClick={() => setPickerOpen(true)}
-              style={{ background: 'none', border: 0, fontSize: 10, color: 'rgba(107,31,42,0.45)', cursor: 'pointer', padding: 0, fontFamily: 'var(--mono)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              + ingrediënten
-            </button>
-          ) : (
-            <button type="button" onClick={() => setPickerOpen(true)}
-              style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(107,31,42,0.55)' }}>
-                {selectedIngredients.map(o => o.text).join(' · ')}
-              </span>
-              <span style={{ color: 'rgba(107,31,42,0.45)', display: 'flex', alignItems: 'center' }}>
-                <PenIcon />
-              </span>
-            </button>
-          )}
-        </div>
+      <div style={{ marginBottom: 5 }}>
+        {selectedIngredients.length === 0 ? (
+          <button type="button" onClick={() => setPickerOpen(true)}
+            style={{ background: 'none', border: 0, fontSize: 10, color: 'rgba(107,31,42,0.45)', cursor: 'pointer', padding: 0, fontFamily: 'var(--mono)', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'block', textAlign: 'left', lineHeight: 'normal' }}>
+            + ingrediënten
+          </button>
+        ) : (
+          <button type="button" onClick={() => setPickerOpen(true)}
+            style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', display: 'block', textAlign: 'left', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(107,31,42,0.55)', lineHeight: 'normal', width: '100%' }}>
+            {selectedIngredients.map((o, i) => (
+              <span key={o.id}>{i > 0 ? ' · ' : ''}{o.text}</span>
+            ))}
+          </button>
+        )}
         {pickerOpen && (
           <IngredientPickerSheet
             selectedIds={selectedIds}
@@ -282,7 +277,7 @@ function NodeRow({ node, path, depth, isOnly, isLast, nodes, labels, onChange, i
 
     return (
       <div style={{ paddingLeft: indent, borderBottom: isLast ? 'none' : '0.5px solid var(--line-soft)' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: ordered ? 14 : 6, padding: ordered ? '13px 0 3px' : '6px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: ordered ? 14 : 6, padding: ordered ? '8px 0' : '6px 0' }}>
           {ordered ? (
             // Step number — matches recipe overview exactly, no dot
             <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 22, flexShrink: 0, lineHeight: 1.1, paddingTop: 1 }}>
@@ -300,7 +295,7 @@ function NodeRow({ node, path, depth, isOnly, isLast, nodes, labels, onChange, i
                 value={node.text}
                 onChange={(e) => onChange(replaceAt(nodes, path, { ...node, text: e.target.value }))}
                 rows={1}
-                style={{ ...leafInputStyle, flex: 'none', width: '100%', lineHeight: 1.5, padding: '4px 4px 0' }}
+                style={{ ...leafInputStyle, flex: 'none', width: '100%', lineHeight: 1.5, padding: '0 4px 0' }}
                 placeholder={labels.leafPlaceholder}
               />
             </div>
