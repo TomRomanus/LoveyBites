@@ -280,7 +280,7 @@ export default function CookModeView({
                 </>
               )}
               {currentIngredients.length > 0 && (
-                <div style={{ fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.09em', textTransform: 'uppercase', color: 'rgba(243,222,224,0.5)', marginBottom: 10 }}>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 15, letterSpacing: '0.09em', textTransform: 'uppercase', color: 'rgba(243,222,224,0.9)', marginBottom: 10 }}>
                   {currentIngredients.join(' · ')}
                 </div>
               )}
