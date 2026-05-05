@@ -546,7 +546,7 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
             </div>
 
             {/* Recipe zone */}
-            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', paddingRight: 6 }}>
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5, paddingRight: 6 }}>
               <AnimatePresence initial={false}>
                 {dayEntries.map(e => {
                   const recipe = recipeMap.get(e.recipeId ?? '')

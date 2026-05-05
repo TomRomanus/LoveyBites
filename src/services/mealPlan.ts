@@ -25,7 +25,12 @@ export async function getMealPlanEntries(
     orderBy('date')
   )
   const snapshot = await getDocs(q)
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as MealPlanEntry)
+  return snapshot.docs
+    .map((d) => ({ id: d.id, ...d.data() }) as MealPlanEntry)
+    .sort((a, b) => {
+      if (a.date !== b.date) return a.date.localeCompare(b.date)
+      return (a.createdAt?.toMillis() ?? 0) - (b.createdAt?.toMillis() ?? 0)
+    })
 }
 
 export async function createMealPlanEntry(data: MealPlanEntryInput): Promise<string> {
