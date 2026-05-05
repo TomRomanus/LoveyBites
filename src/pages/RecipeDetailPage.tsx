@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { animate, motion, AnimatePresence } from 'framer-motion'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getRecipe, deleteRecipe, updateRecipe } from '../services/recipes'
 import type { Recipe } from '../types/recipe'
@@ -28,25 +28,163 @@ function scaleItem(text: string, ratio: number): string {
   return display + ' ' + m[2]
 }
 
+const STAR_COUNT = 5
+const STAR_PATH = 'M12 3l3 6 6.5 1-4.7 4.6 1.1 6.4L12 18l-5.9 3 1.1-6.4L2.5 10 9 9l3-6z'
+
+function snapToHalf(n: number) {
+  return Math.round(n * 2) / 2
+}
+
 function Stars({ value, onChange }: { value: number; onChange?: (v: number) => void }) {
-  const dim = 20
-  return (
-    <div className="lb-stars" data-size="md">
-      {Array.from({ length: 5 }).map((_, i) => {
-        const filled = i < value
-        return (
-          <button key={i} type="button"
-            onClick={onChange ? () => onChange(i + 1 === value ? 0 : i + 1) : undefined}
-            disabled={!onChange}
-            style={{ cursor: onChange ? 'pointer' : 'default', width: dim, height: dim, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: 'none', border: 0, padding: 0 }}>
-            <svg width={dim} height={dim} viewBox="0 0 24 24"
-              fill={filled ? 'var(--bordeaux)' : 'none'}
-              stroke={filled ? 'var(--bordeaux)' : 'var(--stone-2)'} strokeWidth="1.4">
-              <path d="M12 3l3 6 6.5 1-4.7 4.6 1.1 6.4L12 18l-5.9 3 1.1-6.4L2.5 10 9 9l3-6z" strokeLinejoin="round" />
-            </svg>
-          </button>
+  const rowRef    = useRef<HTMLDivElement>(null)
+  const starRefs  = useRef<(HTMLDivElement | null)[]>([])
+  const isDragging   = useRef(false)
+  const committedRef = useRef(value)
+  const livePosRef   = useRef(value)
+  const onChangeRef  = useRef(onChange)
+  onChangeRef.current = onChange
+
+  const [livePos,      setLivePos]      = useState(value)
+  const [displayValue, setDisplayValue] = useState(value)
+  const [dir,          setDir]          = useState<'up' | 'down'>('up')
+
+  useEffect(() => {
+    committedRef.current = value
+    livePosRef.current   = value
+    setLivePos(value)
+    setDisplayValue(value)
+  }, [value])
+
+  const posFromX = useCallback((clientX: number) => {
+    const rect = rowRef.current?.getBoundingClientRect()
+    if (!rect) return 0
+    return Math.max(0, Math.min(STAR_COUNT, ((clientX - rect.left) / rect.width) * STAR_COUNT))
+  }, [])
+
+  const finishDrag = useCallback(() => {
+    if (!isDragging.current) return
+    isDragging.current = false
+    const snapped = snapToHalf(livePosRef.current)
+    const prev    = committedRef.current
+
+    for (let i = 0; i < STAR_COUNT; i++) {
+      const el    = starRefs.current[i]
+      if (!el) continue
+      const prevF = Math.max(0, Math.min(1, prev    - i))
+      const newF  = Math.max(0, Math.min(1, snapped - i))
+      if (prevF === 0 && newF > 0) {
+        animate(el,
+          { scale: [0.35, 1.32, 1], rotate: [-18, 6, 0], opacity: [0.2, 1, 1] },
+          { duration: 0.38, ease: [0.34, 1.56, 0.64, 1], delay: i * 0.055 }
         )
-      })}
+      } else if (prevF > 0 && newF === 0) {
+        animate(el,
+          { scale: [1, 0.65, 1] },
+          { duration: 0.22, ease: 'easeIn', delay: Math.max(0, (Math.ceil(prev) - i - 1) * 0.035) }
+        )
+      }
+    }
+
+    committedRef.current = snapped
+    setDir(snapped >= prev ? 'up' : 'down')
+    setDisplayValue(snapped)
+    setLivePos(snapped)
+    onChangeRef.current?.(snapped)
+  }, [])
+
+  const moveHandler = useCallback((clientX: number) => {
+    if (!isDragging.current) return
+    livePosRef.current = posFromX(clientX)
+    setLivePos(livePosRef.current)
+  }, [posFromX])
+
+  useEffect(() => {
+    const onMM = (e: MouseEvent)  => moveHandler(e.clientX)
+    const onTM = (e: TouchEvent)  => { e.preventDefault(); moveHandler(e.touches[0].clientX) }
+    window.addEventListener('mousemove', onMM)
+    window.addEventListener('touchmove', onTM, { passive: false })
+    window.addEventListener('mouseup',   finishDrag)
+    window.addEventListener('touchend',  finishDrag)
+    return () => {
+      window.removeEventListener('mousemove', onMM)
+      window.removeEventListener('touchmove', onTM)
+      window.removeEventListener('mouseup',   finishDrag)
+      window.removeEventListener('touchend',  finishDrag)
+    }
+  }, [finishDrag, moveHandler])
+
+  const intPart = displayValue > 0 ? String(Math.floor(displayValue)) : ''
+  const decPart = displayValue > 0 ? (displayValue % 1 === 0 ? '0' : '5') : ''
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 5 }}>
+      <div
+        ref={rowRef}
+        style={{ display: 'flex', gap: 3, cursor: onChange ? 'grab' : 'default', touchAction: 'none', userSelect: 'none' }}
+        onMouseDown={onChange ? e => {
+          isDragging.current = true
+          livePosRef.current = posFromX(e.clientX)
+          setLivePos(livePosRef.current)
+        } : undefined}
+        onTouchStart={onChange ? e => {
+          e.preventDefault()
+          isDragging.current = true
+          livePosRef.current = posFromX(e.touches[0].clientX)
+          setLivePos(livePosRef.current)
+        } : undefined}
+      >
+        {Array.from({ length: STAR_COUNT }, (_, i) => {
+          const frac = Math.max(0, Math.min(1, livePos - i))
+          return (
+            <div key={i} ref={el => { starRefs.current[i] = el }}
+              style={{ width: 28, height: 28, position: 'relative', flexShrink: 0 }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" style={{ position: 'absolute' }}>
+                <path d={STAR_PATH} fill="none" stroke="var(--stone-2)" strokeWidth="1.4" strokeLinejoin="round" />
+              </svg>
+              <svg width="28" height="28" viewBox="0 0 24 24"
+                style={{ position: 'absolute', clipPath: `inset(0 ${((1 - frac) * 100).toFixed(1)}% 0 0)`, transition: 'clip-path 0.06s ease' }}>
+                <path d={STAR_PATH} fill="var(--bordeaux)" stroke="var(--bordeaux)" strokeWidth="1.4" strokeLinejoin="round" />
+              </svg>
+            </div>
+          )
+        })}
+      </div>
+
+      {displayValue > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', marginTop: -3, fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 500, letterSpacing: 0, color: 'rgba(107, 31, 42, 0.45)' }}>
+          <div style={{ overflow: 'hidden', height: 14, display: 'flex', alignItems: 'center' }}>
+            <AnimatePresence mode="popLayout" custom={dir}>
+              <motion.span key={`i${intPart}`} custom={dir}
+                variants={{
+                  enter: (d: string) => ({ y: d === 'up' ? 10 : -10, opacity: 0 }),
+                  center: { y: 0, opacity: 1 },
+                  exit:  (d: string) => ({ y: d === 'up' ? -10 : 10, opacity: 0 }),
+                }}
+                initial="enter" animate="center" exit="exit"
+                transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                style={{ display: 'block' }}>
+                {intPart}
+              </motion.span>
+            </AnimatePresence>
+          </div>
+          <span>.</span>
+          <div style={{ overflow: 'hidden', height: 14, display: 'flex', alignItems: 'center' }}>
+            <AnimatePresence mode="popLayout" custom={dir}>
+              <motion.span key={`d${decPart}`} custom={dir}
+                variants={{
+                  enter: (d: string) => ({ y: d === 'up' ? 10 : -10, opacity: 0 }),
+                  center: { y: 0, opacity: 1 },
+                  exit:  (d: string) => ({ y: d === 'up' ? -10 : 10, opacity: 0 }),
+                }}
+                initial="enter" animate="center" exit="exit"
+                transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                style={{ display: 'block' }}>
+                {decPart}
+              </motion.span>
+            </AnimatePresence>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
