@@ -386,9 +386,10 @@ interface LeafRowProps {
   ordered?: boolean
   itemIndex?: number
   leafIndexMap?: Map<string, number>
+  reordering?: boolean
 }
 
-function LeafRow({ node, path, isOnly, isLast, allNodes, labels, onChange, ingredientOptions, ordered, itemIndex, leafIndexMap }: LeafRowProps) {
+function LeafRow({ node, path, isOnly, isLast, allNodes, labels, onChange, ingredientOptions, ordered, itemIndex, leafIndexMap, reordering }: LeafRowProps) {
   const [pickerOpen, setPickerOpen] = useState(false)
   const selectedIds = new Set(node.ingredientRefs ?? [])
   const selectedIngredients = ingredientOptions?.filter((opt) => selectedIds.has(opt.id)) ?? []
@@ -428,14 +429,37 @@ function LeafRow({ node, path, isOnly, isLast, allNodes, labels, onChange, ingre
   return (
     <div style={{ borderBottom: isLast ? 'none' : '0.5px solid var(--line-soft)' }}>
       <div style={{ display: 'flex', alignItems: ordered ? 'flex-start' : 'center', gap: ordered ? 14 : 6, padding: ordered ? '8px 0' : '6px 0' }}>
-        <GripHandle style={ordered ? { paddingTop: 7 } : undefined} />
-
         {ordered ? (
+          // Steps: grip slides in alongside the number — animate width so layout shifts smoothly
+          <motion.div
+            animate={{ width: reordering ? 24 : 0, opacity: reordering ? 1 : 0 }}
+            transition={{ type: 'spring', stiffness: 340, damping: 30 }}
+            style={{ overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'flex-start' }}
+          >
+            <GripHandle style={{ paddingTop: 7 }} />
+          </motion.div>
+        ) : (
+          // Ingredients: dot ↔ grip crossfade in a fixed-size slot — no layout shift at all
+          <div style={{ position: 'relative', width: 20, flexShrink: 0, alignSelf: 'center' }}>
+            <motion.div
+              animate={{ opacity: reordering ? 1 : 0 }}
+              transition={{ duration: 0.18, ease: 'easeInOut' }}
+              style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <GripHandle />
+            </motion.div>
+            <motion.span
+              animate={{ opacity: reordering ? 0 : 1 }}
+              transition={{ duration: 0.18, ease: 'easeInOut' }}
+              style={{ color: 'var(--bordeaux)', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, marginTop: -2 }}
+            >•</motion.span>
+          </div>
+        )}
+
+        {ordered && (
           <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 22, flexShrink: 0, lineHeight: 1.1, paddingTop: 1 }}>
             {(leafIndexMap?.get(node.id ?? '') ?? itemIndex ?? 0) + 1}
           </span>
-        ) : (
-          <span style={{ color: 'var(--bordeaux)', fontFamily: 'var(--serif)', fontSize: 16, paddingTop: 3, paddingLeft: 4, flexShrink: 0 }}>·</span>
         )}
 
         {ordered ? (
@@ -481,16 +505,23 @@ interface GroupRowProps {
   ingredientOptions?: IngredientOption[]
   ordered?: boolean
   leafIndexMap?: Map<string, number>
+  reordering?: boolean
 }
 
-function GroupRow({ node, path, isOnly, allNodes, labels, onChange, ingredientOptions, ordered, leafIndexMap }: GroupRowProps) {
+function GroupRow({ node, path, isOnly, allNodes, labels, onChange, ingredientOptions, ordered, leafIndexMap, reordering }: GroupRowProps) {
   let leafCounter = 0
   const childIds = node.children.map(c => c.id!)
 
   return (
     // Handle sits OUTSIDE (to the left of) the vertical bordeaux bar
-    <div style={{ display: 'flex', alignItems: 'flex-start', margin: '4px 0' }}>
-      <GripHandle style={{ paddingTop: 6, paddingRight: 10 }} />
+    <div style={{ display: 'flex', alignItems: 'flex-start', margin: '12px 0 4px' }}>
+      <motion.div
+        animate={{ width: reordering ? 30 : 0, opacity: reordering ? 1 : 0 }}
+        transition={{ type: 'spring', stiffness: 340, damping: 30 }}
+        style={{ overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'flex-start' }}
+      >
+        <GripHandle style={{ paddingTop: 6, paddingRight: 10 }} />
+      </motion.div>
 
       <div style={{ borderLeft: '2px solid rgba(107,31,42,0.30)', padding: '2px 0 4px 12px', flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
@@ -538,6 +569,7 @@ function GroupRow({ node, path, isOnly, allNodes, labels, onChange, ingredientOp
                       ordered={ordered}
                       itemIndex={idx}
                       leafIndexMap={leafIndexMap}
+                      reordering={reordering}
                     />
                   </SortableItem>
                 </motion.div>
@@ -554,6 +586,7 @@ function GroupRow({ node, path, isOnly, allNodes, labels, onChange, ingredientOp
             border: '1px dashed rgba(107,31,42,0.22)', borderRadius: 7,
             color: 'var(--stone)', fontSize: 11.5, minHeight: 32,
             background: 'none', cursor: 'pointer', fontFamily: 'var(--sans)',
+            width: '100%',
           }}>
           <PlusIcon size={10} />
           {labels.addLeafInGroup}
@@ -612,9 +645,10 @@ interface IngredientEditorProps {
   ingredientOptions?: IngredientOption[]
   leafMultiline?: boolean
   ordered?: boolean
+  reordering?: boolean
 }
 
-export default function IngredientEditor({ nodes, onChange, labels: labelOverrides, commonSections, ingredientOptions, ordered }: IngredientEditorProps) {
+export default function IngredientEditor({ nodes, onChange, labels: labelOverrides, commonSections, ingredientOptions, ordered, reordering }: IngredientEditorProps) {
   const labels = { ...defaultLabels, ...labelOverrides }
   const [activeId, setActiveId] = useState<string | null>(null)
 
@@ -684,6 +718,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
                         ordered={ordered}
                         itemIndex={idx}
                         leafIndexMap={leafIndexMap}
+                        reordering={reordering}
                       />
                     </SortableItem>
                   </motion.div>
@@ -708,6 +743,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
                       ingredientOptions={ingredientOptions}
                       ordered={ordered}
                       leafIndexMap={leafIndexMap}
+                      reordering={reordering}
                     />
                   </SortableItem>
                 </motion.div>
@@ -716,7 +752,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
           </AnimatePresence>
         </SortableContext>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
+        {!reordering && <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
           <button type="button"
             onClick={() => onChange([...nodes, newLeaf()])}
             style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', border: '1px dashed var(--stone-2)', borderRadius: 9, color: 'var(--stone)', fontSize: 12, background: 'none', cursor: 'pointer', minHeight: 38, fontFamily: 'var(--sans)' }}>
@@ -766,7 +802,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </div>}
       </div>
 
       <DragOverlay dropAnimation={{ duration: 180, easing: 'ease' }}>

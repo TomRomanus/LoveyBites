@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { RecipeInput, IngredientNode } from '../types/recipe'
 import IngredientEditor, { pruneEmpty } from './IngredientEditor'
@@ -192,6 +193,7 @@ export default function RecipeForm({ initial, onSubmit, onSavingChange, existing
   const [error, setError] = useState<string | null>(null)
   const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
   const [labelDir, setLabelDir] = useState<'up' | 'down' | null>(null)
+  const [isReordering, setIsReordering] = useState(false)
 
   function setField<K extends keyof RecipeInput>(key: K, value: RecipeInput[K]) {
     setForm((f) => ({ ...f, [key]: value }))
@@ -345,6 +347,7 @@ export default function RecipeForm({ initial, onSubmit, onSavingChange, existing
           nodes={form.ingredients}
           onChange={(v) => setField('ingredients', ensureIngredientIds(v))}
           commonSections={['Deeg', 'Vulling', 'Marinade', 'Coating', 'Saus', 'Glazuur']}
+          reordering={isReordering}
         />
       </div>
 
@@ -359,6 +362,7 @@ export default function RecipeForm({ initial, onSubmit, onSavingChange, existing
           ingredientOptions={ingredientOptions}
           leafMultiline
           ordered
+          reordering={isReordering}
         />
       </div>
 
@@ -372,6 +376,45 @@ export default function RecipeForm({ initial, onSubmit, onSavingChange, existing
           <SourceEditor sources={form.sources ?? []} onChange={(v) => setField('sources', v)} />
         </Field>
       </div>
+      {createPortal(
+        <button
+          type="button"
+          onClick={() => setIsReordering(r => !r)}
+          aria-label={isReordering ? 'Klaar met sorteren' : 'Volgorde aanpassen'}
+          style={{
+            position: 'fixed',
+            bottom: 'max(28px, env(safe-area-inset-bottom))',
+            right: 22,
+            width: 44,
+            height: 44,
+            borderRadius: 22,
+            background: isReordering ? 'var(--bordeaux-tint)' : 'var(--cream-card)',
+            border: isReordering
+              ? '0.5px solid rgba(107,31,42,0.22)'
+              : '0.5px solid rgba(31,29,26,0.18)',
+            boxShadow: isReordering
+              ? '0 1px 4px rgba(107,31,42,0.10)'
+              : '0 1px 4px rgba(0,0,0,0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            zIndex: 90,
+            transition: 'background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease',
+          }}
+        >
+          {isReordering ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--bordeaux)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--stone)" strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l4-4 4 4M7 5v14M17 3v14m0 0l-4-4m4 4l4-4" />
+            </svg>
+          )}
+        </button>,
+        document.body
+      )}
     </form>
   )
 }
