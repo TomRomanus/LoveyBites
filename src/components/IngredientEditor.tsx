@@ -428,7 +428,7 @@ function LeafRow({ node, path, isOnly, isLast, allNodes, labels, onChange, ingre
 
   return (
     <div style={{ borderBottom: isLast ? 'none' : '0.5px solid var(--line-soft)' }}>
-      <div style={{ display: 'flex', alignItems: ordered ? 'flex-start' : 'center', gap: ordered ? 14 : 6, padding: ordered ? '8px 0' : '6px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: ordered ? 14 : 6, padding: ordered ? '8px 0' : '6px 0' }}>
         {ordered ? (
           // Steps: grip slides in alongside the number — animate width so layout shifts smoothly
           <motion.div
@@ -440,18 +440,18 @@ function LeafRow({ node, path, isOnly, isLast, allNodes, labels, onChange, ingre
           </motion.div>
         ) : (
           // Ingredients: dot ↔ grip crossfade in a fixed-size slot — no layout shift at all
-          <div style={{ position: 'relative', width: 20, flexShrink: 0, alignSelf: 'center' }}>
+          <div style={{ position: 'relative', width: 20, flexShrink: 0, paddingTop: 12 }}>
             <motion.div
               animate={{ opacity: reordering ? 1 : 0 }}
               transition={{ duration: 0.18, ease: 'easeInOut' }}
-              style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{ position: 'absolute', top: 12, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}
             >
               <GripHandle />
             </motion.div>
             <motion.span
               animate={{ opacity: reordering ? 0 : 1 }}
               transition={{ duration: 0.18, ease: 'easeInOut' }}
-              style={{ color: 'var(--bordeaux)', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1, marginTop: -2 }}
+              style={{ color: 'var(--bordeaux)', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
             >•</motion.span>
           </div>
         )}
@@ -474,17 +474,17 @@ function LeafRow({ node, path, isOnly, isLast, allNodes, labels, onChange, ingre
             />
           </div>
         ) : (
-          <input
-            type="text"
+          <AutoGrowTextarea
             value={node.text}
             onChange={(e) => onChange(replaceAt(allNodes, path, { ...node, text: e.target.value }))}
-            style={leafInputStyle}
+            rows={1}
+            style={{ ...leafInputStyle, flex: 1, width: '100%' }}
             placeholder={labels.leafPlaceholder}
           />
         )}
 
         {!isOnly && (
-          <button type="button" onClick={() => onChange(removeAt(allNodes, path))} style={xBtn} aria-label="Verwijderen">
+          <button type="button" onClick={() => onChange(removeAt(allNodes, path))} style={{ ...xBtn, marginTop: ordered ? 0 : 6 }} aria-label="Verwijderen">
             <XIcon />
           </button>
         )}
@@ -520,7 +520,7 @@ function GroupRow({ node, path, isOnly, allNodes, labels, onChange, ingredientOp
         transition={{ type: 'spring', stiffness: 340, damping: 30 }}
         style={{ overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'flex-start' }}
       >
-        <GripHandle style={{ paddingTop: 6, paddingRight: 10 }} />
+        <GripHandle style={{ paddingTop: 8, paddingRight: 10 }} />
       </motion.div>
 
       <div style={{ borderLeft: '2px solid rgba(107,31,42,0.30)', padding: '2px 0 4px 12px', flex: 1, minWidth: 0 }}>
@@ -752,7 +752,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
           </AnimatePresence>
         </SortableContext>
 
-        {!reordering && <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
           <button type="button"
             onClick={() => onChange([...nodes, newLeaf()])}
             style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', border: '1px dashed var(--stone-2)', borderRadius: 9, color: 'var(--stone)', fontSize: 12, background: 'none', cursor: 'pointer', minHeight: 38, fontFamily: 'var(--sans)' }}>
@@ -802,7 +802,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
               </motion.div>
             )}
           </AnimatePresence>
-        </div>}
+        </div>
       </div>
 
       <DragOverlay dropAnimation={{ duration: 180, easing: 'ease' }}>
