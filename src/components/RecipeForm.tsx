@@ -134,12 +134,13 @@ function TagsEditor({ tags, onChange, existingTags = [] }: { tags: string[]; onC
           onFocus={() => setFocused(true)}
           onBlur={() => { setFocused(false); add() }}
           placeholder="+ TAG"
+          size={Math.max(input.length + 1, 5)}
           style={{
-            flex: '1 0 60px', minWidth: 60,
-            background: 'transparent', border: 0, outline: 'none',
+            flex: '0 0 auto',
+            background: 'transparent', border: '1px dashed var(--stone-2)', borderRadius: 20, outline: 'none',
             fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em',
             textTransform: 'uppercase', color: 'var(--ink-2)',
-            padding: '4px 2px',
+            padding: '5px 11px',
           }}
         />
       </div>
