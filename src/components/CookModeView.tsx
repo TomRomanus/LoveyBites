@@ -129,7 +129,13 @@ export default function CookModeView({
   const [currentIndex, setCurrentIndex] = useState(0)
   const [stepDir, setStepDir] = useState<'next' | 'prev' | null>(null)
   const [tab, setTab] = useState<CookTab>('step')
+  const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
   const overviewRef = useRef<HTMLDivElement>(null)
+
+  function handlePortionsChange(p: number) {
+    setPortionDir(p > selectedPortions ? 'up' : 'down')
+    onPortionsChange(p)
+  }
 
   useEffect(() => {
     if (tab === 'overview' && overviewRef.current) {
@@ -332,24 +338,69 @@ export default function CookModeView({
         >
 
           {tab === 'ingredients' && (
-            <div style={{ padding: '20px 24px' }}>
+            <div style={{ padding: '12px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                <div className="lb-eyebrow" style={{ color: 'rgba(248,244,237,0.5)' }}>INGREDIËNTEN</div>
-                <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(248,244,237,0.1)', borderRadius: 16, padding: 3 }}>
-                  <button onClick={() => onPortionsChange(Math.max(1, selectedPortions - 1))} style={{
-                    width: 28, height: 28, borderRadius: 12, background: 'rgba(248,244,237,0.1)', border: 0,
-                    color: '#f8f4ed', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-                  }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M5 12h14" /></svg>
-                  </button>
-                  <div style={{ minWidth: 36, textAlign: 'center', fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15, color: '#f8f4ed' }}>
-                    {selectedPortions}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(248,244,237,0.65)' }}>
+                  <span>voor</span>
+                  <div style={{ overflow: 'hidden' }}>
+                    <AnimatePresence mode="popLayout" custom={portionDir}>
+                      <motion.span
+                        key={selectedPortions}
+                        custom={portionDir}
+                        variants={{
+                          enter: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? 10 : d === 'down' ? -10 : 0, opacity: 0 }),
+                          center: { y: 0, opacity: 1 },
+                          exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -10 : d === 'down' ? 10 : 0, opacity: 0 }),
+                        }}
+                        initial="enter" animate="center" exit="exit"
+                        transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                        style={{ display: 'block' }}
+                      >
+                        {selectedPortions}
+                      </motion.span>
+                    </AnimatePresence>
                   </div>
-                  <button onClick={() => onPortionsChange(selectedPortions + 1)} style={{
-                    width: 28, height: 28, borderRadius: 12, background: 'rgba(248,244,237,0.1)', border: 0,
+                  <span>
+                    {recipe.portionsLabel === 'stuks'
+                      ? selectedPortions === 1 ? 'stuk' : 'stuks'
+                      : selectedPortions === 1 ? 'persoon' : 'personen'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(248,244,237,0.1)', borderRadius: 16, padding: 3 }}>
+                  <button onClick={() => handlePortionsChange(Math.max(1, selectedPortions - 1))} style={{
+                    width: 30, height: 30, borderRadius: 13, background: 'rgba(248,244,237,0.15)', border: 0,
                     color: '#f8f4ed', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
                   }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M5 12h14" /></svg>
+                  </button>
+                  <div style={{ minWidth: 72, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontFamily: 'var(--mono)', fontSize: 12, color: '#f8f4ed', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                    <div style={{ overflow: 'hidden', position: 'relative' }}>
+                      <AnimatePresence mode="popLayout" custom={portionDir}>
+                        <motion.span
+                          key={selectedPortions}
+                          custom={portionDir}
+                          variants={{
+                            enter: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? 10 : d === 'down' ? -10 : 0, opacity: 0 }),
+                            center: { y: 0, opacity: 1 },
+                            exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -10 : d === 'down' ? 10 : 0, opacity: 0 }),
+                          }}
+                          initial="enter" animate="center" exit="exit"
+                          transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                          style={{ display: 'block' }}
+                        >
+                          {selectedPortions}
+                        </motion.span>
+                      </AnimatePresence>
+                    </div>
+                    <span>{recipe.portionsLabel || 'pers'}</span>
+                  </div>
+                  <button onClick={() => handlePortionsChange(selectedPortions + 1)} style={{
+                    width: 30, height: 30, borderRadius: 13, background: 'rgba(248,244,237,0.15)', border: 0,
+                    color: '#f8f4ed', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                  }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
                   </button>
                 </div>
               </div>
@@ -357,8 +408,11 @@ export default function CookModeView({
                 if (node.kind === 'group') {
                   return [
                     node.title ? (
-                      <div key={`h${ni}`} style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--bordeaux-soft)', fontSize: 14, marginBottom: 8, marginTop: ni > 0 ? 16 : 0 }}>
-                        {node.title}
+                      <div key={`h${ni}`} style={{ marginTop: ni > 0 ? 16 : 0 }}>
+                        <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: sectionHeaderColor, fontWeight: 500, marginBottom: 3 }}>
+                          {node.title}
+                        </div>
+                        <div style={{ width: 22, height: 1.5, background: sectionHeaderColor, borderRadius: 1, opacity: 0.6, marginBottom: 8 }} />
                       </div>
                     ) : null,
                     ...node.children.filter(c => c.kind === 'leaf').map((c, ci) => {
@@ -369,18 +423,53 @@ export default function CookModeView({
                         <button key={k} onClick={() => onToggle(k)} style={{
                           display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', width: '100%',
                           background: 'transparent', border: 0, borderBottom: '0.5px solid rgba(248,244,237,0.08)',
-                          color: isChecked ? 'rgba(248,244,237,0.4)' : '#f8f4ed',
-                          textDecoration: isChecked ? 'line-through' : 'none', textAlign: 'left', cursor: 'pointer',
+                          textAlign: 'left', cursor: 'pointer',
                         }}>
-                          <span style={{
-                            width: 22, height: 22, borderRadius: 6,
-                            border: '1.5px solid ' + (isChecked ? 'transparent' : 'rgba(248,244,237,0.4)'),
-                            background: isChecked ? 'var(--bordeaux)' : 'transparent',
-                            display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                          }}>
-                            {isChecked && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7" /></svg>}
+                          <motion.span
+                            initial={false}
+                            animate={{
+                              background: isChecked ? 'var(--bordeaux)' : 'transparent',
+                              borderColor: isChecked ? 'transparent' : 'rgba(248,244,237,0.4)',
+                              scale: isChecked ? [1, 0.82, 1] : 1,
+                            }}
+                            transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
+                            style={{ width: 22, height: 22, borderRadius: 6, border: '1.5px solid', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                          >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                              <motion.path
+                                d="M5 12l5 5L20 7"
+                                strokeLinecap="round" strokeLinejoin="round"
+                                initial={false}
+                                animate={{ pathLength: isChecked ? 1 : 0, opacity: isChecked ? 1 : 0 }}
+                                transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                              />
+                            </svg>
+                          </motion.span>
+                          <span style={{ fontSize: 15, flex: 1, color: isChecked ? 'rgba(248,244,237,0.4)' : '#f8f4ed', transition: 'color 0.2s ease', overflow: 'hidden', position: 'relative' }}>
+                            <AnimatePresence mode="popLayout" custom={portionDir}>
+                              <motion.span
+                                key={selectedPortions}
+                                custom={portionDir}
+                                variants={{
+                                  enter: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? 8 : d === 'down' ? -8 : 0, opacity: 0 }),
+                                  center: { y: 0, opacity: 1 },
+                                  exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -8 : d === 'down' ? 8 : 0, opacity: 0 }),
+                                }}
+                                initial="enter" animate="center" exit="exit"
+                                transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                                style={{ display: 'block', position: 'relative', width: 'fit-content' }}
+                              >
+                                {c.text}
+                                <motion.span
+                                  aria-hidden
+                                  initial={false}
+                                  animate={{ scaleX: isChecked ? 1 : 0 }}
+                                  transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                                  style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: 1.5, background: 'currentColor', transformOrigin: 'left', pointerEvents: 'none' }}
+                                />
+                              </motion.span>
+                            </AnimatePresence>
                           </span>
-                          <span style={{ fontSize: 15, flex: 1 }}>{c.text}</span>
                         </button>
                       )
                     }),
@@ -393,18 +482,53 @@ export default function CookModeView({
                     <button key={k} onClick={() => onToggle(k)} style={{
                       display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', width: '100%',
                       background: 'transparent', border: 0, borderBottom: '0.5px solid rgba(248,244,237,0.08)',
-                      color: isChecked ? 'rgba(248,244,237,0.4)' : '#f8f4ed',
-                      textDecoration: isChecked ? 'line-through' : 'none', textAlign: 'left', cursor: 'pointer',
+                      textAlign: 'left', cursor: 'pointer',
                     }}>
-                      <span style={{
-                        width: 22, height: 22, borderRadius: 6,
-                        border: '1.5px solid ' + (isChecked ? 'transparent' : 'rgba(248,244,237,0.4)'),
-                        background: isChecked ? 'var(--bordeaux)' : 'transparent',
-                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                      }}>
-                        {isChecked && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7" /></svg>}
+                      <motion.span
+                        initial={false}
+                        animate={{
+                          background: isChecked ? 'var(--bordeaux)' : 'transparent',
+                          borderColor: isChecked ? 'transparent' : 'rgba(248,244,237,0.4)',
+                          scale: isChecked ? [1, 0.82, 1] : 1,
+                        }}
+                        transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
+                        style={{ width: 22, height: 22, borderRadius: 6, border: '1.5px solid', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                          <motion.path
+                            d="M5 12l5 5L20 7"
+                            strokeLinecap="round" strokeLinejoin="round"
+                            initial={false}
+                            animate={{ pathLength: isChecked ? 1 : 0, opacity: isChecked ? 1 : 0 }}
+                            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                          />
+                        </svg>
+                      </motion.span>
+                      <span style={{ fontSize: 15, flex: 1, color: isChecked ? 'rgba(248,244,237,0.4)' : '#f8f4ed', transition: 'color 0.2s ease', overflow: 'hidden', position: 'relative' }}>
+                        <AnimatePresence mode="popLayout" custom={portionDir}>
+                          <motion.span
+                            key={selectedPortions}
+                            custom={portionDir}
+                            variants={{
+                              enter: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? 8 : d === 'down' ? -8 : 0, opacity: 0 }),
+                              center: { y: 0, opacity: 1 },
+                              exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -8 : d === 'down' ? 8 : 0, opacity: 0 }),
+                            }}
+                            initial="enter" animate="center" exit="exit"
+                            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                            style={{ display: 'block', position: 'relative', width: 'fit-content' }}
+                          >
+                            {node.text}
+                            <motion.span
+                              aria-hidden
+                              initial={false}
+                              animate={{ scaleX: isChecked ? 1 : 0 }}
+                              transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                              style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: 1.5, background: 'currentColor', transformOrigin: 'left', pointerEvents: 'none' }}
+                            />
+                          </motion.span>
+                        </AnimatePresence>
                       </span>
-                      <span style={{ fontSize: 15, flex: 1 }}>{node.text}</span>
                     </button>
                   )]
                 }

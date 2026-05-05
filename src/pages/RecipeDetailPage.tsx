@@ -276,7 +276,7 @@ export default function RecipeDetailPage() {
             <div key={si} style={{ marginBottom: 16 }}>
               {sec.section && (
                 <>
-                  <div style={{ fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bordeaux)', marginBottom: 3, fontWeight: 500 }}>
+                  <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bordeaux)', marginBottom: 3, fontWeight: 500 }}>
                     {sec.section}
                   </div>
                   <div style={{ width: 22, height: 1.5, background: 'var(--bordeaux)', borderRadius: 1, opacity: 0.55, marginBottom: 8 }} />
@@ -364,7 +364,7 @@ export default function RecipeDetailPage() {
                 <div key={i}>
                   {showPhase && step.phase && (
                     <>
-                      <div style={{ fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bordeaux)', marginBottom: 3, marginTop: i > 0 ? 20 : 0, fontWeight: 500 }}>
+                      <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bordeaux)', marginBottom: 3, marginTop: i > 0 ? 20 : 0, fontWeight: 500 }}>
                         {step.phase}
                       </div>
                       <div style={{ width: 22, height: 1.5, background: 'var(--bordeaux)', borderRadius: 1, opacity: 0.55, marginBottom: 8 }} />
