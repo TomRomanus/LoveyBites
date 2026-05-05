@@ -376,7 +376,7 @@ export default function RecipeDetailPage() {
                     </div>
                     <div style={{ flex: 1 }}>
                       {step.ingredientRefs && step.ingredientRefs.length > 0 && (
-                        <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(107,31,42,0.55)', marginBottom: 5 }}>
+                        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(107,31,42,0.55)', marginBottom: 5 }}>
                           {step.ingredientRefs.map(id => ingredientMap.get(id) ?? id).join(' · ')}
                         </div>
                       )}

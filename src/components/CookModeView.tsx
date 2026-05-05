@@ -338,7 +338,12 @@ export default function CookModeView({
         >
 
           {tab === 'ingredients' && (
-            <div style={{ padding: '12px 24px' }}>
+            <motion.div
+              initial={{ y: 24, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              style={{ padding: '12px 24px' }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(248,244,237,0.65)' }}>
                   <span>voor</span>
@@ -534,32 +539,63 @@ export default function CookModeView({
                 }
                 return []
               })}
-            </div>
+            </motion.div>
           )}
 
           {tab === 'overview' && (
-            <div ref={overviewRef} style={{ padding: '20px 24px' }}>
+            <motion.div
+              ref={overviewRef}
+              initial={{ y: 24, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              style={{ padding: '20px 24px' }}
+            >
               <div className="lb-eyebrow" style={{ color: 'rgba(248,244,237,0.5)', marginBottom: 14 }}>
-                ALLE STAPPEN · TIK OM TE SPRINGEN
+                TIK EEN STAP AAN OM ERNAAR TE SPRINGEN
               </div>
-              {steps.map((s, i) => (
-                <button key={i} data-active={i === currentIndex} onClick={() => { setCurrentIndex(i); setTab('step') }} style={{
-                  display: 'flex', alignItems: 'flex-start', gap: 14, padding: '14px 0', width: '100%',
-                  background: 'transparent', border: 0, borderBottom: '0.5px solid rgba(248,244,237,0.08)',
-                  color: '#f8f4ed', textAlign: 'left', cursor: 'pointer',
-                }}>
-                  <span style={{
-                    fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22,
-                    color: i === currentIndex ? 'var(--bordeaux-soft)' : 'rgba(248,244,237,0.5)',
-                    minWidth: 28,
-                  }}>{i + 1}</span>
-                  <div style={{ flex: 1, fontSize: 15, lineHeight: 1.45, opacity: i === currentIndex ? 1 : 0.85 }}>
-                    {s.sectionTitle && <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'rgba(248,244,237,0.5)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>{s.sectionTitle}</div>}
-                    {s.text}
-                  </div>
-                </button>
-              ))}
-            </div>
+              {(() => {
+                let prevSection = ''
+                let num = 0
+                return steps.map((s, i) => {
+                  num++
+                  const showSection = s.sectionTitle !== prevSection
+                  if (showSection) prevSection = s.sectionTitle ?? ''
+                  const isActive = i === currentIndex
+                  const stepIngredients = (s.ingredientRefs ?? [])
+                    .map(id => ingredientMap.get(id))
+                    .filter((t): t is string => t !== undefined)
+                  return (
+                    <div key={i} data-active={isActive}>
+                      {showSection && s.sectionTitle && (
+                        <div style={{ marginTop: i > 0 ? 16 : 0 }}>
+                          <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: sectionHeaderColor, fontWeight: 500, marginBottom: 3 }}>
+                            {s.sectionTitle}
+                          </div>
+                          <div style={{ width: 22, height: 1.5, background: sectionHeaderColor, borderRadius: 1, opacity: 0.6, marginBottom: 8 }} />
+                        </div>
+                      )}
+                      <button onClick={() => { setCurrentIndex(i); setTab('step') }} style={{
+                        display: 'flex', alignItems: 'flex-start', gap: 14, padding: '8px 0', width: '100%',
+                        background: 'transparent', border: 0, borderBottom: '0.5px solid rgba(248,244,237,0.08)',
+                        textAlign: 'left', cursor: 'pointer',
+                      }}>
+                        <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: isActive ? sectionHeaderColor : 'rgba(248,244,237,0.5)', fontWeight: 500, width: 22, flexShrink: 0, lineHeight: 1.1, paddingTop: 1 }}>
+                          {num}
+                        </div>
+                        <div style={{ flex: 1, opacity: isActive ? 1 : 0.85 }}>
+                          {stepIngredients.length > 0 && (
+                            <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(243,222,224,0.5)', marginBottom: 5 }}>
+                              {stepIngredients.join(' · ')}
+                            </div>
+                          )}
+                          <div style={{ fontSize: 15, color: '#f8f4ed', lineHeight: 1.55 }}>{s.text}</div>
+                        </div>
+                      </button>
+                    </div>
+                  )
+                })
+              })()}
+            </motion.div>
           )}
         </motion.div>
       )}
