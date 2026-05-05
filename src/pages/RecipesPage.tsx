@@ -83,7 +83,7 @@ function FilterSheet({ activeTags, allTags, onChange, onClose }: {
               style={{ paddingLeft: 40, height: 40 }} autoFocus />
           </div>
         </div>
-        <div style={{ padding: '16px 20px 20px', display: 'flex', flexWrap: 'wrap', gap: 8, overflowY: 'auto', flex: 1 }}>
+        <div style={{ padding: '16px 20px 20px', display: 'flex', flexWrap: 'wrap', gap: 8, overflowY: 'auto', overflowX: 'hidden', flex: 1 }}>
           {filtered.map(t => {
             const isActive = activeTags.includes(t)
             return (
