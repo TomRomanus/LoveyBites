@@ -467,10 +467,13 @@ function AddMealSheet({ date, existingRecipeIds, onClose, onSaved }: AddMealShee
             style={{ padding: '6px 22px 0', height: '100%', overflowY: 'auto', overflowX: 'hidden' }}
           >
             <>
-              <div style={{ position: 'relative', marginBottom: 14 }}>
+              <div style={{ position: 'relative', marginBottom: 10 }}>
+                <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--stone)', pointerEvents: 'none' }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}><circle cx="11" cy="11" r="7" /><path d="M16.5 16.5L21 21" strokeLinecap="round" /></svg>
+                </div>
                 <input ref={searchRef} className="lb-input" placeholder="Zoek recept of ingrediënt" value={search}
                   onChange={e => setSearch(e.target.value)}
-                  style={{ paddingRight: search ? 42 : 14 }} />
+                  style={{ paddingLeft: 42, paddingRight: search ? 42 : 14 }} />
                 <AnimatePresence>
                   {search && (
                     <motion.button
@@ -482,15 +485,30 @@ function AddMealSheet({ date, existingRecipeIds, onClose, onSaved }: AddMealShee
                       transition={{ type: 'spring', stiffness: 420, damping: 28 }}
                       style={{
                         position: 'absolute', right: 8, top: '50%', translateY: '-50%',
-                        background: 'var(--paper-3)', border: 0, width: 26, height: 26, borderRadius: 13,
+                        background: 'none', border: 0, width: 26, height: 26, borderRadius: 13,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: 'var(--ink-2)', cursor: 'pointer',
+                        color: 'var(--stone)', cursor: 'pointer',
                       }}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
                     </motion.button>
                   )}
                 </AnimatePresence>
+              </div>
+              <div className="lb-eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 4, overflow: 'hidden', marginTop: 14, marginBottom: 4 }}>
+                <AnimatePresence mode="popLayout">
+                  <motion.span
+                    key={filtered.length}
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                    style={{ display: 'block' }}
+                  >
+                    {filtered.length}
+                  </motion.span>
+                </AnimatePresence>
+                {filtered.length === 1 ? 'RECEPT' : 'RECEPTEN'}
               </div>
               <AnimatePresence mode="wait">
                 {filtered.length === 0 && (

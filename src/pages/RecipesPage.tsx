@@ -342,8 +342,8 @@ export default function RecipesPage() {
                 transition={{ type: 'spring', stiffness: 420, damping: 28 }}
                 style={{
                   position: 'absolute', right: 8, top: '50%', translateY: '-50%',
-                  background: 'var(--paper-3)', border: 0, width: 26, height: 26, borderRadius: 13,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-2)', cursor: 'pointer',
+                  background: 'none', border: 0, width: 26, height: 26, borderRadius: 13,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--stone)', cursor: 'pointer',
                 }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>
