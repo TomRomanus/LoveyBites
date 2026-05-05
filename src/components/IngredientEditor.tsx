@@ -199,6 +199,19 @@ const PenIcon = () => (
   </svg>
 )
 
+function buildLeafIndexMap(nodes: IngredientNode[]): Map<string, number> {
+  const map = new Map<string, number>()
+  let n = 0
+  function walk(ns: IngredientNode[]) {
+    for (const node of ns) {
+      if (node.kind === 'leaf') { if (node.id) map.set(node.id, n++) }
+      else walk(node.children)
+    }
+  }
+  walk(nodes)
+  return map
+}
+
 // --- Recursive node row ---
 
 interface IngredientOption {
@@ -219,9 +232,10 @@ interface NodeRowProps {
   leafMultiline?: boolean
   ordered?: boolean
   itemIndex?: number
+  leafIndexMap?: Map<string, number>
 }
 
-function NodeRow({ node, path, depth, isOnly, isLast, nodes, labels, onChange, ingredientOptions, leafMultiline, ordered, itemIndex }: NodeRowProps) {
+function NodeRow({ node, path, depth, isOnly, isLast, nodes, labels, onChange, ingredientOptions, leafMultiline, ordered, itemIndex, leafIndexMap }: NodeRowProps) {
   const indent = depth * 16
   const [pickerOpen, setPickerOpen] = useState(false)
 
@@ -272,7 +286,7 @@ function NodeRow({ node, path, depth, isOnly, isLast, nodes, labels, onChange, i
           {ordered ? (
             // Step number — matches recipe overview exactly, no dot
             <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 22, flexShrink: 0, lineHeight: 1.1, paddingTop: 1 }}>
-              {(itemIndex ?? 0) + 1}
+              {(leafIndexMap?.get(node.id ?? '') ?? itemIndex ?? 0) + 1}
             </span>
           ) : (
             <span style={{ color: 'var(--bordeaux)', fontFamily: 'var(--serif)', fontSize: 16, paddingTop: 3, paddingLeft: 4, flexShrink: 0 }}>·</span>
@@ -359,6 +373,7 @@ function NodeRow({ node, path, depth, isOnly, isLast, nodes, labels, onChange, i
                   leafMultiline={leafMultiline}
                   ordered={ordered}
                   itemIndex={idx}
+                  leafIndexMap={leafIndexMap}
                 />
               </motion.div>
             )
@@ -404,6 +419,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
 
   const existingTitles = collectGroupTitles(nodes)
   const availableSections = commonSections?.filter((name) => !existingTitles.has(name)) ?? []
+  const leafIndexMap = ordered ? buildLeafIndexMap(nodes) : undefined
 
   let rootLeafCounter = 0
 
@@ -434,6 +450,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
                 leafMultiline={leafMultiline}
                 ordered={ordered}
                 itemIndex={idx}
+                leafIndexMap={leafIndexMap}
               />
             </motion.div>
           )
