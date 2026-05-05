@@ -59,9 +59,10 @@ function FilterSheet({ activeTags, allTags, onChange, onClose }: {
 
   return createPortal(
     <AnimatePresence onExitComplete={onClose}>
-      {visible && <motion.div key="filter-bd" className="lb-sheet-backdrop" style={{ animation: 'none' }}
+      {visible && <motion.div key="filter-bd"
         variants={backdropVariants} initial="hidden" animate="visible" exit="hidden"
-        onClick={() => setVisible(false)} />}
+        onClick={() => setVisible(false)}
+        style={{ position: 'fixed', inset: 0, background: 'rgba(31,29,26,0.12)', backdropFilter: 'blur(1px)', WebkitBackdropFilter: 'blur(1px)', zIndex: 200 }} />}
       {visible && <motion.div key="filter-sheet" className="lb-sheet" style={{ animation: 'none', paddingBottom: 30 }}
         variants={sheetVariants} initial="hidden" animate="visible" exit="hidden">
         <div className="lb-sheet-grabber" />

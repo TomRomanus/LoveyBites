@@ -8,7 +8,7 @@ export default function AutoGrowTextarea({ value, style, ...props }: Props) {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    el.style.height = 'auto'
+    el.style.height = '1px'
     el.style.height = `${el.scrollHeight}px`
   }, [value])
 

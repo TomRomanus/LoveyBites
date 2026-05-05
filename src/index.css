@@ -188,6 +188,7 @@ input, textarea { font-family: inherit; }
   background: var(--cream-card);
   box-shadow: 0 0 0 1.5px var(--bordeaux);
 }
+input::placeholder, textarea::placeholder { color: var(--stone); }
 .lb-input::placeholder { color: var(--stone); }
 textarea.lb-input {
   height: auto;

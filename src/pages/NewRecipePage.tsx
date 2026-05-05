@@ -5,7 +5,7 @@ import RecipeImport from '../components/RecipeImport'
 import RecipeTextImport from '../components/RecipeTextImport'
 import RecipePhotoImport from '../components/RecipePhotoImport'
 import LoadingLogo from '../components/LoadingLogo'
-import { createRecipe, updateRecipe, getRecipe } from '../services/recipes'
+import { createRecipe, updateRecipe, getRecipe, getRecipes } from '../services/recipes'
 import type { RecipeInput } from '../types/recipe'
 
 type Mode = 'url' | 'text' | 'photo' | 'manual'
@@ -65,6 +65,8 @@ export default function NewRecipePage() {
   const [initial, setInitial] = useState<Partial<RecipeInput> | undefined>(undefined)
   const [formKey, setFormKey] = useState(0)
   const [loading, setLoading] = useState(isEdit)
+  const [saving, setSaving] = useState(false)
+  const [existingTags, setExistingTags] = useState<string[]>([])
 
   useEffect(() => {
     if (!id) return
@@ -73,6 +75,13 @@ export default function NewRecipePage() {
       setLoading(false)
     })
   }, [id])
+
+  useEffect(() => {
+    getRecipes().then((recipes) => {
+      const tags = [...new Set(recipes.flatMap((r) => r.tags))].sort((a, b) => a.localeCompare(b))
+      setExistingTags(tags)
+    })
+  }, [])
 
   function handleSelectMode(m: Mode) {
     setMode(m)
@@ -179,27 +188,41 @@ export default function NewRecipePage() {
         backdropFilter: 'blur(10px)',
         WebkitBackdropFilter: 'blur(10px)',
         zIndex: 10,
-        padding: '54px 20px 14px',
+        padding: '24px 20px 14px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         borderBottom: '0.5px solid var(--line)',
       }}>
         {mode !== null && !isEdit ? (
-          <button onClick={handleBack} style={{ background: 'none', border: 0, fontSize: 14, color: 'var(--ink-2)', cursor: 'pointer' }}>Annuleren</button>
+          <button onClick={handleBack} style={{ width: 36, height: 36, borderRadius: 18, background: 'transparent', border: '0.5px solid var(--line)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </button>
         ) : (
-          <Link to={id ? `/recipe/${id}` : '/'} style={{ fontSize: 14, color: 'var(--ink-2)', textDecoration: 'none' }}>Annuleren</Link>
+          <Link to={id ? `/recipe/${id}` : '/'} style={{ width: 36, height: 36, borderRadius: 18, background: 'transparent', border: '0.5px solid var(--line)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </Link>
         )}
-        <div style={{ fontSize: 17, fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--ink)' }}>
-          {isEdit ? 'Bewerk' : 'Nieuw'}
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)' }}>
+          {isEdit ? 'Bewerk recept' : 'Nieuw recept'}
         </div>
-        <div style={{ width: 60 }} />
+        <button
+          type="submit"
+          form="recipe-form"
+          disabled={saving}
+          style={{ width: 36, height: 36, borderRadius: 18, background: saving ? 'var(--stone-2)' : 'var(--bordeaux)', border: 0, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: saving ? 'default' : 'pointer', flexShrink: 0 }}>
+          {saving
+            ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><circle cx="12" cy="12" r="8" strokeDasharray="4 4" /></svg>
+            : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+          }
+        </button>
       </div>
 
-      <div style={{ padding: '0 20px 120px' }}>
+      <div style={{ padding: '0 20px 80px' }}>
         <RecipeForm
           key={formKey}
           initial={initial}
           onSubmit={handleSubmit}
-          submitLabel={isEdit ? 'Wijzigingen opslaan' : 'Recept toevoegen'}
+          onSavingChange={setSaving}
+          existingTags={existingTags}
         />
       </div>
     </div>

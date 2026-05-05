@@ -37,46 +37,65 @@ export default function SourceEditor({ sources, onChange }: Props) {
     }
   }
 
+  const dashedBtn: React.CSSProperties = {
+    display: 'flex', alignItems: 'center', gap: 8,
+    padding: '9px 12px', border: '1px dashed var(--stone-2)',
+    borderRadius: 9, color: 'var(--stone)', fontSize: 12,
+    background: 'none', cursor: 'pointer', minHeight: 38,
+    fontFamily: 'var(--sans)', width: '100%',
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {sources.map((source, i) => (
-        <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div key={i} style={{ background: 'transparent', border: '0.5px solid rgba(31,29,26,0.20)', borderRadius: 10, padding: '10px 12px', position: 'relative' }}>
+          <button
+            type="button"
+            onClick={() => remove(i)}
+            style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 0, color: 'var(--stone-2)', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', opacity: 0.8 }}
+            aria-label="Verwijder bron"
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
           <input
             type="text"
             value={source.label}
             onChange={(e) => update(i, 'label', e.target.value)}
             placeholder="Naam (optioneel)"
-            className="lb-input"
-            style={{ flex: 1 }}
+            style={{
+              width: '100%', background: 'transparent', border: 0, outline: 'none',
+              fontSize: 13, color: 'var(--ink)', fontFamily: 'var(--sans)',
+              paddingRight: 28, paddingBottom: 6,
+              borderBottom: '0.5px solid var(--line)',
+            }}
           />
           <input
             type="url"
             value={source.url}
             onChange={(e) => update(i, 'url', e.target.value)}
             placeholder="https://..."
-            className="lb-input"
-            style={{ flex: 1.5 }}
+            style={{
+              width: '100%', background: 'transparent', border: 0, outline: 'none',
+              fontSize: 12, color: source.url ? '#722F37' : 'var(--stone)', fontFamily: 'var(--sans)',
+              fontStyle: 'italic', marginTop: 7,
+            }}
           />
-          <button
-            type="button"
-            onClick={() => remove(i)}
-            style={{ background: 'none', border: 0, color: 'var(--stone)', cursor: 'pointer', padding: 8, display: 'flex', alignItems: 'center', flexShrink: 0 }}
-            aria-label="Verwijder bron"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
         </div>
       ))}
-      <div style={{ display: 'flex', gap: 16, paddingTop: 4 }}>
-        <button type="button" onClick={add}
-          style={{ background: 'none', border: 0, fontSize: 13, color: 'var(--bordeaux)', fontWeight: 500, cursor: 'pointer', padding: 0 }}>
-          + Bron toevoegen
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <button type="button" onClick={add} style={dashedBtn}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          bron toevoegen
         </button>
-        <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading}
-          style={{ background: 'none', border: 0, fontSize: 13, color: uploading ? 'var(--stone)' : 'var(--bordeaux)', fontWeight: 500, cursor: uploading ? 'default' : 'pointer', padding: 0 }}>
-          {uploading ? 'Uploaden…' : '+ Afbeelding uploaden'}
+        <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} style={{ ...dashedBtn, color: uploading ? 'var(--stone-2)' : 'var(--stone)', cursor: uploading ? 'default' : 'pointer' }}>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+          </svg>
+          {uploading ? 'uploaden…' : 'afbeelding uploaden'}
         </button>
         <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
       </div>

@@ -1,6 +1,83 @@
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { IngredientNode } from '../types/recipe'
 import AutoGrowTextarea from './AutoGrowTextarea'
+
+const sheetVariants = {
+  hidden: { y: '100%', transition: { type: 'tween' as const, duration: 0.22, ease: [0.4, 0, 1, 1] as const } },
+  visible: { y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 32 } },
+}
+
+function IngredientPickerSheet({ selectedIds, options, onToggle, onClose }: {
+  selectedIds: Set<string>
+  options: Array<{ id: string; text: string }>
+  onToggle: (id: string) => void
+  onClose: () => void
+}) {
+  const [visible, setVisible] = useState(true)
+  const close = () => setVisible(false)
+
+  const backdropVariants = {
+    hidden: { opacity: 0, transition: { duration: 0.2 } },
+    visible: { opacity: 1, transition: { duration: 0.24 } },
+  }
+
+  return createPortal(
+    <AnimatePresence onExitComplete={onClose}>
+      {visible && (
+        <motion.div key="ing-bd"
+          variants={backdropVariants} initial="hidden" animate="visible" exit="hidden"
+          onClick={close}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(31,29,26,0.12)', backdropFilter: 'blur(1px)', WebkitBackdropFilter: 'blur(1px)', zIndex: 200 }} />
+      )}
+      {visible && (
+        <motion.div key="ing-sheet" className="lb-sheet" style={{ animation: 'none', paddingBottom: 30 }}
+          variants={sheetVariants} initial="hidden" animate="visible" exit="hidden">
+          <div className="lb-sheet-grabber" />
+          <div style={{ padding: '12px 20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <h3 className="lb-display" style={{ margin: 0, fontSize: 22 }}>Ingrediënten</h3>
+            {selectedIds.size > 0 && (
+              <button type="button" onClick={() => options.filter(o => selectedIds.has(o.id)).forEach(o => onToggle(o.id))}
+                style={{ background: 'none', border: 0, color: 'var(--bordeaux)', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+                Alles wissen
+              </button>
+            )}
+          </div>
+          <div style={{ padding: '16px 20px 20px', display: 'flex', flexWrap: 'wrap', gap: 8, overflow: 'hidden' }}>
+            {options.length > 0 ? options.map(opt => (
+              <motion.button key={opt.id} type="button" className="lb-tag"
+                data-active={selectedIds.has(opt.id) ? 'true' : 'false'}
+                onClick={() => onToggle(opt.id)}
+                layout transition={{ layout: { type: 'spring', stiffness: 400, damping: 32 } }}
+                style={{ cursor: 'pointer', gap: 4 }}>
+                <AnimatePresence mode="popLayout">
+                  {selectedIds.has(opt.id) && (
+                    <motion.span key="check"
+                      initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: 'spring', stiffness: 420, damping: 25 }}
+                      style={{ display: 'inline-flex' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7" /></svg>
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+                {opt.text}
+              </motion.button>
+            )) : (
+              <span style={{ fontSize: 13, color: 'var(--stone)' }}>Voeg eerst ingrediënten toe</span>
+            )}
+          </div>
+          <div style={{ padding: '0 20px 14px', flexShrink: 0 }}>
+            <button type="button" onClick={close} className="lb-btn lb-btn--primary" style={{ width: '100%' }}>Klaar</button>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>,
+    document.body
+  )
+}
+
+const newLeaf = (): IngredientNode => ({ kind: 'leaf', text: '', id: crypto.randomUUID() })
 
 // --- Pure tree mutation helpers ---
 
@@ -71,9 +148,9 @@ export interface EditorLabels {
 const defaultLabels: EditorLabels = {
   leafPlaceholder: 'bijv. 360ml karnemelk',
   groupPlaceholder: 'Sectienaam (bijv. Marinade)',
-  addLeafInGroup: '+ ingrediënt in sectie',
-  addLeaf: '+ Ingrediënt toevoegen',
-  addGroup: '+ Sectie toevoegen',
+  addLeafInGroup: 'ingrediënt in sectie',
+  addLeaf: 'ingrediënt toevoegen',
+  addGroup: 'sectie toevoegen',
 }
 
 // --- Styles ---
@@ -91,17 +168,36 @@ const leafInputStyle: React.CSSProperties = {
   lineHeight: 1.45,
 }
 
-const removeBtn: React.CSSProperties = {
+const xBtn: React.CSSProperties = {
   background: 'none',
   border: 0,
   color: 'var(--stone-2)',
-  padding: 8,
+  padding: 6,
   cursor: 'pointer',
   flexShrink: 0,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  opacity: 0.8,
 }
+
+const XIcon = () => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
+    <path d="M18 6L6 18M6 6l12 12" />
+  </svg>
+)
+
+const PlusIcon = ({ size = 11 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+)
+
+const PenIcon = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 3a2.121 2.121 0 013 3L7 19l-4 1 1-4L17 3z" />
+  </svg>
+)
 
 // --- Recursive node row ---
 
@@ -115,6 +211,7 @@ interface NodeRowProps {
   path: number[]
   depth: number
   isOnly: boolean
+  isLast: boolean
   nodes: IngredientNode[]
   labels: EditorLabels
   onChange: (nodes: IngredientNode[]) => void
@@ -124,7 +221,7 @@ interface NodeRowProps {
   itemIndex?: number
 }
 
-function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange, ingredientOptions, leafMultiline, ordered, itemIndex }: NodeRowProps) {
+function NodeRow({ node, path, depth, isOnly, isLast, nodes, labels, onChange, ingredientOptions, leafMultiline, ordered, itemIndex }: NodeRowProps) {
   const indent = depth * 16
   const [pickerOpen, setPickerOpen] = useState(false)
 
@@ -138,24 +235,61 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange, ingredien
       onChange(replaceAt(nodes, path, { ...node, ingredientRefs: newRefs.length > 0 ? newRefs : undefined }))
     }
 
+    const refsPanel = ordered && (
+      <div style={{ marginBottom: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {selectedIngredients.length === 0 ? (
+            <button type="button" onClick={() => setPickerOpen(true)}
+              style={{ background: 'none', border: 0, fontSize: 10, color: 'rgba(107,31,42,0.45)', cursor: 'pointer', padding: 0, fontFamily: 'var(--mono)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              + ingrediënten
+            </button>
+          ) : (
+            <button type="button" onClick={() => setPickerOpen(true)}
+              style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(107,31,42,0.55)' }}>
+                {selectedIngredients.map(o => o.text).join(' · ')}
+              </span>
+              <span style={{ color: 'rgba(107,31,42,0.45)', display: 'flex', alignItems: 'center' }}>
+                <PenIcon />
+              </span>
+            </button>
+          )}
+        </div>
+        {pickerOpen && (
+          <IngredientPickerSheet
+            selectedIds={selectedIds}
+            options={ingredientOptions ?? []}
+            onToggle={toggleIngredient}
+            onClose={() => setPickerOpen(false)}
+          />
+        )}
+      </div>
+    )
+
     return (
-      <div style={{ paddingLeft: indent }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '2px 0' }}>
+      <div style={{ paddingLeft: indent, borderBottom: isLast ? 'none' : '0.5px solid var(--line-soft)' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: ordered ? 14 : 6, padding: ordered ? '13px 0 3px' : '6px 0' }}>
           {ordered ? (
-            <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bordeaux)', minWidth: 18, paddingTop: 10, flexShrink: 0 }}>
-              {(itemIndex ?? 0) + 1}.
+            // Step number — matches recipe overview exactly, no dot
+            <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 22, flexShrink: 0, lineHeight: 1.1, paddingTop: 1 }}>
+              {(itemIndex ?? 0) + 1}
             </span>
           ) : (
-            <span style={{ color: 'var(--bordeaux)', fontFamily: 'var(--serif)', fontSize: 16, paddingTop: 6, paddingLeft: 4, flexShrink: 0 }}>·</span>
+            <span style={{ color: 'var(--bordeaux)', fontFamily: 'var(--serif)', fontSize: 16, paddingTop: 3, paddingLeft: 4, flexShrink: 0 }}>·</span>
           )}
-          {leafMultiline ? (
-            <AutoGrowTextarea
-              value={node.text}
-              onChange={(e) => onChange(replaceAt(nodes, path, { ...node, text: e.target.value }))}
-              rows={2}
-              style={{ ...leafInputStyle, lineHeight: 1.5 }}
-              placeholder={labels.leafPlaceholder}
-            />
+
+          {ordered ? (
+            // Content column: refs above textarea, naturally aligned
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {refsPanel}
+              <AutoGrowTextarea
+                value={node.text}
+                onChange={(e) => onChange(replaceAt(nodes, path, { ...node, text: e.target.value }))}
+                rows={1}
+                style={{ ...leafInputStyle, flex: 'none', width: '100%', lineHeight: 1.5, padding: '4px 4px 0' }}
+                placeholder={labels.leafPlaceholder}
+              />
+            </div>
           ) : (
             <input
               type="text"
@@ -165,85 +299,39 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange, ingredien
               placeholder={labels.leafPlaceholder}
             />
           )}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>
-            <button type="button" title="Item erna toevoegen"
-              onClick={() => onChange(insertAfter(nodes, path, { kind: 'leaf', text: '' }))}
-              style={{ background: 'none', border: 0, color: 'var(--bordeaux)', fontSize: 10, fontFamily: 'var(--mono)', letterSpacing: '0.04em', cursor: 'pointer', padding: '4px 6px', opacity: 0.6 }}>
-              +item
-            </button>
-            {!isOnly && (
-              <button type="button" onClick={() => onChange(removeAt(nodes, path))} style={removeBtn} aria-label="Verwijderen">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
-              </button>
-            )}
-          </div>
-        </div>
 
-        {ingredientOptions && ingredientOptions.length > 0 && (
-          <div style={{ marginLeft: 22, marginTop: 6 }}>
-            {!pickerOpen ? (
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6 }}>
-                {selectedIngredients.map((opt) => (
-                  <span key={opt.id} style={{
-                    fontSize: 11, background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)',
-                    border: '1px solid var(--bordeaux-soft)', borderRadius: 20, padding: '2px 10px',
-                  }}>{opt.text}</span>
-                ))}
-                <button type="button" onClick={() => setPickerOpen(true)}
-                  style={{ background: 'none', border: 0, fontSize: 11, color: 'var(--stone)', cursor: 'pointer' }}>
-                  {selectedIngredients.length > 0 ? '±' : '+ ingrediënten'}
-                </button>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingBottom: 6 }}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {ingredientOptions.map((opt) => (
-                    <button key={opt.id} type="button" onClick={() => toggleIngredient(opt.id)} style={{
-                      fontSize: 11, padding: '3px 10px', borderRadius: 20, cursor: 'pointer',
-                      background: selectedIds.has(opt.id) ? 'var(--bordeaux)' : 'var(--paper-2)',
-                      color: selectedIds.has(opt.id) ? 'var(--cream-card)' : 'var(--stone)',
-                      border: `1px solid ${selectedIds.has(opt.id) ? 'var(--bordeaux)' : 'var(--line)'}`,
-                    }}>{opt.text}</button>
-                  ))}
-                </div>
-                <button type="button" onClick={() => setPickerOpen(false)}
-                  style={{ background: 'none', border: 0, fontSize: 11, color: 'var(--stone)', cursor: 'pointer', alignSelf: 'flex-start' }}>
-                  Klaar
-                </button>
-              </div>
-            )}
-          </div>
-        )}
+          {!isOnly && (
+            <button type="button" onClick={() => onChange(removeAt(nodes, path))} style={xBtn} aria-label="Verwijderen">
+              <XIcon />
+            </button>
+          )}
+        </div>
       </div>
     )
   }
 
-  // Group node — renders as a section card
+  // Group node — bordeaux left accent bar
   let leafCounter = 0
   return (
-    <div style={{ background: 'var(--paper)', borderRadius: 12, padding: '12px 12px', border: '0.5px solid var(--line-soft)' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+    <div style={{ borderLeft: '2px solid rgba(107,31,42,0.30)', padding: '2px 0 4px 12px', margin: '4px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
         <input
           type="text"
           value={node.title}
           onChange={(e) => onChange(replaceAt(nodes, path, { ...node, title: e.target.value }))}
           style={{
-            flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, fontWeight: 500,
+            flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 13, fontWeight: 500,
             color: 'var(--bordeaux)', background: 'transparent', border: 0, outline: 'none', padding: '2px 0',
           }}
           placeholder={labels.groupPlaceholder}
         />
-        <button type="button" title="Item erna toevoegen (zelfde niveau)"
-          onClick={() => onChange(insertAfter(nodes, path, { kind: 'leaf', text: '' }))}
-          style={{ background: 'none', border: 0, color: 'var(--bordeaux)', fontSize: 10, fontFamily: 'var(--mono)', letterSpacing: '0.04em', cursor: 'pointer', padding: '4px 6px', opacity: 0.6 }}>
-          +item
-        </button>
         {!isOnly && (
-          <button type="button" onClick={() => onChange(removeAt(nodes, path))} style={removeBtn} aria-label="Sectie verwijderen">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          <button type="button" onClick={() => onChange(removeAt(nodes, path))} style={xBtn} aria-label="Sectie verwijderen">
+            <XIcon />
           </button>
         )}
       </div>
+      <div style={{ width: 22, height: 1.5, background: 'var(--bordeaux)', opacity: 0.55, borderRadius: 1, marginBottom: 6 }} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
         {node.children.map((child, i) => {
@@ -255,6 +343,7 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange, ingredien
               path={[...path, i]}
               depth={0}
               isOnly={node.children.length === 1}
+              isLast={i === node.children.length - 1}
               nodes={nodes}
               labels={labels}
               onChange={onChange}
@@ -266,9 +355,15 @@ function NodeRow({ node, path, depth, isOnly, nodes, labels, onChange, ingredien
           )
         })}
         <button type="button"
-          onClick={() => onChange(appendChild(nodes, path, { kind: 'leaf', text: '' }))}
-          style={{ background: 'transparent', border: 0, color: 'var(--bordeaux)', fontSize: 13, fontWeight: 500, padding: '8px 0 0', display: 'inline-flex', alignItems: 'center', gap: 4, cursor: 'pointer', alignSelf: 'flex-start' }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+          onClick={() => onChange(appendChild(nodes, path, newLeaf()))}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '7px 8px', marginTop: 6,
+            border: '1px dashed rgba(107,31,42,0.22)', borderRadius: 7,
+            color: 'var(--stone)', fontSize: 11.5, minHeight: 32,
+            background: 'none', cursor: 'pointer', fontFamily: 'var(--sans)',
+          }}>
+          <PlusIcon size={10} />
           {labels.addLeafInGroup}
         </button>
       </div>
@@ -294,7 +389,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
   function addSection(title: string) {
     const last = nodes[nodes.length - 1]
     const base = last?.kind === 'leaf' && last.text.trim() === '' ? nodes.slice(0, -1) : nodes
-    onChange([...base, { kind: 'group', title, children: [{ kind: 'leaf', text: '' }] }])
+    onChange([...base, { kind: 'group', title, children: [newLeaf()] }])
   }
 
   const existingTitles = collectGroupTitles(nodes)
@@ -303,7 +398,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
   let rootLeafCounter = 0
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
       {nodes.map((node, i) => {
         const idx = node.kind === 'leaf' ? rootLeafCounter++ : 0
         return (
@@ -313,6 +408,7 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
             path={[i]}
             depth={0}
             isOnly={nodes.length === 1}
+            isLast={i === nodes.length - 1}
             nodes={nodes}
             labels={labels}
             onChange={onChange}
@@ -324,29 +420,37 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
         )
       })}
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, paddingTop: 4 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
         <button type="button"
-          onClick={() => onChange([...nodes, { kind: 'leaf', text: '' }])}
-          style={{ background: 'none', border: 0, fontSize: 13, color: 'var(--bordeaux)', fontWeight: 500, cursor: 'pointer', padding: 0 }}>
+          onClick={() => onChange([...nodes, newLeaf()])}
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', border: '1px dashed var(--stone-2)', borderRadius: 9, color: 'var(--stone)', fontSize: 12, background: 'none', cursor: 'pointer', minHeight: 38, fontFamily: 'var(--sans)' }}>
+          <PlusIcon />
           {labels.addLeaf}
         </button>
         <button type="button"
           onClick={() => addSection('')}
-          style={{ background: 'none', border: 0, fontSize: 13, color: 'var(--bordeaux)', fontWeight: 500, cursor: 'pointer', padding: 0 }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', border: '1px dashed var(--stone-2)', borderRadius: 9, color: 'var(--stone)', fontSize: 12, background: 'none', cursor: 'pointer', minHeight: 38, fontFamily: 'var(--sans)' }}>
+          <PlusIcon />
           {labels.addGroup}
         </button>
         {availableSections.length > 0 && (
-          <span style={{ width: '100%', display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 2 }}>
-            {availableSections.map((name) => (
-              <button key={name} type="button" onClick={() => addSection(name)} style={{
-                fontSize: 11, background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)',
-                border: '1px solid var(--bordeaux-soft)', borderRadius: 20, padding: '3px 12px',
-                cursor: 'pointer',
-              }}>
-                + {name}
-              </button>
-            ))}
-          </span>
+          <div style={{ paddingTop: 4 }}>
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone-2)', marginBottom: 6 }}>
+              Sectiesuggesties
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              {availableSections.map((name) => (
+                <button key={name} type="button" onClick={() => addSection(name)} style={{
+                  fontSize: 10.5, padding: '5px 11px', borderRadius: 20,
+                  border: '1px dashed var(--stone-2)', background: 'transparent',
+                  color: 'var(--stone)', fontFamily: 'var(--mono)',
+                  letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer',
+                }}>
+                  + {name}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </div>
