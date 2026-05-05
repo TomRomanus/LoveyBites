@@ -535,11 +535,15 @@ function GroupRow({ node, path, isOnly, allNodes, labels, onChange, ingredientOp
             }}
             placeholder={labels.groupPlaceholder}
           />
-          {!isOnly && (
-            <button type="button" onClick={() => onChange(removeAt(allNodes, path))} style={xBtn} aria-label="Sectie verwijderen">
-              <XIcon />
-            </button>
-          )}
+          <button type="button" onClick={() => {
+            if (isOnly) {
+              onChange(node.children.length > 0 ? node.children : [newLeaf()])
+            } else {
+              onChange(removeAt(allNodes, path))
+            }
+          }} style={xBtn} aria-label="Sectie verwijderen">
+            <XIcon />
+          </button>
         </div>
 
         <div style={{ width: 22, height: 1.5, background: 'var(--bordeaux)', opacity: 0.55, borderRadius: 1, marginBottom: 6 }} />
