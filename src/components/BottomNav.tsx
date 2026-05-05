@@ -18,14 +18,14 @@ export default function BottomNav() {
           background: 'rgba(248, 244, 237, 0.85)',
           backdropFilter: 'blur(20px) saturate(180%)',
           WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          borderRadius: 30, border: '0.5px solid var(--line)',
+          borderRadius: 26, border: '0.5px solid var(--line)',
           boxShadow: '0 4px 20px rgba(31, 29, 26, 0.08)',
           pointerEvents: 'auto',
         }}>
           <Link to="/" style={{
             position: 'relative', flex: 1,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '10px 18px', borderRadius: 22,
+            height: 40, padding: '0 18px', borderRadius: 20,
             color: isCalendar ? 'var(--ink-2)' : 'var(--cream-card)',
             fontSize: 14, fontWeight: 500,
             fontFamily: 'var(--sans)', textDecoration: 'none', letterSpacing: '-0.01em',
@@ -34,7 +34,7 @@ export default function BottomNav() {
             {!isCalendar && (
               <motion.div
                 layoutId="nav-pill"
-                style={{ position: 'absolute', inset: 0, borderRadius: 22, background: 'var(--bordeaux)', zIndex: 0 }}
+                style={{ position: 'absolute', inset: 0, borderRadius: 20, background: 'var(--bordeaux)', zIndex: 0 }}
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               />
             )}
@@ -50,7 +50,7 @@ export default function BottomNav() {
           <Link to="/calendar" style={{
             position: 'relative', flex: 1,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '10px 18px', borderRadius: 22,
+            height: 40, padding: '0 18px', borderRadius: 20,
             color: isCalendar ? 'var(--cream-card)' : 'var(--ink-2)',
             fontSize: 14, fontWeight: 500,
             fontFamily: 'var(--sans)', textDecoration: 'none', letterSpacing: '-0.01em',
@@ -59,7 +59,7 @@ export default function BottomNav() {
             {isCalendar && (
               <motion.div
                 layoutId="nav-pill"
-                style={{ position: 'absolute', inset: 0, borderRadius: 22, background: 'var(--bordeaux)', zIndex: 0 }}
+                style={{ position: 'absolute', inset: 0, borderRadius: 20, background: 'var(--bordeaux)', zIndex: 0 }}
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               />
             )}

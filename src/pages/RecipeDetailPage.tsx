@@ -303,7 +303,7 @@ export default function RecipeDetailPage() {
           <div className="lb-skeleton" style={{ height: 20, width: 110 }} />
         </div>
         <div style={{ padding: '20px 22px 0' }}>
-          <div className="lb-skeleton" style={{ height: 52, borderRadius: 26 }} />
+          <div className="lb-skeleton" style={{ height: 40, borderRadius: 20 }} />
         </div>
         <div style={{ padding: '28px 22px 0' }}>
           <div className="lb-skeleton" style={{ height: 10, width: '18%', marginBottom: 8, borderRadius: 4 }} />
@@ -347,11 +347,11 @@ export default function RecipeDetailPage() {
       } as React.CSSProperties}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <button onClick={() => navigate('/')}
-            style={{ width: 36, height: 36, borderRadius: 18, background: 'transparent', border: '0.5px solid rgba(255,250,240,0.45)', color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            style={{ width: 40, height: 40, borderRadius: 20, background: 'transparent', border: '0.5px solid rgba(255,250,240,0.45)', color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
           </button>
           <button onClick={() => setShowActions(true)}
-            style={{ width: 36, height: 36, borderRadius: 18, background: 'transparent', border: '0.5px solid rgba(255,250,240,0.45)', color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+            style={{ width: 40, height: 40, borderRadius: 20, background: 'transparent', border: '0.5px solid rgba(255,250,240,0.45)', color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="19" cy="12" r="1.6" /></svg>
           </button>
         </div>
@@ -383,7 +383,7 @@ export default function RecipeDetailPage() {
 
       {/* Cook mode CTA */}
       <div style={{ padding: '20px 22px 0' }}>
-        <button onClick={() => setCookMode(true)} className="lb-btn lb-btn--primary" style={{ width: '100%', height: 52, borderRadius: 26, fontSize: 16 }}>
+        <button onClick={() => setCookMode(true)} className="lb-btn lb-btn--primary" style={{ width: '100%', height: 40, borderRadius: 20, fontSize: 13 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M7 4v16l13-8L7 4z" /></svg>
           Start kookmodus
         </button>
@@ -641,13 +641,13 @@ export default function RecipeDetailPage() {
               transition={{ type: 'spring', stiffness: 420, damping: 28 }}
               style={{
                 position: 'fixed', bottom: 'max(28px, env(safe-area-inset-bottom))', right: 22,
-                width: 52, height: 52, borderRadius: 26,
+                width: 40, height: 40, borderRadius: 20,
                 background: 'var(--bordeaux)', color: 'var(--cream-card)',
                 border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
                 boxShadow: '0 4px 16px rgba(107,31,42,0.35)',
                 cursor: 'pointer', zIndex: 90,
               }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
                 <rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" />
               </svg>
             </motion.button>

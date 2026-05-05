@@ -186,7 +186,7 @@ export default function CookModeView({
           background: 'transparent',
           border: '0.5px solid rgba(248,244,237,0.38)',
           color: '#f8f4ed',
-          width: 36, height: 36, borderRadius: 18,
+          width: 40, height: 40, borderRadius: 20,
           display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
         }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
@@ -196,7 +196,7 @@ export default function CookModeView({
         <div style={{ flex: 1, textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(248,244,237,0.5)' }}>
           Kookmodus
         </div>
-        <div style={{ width: 36 }} />
+        <div style={{ width: 40 }} />
       </div>
 
       {/* Tabs */}

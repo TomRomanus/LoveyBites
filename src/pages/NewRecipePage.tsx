@@ -193,11 +193,11 @@ export default function NewRecipePage() {
         borderBottom: '0.5px solid var(--line)',
       }}>
         {mode !== null && !isEdit ? (
-          <button onClick={handleBack} style={{ width: 36, height: 36, borderRadius: 18, background: 'transparent', border: '0.5px solid var(--line)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+          <button onClick={handleBack} style={{ width: 40, height: 40, borderRadius: 20, background: 'transparent', border: '0.5px solid var(--line)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </button>
         ) : (
-          <Link to={id ? `/recipe/${id}` : '/'} style={{ width: 36, height: 36, borderRadius: 18, background: 'transparent', border: '0.5px solid var(--line)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Link to={id ? `/recipe/${id}` : '/'} style={{ width: 40, height: 40, borderRadius: 20, background: 'transparent', border: '0.5px solid var(--line)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </Link>
         )}
@@ -208,7 +208,7 @@ export default function NewRecipePage() {
           type="submit"
           form="recipe-form"
           disabled={saving}
-          style={{ width: 36, height: 36, borderRadius: 18, background: saving ? 'var(--stone-2)' : 'var(--bordeaux)', border: 0, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: saving ? 'default' : 'pointer', flexShrink: 0 }}>
+          style={{ width: 40, height: 40, borderRadius: 20, background: saving ? 'var(--stone-2)' : 'var(--bordeaux)', border: 0, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: saving ? 'default' : 'pointer', flexShrink: 0 }}>
           {saving
             ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><circle cx="12" cy="12" r="8" strokeDasharray="4 4" /></svg>
             : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>

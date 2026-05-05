@@ -7,6 +7,43 @@ import type { MealPlanEntry, Recipe, IngredientNode } from '../types/recipe'
 import { useAuth } from '../contexts/AuthContext'
 import { DEFAULT_RECIPE_COLOR } from '../utils/recipeDisplay'
 
+const titleVariants = {
+  enter: (dir: number) => ({
+    opacity: 0,
+    x: dir === 2 ? 60 : dir === -2 ? -60 : 0,
+    y: dir === 1 ? 16 : dir === -1 ? -16 : 0,
+    transition: { duration: 0.18, ease: [0.2, 0, 0, 1] },
+  }),
+  center: {
+    opacity: 1, x: 0, y: 0,
+    transition: { duration: 0.22, ease: [0.2, 0, 0, 1] },
+  },
+  exit: (dir: number) => ({
+    opacity: 0,
+    x: dir === 2 ? -60 : dir === -2 ? 60 : 0,
+    y: dir === 1 ? -16 : dir === -1 ? 16 : 0,
+    transition: { duration: 0.14, ease: [0.4, 0, 1, 1] },
+  }),
+}
+
+const pageVariants = {
+  enter: (dir: number) => ({
+    opacity: 0,
+    x: dir === 0 ? 0 : dir > 0 ? 28 : -28,
+    scale: dir === 0 ? 0.97 : 1,
+  }),
+  center: {
+    opacity: 1, x: 0, scale: 1,
+    transition: { duration: 0.22, ease: [0.2, 0, 0, 1] },
+  },
+  exit: (dir: number) => ({
+    opacity: 0,
+    x: dir === 0 ? 0 : dir > 0 ? -28 : 28,
+    scale: dir === 0 ? 0.97 : 1,
+    transition: { duration: 0.16, ease: [0.4, 0, 1, 1] },
+  }),
+}
+
 // ── Date helpers ──────────────────────────────────────────────────────────────
 
 function toISO(d: Date): string {
@@ -458,90 +495,95 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
   const entriesForDay = (day: Date) => entries.filter(e => e.date === toISO(day))
 
   return (
-    <div style={{ padding: '12px 16px 120px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-      {days.map(day => {
+    <div style={{ padding: '12px 20px 120px' }}>
+      {days.map((day, idx) => {
         const dayEntries = entriesForDay(day)
         const isToday = isSameDay(day, today)
-        const hasRecipe = dayEntries.some(e => e.recipeId)
-        const highlight = isToday && hasRecipe
         const iso = toISO(day)
         return (
           <div key={iso} style={{
-            background: 'var(--cream-card)',
-            borderRadius: 16,
-            border: `0.5px solid ${highlight ? 'var(--bordeaux)' : 'var(--line)'}`,
-            padding: '10px 14px',
             display: 'flex',
-            alignItems: 'center',
-            gap: 12,
+            alignItems: 'flex-start',
+            gap: 5,
+            padding: '15px 0',
+            borderBottom: idx < 6 ? '0.5px solid var(--line)' : 'none',
+            minHeight: 38,
           }}>
-            {/* Day indicator */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 32, flexShrink: 0 }}>
+            {/* Day unit — two fixed columns so abbrevs and numbers each stay vertically aligned */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '17px 22px',
+              columnGap: 5,
+              alignItems: 'center',
+              flexShrink: 0,
+              width: 48,
+              marginTop: 1,
+            }}>
               <span style={{
-                fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.1em',
+                fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.08em',
+                textTransform: 'uppercase', fontWeight: 600, lineHeight: 1,
                 color: isToday ? 'var(--bordeaux)' : 'var(--stone)',
-                textTransform: 'uppercase', fontWeight: 600, lineHeight: 1, marginBottom: 3,
               }}>
                 {NL_DAYS_SHORT[day.getDay()]}
               </span>
               <span style={{
-                fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 20, fontWeight: 500,
-                lineHeight: 1, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                borderRadius: 16,
-                background: isToday ? 'var(--bordeaux)' : 'transparent',
-                color: isToday ? 'var(--cream-card)' : 'var(--ink)',
+                fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 17,
+                fontWeight: 500, lineHeight: 1,
+                color: isToday ? 'var(--bordeaux)' : 'var(--ink-2)',
               }}>
                 {day.getDate()}
               </span>
             </div>
 
-            {/* Entry pills */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5, minHeight: 36, justifyContent: 'center' }}>
-              {dayEntries.length === 0 ? (
-                <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 13, color: 'var(--stone-2)' }}>
-                  Niets gepland
-                </span>
-              ) : dayEntries.map(e => {
-                const recipe = recipeMap.get(e.recipeId ?? '')
-                const color = recipe?.color ?? DEFAULT_RECIPE_COLOR
-                return (
-                  <div key={e.id} style={{
-                    display: 'flex', alignItems: 'center', gap: 8,
-                    background: recipe ? color + '18' : 'var(--paper-2)',
-                    border: `1px solid ${recipe ? color + '40' : 'var(--line)'}`,
-                    borderRadius: 8, padding: '5px 8px',
-                  }}>
-                    <div style={{
-                      width: 8, height: 8, borderRadius: 4, flexShrink: 0,
-                      background: recipe ? color : 'var(--stone-2)',
-                    }} />
-                    <span onClick={() => recipe && nav(`/recipe/${recipe.id}`)} style={{
-                      flex: 1, fontSize: 13, fontFamily: 'var(--serif)', fontStyle: 'italic',
-                      color: 'var(--ink)', cursor: recipe ? 'pointer' : 'default',
-                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                    }}>
-                      {recipe ? recipe.title : e.customDescription}
-                    </span>
-                    <button onClick={() => onDelete(e.id)} style={{
-                      background: 'none', border: 0, color: 'var(--stone-2)', padding: 2,
-                      cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center',
-                    }}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
-                        <path d="M18 6L6 18M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                )
-              })}
+            {/* Recipe zone */}
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', paddingRight: 6 }}>
+              <AnimatePresence initial={false}>
+                {dayEntries.map(e => {
+                  const recipe = recipeMap.get(e.recipeId ?? '')
+                  const color = recipe?.color ?? DEFAULT_RECIPE_COLOR
+                  return (
+                    <motion.div
+                      key={e.id}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 20 }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2, ease: 'easeInOut' }}
+                      style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 5 }}
+                    >
+                      <div style={{ width: 2.5, height: 16, borderRadius: 2, flexShrink: 0, background: recipe ? color : 'var(--stone)' }} />
+                      <span
+                        onClick={() => recipe && nav(`/recipe/${recipe.id}`)}
+                        style={{
+                          flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 13.5,
+                          lineHeight: 1, fontWeight: recipe ? 500 : 400,
+                          color: recipe ? 'var(--ink)' : 'var(--ink-2)',
+                          cursor: recipe ? 'pointer' : 'default',
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {recipe ? recipe.title : e.customDescription}
+                      </span>
+                      <button
+                        onClick={() => onDelete(e.id)}
+                        style={{ background: 'none', border: 0, padding: 0, marginLeft: 1, color: 'var(--stone-2)', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center' }}
+                      >
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
+                          <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </motion.div>
+                  )
+                })}
+              </AnimatePresence>
             </div>
 
-            {/* Add button */}
-            <button onClick={() => onAdd(iso)} style={{
-              width: 30, height: 30, borderRadius: 15, background: 'var(--paper-2)', border: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: 'var(--stone)', cursor: 'pointer', flexShrink: 0,
-            }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round">
+            {/* Separator + add */}
+            <div style={{ width: 0, alignSelf: 'stretch', borderLeft: '0.5px solid var(--line)', flexShrink: 0 }} />
+            <button
+              onClick={() => onAdd(iso)}
+              style={{ background: 'none', border: 0, padding: 2, color: 'var(--bordeaux)', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', marginTop: 3 }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
                 <path d="M12 5v14M5 12h14" />
               </svg>
             </button>
@@ -630,6 +672,7 @@ export default function CalendarPage() {
 
   const [view, setView] = useState<ViewMode>('week')
   const [anchor, setAnchor] = useState<Date>(startOfWeek(today))
+  const [navDir, setNavDir] = useState(0)
   const [entries, setEntries] = useState<MealPlanEntry[]>([])
   const [recipeMap, setRecipeMap] = useState<Map<string, Recipe>>(new Map())
   const [loading, setLoading] = useState(true)
@@ -668,6 +711,7 @@ export default function CalendarPage() {
   }
 
   function movePeriod(dir: -1 | 1) {
+    setNavDir(dir)
     setAnchor(prev => {
       if (view === 'week') return addDays(prev, dir * 7)
       const d = new Date(prev)
@@ -678,12 +722,7 @@ export default function CalendarPage() {
 
   const periodLabel = (() => {
     if (view === 'week') {
-      const ws = anchor
-      const end = addDays(ws, 6)
-      if (ws.getMonth() === end.getMonth()) {
-        return `${NL_MONTHS_SHORT[ws.getMonth()]} ${ws.getDate()}`
-      }
-      return `${NL_MONTHS_SHORT[ws.getMonth()]} ${ws.getDate()} – ${end.getDate()}`
+      return `${NL_MONTHS_SHORT[anchor.getMonth()]} ${anchor.getDate()}`
     }
     return NL_MONTHS[anchor.getMonth()]
   })()
@@ -702,61 +741,123 @@ export default function CalendarPage() {
   return (
     <div className="lb-paper" style={{ minHeight: '100dvh', position: 'relative' }}>
       {/* Header */}
-      <div style={{ padding: '54px 20px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-          <button onClick={() => setShowShopping(true)} className="lb-btn lb-btn--ghost lb-btn--small">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <div style={{ padding: '24px 20px 0' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div>
+            <div className="lb-eyebrow">HET MENU</div>
+            <h1 className="lb-display" style={{ margin: '8px 0 0', fontSize: 34 }}>
+              {view === 'week' ? (
+                <>
+                  {'Week van '}
+                  <AnimatePresence mode="popLayout" custom={navDir}>
+                    <motion.b
+                      key={`wm-${anchor.getFullYear()}-${anchor.getMonth()}`}
+                      custom={navDir}
+                      variants={titleVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      style={{ color: 'var(--bordeaux)', display: 'inline-block' }}
+                    >
+                      {NL_MONTHS_SHORT[anchor.getMonth()]}
+                    </motion.b>
+                  </AnimatePresence>
+                  {' '}
+                  <AnimatePresence mode="popLayout" custom={navDir}>
+                    <motion.b
+                      key={`wd-${toISO(anchor)}`}
+                      custom={navDir}
+                      variants={titleVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      style={{ color: 'var(--bordeaux)', display: 'inline-block' }}
+                    >
+                      {anchor.getDate()}
+                    </motion.b>
+                  </AnimatePresence>
+                </>
+              ) : (
+                <AnimatePresence mode="popLayout" custom={navDir}>
+                  <motion.span
+                    key={`${anchor.getFullYear()}-${anchor.getMonth()}`}
+                    custom={navDir}
+                    variants={titleVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    style={{ display: 'block' }}
+                  >
+                    <b style={{ color: 'var(--bordeaux)' }}>{NL_MONTHS[anchor.getMonth()]}</b>{' '}<b>{anchor.getFullYear()}</b>
+                  </motion.span>
+                </AnimatePresence>
+              )}
+            </h1>
+          </div>
+          <button
+            onClick={() => setShowShopping(true)}
+            style={{
+              width: 40, height: 40, borderRadius: 20, border: 0,
+              background: 'var(--paper)',
+              boxShadow: '0 1px 2px rgba(31,29,26,0.04), 0 0 0 0.5px var(--line)',
+              color: 'var(--bordeaux)',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', flexShrink: 0,
+            }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18" /><path d="M16 10a4 4 0 01-8 0" />
             </svg>
-            Lijst
           </button>
-        </div>
-        <div style={{ marginTop: 16 }}>
-          <div className="lb-eyebrow">DE WEEK VOORUIT</div>
-          <h1 className="lb-display" style={{ margin: '8px 0 0', fontSize: 34 }}>
-            {view === 'week' ? (
-              <>Week van <b>{periodLabel}</b></>
-            ) : (
-              <>{NL_MONTHS[anchor.getMonth()]} <b>{anchor.getFullYear()}</b></>
-            )}
-          </h1>
         </div>
       </div>
 
       {/* Controls */}
       <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <LayoutGroup>
-        <div style={{ display: 'flex', background: 'var(--paper-2)', padding: 4, borderRadius: 14 }}>
-          {([['week', 'Week'], ['month', 'Maand']] as const).map(([v, l]) => (
-            <button key={v} onClick={() => { setView(v); setAnchor(v === 'week' ? startOfWeek(today) : startOfMonth(today)) }} style={{
-              position: 'relative', flex: 1, height: 38, borderRadius: 10, border: 0,
-              background: 'transparent',
-              fontSize: 14, fontWeight: 600, color: view === v ? 'var(--ink)' : 'var(--stone)',
-              fontFamily: 'var(--sans)', cursor: 'pointer',
-            }}>
-              {view === v && (
-                <motion.div
-                  layoutId="cal-view-pill"
-                  style={{ position: 'absolute', inset: 0, borderRadius: 10, background: 'var(--cream-card)', zIndex: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
-                  transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                />
-              )}
-              <span style={{ position: 'relative', zIndex: 1 }}>{l}</span>
-            </button>
-          ))}
-        </div>
+        <LayoutGroup id="calendar-tabs">
+          <div style={{ display: 'flex', borderBottom: '0.5px solid var(--line)' }}>
+            {([['week', 'WEEK'], ['month', 'MAAND']] as const).map(([v, l]) => (
+              <motion.button
+                key={v}
+                onClick={() => { setNavDir(v === 'month' ? 2 : -2); setView(v); setAnchor(v === 'week' ? startOfWeek(today) : startOfMonth(today)) }}
+                animate={{ color: view === v ? 'var(--bordeaux)' : 'var(--stone)' }}
+                transition={{ duration: 0.2 }}
+                style={{
+                  position: 'relative',
+                  background: 'none', border: 0, padding: '0 2px 7px',
+                  marginRight: v === 'week' ? 20 : 0,
+                  marginBottom: -0.5,
+                  fontFamily: 'var(--mono)', fontSize: 11.5, letterSpacing: '0.1em',
+                  textTransform: 'uppercase', fontWeight: view === v ? 700 : 600,
+                  cursor: 'pointer',
+                }}
+              >
+                {l}
+                {view === v && (
+                  <motion.div
+                    layoutId="cal-tab-line"
+                    style={{
+                      position: 'absolute', bottom: 0, left: 0, right: 0,
+                      height: 2.5, background: 'var(--bordeaux)', borderRadius: '2px 2px 0 0',
+                    }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </motion.button>
+            ))}
+          </div>
         </LayoutGroup>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <button onClick={() => movePeriod(-1)} className="lb-icon-btn" style={{ width: 42, height: 42 }}>
+          <button onClick={() => movePeriod(-1)} className="lb-icon-btn" style={{ width: 40, height: 40 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
           <button onClick={goToToday} disabled={isCurrentPeriod} className="lb-btn lb-btn--ghost lb-btn--small"
-            style={{ flex: 1, height: 42, borderRadius: 21, fontSize: 14, opacity: isCurrentPeriod ? 0.45 : 1 }}>
+            style={{ flex: 1, height: 40, borderRadius: 20, fontSize: 13, opacity: isCurrentPeriod ? 0.45 : 1 }}>
             Vandaag
           </button>
-          <button onClick={() => movePeriod(1)} className="lb-icon-btn" style={{ width: 42, height: 42 }}>
+          <button onClick={() => movePeriod(1)} className="lb-icon-btn" style={{ width: 40, height: 40 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 6l6 6-6 6" />
             </svg>
@@ -766,41 +867,57 @@ export default function CalendarPage() {
 
       {/* Calendar views */}
       {loading ? (
-        <div style={{ padding: '12px 16px 120px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ padding: '12px 20px 120px' }}>
           {Array.from({ length: 7 }).map((_, i) => (
             <div key={i} style={{
-              background: 'var(--cream-card)', borderRadius: 16,
-              border: '0.5px solid var(--line)', padding: '10px 14px',
-              display: 'flex', alignItems: 'center', gap: 12,
+              display: 'flex', alignItems: 'center', gap: 5,
+              padding: '8px 0',
+              borderBottom: i < 6 ? '0.5px solid var(--line)' : 'none',
+              minHeight: 38,
             }}>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 32, gap: 4 }}>
-                <div className="lb-skeleton" style={{ width: 16, height: 9 }} />
-                <div className="lb-skeleton" style={{ width: 32, height: 32, borderRadius: 16 }} />
+              <div style={{ display: 'grid', gridTemplateColumns: '17px 22px', columnGap: 5, alignItems: 'baseline', flexShrink: 0 }}>
+                <div className="lb-skeleton" style={{ width: 14, height: 9, borderRadius: 2 }} />
+                <div className="lb-skeleton" style={{ width: 16, height: 15, borderRadius: 3 }} />
               </div>
               <div style={{ flex: 1 }}>
-                <div className="lb-skeleton" style={{ height: 28, borderRadius: 8 }} />
+                <div className="lb-skeleton" style={{ height: 13, borderRadius: 5, width: ['60%', '45%', '70%', '30%', '55%', '40%', '65%'][i] }} />
               </div>
-              <div className="lb-skeleton" style={{ width: 30, height: 30, borderRadius: 15, flexShrink: 0 }} />
+              <div style={{ width: 0, height: 14, borderLeft: '0.5px solid var(--line)', flexShrink: 0 }} />
+              <div className="lb-skeleton" style={{ width: 14, height: 14, borderRadius: 3, flexShrink: 0 }} />
             </div>
           ))}
         </div>
-      ) : view === 'week' ? (
-        <WeekView
-          anchor={anchor}
-          today={today}
-          entries={entries}
-          recipeMap={recipeMap}
-          onAdd={setModalDate}
-          onDelete={handleDelete}
-        />
       ) : (
-        <MonthView
-          anchor={anchor}
-          today={today}
-          entries={entries}
-          recipeMap={recipeMap}
-          onPickDay={setDetailDay}
-        />
+        <AnimatePresence mode="wait" custom={navDir}>
+          <motion.div
+            key={`${view}-${view === 'week' ? toISO(anchor) : `${anchor.getFullYear()}-${anchor.getMonth()}`}`}
+            custom={navDir}
+            variants={pageVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            style={{ willChange: 'transform, opacity' }}
+          >
+            {view === 'week' ? (
+              <WeekView
+                anchor={anchor}
+                today={today}
+                entries={entries}
+                recipeMap={recipeMap}
+                onAdd={setModalDate}
+                onDelete={handleDelete}
+              />
+            ) : (
+              <MonthView
+                anchor={anchor}
+                today={today}
+                entries={entries}
+                recipeMap={recipeMap}
+                onPickDay={setDetailDay}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
       )}
 
       {/* Day detail sheet (month view) */}

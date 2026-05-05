@@ -232,7 +232,7 @@ export default function RecipesPage() {
             Ons kookboek
           </h1>
           <Link to="/new" title="Recept toevoegen"
-            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 18, background: 'var(--paper)', boxShadow: '0 1px 2px rgba(31,29,26,0.04), 0 0 0 0.5px var(--line)', color: 'var(--bordeaux)', flexShrink: 0 }}>
+            style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: 20, background: 'var(--paper)', boxShadow: '0 1px 2px rgba(31,29,26,0.04), 0 0 0 0.5px var(--line)', color: 'var(--bordeaux)', flexShrink: 0 }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
               <path d="M12 5v14M5 12h14" />
             </svg>

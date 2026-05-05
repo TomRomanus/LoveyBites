@@ -385,9 +385,9 @@ export default function RecipeForm({ initial, onSubmit, onSavingChange, existing
             position: 'fixed',
             bottom: 'max(28px, env(safe-area-inset-bottom))',
             right: 22,
-            width: 44,
-            height: 44,
-            borderRadius: 22,
+            width: 40,
+            height: 40,
+            borderRadius: 20,
             background: isReordering ? 'var(--bordeaux-tint)' : 'var(--cream-card)',
             border: isReordering
               ? '0.5px solid rgba(107,31,42,0.22)'
