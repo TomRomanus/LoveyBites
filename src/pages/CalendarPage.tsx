@@ -637,7 +637,7 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
   const entriesForDay = (day: Date) => entries.filter(e => e.date === toISO(day))
 
   return (
-    <motion.div initial="hidden" animate="visible" variants={weekContainerVariants} style={{ padding: '12px 20px 120px' }}>
+    <motion.div initial="hidden" animate="visible" variants={weekContainerVariants} style={{ padding: '12px 20px 120px', overflowY: 'auto', height: '100%' }}>
       {days.map((day, idx) => {
         const dayEntries = entriesForDay(day)
         const isToday = isSameDay(day, today)
@@ -662,7 +662,7 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
               marginTop: 1,
             }}>
               <span style={{
-                fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.08em',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.08em',
                 textTransform: 'uppercase', fontWeight: 600, lineHeight: 1,
                 color: isToday ? 'var(--bordeaux)' : 'var(--stone)',
               }}>
@@ -682,7 +682,7 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
             </div>
 
             {/* Recipe zone */}
-            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5, paddingRight: 6, paddingTop: 2 }}>
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5, paddingRight: 6, paddingTop: 3 }}>
               <AnimatePresence initial={false}>
                 {dayEntries.map(e => {
                   const recipe = recipeMap.get(e.recipeId ?? '')
@@ -701,8 +701,8 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
                         onClick={() => recipe && nav(`/recipe/${recipe.id}`)}
                         style={{
                           flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 13.5,
-                          lineHeight: 1.25, fontWeight: recipe ? 500 : 400,
-                          color: recipe ? 'var(--ink)' : 'var(--ink-2)',
+                          lineHeight: 1.25, fontWeight: 500,
+                          color: recipe ? color : 'var(--stone)',
                           cursor: recipe ? 'pointer' : 'default',
                           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                         }}
@@ -758,10 +758,10 @@ function MonthView({ anchor, today, entries, recipeMap, onPickDay }: MonthViewPr
   const entriesForDay = (day: Date) => entries.filter(e => e.date === toISO(day))
 
   return (
-    <div style={{ padding: '20px 16px 120px' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 8 }}>
+    <div style={{ padding: '16px 10px 80px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 4 }}>
         {NL_DAYS_GRID.map(d => (
-          <div key={d} style={{ textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.08em', color: 'var(--stone)', fontWeight: 600 }}>{d}</div>
+          <div key={d} style={{ textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', color: 'var(--stone-2)', fontWeight: 600, textTransform: 'uppercase', padding: '4px 0' }}>{d}</div>
         ))}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
@@ -769,37 +769,65 @@ function MonthView({ anchor, today, entries, recipeMap, onPickDay }: MonthViewPr
           const dayEntries = entriesForDay(day)
           const isToday = isSameDay(day, today)
           const inMonth = day.getMonth() === monthStart.getMonth()
-          const hasRecipe = dayEntries.some(e => e.recipeId)
-          const highlight = isToday && hasRecipe
-          const todayNoRecipe = isToday && !hasRecipe
           return (
             <button key={toISO(day)} onClick={() => onPickDay(day)} style={{
-              minHeight: 76, background: highlight ? 'var(--bordeaux)' : 'var(--cream-card)',
-              border: `0.5px solid ${highlight ? 'var(--bordeaux)' : todayNoRecipe ? 'var(--bordeaux)' : 'var(--line)'}`,
-              borderRadius: 8, padding: 5, opacity: inMonth ? 1 : 0.35,
-              display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 3,
-              color: highlight ? 'var(--cream-card)' : 'var(--ink)', textAlign: 'left', cursor: 'pointer',
+              background: 'var(--cream-card)',
+              border: '0.5px solid var(--line)',
+              borderRadius: 10,
+              padding: '8px 4px 12px',
+              opacity: inMonth ? 1 : 0.28,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5,
+              color: 'var(--ink)', textAlign: 'left', cursor: 'pointer',
+              overflow: 'hidden',
             }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 600, opacity: 0.85 }}>{day.getDate()}</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%', flex: 1 }}>
+              <div style={{
+                width: 22, height: 22, borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+                fontFamily: 'var(--sans)', fontSize: 11, fontWeight: 600, lineHeight: 1,
+                color: isToday ? 'var(--cream-card)' : 'var(--ink-2)',
+                background: isToday ? 'var(--bordeaux)' : 'transparent',
+              }}>{day.getDate()}</div>
+              <div style={{ width: '100%', minHeight: 10, display: 'flex', flexDirection: 'column' }}>
+                <AnimatePresence initial={false}>
                 {dayEntries.slice(0, 2).map(e => {
                   const recipe = recipeMap.get(e.recipeId ?? '')
                   const label = recipe ? recipe.title : e.customDescription ?? ''
                   const color = recipe?.color ?? DEFAULT_RECIPE_COLOR
                   return (
-                    <div key={e.id} style={{
-                      fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 9, lineHeight: 1.1,
-                      padding: '2px 4px',
-                      background: highlight ? 'rgba(255,255,255,0.18)' : (recipe ? color + '22' : 'var(--paper-2)'),
-                      color: highlight ? 'var(--cream-card)' : (recipe ? color : 'var(--ink-2)'),
-                      borderLeft: `2px solid ${highlight ? 'rgba(255,255,255,0.5)' : (recipe ? color : 'var(--stone-2)')}`,
-                      borderRadius: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500,
-                    }}>{label}</div>
+                    <motion.div
+                      key={e.id}
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.15, ease: [0.25, 0, 0, 1] }}
+                      style={{ overflow: 'hidden' }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', paddingBottom: 2 }}>
+                        <div style={{ width: 2, height: 10, borderRadius: 2, flexShrink: 0, background: recipe ? color : 'var(--stone)' }} />
+                        <span style={{
+                          fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500,
+                          fontSize: 7, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                          flex: 1, minWidth: 0,
+                          color: recipe ? color : 'var(--stone)',
+                        }}>{label}</span>
+                      </div>
+                    </motion.div>
                   )
                 })}
+                </AnimatePresence>
+                <AnimatePresence initial={false}>
                 {dayEntries.length > 2 && (
-                  <div style={{ fontFamily: 'var(--mono)', fontSize: 8, color: highlight ? 'rgba(255,255,255,0.7)' : 'var(--stone)', paddingLeft: 4 }}>+{dayEntries.length - 2}</div>
+                  <motion.div
+                    key="overflow"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
+                    style={{ overflow: 'hidden', fontFamily: 'var(--mono)', fontSize: 7, color: 'var(--stone)', letterSpacing: '0.03em' }}
+                  >+{dayEntries.length - 2}</motion.div>
                 )}
+                </AnimatePresence>
               </div>
             </button>
           )
@@ -887,7 +915,7 @@ export default function CalendarPage() {
   const shoppingEnd = toISO(addDays(startOfWeek(today), 6))
 
   return (
-    <div className="lb-paper" style={{ minHeight: '100dvh', position: 'relative' }}>
+    <div className="lb-paper" style={{ height: '100dvh', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
       {/* Header */}
       <div style={{ padding: '24px 20px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -926,19 +954,35 @@ export default function CalendarPage() {
                   </AnimatePresence>
                 </>
               ) : (
-                <AnimatePresence mode="popLayout" custom={navDir}>
-                  <motion.span
-                    key={`${anchor.getFullYear()}-${anchor.getMonth()}`}
-                    custom={navDir}
-                    variants={titleVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    style={{ display: 'block' }}
-                  >
-                    <b style={{ color: 'var(--bordeaux)' }}>{NL_MONTHS[anchor.getMonth()]}</b>{' '}<b>{anchor.getFullYear()}</b>
-                  </motion.span>
-                </AnimatePresence>
+                <>
+                  <AnimatePresence mode="popLayout" custom={navDir}>
+                    <motion.b
+                      key={`month-${anchor.getFullYear()}-${anchor.getMonth()}`}
+                      custom={navDir}
+                      variants={titleVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      style={{ color: 'var(--bordeaux)', display: 'inline-block' }}
+                    >
+                      {NL_MONTHS[anchor.getMonth()]}
+                    </motion.b>
+                  </AnimatePresence>
+                  {' '}
+                  <AnimatePresence mode="popLayout" custom={navDir}>
+                    <motion.b
+                      key={`year-${anchor.getFullYear()}`}
+                      custom={navDir}
+                      variants={titleVariants}
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
+                      style={{ display: 'inline-block' }}
+                    >
+                      {anchor.getFullYear()}
+                    </motion.b>
+                  </AnimatePresence>
+                </>
               )}
             </h1>
           </div>
@@ -1017,7 +1061,7 @@ export default function CalendarPage() {
 
       {/* Calendar views */}
       {loading ? (
-        <div style={{ padding: '12px 20px 120px' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 20px 120px' }}>
           {Array.from({ length: 7 }).map((_, i) => (
             <div key={i} style={{
               display: 'flex', alignItems: 'center', gap: 5,
@@ -1046,7 +1090,7 @@ export default function CalendarPage() {
             initial="enter"
             animate="center"
             exit="exit"
-            style={{ willChange: 'transform, opacity' }}
+            style={{ willChange: 'transform, opacity', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
           >
             {view === 'week' ? (
               <WeekView
