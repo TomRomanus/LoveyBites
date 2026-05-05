@@ -253,6 +253,11 @@ export default function RecipeDetailPage() {
     }).finally(() => setLoading(false))
   }, [id])
 
+  useEffect(() => {
+    const recipeColor = recipe?.color ?? DEFAULT_RECIPE_COLOR
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', cookMode ? '#1f1d1a' : recipeColor)
+  }, [cookMode, recipe?.color])
+
   // Wake lock while viewing recipe
   useEffect(() => {
     if (!recipe) return
@@ -328,20 +333,6 @@ export default function RecipeDetailPage() {
   const ingredientSections = flattenIngredientSections(scaledIngredients)
   const stepSections = flattenSteps(recipe.steps)
   const ingredientMap = collectIngredientMap(scaledIngredients)
-
-  if (cookMode) {
-    return (
-      <CookModeView
-        recipe={recipe}
-        scaledIngredients={scaledIngredients}
-        selectedPortions={portions}
-        onPortionsChange={setPortions}
-        checked={checked}
-        onToggle={toggleCheck}
-        onClose={() => setCookMode(false)}
-      />
-    )
-  }
 
   return (
     <div style={{ minHeight: '100dvh', position: 'relative', background: 'var(--paper)' }}>
@@ -666,6 +657,23 @@ export default function RecipeDetailPage() {
 
       {calendarOpen && (
         <AddToCalendarModal recipe={recipe} onClose={() => setCalendarOpen(false)} onSaved={() => setCalendarOpen(false)} />
+      )}
+
+      {createPortal(
+        <AnimatePresence>
+          {cookMode && (
+            <CookModeView
+              recipe={recipe}
+              scaledIngredients={scaledIngredients}
+              selectedPortions={portions}
+              onPortionsChange={setPortions}
+              checked={checked}
+              onToggle={toggleCheck}
+              onClose={() => setCookMode(false)}
+            />
+          )}
+        </AnimatePresence>,
+        document.body
       )}
 
     </div>

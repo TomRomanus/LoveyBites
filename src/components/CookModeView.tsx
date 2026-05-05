@@ -125,7 +125,6 @@ export default function CookModeView({
   const steps = flattenSteps(recipe.steps)
   const total = steps.length
 
-  const [visible, setVisible] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [stepDir, setStepDir] = useState<'next' | 'prev' | null>(null)
   const [tab, setTab] = useState<CookTab>('step')
@@ -171,27 +170,19 @@ export default function CookModeView({
   const dark = { background: '#1f1d1a', color: '#f8f4ed' }
   const sectionHeaderColor = '#b8394e'
 
-  function handleClose() {
-    setVisible(false)
-  }
-
   return (
-    <AnimatePresence onExitComplete={onClose}>
-    {visible && <motion.div
+    <motion.div
       key="cook-mode"
-      variants={{
-        hidden: { y: '100%', transition: { type: 'tween', duration: 0.22, ease: [0.4, 0, 1, 1] } },
-        visible: { y: 0, transition: { type: 'spring', stiffness: 260, damping: 28 } },
-      }}
-      initial="hidden"
-      animate="visible"
-      exit="hidden"
-      style={{ height: '100dvh', ...dark, display: 'flex', flexDirection: 'column', userSelect: 'none' }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.22, ease: [0.2, 0, 0.2, 1] }}
+      style={{ position: 'fixed', inset: 0, zIndex: 100, height: '100dvh', ...dark, display: 'flex', flexDirection: 'column', userSelect: 'none' }}
     >
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', padding: '20px 20px 14px', flexShrink: 0 }}>
-        <button onClick={handleClose} style={{
+        <button onClick={onClose} style={{
           background: 'transparent',
           border: '0.5px solid rgba(248,244,237,0.38)',
           color: '#f8f4ed',
@@ -711,7 +702,6 @@ export default function CookModeView({
         </motion.div>
       )}
       </AnimatePresence>
-    </motion.div>}
-    </AnimatePresence>
+    </motion.div>
   )
 }
