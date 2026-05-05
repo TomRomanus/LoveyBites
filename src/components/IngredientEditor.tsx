@@ -1,13 +1,36 @@
-import { useState } from 'react'
+import { useState, createContext, useContext } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  pointerWithin,
+  type DragStartEvent,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import type { IngredientNode } from '../types/recipe'
 import AutoGrowTextarea from './AutoGrowTextarea'
+
+// ── Sheet animation ──────────────────────────────────────────────────────────
 
 const sheetVariants = {
   hidden: { y: '100%', transition: { type: 'tween' as const, duration: 0.22, ease: [0.4, 0, 1, 1] as const } },
   visible: { y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 32 } },
 }
+
+// ── Ingredient picker sheet ──────────────────────────────────────────────────
 
 function IngredientPickerSheet({ selectedIds, options, onToggle, onClose }: {
   selectedIds: Set<string>
@@ -77,9 +100,9 @@ function IngredientPickerSheet({ selectedIds, options, onToggle, onClose }: {
   )
 }
 
-const newLeaf = (): IngredientNode => ({ kind: 'leaf', text: '', id: crypto.randomUUID() })
+// ── Tree helpers ─────────────────────────────────────────────────────────────
 
-// --- Pure tree mutation helpers ---
+const newLeaf = (): IngredientNode => ({ kind: 'leaf', text: '', id: crypto.randomUUID() })
 
 function replaceAt(nodes: IngredientNode[], path: number[], replacement: IngredientNode): IngredientNode[] {
   if (path.length === 1) return nodes.map((n, i) => (i === path[0] ? replacement : n))
@@ -94,18 +117,6 @@ function removeAt(nodes: IngredientNode[], path: number[]): IngredientNode[] {
   return nodes.map((n, i) => {
     if (i !== path[0] || n.kind !== 'group') return n
     return { ...n, children: removeAt(n.children, path.slice(1)) }
-  })
-}
-
-function insertAfter(nodes: IngredientNode[], path: number[], node: IngredientNode): IngredientNode[] {
-  if (path.length === 1) {
-    const result = [...nodes]
-    result.splice(path[0] + 1, 0, node)
-    return result
-  }
-  return nodes.map((n, i) => {
-    if (i !== path[0] || n.kind !== 'group') return n
-    return { ...n, children: insertAfter(n.children, path.slice(1), node) }
   })
 }
 
@@ -135,7 +146,101 @@ function collectGroupTitles(nodes: IngredientNode[]): Set<string> {
   return titles
 }
 
-// --- Labels ---
+// ── DnD helpers ──────────────────────────────────────────────────────────────
+
+function findContainer(nodes: IngredientNode[], id: string): string | null {
+  for (const n of nodes) {
+    if (n.id === id) return null
+    if (n.kind === 'group') {
+      for (const c of n.children) {
+        if (c.id === id) return n.id!
+      }
+    }
+  }
+  return null
+}
+
+function findNode(nodes: IngredientNode[], id: string): IngredientNode | null {
+  for (const n of nodes) {
+    if (n.id === id) return n
+    if (n.kind === 'group') {
+      const found = findNode(n.children, id)
+      if (found) return found
+    }
+  }
+  return null
+}
+
+function removeDragNode(nodes: IngredientNode[], id: string): IngredientNode[] {
+  return nodes
+    .filter(n => n.id !== id)
+    .map(n => n.kind === 'group' ? { ...n, children: n.children.filter(c => c.id !== id) } : n)
+}
+
+function moveNodeInTree(nodes: IngredientNode[], activeId: string, overId: string): IngredientNode[] {
+  if (activeId === overId) return nodes
+  const activeNode = findNode(nodes, activeId)
+  const overNode = findNode(nodes, overId)
+  if (!activeNode || !overNode) return nodes
+
+  const rootIds = nodes.map(n => n.id!)
+  const activeContainer = findContainer(nodes, activeId)
+  const overContainer = findContainer(nodes, overId)
+
+  // Dragging a group — reorder at root only
+  if (activeNode.kind === 'group') {
+    const oldIdx = rootIds.indexOf(activeId)
+    const newIdx = rootIds.indexOf(overId)
+    if (oldIdx === -1 || newIdx === -1) return nodes
+    return arrayMove(nodes, oldIdx, newIdx)
+  }
+
+  // Dragging a leaf over a group header → append to that group
+  if (overNode.kind === 'group') {
+    const without = removeDragNode(nodes, activeId)
+    return without.map(n =>
+      n.kind === 'group' && n.id === overId
+        ? { ...n, children: [...n.children, activeNode] }
+        : n
+    )
+  }
+
+  // Leaf over leaf — same container
+  if (activeContainer === overContainer) {
+    if (activeContainer === null) {
+      const oldIdx = rootIds.indexOf(activeId)
+      const newIdx = rootIds.indexOf(overId)
+      if (oldIdx === -1 || newIdx === -1) return nodes
+      return arrayMove(nodes, oldIdx, newIdx)
+    }
+    return nodes.map(n => {
+      if (n.kind !== 'group' || n.id !== activeContainer) return n
+      const ids = n.children.map(c => c.id!)
+      const oldIdx = ids.indexOf(activeId)
+      const newIdx = ids.indexOf(overId)
+      if (oldIdx === -1 || newIdx === -1) return n
+      return { ...n, children: arrayMove(n.children, oldIdx, newIdx) }
+    })
+  }
+
+  // Leaf over leaf — cross container
+  const without = removeDragNode(nodes, activeId)
+  if (overContainer === null) {
+    const idx = without.findIndex(n => n.id === overId)
+    const result = [...without]
+    result.splice(idx === -1 ? result.length : idx, 0, activeNode)
+    return result
+  }
+  return without.map(n => {
+    if (n.kind !== 'group' || n.id !== overContainer) return n
+    const idx = n.children.findIndex(c => c.id === overId)
+    const children = [...n.children]
+    children.splice(idx === -1 ? children.length : idx, 0, activeNode)
+    return { ...n, children }
+  })
+}
+
+// ── Labels ───────────────────────────────────────────────────────────────────
 
 export interface EditorLabels {
   leafPlaceholder: string
@@ -153,7 +258,7 @@ const defaultLabels: EditorLabels = {
   addGroup: 'sectie toevoegen',
 }
 
-// --- Styles ---
+// ── Styles ───────────────────────────────────────────────────────────────────
 
 const leafInputStyle: React.CSSProperties = {
   flex: 1,
@@ -181,6 +286,8 @@ const xBtn: React.CSSProperties = {
   opacity: 0.8,
 }
 
+// ── Icons ────────────────────────────────────────────────────────────────────
+
 const XIcon = () => (
   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
     <path d="M18 6L6 18M6 6l12 12" />
@@ -199,6 +306,19 @@ const PenIcon = () => (
   </svg>
 )
 
+const GripDots = () => (
+  <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor">
+    <circle cx="2" cy="2" r="1.1" />
+    <circle cx="6" cy="2" r="1.1" />
+    <circle cx="2" cy="6" r="1.1" />
+    <circle cx="6" cy="6" r="1.1" />
+    <circle cx="2" cy="10" r="1.1" />
+    <circle cx="6" cy="10" r="1.1" />
+  </svg>
+)
+
+// ── Leaf index map ────────────────────────────────────────────────────────────
+
 function buildLeafIndexMap(nodes: IngredientNode[]): Map<string, number> {
   const map = new Map<string, number>()
   let n = 0
@@ -212,170 +332,222 @@ function buildLeafIndexMap(nodes: IngredientNode[]): Map<string, number> {
   return map
 }
 
-// --- Recursive node row ---
+// ── Drag handle context ───────────────────────────────────────────────────────
+
+const DragHandleCtx = createContext<{ listeners?: any; attributes?: any }>({})
+
+function SortableItem({ id, children }: { id: string; children: React.ReactNode }) {
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id })
+  return (
+    <DragHandleCtx.Provider value={{ listeners, attributes }}>
+      <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition }}>
+        {isDragging ? <div style={{ height: 38, opacity: 0 }} /> : children}
+      </div>
+    </DragHandleCtx.Provider>
+  )
+}
+
+function GripHandle({ style }: { style?: React.CSSProperties }) {
+  const { listeners, attributes } = useContext(DragHandleCtx)
+  return (
+    <div
+      {...listeners}
+      {...attributes}
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        cursor: 'grab', color: 'var(--stone-2)', padding: '0 4px',
+        touchAction: 'none', flexShrink: 0,
+        ...style,
+      }}
+    >
+      <GripDots />
+    </div>
+  )
+}
+
+// ── Ingredient option type ────────────────────────────────────────────────────
 
 interface IngredientOption {
   id: string
   text: string
 }
 
-interface NodeRowProps {
-  node: IngredientNode
+// ── Leaf row ─────────────────────────────────────────────────────────────────
+
+interface LeafRowProps {
+  node: IngredientNode & { kind: 'leaf' }
   path: number[]
-  depth: number
   isOnly: boolean
   isLast: boolean
-  nodes: IngredientNode[]
+  allNodes: IngredientNode[]
   labels: EditorLabels
   onChange: (nodes: IngredientNode[]) => void
   ingredientOptions?: IngredientOption[]
-  leafMultiline?: boolean
   ordered?: boolean
   itemIndex?: number
   leafIndexMap?: Map<string, number>
 }
 
-function NodeRow({ node, path, depth, isOnly, isLast, nodes, labels, onChange, ingredientOptions, leafMultiline, ordered, itemIndex, leafIndexMap }: NodeRowProps) {
-  const indent = depth * 16
+function LeafRow({ node, path, isOnly, isLast, allNodes, labels, onChange, ingredientOptions, ordered, itemIndex, leafIndexMap }: LeafRowProps) {
   const [pickerOpen, setPickerOpen] = useState(false)
+  const selectedIds = new Set(node.ingredientRefs ?? [])
+  const selectedIngredients = ingredientOptions?.filter((opt) => selectedIds.has(opt.id)) ?? []
 
-  if (node.kind === 'leaf') {
-    const selectedIds = new Set(node.ingredientRefs ?? [])
-    const selectedIngredients = ingredientOptions?.filter((opt) => selectedIds.has(opt.id)) ?? []
-
-    function toggleIngredient(id: string) {
-      const cur = node.ingredientRefs ?? []
-      const newRefs = selectedIds.has(id) ? cur.filter((r) => r !== id) : [...cur, id]
-      onChange(replaceAt(nodes, path, { ...node, ingredientRefs: newRefs.length > 0 ? newRefs : undefined }))
-    }
-
-    const refsPanel = ordered && (
-      <div style={{ marginBottom: 5 }}>
-        {selectedIngredients.length === 0 ? (
-          <button type="button" onClick={() => setPickerOpen(true)}
-            style={{ background: 'none', border: 0, fontSize: 10, color: 'rgba(107,31,42,0.45)', cursor: 'pointer', padding: 0, fontFamily: 'var(--mono)', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'block', textAlign: 'left', lineHeight: 'normal' }}>
-            + ingrediënten
-          </button>
-        ) : (
-          <button type="button" onClick={() => setPickerOpen(true)}
-            style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', display: 'block', textAlign: 'left', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(107,31,42,0.55)', lineHeight: 'normal', width: '100%' }}>
-            {selectedIngredients.map((o, i) => (
-              <span key={o.id}>{i > 0 ? ' · ' : ''}{o.text}</span>
-            ))}
-          </button>
-        )}
-        {pickerOpen && (
-          <IngredientPickerSheet
-            selectedIds={selectedIds}
-            options={ingredientOptions ?? []}
-            onToggle={toggleIngredient}
-            onClose={() => setPickerOpen(false)}
-          />
-        )}
-      </div>
-    )
-
-    return (
-      <div style={{ paddingLeft: indent, borderBottom: isLast ? 'none' : '0.5px solid var(--line-soft)' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: ordered ? 14 : 6, padding: ordered ? '8px 0' : '6px 0' }}>
-          {ordered ? (
-            // Step number — matches recipe overview exactly, no dot
-            <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 22, flexShrink: 0, lineHeight: 1.1, paddingTop: 1 }}>
-              {(leafIndexMap?.get(node.id ?? '') ?? itemIndex ?? 0) + 1}
-            </span>
-          ) : (
-            <span style={{ color: 'var(--bordeaux)', fontFamily: 'var(--serif)', fontSize: 16, paddingTop: 3, paddingLeft: 4, flexShrink: 0 }}>·</span>
-          )}
-
-          {ordered ? (
-            // Content column: refs above textarea, naturally aligned
-            <div style={{ flex: 1, minWidth: 0 }}>
-              {refsPanel}
-              <AutoGrowTextarea
-                value={node.text}
-                onChange={(e) => onChange(replaceAt(nodes, path, { ...node, text: e.target.value }))}
-                rows={1}
-                style={{ ...leafInputStyle, flex: 'none', width: '100%', lineHeight: 1.5, padding: '0 4px 0' }}
-                placeholder={labels.leafPlaceholder}
-              />
-            </div>
-          ) : (
-            <input
-              type="text"
-              value={node.text}
-              onChange={(e) => onChange(replaceAt(nodes, path, { ...node, text: e.target.value }))}
-              style={leafInputStyle}
-              placeholder={labels.leafPlaceholder}
-            />
-          )}
-
-          {!isOnly && (
-            <button type="button" onClick={() => onChange(removeAt(nodes, path))} style={xBtn} aria-label="Verwijderen">
-              <XIcon />
-            </button>
-          )}
-        </div>
-      </div>
-    )
+  function toggleIngredient(id: string) {
+    const cur = node.ingredientRefs ?? []
+    const newRefs = selectedIds.has(id) ? cur.filter((r) => r !== id) : [...cur, id]
+    onChange(replaceAt(allNodes, path, { ...node, ingredientRefs: newRefs.length > 0 ? newRefs : undefined }))
   }
 
-  // Group node — bordeaux left accent bar
-  let leafCounter = 0
-  return (
-    <div style={{ borderLeft: '2px solid rgba(107,31,42,0.30)', padding: '2px 0 4px 12px', margin: '4px 0' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
-        <input
-          type="text"
-          value={node.title}
-          onChange={(e) => onChange(replaceAt(nodes, path, { ...node, title: e.target.value }))}
-          style={{
-            flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 13, fontWeight: 500,
-            color: 'var(--bordeaux)', background: 'transparent', border: 0, outline: 'none', padding: '2px 0',
-          }}
-          placeholder={labels.groupPlaceholder}
+  const refsPanel = ordered && (
+    <div style={{ marginBottom: 5 }}>
+      {selectedIngredients.length === 0 ? (
+        <button type="button" onClick={() => setPickerOpen(true)}
+          style={{ background: 'none', border: 0, fontSize: 10, color: 'rgba(107,31,42,0.45)', cursor: 'pointer', padding: 0, fontFamily: 'var(--mono)', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'block', textAlign: 'left', lineHeight: 'normal' }}>
+          + ingrediënten
+        </button>
+      ) : (
+        <button type="button" onClick={() => setPickerOpen(true)}
+          style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', display: 'block', textAlign: 'left', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(107,31,42,0.55)', lineHeight: 'normal', width: '100%' }}>
+          {selectedIngredients.map((o, i) => (
+            <span key={o.id}>{i > 0 ? ' · ' : ''}{o.text}</span>
+          ))}
+        </button>
+      )}
+      {pickerOpen && (
+        <IngredientPickerSheet
+          selectedIds={selectedIds}
+          options={ingredientOptions ?? []}
+          onToggle={toggleIngredient}
+          onClose={() => setPickerOpen(false)}
         />
+      )}
+    </div>
+  )
+
+  return (
+    <div style={{ borderBottom: isLast ? 'none' : '0.5px solid var(--line-soft)' }}>
+      <div style={{ display: 'flex', alignItems: ordered ? 'flex-start' : 'center', gap: ordered ? 14 : 6, padding: ordered ? '8px 0' : '6px 0' }}>
+        <GripHandle style={ordered ? { paddingTop: 7 } : undefined} />
+
+        {ordered ? (
+          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 22, flexShrink: 0, lineHeight: 1.1, paddingTop: 1 }}>
+            {(leafIndexMap?.get(node.id ?? '') ?? itemIndex ?? 0) + 1}
+          </span>
+        ) : (
+          <span style={{ color: 'var(--bordeaux)', fontFamily: 'var(--serif)', fontSize: 16, paddingTop: 3, paddingLeft: 4, flexShrink: 0 }}>·</span>
+        )}
+
+        {ordered ? (
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {refsPanel}
+            <AutoGrowTextarea
+              value={node.text}
+              onChange={(e) => onChange(replaceAt(allNodes, path, { ...node, text: e.target.value }))}
+              rows={1}
+              style={{ ...leafInputStyle, flex: 'none', width: '100%', lineHeight: 1.5, padding: '0 4px 0' }}
+              placeholder={labels.leafPlaceholder}
+            />
+          </div>
+        ) : (
+          <input
+            type="text"
+            value={node.text}
+            onChange={(e) => onChange(replaceAt(allNodes, path, { ...node, text: e.target.value }))}
+            style={leafInputStyle}
+            placeholder={labels.leafPlaceholder}
+          />
+        )}
+
         {!isOnly && (
-          <button type="button" onClick={() => onChange(removeAt(nodes, path))} style={xBtn} aria-label="Sectie verwijderen">
+          <button type="button" onClick={() => onChange(removeAt(allNodes, path))} style={xBtn} aria-label="Verwijderen">
             <XIcon />
           </button>
         )}
       </div>
-      <div style={{ width: 22, height: 1.5, background: 'var(--bordeaux)', opacity: 0.55, borderRadius: 1, marginBottom: 6 }} />
+    </div>
+  )
+}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-        <AnimatePresence mode="popLayout" initial={false}>
-          {node.children.map((child, i) => {
-            const idx = child.kind === 'leaf' ? leafCounter++ : 0
-            return (
-              <motion.div
-                key={child.id ?? i}
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4, transition: { duration: 0.13, ease: 'easeIn' } }}
-                layout
-                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-              >
-                <NodeRow
-                  node={child}
-                  path={[...path, i]}
-                  depth={0}
-                  isOnly={node.children.length === 1}
-                  isLast={i === node.children.length - 1}
-                  nodes={nodes}
-                  labels={labels}
-                  onChange={onChange}
-                  ingredientOptions={ingredientOptions}
-                  leafMultiline={leafMultiline}
-                  ordered={ordered}
-                  itemIndex={idx}
-                  leafIndexMap={leafIndexMap}
-                />
-              </motion.div>
-            )
-          })}
-        </AnimatePresence>
+// ── Group row ────────────────────────────────────────────────────────────────
+
+interface GroupRowProps {
+  node: IngredientNode & { kind: 'group' }
+  path: number[]
+  isOnly: boolean
+  allNodes: IngredientNode[]
+  labels: EditorLabels
+  onChange: (nodes: IngredientNode[]) => void
+  ingredientOptions?: IngredientOption[]
+  ordered?: boolean
+  leafIndexMap?: Map<string, number>
+}
+
+function GroupRow({ node, path, isOnly, allNodes, labels, onChange, ingredientOptions, ordered, leafIndexMap }: GroupRowProps) {
+  let leafCounter = 0
+  const childIds = node.children.map(c => c.id!)
+
+  return (
+    // Handle sits OUTSIDE (to the left of) the vertical bordeaux bar
+    <div style={{ display: 'flex', alignItems: 'flex-start', margin: '4px 0' }}>
+      <GripHandle style={{ paddingTop: 6, paddingRight: 10 }} />
+
+      <div style={{ borderLeft: '2px solid rgba(107,31,42,0.30)', padding: '2px 0 4px 12px', flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
+          <input
+            type="text"
+            value={node.title}
+            onChange={(e) => onChange(replaceAt(allNodes, path, { ...node, title: e.target.value }))}
+            style={{
+              flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 13, fontWeight: 500,
+              color: 'var(--bordeaux)', background: 'transparent', border: 0, outline: 'none', padding: '2px 0',
+            }}
+            placeholder={labels.groupPlaceholder}
+          />
+          {!isOnly && (
+            <button type="button" onClick={() => onChange(removeAt(allNodes, path))} style={xBtn} aria-label="Sectie verwijderen">
+              <XIcon />
+            </button>
+          )}
+        </div>
+
+        <div style={{ width: 22, height: 1.5, background: 'var(--bordeaux)', opacity: 0.55, borderRadius: 1, marginBottom: 6 }} />
+
+        <SortableContext items={childIds} strategy={verticalListSortingStrategy}>
+          <AnimatePresence mode="popLayout" initial={false}>
+            {node.children.map((child, i) => {
+              if (child.kind !== 'leaf') return null
+              const idx = leafCounter++
+              return (
+                <motion.div
+                  key={child.id ?? i}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, transition: { duration: 0.1 } }}
+                >
+                  <SortableItem id={child.id!}>
+                    <LeafRow
+                      node={child}
+                      path={[...path, i]}
+                      isOnly={node.children.length === 1}
+                      isLast={i === node.children.length - 1}
+                      allNodes={allNodes}
+                      labels={labels}
+                      onChange={onChange}
+                      ingredientOptions={ingredientOptions}
+                      ordered={ordered}
+                      itemIndex={idx}
+                      leafIndexMap={leafIndexMap}
+                    />
+                  </SortableItem>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+        </SortableContext>
+
         <button type="button"
-          onClick={() => onChange(appendChild(nodes, path, newLeaf()))}
+          onClick={() => onChange(appendChild(allNodes, path, newLeaf()))}
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '7px 8px', marginTop: 6,
@@ -391,7 +563,46 @@ function NodeRow({ node, path, depth, isOnly, isLast, nodes, labels, onChange, i
   )
 }
 
-// --- Public component ---
+// ── Drag overlay ──────────────────────────────────────────────────────────────
+
+function OverlayContent({ node, ordered, leafIndexMap }: { node: IngredientNode; ordered?: boolean; leafIndexMap?: Map<string, number> }) {
+  const overlayStyle: React.CSSProperties = {
+    background: 'var(--cream-card)',
+    borderRadius: 10,
+    boxShadow: '0 8px 24px rgba(0,0,0,0.14)',
+    border: '0.5px solid rgba(31,29,26,0.12)',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '6px 12px 6px 8px',
+  }
+
+  if (node.kind === 'group') {
+    return (
+      <div style={overlayStyle}>
+        <GripDots />
+        <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 13, fontWeight: 500, color: 'var(--bordeaux)' }}>
+          {node.title || 'Sectie'}
+        </span>
+      </div>
+    )
+  }
+
+  const num = ordered && node.id ? (leafIndexMap?.get(node.id) ?? 0) + 1 : null
+  return (
+    <div style={{ ...overlayStyle, gap: ordered ? 14 : 8 }}>
+      <GripDots />
+      {ordered ? (
+        <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 22, flexShrink: 0, lineHeight: 1.1 }}>{num}</span>
+      ) : (
+        <span style={{ color: 'var(--bordeaux)', fontFamily: 'var(--serif)', fontSize: 16, paddingLeft: 4 }}>·</span>
+      )}
+      <span style={{ fontFamily: 'var(--sans)', fontSize: 14, color: 'var(--ink-2)' }}>{node.text || '…'}</span>
+    </div>
+  )
+}
+
+// ── Public component ──────────────────────────────────────────────────────────
 
 interface IngredientEditorProps {
   nodes: IngredientNode[]
@@ -403,8 +614,24 @@ interface IngredientEditorProps {
   ordered?: boolean
 }
 
-export default function IngredientEditor({ nodes, onChange, labels: labelOverrides, commonSections, ingredientOptions, leafMultiline, ordered }: IngredientEditorProps) {
+export default function IngredientEditor({ nodes, onChange, labels: labelOverrides, commonSections, ingredientOptions, ordered }: IngredientEditorProps) {
   const labels = { ...defaultLabels, ...labelOverrides }
+  const [activeId, setActiveId] = useState<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+  )
+
+  function handleDragStart({ active }: DragStartEvent) {
+    setActiveId(active.id as string)
+  }
+
+  function handleDragEnd({ active, over }: DragEndEvent) {
+    setActiveId(null)
+    if (!over || active.id === over.id) return
+    onChange(moveNodeInTree(nodes, active.id as string, over.id as string))
+  }
 
   function addSection(title: string) {
     const last = nodes[nodes.length - 1]
@@ -415,93 +642,138 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
   const existingTitles = collectGroupTitles(nodes)
   const availableSections = commonSections?.filter((name) => !existingTitles.has(name)) ?? []
   const leafIndexMap = ordered ? buildLeafIndexMap(nodes) : undefined
+  const rootIds = nodes.map(n => n.id!)
+  const activeNode = activeId ? findNode(nodes, activeId) : null
 
   let rootLeafCounter = 0
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-      <AnimatePresence mode="popLayout" initial={false}>
-        {nodes.map((node, i) => {
-          const idx = node.kind === 'leaf' ? rootLeafCounter++ : 0
-          return (
-            <motion.div
-              key={node.id ?? i}
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4, transition: { duration: 0.13, ease: 'easeIn' } }}
-              layout
-              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            >
-              <NodeRow
-                node={node}
-                path={[i]}
-                depth={0}
-                isOnly={nodes.length === 1}
-                isLast={i === nodes.length - 1}
-                nodes={nodes}
-                labels={labels}
-                onChange={onChange}
-                ingredientOptions={ingredientOptions}
-                leafMultiline={leafMultiline}
-                ordered={ordered}
-                itemIndex={idx}
-                leafIndexMap={leafIndexMap}
-              />
-            </motion.div>
-          )
-        })}
-      </AnimatePresence>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={(args) => {
+          const hits = pointerWithin(args)
+          return hits.length > 0 ? hits : closestCenter(args)
+        }}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={() => setActiveId(null)}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <SortableContext items={rootIds} strategy={verticalListSortingStrategy}>
+          <AnimatePresence mode="popLayout" initial={false}>
+            {nodes.map((node, i) => {
+              if (node.kind === 'leaf') {
+                const idx = rootLeafCounter++
+                return (
+                  <motion.div
+                    key={node.id ?? i}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, transition: { duration: 0.1 } }}
+                  >
+                    <SortableItem id={node.id!}>
+                      <LeafRow
+                        node={node}
+                        path={[i]}
+                        isOnly={nodes.length === 1}
+                        isLast={i === nodes.length - 1}
+                        allNodes={nodes}
+                        labels={labels}
+                        onChange={onChange}
+                        ingredientOptions={ingredientOptions}
+                        ordered={ordered}
+                        itemIndex={idx}
+                        leafIndexMap={leafIndexMap}
+                      />
+                    </SortableItem>
+                  </motion.div>
+                )
+              }
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
-        <button type="button"
-          onClick={() => onChange([...nodes, newLeaf()])}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', border: '1px dashed var(--stone-2)', borderRadius: 9, color: 'var(--stone)', fontSize: 12, background: 'none', cursor: 'pointer', minHeight: 38, fontFamily: 'var(--sans)' }}>
-          <PlusIcon />
-          {labels.addLeaf}
-        </button>
-        <button type="button"
-          onClick={() => addSection('')}
-          style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', border: '1px dashed var(--stone-2)', borderRadius: 9, color: 'var(--stone)', fontSize: 12, background: 'none', cursor: 'pointer', minHeight: 38, fontFamily: 'var(--sans)' }}>
-          <PlusIcon />
-          {labels.addGroup}
-        </button>
-        <AnimatePresence>
-          {availableSections.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 4 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
-              style={{ paddingTop: 4 }}
-            >
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone-2)', marginBottom: 6 }}>
-                Sectiesuggesties
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                <AnimatePresence>
-                  {availableSections.map((name, i) => (
-                    <motion.button
-                      key={name}
-                      initial={{ scale: 0.85, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0.85, opacity: 0, transition: { duration: 0.1 } }}
-                      layout
-                      transition={{ type: 'spring', stiffness: 380, damping: 28, delay: i * 0.04 }}
-                      type="button" onClick={() => addSection(name)} style={{
-                        fontSize: 10.5, padding: '5px 11px', borderRadius: 20,
-                        border: '1px dashed var(--stone-2)', background: 'transparent',
-                        color: 'var(--stone)', fontFamily: 'var(--mono)',
-                        letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer',
-                      }}>
-                      + {name}
-                    </motion.button>
-                  ))}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              return (
+                <motion.div
+                  key={node.id ?? i}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, transition: { duration: 0.1 } }}
+                >
+                  <SortableItem id={node.id!}>
+                    <GroupRow
+                      node={node}
+                      path={[i]}
+                      isOnly={nodes.length === 1}
+                      allNodes={nodes}
+                      labels={labels}
+                      onChange={onChange}
+                      ingredientOptions={ingredientOptions}
+                      ordered={ordered}
+                      leafIndexMap={leafIndexMap}
+                    />
+                  </SortableItem>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
+        </SortableContext>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
+          <button type="button"
+            onClick={() => onChange([...nodes, newLeaf()])}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', border: '1px dashed var(--stone-2)', borderRadius: 9, color: 'var(--stone)', fontSize: 12, background: 'none', cursor: 'pointer', minHeight: 38, fontFamily: 'var(--sans)' }}>
+            <PlusIcon />
+            {labels.addLeaf}
+          </button>
+          <button type="button"
+            onClick={() => addSection('')}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', border: '1px dashed var(--stone-2)', borderRadius: 9, color: 'var(--stone)', fontSize: 12, background: 'none', cursor: 'pointer', minHeight: 38, fontFamily: 'var(--sans)' }}>
+            <PlusIcon />
+            {labels.addGroup}
+          </button>
+
+          <AnimatePresence>
+            {availableSections.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 4 }}
+                transition={{ duration: 0.18, ease: 'easeOut' }}
+                style={{ paddingTop: 4 }}
+              >
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone-2)', marginBottom: 6 }}>
+                  Sectiesuggesties
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                  <AnimatePresence>
+                    {availableSections.map((name, i) => (
+                      <motion.button
+                        key={name}
+                        initial={{ scale: 0.85, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.85, opacity: 0, transition: { duration: 0.1 } }}
+                        layout
+                        transition={{ type: 'spring', stiffness: 380, damping: 28, delay: i * 0.04 }}
+                        type="button" onClick={() => addSection(name)} style={{
+                          fontSize: 10.5, padding: '5px 11px', borderRadius: 20,
+                          border: '1px dashed var(--stone-2)', background: 'transparent',
+                          color: 'var(--stone)', fontFamily: 'var(--mono)',
+                          letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer',
+                        }}>
+                        + {name}
+                      </motion.button>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
+
+      <DragOverlay dropAnimation={{ duration: 180, easing: 'ease' }}>
+        {activeNode && (
+          <OverlayContent node={activeNode} ordered={ordered} leafIndexMap={leafIndexMap} />
+        )}
+      </DragOverlay>
+    </DndContext>
   )
 }
