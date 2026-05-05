@@ -44,15 +44,13 @@ function Stars({ value, onChange }: { value: number; onChange?: (v: number) => v
   const onChangeRef  = useRef(onChange)
   onChangeRef.current = onChange
 
-  const [livePos,      setLivePos]      = useState(value)
-  const [displayValue, setDisplayValue] = useState(value)
-  const [dir,          setDir]          = useState<'up' | 'down'>('up')
+  const [livePos, setLivePos] = useState(value)
+  const [dir,     setDir]     = useState<'up' | 'down'>('up')
 
   useEffect(() => {
     committedRef.current = value
     livePosRef.current   = value
     setLivePos(value)
-    setDisplayValue(value)
   }, [value])
 
   const posFromX = useCallback((clientX: number) => {
@@ -87,22 +85,24 @@ function Stars({ value, onChange }: { value: number; onChange?: (v: number) => v
 
     committedRef.current = snapped
     setDir(snapped >= prev ? 'up' : 'down')
-    setDisplayValue(snapped)
     setLivePos(snapped)
     onChangeRef.current?.(snapped)
   }, [])
 
   const moveHandler = useCallback((clientX: number) => {
     if (!isDragging.current) return
+    const prevSnapped = snapToHalf(livePosRef.current)
     livePosRef.current = posFromX(clientX)
+    const nextSnapped = snapToHalf(livePosRef.current)
+    if (nextSnapped !== prevSnapped) setDir(nextSnapped > prevSnapped ? 'up' : 'down')
     setLivePos(livePosRef.current)
   }, [posFromX])
 
   useEffect(() => {
     const onMM = (e: MouseEvent)  => moveHandler(e.clientX)
-    const onTM = (e: TouchEvent)  => { e.preventDefault(); moveHandler(e.touches[0].clientX) }
+    const onTM = (e: TouchEvent)  => moveHandler(e.touches[0].clientX)
     window.addEventListener('mousemove', onMM)
-    window.addEventListener('touchmove', onTM, { passive: false })
+    window.addEventListener('touchmove', onTM)
     window.addEventListener('mouseup',   finishDrag)
     window.addEventListener('touchend',  finishDrag)
     return () => {
@@ -113,8 +113,9 @@ function Stars({ value, onChange }: { value: number; onChange?: (v: number) => v
     }
   }, [finishDrag, moveHandler])
 
-  const intPart = displayValue > 0 ? String(Math.floor(displayValue)) : ''
-  const decPart = displayValue > 0 ? (displayValue % 1 === 0 ? '0' : '5') : ''
+  const snappedLive = snapToHalf(livePos)
+  const intPart = snappedLive > 0 ? String(Math.floor(snappedLive)) : ''
+  const decPart = snappedLive > 0 ? (snappedLive % 1 === 0 ? '0' : '5') : ''
 
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 5 }}>
@@ -150,7 +151,7 @@ function Stars({ value, onChange }: { value: number; onChange?: (v: number) => v
         })}
       </div>
 
-      {displayValue > 0 && (
+      {snappedLive > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', marginTop: -3, fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 500, letterSpacing: 0, color: 'rgba(107, 31, 42, 0.45)' }}>
           <div style={{ overflow: 'hidden', height: 14, display: 'flex', alignItems: 'center' }}>
             <AnimatePresence mode="popLayout" custom={dir}>
