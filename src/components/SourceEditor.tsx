@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { Source } from '../types/recipe'
 import { uploadSourceImage } from '../services/storage'
 
@@ -10,6 +11,11 @@ interface Props {
 export default function SourceEditor({ sources, onChange }: Props) {
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const idsRef = useRef<string[]>([])
+
+  while (idsRef.current.length < sources.length) {
+    idsRef.current.push(crypto.randomUUID())
+  }
 
   function update(index: number, field: keyof Source, value: string) {
     const next = sources.map((s, i) => (i === index ? { ...s, [field]: value } : s))
@@ -17,6 +23,7 @@ export default function SourceEditor({ sources, onChange }: Props) {
   }
 
   function remove(index: number) {
+    idsRef.current.splice(index, 1)
     onChange(sources.filter((_, i) => i !== index))
   }
 
@@ -47,43 +54,53 @@ export default function SourceEditor({ sources, onChange }: Props) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      {sources.map((source, i) => (
-        <div key={i} style={{ background: 'transparent', border: '0.5px solid rgba(31,29,26,0.20)', borderRadius: 10, padding: '10px 12px', position: 'relative' }}>
-          <button
-            type="button"
-            onClick={() => remove(i)}
-            style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 0, color: 'var(--stone-2)', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', opacity: 0.8 }}
-            aria-label="Verwijder bron"
+      <AnimatePresence mode="popLayout" initial={false}>
+        {sources.map((source, i) => (
+          <motion.div
+            key={idsRef.current[i]}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6, transition: { duration: 0.13, ease: 'easeIn' } }}
+            layout
+            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+            style={{ background: 'transparent', border: '0.5px solid rgba(31,29,26,0.20)', borderRadius: 10, padding: '10px 12px', position: 'relative' }}
           >
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
-          <input
-            type="text"
-            value={source.label}
-            onChange={(e) => update(i, 'label', e.target.value)}
-            placeholder="Naam (optioneel)"
-            style={{
-              width: '100%', background: 'transparent', border: 0, outline: 'none',
-              fontSize: 13, color: 'var(--ink)', fontFamily: 'var(--sans)',
-              paddingRight: 28, paddingBottom: 6,
-              borderBottom: '0.5px solid var(--line)',
-            }}
-          />
-          <input
-            type="url"
-            value={source.url}
-            onChange={(e) => update(i, 'url', e.target.value)}
-            placeholder="https://..."
-            style={{
-              width: '100%', background: 'transparent', border: 0, outline: 'none',
-              fontSize: 12, color: source.url ? '#722F37' : 'var(--stone)', fontFamily: 'var(--sans)',
-              fontStyle: 'italic', marginTop: 7,
-            }}
-          />
-        </div>
-      ))}
+            <button
+              type="button"
+              onClick={() => remove(i)}
+              style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 0, color: 'var(--stone-2)', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', opacity: 0.8 }}
+              aria-label="Verwijder bron"
+            >
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+            <input
+              type="text"
+              value={source.label}
+              onChange={(e) => update(i, 'label', e.target.value)}
+              placeholder="Naam (optioneel)"
+              style={{
+                width: '100%', background: 'transparent', border: 0, outline: 'none',
+                fontSize: 13, color: 'var(--ink)', fontFamily: 'var(--sans)',
+                paddingRight: 28, paddingBottom: 6,
+                borderBottom: '0.5px solid var(--line)',
+              }}
+            />
+            <input
+              type="url"
+              value={source.url}
+              onChange={(e) => update(i, 'url', e.target.value)}
+              placeholder="https://..."
+              style={{
+                width: '100%', background: 'transparent', border: 0, outline: 'none',
+                fontSize: 12, color: source.url ? '#722F37' : 'var(--stone)', fontFamily: 'var(--sans)',
+                fontStyle: 'italic', marginTop: 7,
+              }}
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
         <button type="button" onClick={add} style={dashedBtn}>
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">

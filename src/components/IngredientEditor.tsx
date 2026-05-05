@@ -334,26 +334,36 @@ function NodeRow({ node, path, depth, isOnly, isLast, nodes, labels, onChange, i
       <div style={{ width: 22, height: 1.5, background: 'var(--bordeaux)', opacity: 0.55, borderRadius: 1, marginBottom: 6 }} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-        {node.children.map((child, i) => {
-          const idx = child.kind === 'leaf' ? leafCounter++ : 0
-          return (
-            <NodeRow
-              key={i}
-              node={child}
-              path={[...path, i]}
-              depth={0}
-              isOnly={node.children.length === 1}
-              isLast={i === node.children.length - 1}
-              nodes={nodes}
-              labels={labels}
-              onChange={onChange}
-              ingredientOptions={ingredientOptions}
-              leafMultiline={leafMultiline}
-              ordered={ordered}
-              itemIndex={idx}
-            />
-          )
-        })}
+        <AnimatePresence mode="popLayout" initial={false}>
+          {node.children.map((child, i) => {
+            const idx = child.kind === 'leaf' ? leafCounter++ : 0
+            return (
+              <motion.div
+                key={child.id ?? i}
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4, transition: { duration: 0.13, ease: 'easeIn' } }}
+                layout
+                transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+              >
+                <NodeRow
+                  node={child}
+                  path={[...path, i]}
+                  depth={0}
+                  isOnly={node.children.length === 1}
+                  isLast={i === node.children.length - 1}
+                  nodes={nodes}
+                  labels={labels}
+                  onChange={onChange}
+                  ingredientOptions={ingredientOptions}
+                  leafMultiline={leafMultiline}
+                  ordered={ordered}
+                  itemIndex={idx}
+                />
+              </motion.div>
+            )
+          })}
+        </AnimatePresence>
         <button type="button"
           onClick={() => onChange(appendChild(nodes, path, newLeaf()))}
           style={{
@@ -399,26 +409,36 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-      {nodes.map((node, i) => {
-        const idx = node.kind === 'leaf' ? rootLeafCounter++ : 0
-        return (
-          <NodeRow
-            key={i}
-            node={node}
-            path={[i]}
-            depth={0}
-            isOnly={nodes.length === 1}
-            isLast={i === nodes.length - 1}
-            nodes={nodes}
-            labels={labels}
-            onChange={onChange}
-            ingredientOptions={ingredientOptions}
-            leafMultiline={leafMultiline}
-            ordered={ordered}
-            itemIndex={idx}
-          />
-        )
-      })}
+      <AnimatePresence mode="popLayout" initial={false}>
+        {nodes.map((node, i) => {
+          const idx = node.kind === 'leaf' ? rootLeafCounter++ : 0
+          return (
+            <motion.div
+              key={node.id ?? i}
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4, transition: { duration: 0.13, ease: 'easeIn' } }}
+              layout
+              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+            >
+              <NodeRow
+                node={node}
+                path={[i]}
+                depth={0}
+                isOnly={nodes.length === 1}
+                isLast={i === nodes.length - 1}
+                nodes={nodes}
+                labels={labels}
+                onChange={onChange}
+                ingredientOptions={ingredientOptions}
+                leafMultiline={leafMultiline}
+                ordered={ordered}
+                itemIndex={idx}
+              />
+            </motion.div>
+          )
+        })}
+      </AnimatePresence>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
         <button type="button"
@@ -433,25 +453,42 @@ export default function IngredientEditor({ nodes, onChange, labels: labelOverrid
           <PlusIcon />
           {labels.addGroup}
         </button>
-        {availableSections.length > 0 && (
-          <div style={{ paddingTop: 4 }}>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone-2)', marginBottom: 6 }}>
-              Sectiesuggesties
-            </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-              {availableSections.map((name) => (
-                <button key={name} type="button" onClick={() => addSection(name)} style={{
-                  fontSize: 10.5, padding: '5px 11px', borderRadius: 20,
-                  border: '1px dashed var(--stone-2)', background: 'transparent',
-                  color: 'var(--stone)', fontFamily: 'var(--mono)',
-                  letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer',
-                }}>
-                  + {name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        <AnimatePresence>
+          {availableSections.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 4 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+              style={{ paddingTop: 4 }}
+            >
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone-2)', marginBottom: 6 }}>
+                Sectiesuggesties
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                <AnimatePresence>
+                  {availableSections.map((name, i) => (
+                    <motion.button
+                      key={name}
+                      initial={{ scale: 0.85, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.85, opacity: 0, transition: { duration: 0.1 } }}
+                      layout
+                      transition={{ type: 'spring', stiffness: 380, damping: 28, delay: i * 0.04 }}
+                      type="button" onClick={() => addSection(name)} style={{
+                        fontSize: 10.5, padding: '5px 11px', borderRadius: 20,
+                        border: '1px dashed var(--stone-2)', background: 'transparent',
+                        color: 'var(--stone)', fontFamily: 'var(--mono)',
+                        letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer',
+                      }}>
+                      + {name}
+                    </motion.button>
+                  ))}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )

@@ -22,6 +22,7 @@ export interface IngredientLeaf {
 export interface IngredientGroup {
   kind: 'group'
   title: string
+  id?: string
   children: IngredientNode[]
 }
 
