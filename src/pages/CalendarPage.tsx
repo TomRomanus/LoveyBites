@@ -355,11 +355,12 @@ function DayDetailSheet({ date, entries, recipeMap, onDelete, onAdd, onClose }: 
 
 interface AddMealSheetProps {
   date: string
+  existingRecipeIds: string[]
   onClose: () => void
   onSaved: () => void
 }
 
-function AddMealSheet({ date, onClose, onSaved }: AddMealSheetProps) {
+function AddMealSheet({ date, existingRecipeIds, onClose, onSaved }: AddMealSheetProps) {
   const { user } = useAuth()
   const [tab, setTab] = useState<'recipe' | 'custom'>('recipe')
   const [tabDir, setTabDir] = useState(0)
@@ -373,14 +374,15 @@ function AddMealSheet({ date, onClose, onSaved }: AddMealSheetProps) {
   useEffect(() => { getRecipes().then(setRecipes) }, [])
   useEffect(() => { if (tab === 'recipe') searchRef.current?.focus() }, [tab])
 
+  const available = recipes.filter(r => !existingRecipeIds.includes(r.id))
   const filtered = search.trim()
-    ? recipes.filter(r => {
+    ? available.filter(r => {
         const q = search.toLowerCase()
         if (r.title.toLowerCase().includes(q)) return true
         if (r.description?.toLowerCase().includes(q)) return true
         return extractLeafTexts(r.ingredients).some(t => t.toLowerCase().includes(q))
       })
-    : recipes
+    : available
 
   const dateObj = new Date(date + 'T00:00:00')
 
@@ -1065,6 +1067,7 @@ export default function CalendarPage() {
         {modalDate && (
           <AddMealSheet
             date={modalDate}
+            existingRecipeIds={entries.filter(e => e.date === modalDate && e.recipeId).map(e => e.recipeId!)}
             onClose={() => setModalDate(null)}
             onSaved={() => { setModalDate(null); loadEntries() }}
           />
