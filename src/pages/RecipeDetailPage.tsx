@@ -230,7 +230,7 @@ export default function RecipeDetailPage() {
   const [recipe, setRecipe] = useState<Recipe | null>(null)
   const [loading, setLoading] = useState(true)
   const [checked, setChecked] = useState<Set<string>>(new Set())
-  const [portions, setPortions] = useState(4)
+  const [portions, setPortions] = useState(2)
   const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
 
   function handlePortionChange(v: number) {
@@ -248,7 +248,7 @@ export default function RecipeDetailPage() {
     getRecipe(id).then(r => {
       setRecipe(r)
       if (r) {
-        setPortions(r.portions ?? 4)
+        setPortions(2)
         document.querySelector('meta[name="theme-color"]')?.setAttribute('content', r.color ?? DEFAULT_RECIPE_COLOR)
       }
     }).finally(() => setLoading(false))

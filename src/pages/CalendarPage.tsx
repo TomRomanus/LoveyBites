@@ -406,7 +406,7 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
     })
   }
 
-  const sectionsMap = new Map<string, { label: string; days: string[]; baseIngredients: string[]; count: number }>()
+  const sectionsMap = new Map<string, { label: string; days: string[]; baseIngredients: string[]; count: number; portions: number }>()
   entries.forEach(entry => {
     if (!entry.recipeId) return
     const recipe = recipeMap.get(entry.recipeId)
@@ -421,13 +421,14 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
         days: [entry.date],
         baseIngredients: extractLeafTexts(recipe.ingredients),
         count: 1,
+        portions: recipe.portions ?? 2,
       })
     }
   })
   const sections = [...sectionsMap.values()].map(s => ({
     label: s.label,
     days: s.days,
-    ingredients: s.baseIngredients.map(i => scaleIngredient(i, s.count)),
+    ingredients: s.baseIngredients.map(i => scaleIngredient(i, (2 * s.count) / s.portions)),
   }))
 
   function buildCopyText() {
