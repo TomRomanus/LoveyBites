@@ -11,6 +11,7 @@ interface Props {
   initial?: Partial<RecipeInput>
   onSubmit: (data: RecipeInput) => Promise<void>
   onSavingChange?: (saving: boolean) => void
+  onTitleChange?: (hasTitle: boolean) => void
   existingTags?: string[]
 }
 
@@ -67,9 +68,9 @@ const sectionCard: React.CSSProperties = {
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, marginBottom: 8 }}>
         <span className="lb-eyebrow">{label}</span>
-        {required && <span style={{ color: 'var(--bordeaux)', fontSize: 10 }}>·</span>}
+        {required && <span style={{ color: 'var(--bordeaux)', fontSize: 11 }}>*</span>}
       </div>
       {children}
     </div>
@@ -181,7 +182,7 @@ function TagsEditor({ tags, onChange, existingTags = [] }: { tags: string[]; onC
   )
 }
 
-export default function RecipeForm({ initial, onSubmit, onSavingChange, existingTags }: Props) {
+export default function RecipeForm({ initial, onSubmit, onSavingChange, onTitleChange, existingTags }: Props) {
   const [form, setForm] = useState<RecipeInput>(() => {
     const base = { ...emptyInput(), ...initial }
     return {
@@ -226,17 +227,11 @@ export default function RecipeForm({ initial, onSubmit, onSavingChange, existing
 
   return (
     <form id="recipe-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 8 }}>
-      {error && (
-        <div style={{ background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)', padding: '10px 14px', borderRadius: 12, fontSize: 13, fontWeight: 500, borderLeft: '3px solid var(--bordeaux)' }}>
-          {error}
-        </div>
-      )}
-
       {/* Basic info */}
       <div style={sectionCard}>
         <Field label="Titel" required>
           <input className="lb-input" type="text" value={form.title}
-            onChange={(e) => setField('title', e.target.value)}
+            onChange={(e) => { setField('title', e.target.value); onTitleChange?.(e.target.value.trim().length > 0) }}
             placeholder="Wat gaan we maken?" />
         </Field>
         <div style={{ height: 14 }} />
@@ -376,6 +371,13 @@ export default function RecipeForm({ initial, onSubmit, onSavingChange, existing
           <SourceEditor sources={form.sources ?? []} onChange={(v) => setField('sources', v)} />
         </Field>
       </div>
+
+      {error && (
+        <div style={{ background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)', padding: '10px 14px', borderRadius: '0 12px 12px 0', fontSize: 13, fontWeight: 500, borderLeft: '3px solid var(--bordeaux)' }}>
+          {error}
+        </div>
+      )}
+
       {createPortal(
         <button
           type="button"

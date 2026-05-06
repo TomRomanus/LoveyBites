@@ -32,43 +32,60 @@ export default function RecipeImport({ onExtracted }: Props) {
   if (done) return null
 
   return (
-    <div className="bg-bordeaux-tint border border-bordeaux-soft rounded-2xl px-5 py-4 space-y-3">
+    <form onSubmit={handleImport} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div>
-        <p className="text-sm font-semibold text-bordeaux-dark">Importeer via link</p>
-        <p className="text-xs text-bordeaux mt-0.5">Plak een link van een receptenwebsite of TikTok</p>
-      </div>
-
-      <form onSubmit={handleImport} className="flex gap-2">
+        <div className="lb-eyebrow" style={{ marginBottom: 8 }}>Link</div>
         <input
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://…"
           disabled={loading}
-          className="flex-1 min-w-0 border border-bordeaux-soft rounded-xl px-3 py-2 text-sm text-ink-2 placeholder:text-stone-2 focus:outline-none focus:ring-2 focus:ring-bordeaux focus:border-transparent transition bg-white disabled:opacity-50"
+          style={{
+            width: '100%',
+            background: 'var(--cream-card)',
+            border: '0.5px solid rgba(31,29,26,0.14)',
+            borderRadius: 12,
+            padding: '13px 14px',
+            fontFamily: 'var(--sans)',
+            fontSize: 15,
+            color: 'var(--ink)',
+            outline: 'none',
+            boxSizing: 'border-box',
+            opacity: loading ? 0.5 : 1,
+          }}
         />
-        <button
-          type="submit"
-          disabled={loading || !url.trim()}
-          className="bg-bordeaux hover:bg-bordeaux-dark disabled:bg-bordeaux-soft text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors whitespace-nowrap"
-        >
-          {loading ? (
-            <span className="flex items-center gap-1.5">
-              <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-              </svg>
-              Ophalen…
-            </span>
-          ) : (
-            'Importeer →'
-          )}
-        </button>
-      </form>
+      </div>
+
+      <p style={{ margin: 0, fontSize: 13, color: 'var(--stone)', textAlign: 'center', lineHeight: 1.5 }}>
+        Plak een link van een receptenwebsite of TikTok-video
+      </p>
 
       {error && (
-        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">{error}</p>
+        <div style={{ background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)', padding: '10px 14px', borderRadius: '0 12px 12px 0', fontSize: 13, fontWeight: 500, borderLeft: '3px solid var(--bordeaux)' }}>
+          {error}
+        </div>
       )}
-    </div>
+
+      <button
+        type="submit"
+        disabled={loading || !url.trim()}
+        className="lb-btn lb-btn--primary"
+        style={{ width: '100%', height: 40, borderRadius: 20, fontSize: 13 }}
+      >
+        {loading ? (
+          <>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" style={{ animation: 'spin 1s linear infinite' }}>
+              <path d="M12 2a10 10 0 0 1 10 10" />
+            </svg>
+            Ophalen…
+          </>
+        ) : (
+          'Importeren'
+        )}
+      </button>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </form>
   )
 }

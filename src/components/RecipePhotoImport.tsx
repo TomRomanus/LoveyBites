@@ -39,80 +39,85 @@ export default function RecipePhotoImport({ onExtracted }: Props) {
     }
   }
 
+  function handleClear() {
+    setPreview(null)
+    setFile(null)
+    if (inputRef.current) inputRef.current.value = ''
+  }
+
   if (done) return null
 
   return (
-    <div className="bg-bordeaux-tint border border-bordeaux-soft rounded-2xl px-5 py-4 space-y-3">
+    <form onSubmit={handleConvert} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+
       <div>
-        <p className="text-sm font-semibold text-bordeaux-dark">Foto van een recept</p>
-        <p className="text-xs text-bordeaux mt-0.5">Maak een foto van een receptenboek of geschreven recept</p>
-      </div>
-
-      <form onSubmit={handleConvert} className="space-y-3">
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={handleFileChange}
-          className="hidden"
-        />
-
+        <div className="lb-eyebrow" style={{ marginBottom: 8 }}>Foto</div>
         {preview ? (
-          <div className="relative">
+          <div style={{ position: 'relative' }}>
             <img
               src={preview}
               alt="Geselecteerde foto"
-              className="w-full max-h-48 object-cover rounded-xl border border-bordeaux-soft"
+              style={{ width: '100%', maxHeight: 220, objectFit: 'cover', borderRadius: 12, border: '0.5px solid rgba(31,29,26,0.14)', display: 'block' }}
             />
             <button
               type="button"
-              onClick={() => { setPreview(null); setFile(null); if (inputRef.current) inputRef.current.value = '' }}
-              className="absolute top-2 right-2 bg-white/80 hover:bg-white text-ink-2 rounded-full w-7 h-7 flex items-center justify-center text-sm shadow"
+              onClick={handleClear}
+              style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: 14, background: 'rgba(248,244,237,0.9)', border: '0.5px solid rgba(31,29,26,0.18)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
             >
-              ✕
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
             </button>
           </div>
         ) : (
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="w-full border-2 border-dashed border-bordeaux-soft rounded-xl py-6 flex flex-col items-center gap-2 text-bordeaux hover:border-bordeaux hover:text-bordeaux-dark transition-colors bg-white"
+            style={{ width: '100%', background: 'var(--cream-card)', border: '0.5px dashed rgba(31,29,26,0.25)', borderRadius: 12, padding: '32px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, cursor: 'pointer', boxSizing: 'border-box' }}
           >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--stone)" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="11" r="2" /><path d="M3 17l5-5 4 4 3-3 6 6" />
             </svg>
-            <span className="text-sm font-medium">Foto kiezen of maken</span>
+            <span style={{ fontFamily: 'var(--sans)', fontSize: 14, fontWeight: 500, color: 'var(--stone)' }}>Foto kiezen of maken</span>
           </button>
         )}
+      </div>
 
-        {file && (
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-bordeaux hover:bg-bordeaux-dark disabled:bg-bordeaux-soft text-white text-sm font-semibold px-4 py-2 rounded-xl transition-colors whitespace-nowrap"
-            >
-              {loading ? (
-                <span className="flex items-center gap-1.5">
-                  <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                  </svg>
-                  Omzetten…
-                </span>
-              ) : (
-                'Omzetten →'
-              )}
-            </button>
-          </div>
-        )}
-      </form>
+      <p style={{ margin: 0, fontSize: 13, color: 'var(--stone)', textAlign: 'center', lineHeight: 1.5 }}>
+        Maak een foto van een receptenboek of geschreven recept
+      </p>
 
       {error && (
-        <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">{error}</p>
+        <div style={{ background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)', padding: '10px 14px', borderRadius: '0 12px 12px 0', fontSize: 13, fontWeight: 500, borderLeft: '3px solid var(--bordeaux)' }}>
+          {error}
+        </div>
       )}
-    </div>
+
+      <button
+        type="submit"
+        disabled={loading || !file}
+        className="lb-btn lb-btn--primary"
+        style={{ width: '100%', height: 40, borderRadius: 20, fontSize: 13 }}
+      >
+        {loading ? (
+          <>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" style={{ animation: 'spin 1s linear infinite' }}>
+              <path d="M12 2a10 10 0 0 1 10 10" />
+            </svg>
+            Omzetten…
+          </>
+        ) : (
+          'Importeren'
+        )}
+      </button>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </form>
   )
 }

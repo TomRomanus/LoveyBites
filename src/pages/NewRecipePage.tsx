@@ -13,7 +13,7 @@ type Mode = 'url' | 'text' | 'photo' | 'manual'
 const MODES: { id: Mode; label: string; description: string; icon: React.ReactNode }[] = [
   {
     id: 'url',
-    label: 'Vanaf URL',
+    label: 'Vanuit URL',
     description: 'Plak een receptlink of TikTok-video',
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6}>
@@ -66,6 +66,7 @@ export default function NewRecipePage() {
   const [formKey, setFormKey] = useState(0)
   const [loading, setLoading] = useState(isEdit)
   const [saving, setSaving] = useState(false)
+  const [hasTitle, setHasTitle] = useState(() => Boolean(initial?.title?.trim()))
   const [existingTags, setExistingTags] = useState<string[]>([])
 
   useEffect(() => {
@@ -123,32 +124,36 @@ export default function NewRecipePage() {
   if (!isEdit && mode === null) {
     return (
       <div className="lb-paper" style={{ minHeight: '100dvh' }}>
-        <div style={{ padding: '54px 20px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link to="/" style={{ background: 'none', border: 0, fontSize: 14, color: 'var(--ink-2)', textDecoration: 'none' }}>Annuleren</Link>
+        <div style={{
+          position: 'sticky', top: 0,
+          background: 'rgba(248, 244, 237, 0.92)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          zIndex: 10,
+          padding: '24px 20px 14px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          borderBottom: '0.5px solid var(--line)',
+        }}>
+          <button onClick={() => navigate(-1)} style={{ width: 40, height: 40, borderRadius: 20, background: 'transparent', border: '0.5px solid var(--line)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </button>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', fontWeight: 500 }}>
+            Nieuw recept
+          </div>
+          <div style={{ width: 40 }} />
         </div>
-        <div style={{ padding: '8px 24px 0' }}>
-          <div className="lb-eyebrow">NIEUW RECEPT</div>
-          <h1 style={{ margin: '6px 0 0', fontSize: 34, lineHeight: 1.05, fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500 }}>
-            <span style={{ fontStyle: 'italic' }}>Waar </span>
-            <span style={{ fontFamily: 'var(--sans)', fontStyle: 'normal', fontWeight: 700, letterSpacing: '-0.03em' }}>begint</span>
-            <span style={{ fontStyle: 'italic' }}> dit?</span>
-          </h1>
-          <p style={{ margin: '8px 0 24px', fontSize: 14, color: 'var(--stone)', lineHeight: 1.5, fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
-            We vullen het formulier voor je in. Daarna pas je aan wat nodig is.
-          </p>
-        </div>
-        <div style={{ padding: '0 20px 40px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {MODES.map(({ id: modeId, label, description, icon }) => (
-            <button key={modeId} onClick={() => handleSelectMode(modeId)} className="lb-card"
-              style={{ display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: '18px 18px', textAlign: 'left', cursor: 'pointer', border: 'none' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ padding: '8px 20px 40px' }}>
+          {MODES.map(({ id: modeId, label, description, icon }, index) => (
+            <button key={modeId} onClick={() => handleSelectMode(modeId)}
+              style={{ display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: '16px 4px', textAlign: 'left', cursor: 'pointer', background: 'transparent', border: 'none', borderBottom: index < MODES.length - 1 ? '0.5px solid var(--line)' : 'none' }}>
+              <div style={{ width: 20, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bordeaux)' }}>
                 {icon}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 17, fontWeight: 500, color: 'var(--ink)' }}>{label}</div>
                 <div style={{ fontSize: 12, color: 'var(--stone)', marginTop: 2 }}>{description}</div>
               </div>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--stone)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--stone-2)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 6l6 6-6 6" />
               </svg>
             </button>
@@ -162,14 +167,25 @@ export default function NewRecipePage() {
   if (!isEdit && isImportMode(mode) && !extracted) {
     return (
       <div className="lb-paper" style={{ minHeight: '100dvh' }}>
-        <div style={{ padding: '54px 20px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <button onClick={handleBack} style={{ background: 'none', border: 0, fontSize: 14, color: 'var(--ink-2)', cursor: 'pointer' }}>Terug</button>
-          <div style={{ fontSize: 17, fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--ink)' }}>
+        <div style={{
+          position: 'sticky', top: 0,
+          background: 'rgba(248, 244, 237, 0.92)',
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          zIndex: 10,
+          padding: '24px 20px 14px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          borderBottom: '0.5px solid var(--line)',
+        }}>
+          <button onClick={handleBack} style={{ width: 40, height: 40, borderRadius: 20, background: 'transparent', border: '0.5px solid var(--line)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </button>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', fontWeight: 500 }}>
             {MODES.find(m => m.id === mode)?.label}
           </div>
-          <div style={{ width: 60 }} />
+          <div style={{ width: 40 }} />
         </div>
-        <div style={{ padding: '20px 22px' }}>
+        <div style={{ padding: '28px 22px' }}>
           {mode === 'url' && <RecipeImport onExtracted={handleExtracted} />}
           {mode === 'text' && <RecipeTextImport onExtracted={handleExtracted} />}
           {mode === 'photo' && <RecipePhotoImport onExtracted={handleExtracted} />}
@@ -208,26 +224,44 @@ export default function NewRecipePage() {
         <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', fontWeight: 500 }}>
           {isEdit ? 'Bewerk recept' : 'Nieuw recept'}
         </div>
-        <button
-          type="submit"
-          form="recipe-form"
-          disabled={saving}
-          style={{ width: 40, height: 40, borderRadius: 20, background: saving ? 'var(--stone-2)' : 'var(--bordeaux)', border: 0, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: saving ? 'default' : 'pointer', flexShrink: 0 }}>
-          {saving
-            ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><circle cx="12" cy="12" r="8" strokeDasharray="4 4" /></svg>
-            : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
-          }
-        </button>
+        {isEdit ? (
+          <button
+            type="submit"
+            form="recipe-form"
+            disabled={saving}
+            style={{ width: 40, height: 40, borderRadius: 20, background: saving ? 'var(--stone-2)' : 'var(--bordeaux)', border: 0, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: saving ? 'default' : 'pointer', flexShrink: 0 }}>
+            {saving
+              ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><circle cx="12" cy="12" r="8" strokeDasharray="4 4" /></svg>
+              : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><path d="M20 6L9 17l-5-5" /></svg>
+            }
+          </button>
+        ) : (
+          <div style={{ width: 40 }} />
+        )}
       </div>
 
-      <div style={{ padding: '0 20px 80px' }}>
+      <div style={{ padding: '0 20px 32px' }}>
         <RecipeForm
           key={formKey}
           initial={initial}
           onSubmit={handleSubmit}
           onSavingChange={setSaving}
+          onTitleChange={setHasTitle}
           existingTags={existingTags}
         />
+        {!isEdit && (
+          <div style={{ paddingTop: 16 }}>
+            <button
+              type="submit"
+              form="recipe-form"
+              disabled={saving || !hasTitle}
+              className="lb-btn lb-btn--primary"
+              style={{ width: '100%', height: 40, borderRadius: 20, fontSize: 13 }}
+            >
+              {saving ? 'Opslaan…' : 'Toevoegen'}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

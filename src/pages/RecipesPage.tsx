@@ -405,7 +405,7 @@ export default function RecipesPage() {
       )}
 
       {error && (
-        <div style={{ margin: '20px', padding: '14px', background: 'var(--bordeaux-tint)', borderRadius: 12, fontSize: 13, color: 'var(--bordeaux)', borderLeft: '3px solid var(--bordeaux)' }}>
+        <div style={{ margin: '20px', padding: '14px', background: 'var(--bordeaux-tint)', borderRadius: '0 12px 12px 0', fontSize: 13, fontWeight: 500, color: 'var(--bordeaux)', borderLeft: '3px solid var(--bordeaux)' }}>
           {error}
         </div>
       )}
