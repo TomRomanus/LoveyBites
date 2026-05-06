@@ -286,7 +286,7 @@ export default function RecipeDetailPage() {
     setRecipe({ ...recipe, rating })
     if (ratingSavedTimer.current) clearTimeout(ratingSavedTimer.current)
     setRatingSaved(true)
-    ratingSavedTimer.current = setTimeout(() => setRatingSaved(false), 1800)
+    ratingSavedTimer.current = setTimeout(() => setRatingSaved(false), 900)
   }
 
   async function handleDelete() {
