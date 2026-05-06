@@ -124,6 +124,220 @@ const NL_DAYS_LONG = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', '
 const NL_MONTHS = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']
 const NL_MONTHS_SHORT = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
 
+function formatEntryDate(iso: string): string {
+  const d = new Date(iso + 'T00:00:00')
+  const day = NL_DAYS_SHORT[d.getDay()].toUpperCase()
+  const dd = String(d.getDate()).padStart(2, '0')
+  const mm = String(d.getMonth() + 1).padStart(2, '0')
+  return `${day} ${dd}-${mm}`
+}
+
+// ── Date Picker Input ─────────────────────────────────────────────────────────
+
+function DatePickerInput({ label, value, onChange, openLeft }: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  openLeft?: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const [monthDir, setMonthDir] = useState(1)
+  const ref = useRef<HTMLDivElement>(null)
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const selected = value ? new Date(value + 'T00:00:00') : null
+  const [viewMonth, setViewMonth] = useState<Date>(() =>
+    selected
+      ? new Date(selected.getFullYear(), selected.getMonth(), 1)
+      : new Date(today.getFullYear(), today.getMonth(), 1)
+  )
+
+  function handleOpen() {
+    setViewMonth(
+      selected
+        ? new Date(selected.getFullYear(), selected.getMonth(), 1)
+        : new Date(today.getFullYear(), today.getMonth(), 1)
+    )
+    setOpen(o => !o)
+  }
+
+  useEffect(() => {
+    if (!open) return
+    function handle(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [open])
+
+  const monthStart = startOfMonth(viewMonth)
+  const days = calendarGrid(monthStart)
+
+  function moveMonth(dir: -1 | 1) {
+    setMonthDir(dir)
+    setViewMonth(prev => {
+      const d = new Date(prev); d.setMonth(d.getMonth() + dir); return d
+    })
+  }
+
+  const displayDate = selected
+    ? `${String(selected.getDate()).padStart(2, '0')}-${String(selected.getMonth() + 1).padStart(2, '0')}-${selected.getFullYear()}`
+    : 'Kies datum'
+
+  return (
+    <div ref={ref} style={{ position: 'relative', flex: 1 }}>
+      <div className="lb-eyebrow" style={{ marginBottom: 5 }}>{label}</div>
+      <button
+        onClick={handleOpen}
+        style={{
+          width: '100%', height: 46,
+          background: open ? 'var(--cream-card)' : 'var(--paper-2)',
+          border: 0,
+          borderRadius: 14,
+          display: 'flex', alignItems: 'center', gap: 9, padding: '0 12px',
+          cursor: 'pointer',
+          boxShadow: open
+            ? '0 0 0 1.5px var(--bordeaux), 0 2px 8px rgba(107,31,42,0.08)'
+            : '0 0 0 0.5px var(--line)',
+          transition: 'background 0.15s ease, box-shadow 0.15s ease',
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--bordeaux)" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+          <rect x="3" y="4" width="18" height="18" rx="2.5" />
+          <path d="M16 2v4M8 2v4M3 10h18" />
+        </svg>
+        <span style={{
+          flex: 1, textAlign: 'left',
+          fontFamily: 'var(--mono)',
+          fontSize: 13,
+          fontWeight: selected ? 500 : 400,
+          color: selected ? 'var(--ink)' : 'var(--stone)',
+          whiteSpace: 'nowrap',
+        }}>
+          {displayDate}
+        </span>
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
+          style={{ display: 'flex', flexShrink: 0 }}
+        >
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--stone)" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </motion.span>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+            style={{
+              position: 'absolute',
+              top: 'calc(100% + 8px)',
+              ...(openLeft ? { right: 0 } : { left: 0 }),
+              zIndex: 400,
+              background: 'var(--cream-card)',
+              borderRadius: 18,
+              boxShadow: '0 10px 40px rgba(31,29,26,0.16), 0 0 0 0.5px rgba(31,29,26,0.08)',
+              padding: '14px 12px 12px',
+              width: 248,
+            }}
+          >
+            {/* Month navigation */}
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10, gap: 4 }}>
+              <button
+                onClick={() => moveMonth(-1)}
+                style={{ background: 'none', border: 0, padding: 5, color: 'var(--stone)', cursor: 'pointer', borderRadius: 8, display: 'flex', alignItems: 'center' }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M15 18l-6-6 6-6" /></svg>
+              </button>
+              <div style={{ flex: 1, overflow: 'hidden', textAlign: 'center' }}>
+                <AnimatePresence mode="popLayout" custom={monthDir} initial={false}>
+                  <motion.div
+                    key={`label-${viewMonth.getFullYear()}-${viewMonth.getMonth()}`}
+                    custom={monthDir}
+                    variants={titleVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14.5, fontWeight: 500, letterSpacing: '-0.01em' }}
+                  >
+                    <span style={{ color: 'var(--bordeaux)' }}>{NL_MONTHS[viewMonth.getMonth()]}</span>{' '}
+                    <span style={{ color: 'var(--ink)' }}>{viewMonth.getFullYear()}</span>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+              <button
+                onClick={() => moveMonth(1)}
+                style={{ background: 'none', border: 0, padding: 5, color: 'var(--stone)', cursor: 'pointer', borderRadius: 8, display: 'flex', alignItems: 'center' }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M9 6l6 6-6 6" /></svg>
+              </button>
+            </div>
+
+            {/* Day headers */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
+              {NL_DAYS_GRID.map(d => (
+                <div key={d} style={{ textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 8, letterSpacing: '0.1em', color: 'var(--stone-2)', fontWeight: 600, textTransform: 'uppercase', padding: '0 0 3px' }}>{d}</div>
+              ))}
+            </div>
+
+            {/* Calendar days */}
+            <div style={{ position: 'relative', overflow: 'hidden' }}>
+            <AnimatePresence mode="popLayout" custom={monthDir} initial={false}>
+            <motion.div
+              key={`grid-${viewMonth.getFullYear()}-${viewMonth.getMonth()}`}
+              custom={monthDir}
+              variants={pageVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}
+            >
+              {days.map(day => {
+                const isSelected = selected ? isSameDay(day, selected) : false
+                const isToday = isSameDay(day, today)
+                const inMonth = day.getMonth() === monthStart.getMonth()
+                return (
+                  <motion.button
+                    key={toISO(day)}
+                    onClick={() => { onChange(toISO(day)); setOpen(false) }}
+                    whileTap={{ scale: 0.84 }}
+                    style={{
+                      height: 30, borderRadius: isSelected ? '50%' : 8, border: 0,
+                      background: isSelected ? 'var(--bordeaux)' : 'transparent',
+                      color: isSelected ? 'var(--cream-card)' : isToday ? 'var(--bordeaux)' : inMonth ? 'var(--ink)' : 'var(--stone-2)',
+                      fontFamily: 'var(--sans)',
+                      fontSize: 12.5,
+                      fontWeight: isSelected || isToday ? 600 : 400,
+                      cursor: 'pointer',
+                      opacity: inMonth ? 1 : 0.28,
+                      position: 'relative',
+                    }}
+                  >
+                    {day.getDate()}
+                    {isToday && !isSelected && (
+                      <span style={{
+                        position: 'absolute', bottom: 3, left: '50%', transform: 'translateX(-50%)',
+                        width: 3, height: 3, borderRadius: '50%', background: 'var(--bordeaux)',
+                        display: 'block',
+                      }} />
+                    )}
+                  </motion.button>
+                )
+              })}
+            </motion.div>
+            </AnimatePresence>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 // ── Shopping List Sheet ───────────────────────────────────────────────────────
 
 interface ShoppingListSheetProps {
@@ -140,12 +354,14 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
   const [loading, setLoading] = useState(false)
   const [fetched, setFetched] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [checked, setChecked] = useState<Set<string>>(new Set())
 
-  async function fetchIngredients() {
+  async function fetchIngredients(fromDate: string, toDate: string) {
     setLoading(true)
     setFetched(false)
+    setChecked(new Set())
     try {
-      const es = await getMealPlanEntries(from, to)
+      const es = await getMealPlanEntries(fromDate, toDate)
       setEntries(es)
       const ids = [...new Set(es.map(e => e.recipeId).filter(Boolean) as string[])]
       const pairs = await Promise.all(ids.map(async id => {
@@ -161,7 +377,18 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
     }
   }
 
-  useEffect(() => { fetchIngredients() }, [])
+  useEffect(() => {
+    const t = setTimeout(() => fetchIngredients(from, to), 350)
+    return () => clearTimeout(t)
+  }, [from, to])
+
+  function toggleChecked(key: string) {
+    setChecked(prev => {
+      const next = new Set(prev)
+      next.has(key) ? next.delete(key) : next.add(key)
+      return next
+    })
+  }
 
   const sections: { label: string; day: string; ingredients: string[]; isCustom?: boolean; description?: string }[] = []
   entries.forEach(entry => {
@@ -195,7 +422,7 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
   return (
     <>
       <motion.div
-        className="lb-sheet-backdrop" style={{ animation: 'none' }}
+        className="lb-sheet-backdrop" style={{ animation: 'none', background: 'rgba(31,29,26,0.12)', backdropFilter: 'blur(1px)', WebkitBackdropFilter: 'blur(1px)' }}
         variants={{
           hidden: { opacity: 0, transition: { duration: 0.2 } },
           visible: { opacity: 1, transition: { duration: 0.24 } },
@@ -218,57 +445,164 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
             Wat we <b>nodig hebben</b>
           </h3>
         </div>
-        <div style={{ padding: '14px 22px 0', display: 'flex', gap: 8 }}>
-          <div style={{ flex: 1 }}>
-            <div className="lb-eyebrow" style={{ marginBottom: 4 }}>VAN</div>
-            <input className="lb-input" type="date" value={from} onChange={e => setFrom(e.target.value)} />
-          </div>
-          <div style={{ flex: 1 }}>
-            <div className="lb-eyebrow" style={{ marginBottom: 4 }}>TOT</div>
-            <input className="lb-input" type="date" value={to} onChange={e => setTo(e.target.value)} />
-          </div>
-          <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-            <button onClick={fetchIngredients} disabled={loading} className="lb-btn lb-btn--ghost lb-btn--small" style={{ height: 46 }}>
-              {loading ? '…' : 'Laden'}
-            </button>
-          </div>
+        <div style={{ padding: '14px 22px 16px', display: 'flex', gap: 10, alignItems: 'flex-end' }}>
+          <DatePickerInput label="VAN" value={from} onChange={setFrom} />
+          <div style={{ color: 'var(--stone-2)', fontSize: 14, marginBottom: 14, flexShrink: 0 }}>→</div>
+          <DatePickerInput label="TOT" value={to} onChange={setTo} openLeft />
         </div>
-        <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '14px 22px' }}>
-          {loading && (
-            <div style={{ textAlign: 'center', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic', padding: 30 }}>Laden…</div>
-          )}
-          {fetched && !loading && sections.length === 0 && (
-            <div style={{ textAlign: 'center', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic', padding: 30 }}>
-              Geen geplande recepten in deze periode.
-            </div>
-          )}
-          {!loading && sections.map((s, i) => (
-            <div key={i} style={{ marginBottom: 16, paddingBottom: 14, borderBottom: '0.5px solid var(--line-soft)' }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--stone)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{s.day}</div>
-              <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, fontWeight: 500, marginTop: 2, marginBottom: 6, color: 'var(--bordeaux)' }}>{s.label}</div>
-              {s.isCustom ? (
-                <div style={{ fontSize: 14, color: 'var(--ink-2)', fontStyle: 'italic' }}>{s.description}</div>
-              ) : (
-                s.ingredients.map((x, j) => (
-                  <div key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, padding: '4px 0' }}>
-                    <span style={{ color: 'var(--bordeaux)', fontFamily: 'var(--serif)' }}>·</span>
-                    <span>{x}</span>
-                  </div>
-                ))
-              )}
-            </div>
-          ))}
+        <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '6px 22px' }}>
+          <AnimatePresence mode="wait">
+            {loading && (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                style={{ textAlign: 'center', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic', padding: 30 }}
+              >
+                Laden…
+              </motion.div>
+            )}
+            {fetched && !loading && sections.length === 0 && (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
+                style={{ textAlign: 'center', color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic', padding: 30 }}
+              >
+                Geen geplande recepten in deze periode.
+              </motion.div>
+            )}
+            {!loading && sections.length > 0 && (
+              <motion.div
+                key="content"
+                initial="hidden"
+                animate="visible"
+                exit={{ opacity: 0, transition: { duration: 0.12 } }}
+                variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.07, delayChildren: 0.04 } } }}
+              >
+                {sections.map((s, i) => (
+                  <motion.div
+                    key={i}
+                    variants={{
+                      hidden: { opacity: 0, y: 10 },
+                      visible: { opacity: 1, y: 0, transition: { duration: 0.22, ease: [0.2, 0, 0, 1] } },
+                    }}
+                    style={{ marginBottom: 16, paddingBottom: 14, borderBottom: '0.5px solid var(--line-soft)' }}
+                  >
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--stone)', letterSpacing: '0.1em' }}>{formatEntryDate(s.day)}</div>
+                    <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, fontWeight: 500, marginTop: 2, marginBottom: 6, color: 'var(--bordeaux)' }}>{s.label}</div>
+                    {s.isCustom ? (
+                      <div style={{ fontSize: 14, color: 'var(--ink-2)', fontStyle: 'italic' }}>{s.description}</div>
+                    ) : (
+                      s.ingredients.map((x, j) => {
+                        const key = `${i}-${j}`
+                        const isChecked = checked.has(key)
+                        return (
+                          <button key={j} onClick={() => toggleChecked(key)} style={{
+                            display: 'flex', alignItems: 'center', gap: 12, padding: '6px 0',
+                            background: 'transparent', border: 0, textAlign: 'left',
+                            width: '100%', cursor: 'pointer',
+                          }}>
+                            <motion.span
+                              initial={false}
+                              animate={{
+                                background: isChecked ? 'var(--bordeaux)' : 'transparent',
+                                borderColor: isChecked ? 'var(--bordeaux)' : 'var(--stone-2)',
+                                scale: isChecked ? [1, 0.82, 1] : 1,
+                              }}
+                              transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
+                              style={{ width: 22, height: 22, borderRadius: 6, border: '1.5px solid', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                                <motion.path
+                                  d="M5 12l5 5L20 7"
+                                  strokeLinecap="round" strokeLinejoin="round"
+                                  initial={false}
+                                  animate={{ pathLength: isChecked ? 1 : 0, opacity: isChecked ? 1 : 0 }}
+                                  transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                                />
+                              </svg>
+                            </motion.span>
+                            <span style={{ flex: 1, fontSize: 14, color: isChecked ? 'var(--stone)' : 'var(--ink)', opacity: isChecked ? 0.5 : 1, transition: 'color 0.2s ease, opacity 0.2s ease', overflow: 'hidden', position: 'relative' }}>
+                              <span style={{ display: 'block', position: 'relative', width: 'fit-content' }}>
+                                {x}
+                                <motion.span
+                                  aria-hidden
+                                  initial={false}
+                                  animate={{ scaleX: isChecked ? 1 : 0 }}
+                                  transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                                  style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: 1.5, background: 'currentColor', transformOrigin: 'left', pointerEvents: 'none' }}
+                                />
+                              </span>
+                            </span>
+                          </button>
+                        )
+                      })
+                    )}
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-        {fetched && sections.length > 0 && (
-          <div style={{ padding: '0 22px 14px' }}>
-            <button onClick={handleCopy} className="lb-btn lb-btn--primary" style={{ width: '100%' }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                <rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-              </svg>
-              {copied ? 'Gekopieerd!' : 'Kopieer naar klembord'}
-            </button>
-          </div>
-        )}
+        <AnimatePresence>
+          {fetched && sections.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+              style={{ padding: '20px 22px 14px' }}
+            >
+              <motion.button
+                onClick={handleCopy}
+                className="lb-btn lb-btn--primary"
+                style={{ width: '100%' }}
+                whileTap={{ scale: 0.97 }}
+              >
+                {/* Content swap */}
+                <AnimatePresence mode="wait" initial={false}>
+                  {copied ? (
+                    <motion.span
+                      key="success"
+                      initial={{ opacity: 0, y: 10, scale: 0.88 }}
+                      animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 420, damping: 26 } }}
+                      exit={{ opacity: 0, y: -10, scale: 0.88, transition: { duration: 0.1, ease: [0.4, 0, 1, 1] } }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                        <motion.path
+                          d="M5 13l4 4L19 7"
+                          initial={{ pathLength: 0, opacity: 0 }}
+                          animate={{ pathLength: 1, opacity: 1 }}
+                          transition={{ duration: 0.32, ease: [0.2, 0, 0, 1], delay: 0.06 }}
+                        />
+                      </svg>
+                      Gekopieerd!
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="idle"
+                      initial={{ opacity: 0, y: -10, scale: 0.88 }}
+                      animate={{ opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 420, damping: 26 } }}
+                      exit={{ opacity: 0, y: 10, scale: 0.88, transition: { duration: 0.1, ease: [0.4, 0, 1, 1] } }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                      </svg>
+                      Kopieer
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     </>
   )
