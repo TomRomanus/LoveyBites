@@ -196,12 +196,16 @@ export default function NewRecipePage() {
           <button onClick={handleBack} style={{ width: 40, height: 40, borderRadius: 20, background: 'transparent', border: '0.5px solid var(--line)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </button>
+        ) : isEdit ? (
+          <button onClick={() => navigate(-1)} style={{ width: 40, height: 40, borderRadius: 20, background: 'transparent', border: '0.5px solid var(--line)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+          </button>
         ) : (
-          <Link to={id ? `/recipe/${id}` : '/'} style={{ width: 40, height: 40, borderRadius: 20, background: 'transparent', border: '0.5px solid var(--line)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Link to="/" style={{ width: 40, height: 40, borderRadius: 20, background: 'transparent', border: '0.5px solid var(--line)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
           </Link>
         )}
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)' }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--stone)', fontWeight: 500 }}>
           {isEdit ? 'Bewerk recept' : 'Nieuw recept'}
         </div>
         <button

@@ -346,7 +346,7 @@ export default function RecipeDetailPage() {
         justifyContent: 'flex-start',
       } as React.CSSProperties}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <button onClick={() => navigate('/')}
+          <button onClick={() => navigate(-1)}
             style={{ width: 40, height: 40, borderRadius: 20, background: 'transparent', border: '0.5px solid rgba(255,250,240,0.45)', color: 'var(--cream-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6" /></svg>
           </button>
