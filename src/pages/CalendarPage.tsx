@@ -314,37 +314,77 @@ function DayDetailSheet({ date, entries, recipeMap, onDelete, onAdd, onClose }: 
           </h3>
         </div>
         <div style={{ padding: '16px 22px', overflow: 'auto', flex: 1, minHeight: 0 }}>
-          {entries.length === 0 ? (
-            <div style={{ padding: '20px 0', color: 'var(--stone)', fontStyle: 'italic', fontFamily: 'var(--serif)', textAlign: 'center' }}>
-              Nog niets gepland.
-            </div>
-          ) : entries.map(e => {
-            const recipe = recipeMap.get(e.recipeId ?? '')
-            return (
-              <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '0.5px solid var(--line-soft)' }}>
-                {recipe ? (
-                  <div className="lb-color-block" style={{ '--block-bg': recipe.color ?? DEFAULT_RECIPE_COLOR, width: 48, height: 48, borderRadius: 10, padding: 0 } as React.CSSProperties} />
-                ) : (
-                  <div style={{ width: 48, height: 48, borderRadius: 10, background: 'var(--paper-3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--stone)' }}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round"><path d="M5 6h14M5 12h14M5 18h9" /></svg>
-                  </div>
-                )}
-                <div onClick={() => recipe && nav(`/recipe/${recipe.id}`)}
-                  style={{ flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, cursor: recipe ? 'pointer' : 'default' }}>
-                  {recipe ? recipe.title : e.customDescription}
-                </div>
-                <button onClick={() => onDelete(e.id)} style={{ background: 'none', border: 0, color: 'var(--stone)', padding: 8, cursor: 'pointer' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
-                  </svg>
-                </button>
-              </div>
-            )
-          })}
-          <button onClick={onAdd} className="lb-btn lb-btn--ghost" style={{ width: '100%', marginTop: 14 }}>
+          <AnimatePresence initial={false}>
+            {entries.length === 0 && (
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
+                style={{ padding: '20px 0', color: 'var(--stone)', fontStyle: 'italic', fontFamily: 'var(--serif)', textAlign: 'center' }}
+              >
+                Nog niets gepland.
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.07, delayChildren: 0.08 } } }}
+          >
+            <AnimatePresence initial={false}>
+              {entries.map(e => {
+                const recipe = recipeMap.get(e.recipeId ?? '')
+                const color = recipe?.color ?? DEFAULT_RECIPE_COLOR
+                return (
+                  <motion.div
+                    key={e.id}
+                    variants={{
+                      hidden: { opacity: 0, x: 14 },
+                      visible: { opacity: 1, x: 0, transition: { duration: 0.22, ease: [0.2, 0, 0, 1] } },
+                    }}
+                    exit={{ opacity: 0, height: 0, x: 6, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }}
+                    style={{ overflow: 'hidden' }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', borderBottom: '0.5px solid var(--line-soft)' }}>
+                      <div style={{ width: 2.5, alignSelf: 'stretch', borderRadius: 2, flexShrink: 0, background: recipe ? color : 'var(--stone)' }} />
+                      <span
+                        onClick={() => recipe && nav(`/recipe/${recipe.id}`)}
+                        style={{
+                          flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16,
+                          lineHeight: 1.25, fontWeight: 500,
+                          color: recipe ? color : 'var(--stone)',
+                          cursor: recipe ? 'pointer' : 'default',
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {recipe ? recipe.title : e.customDescription}
+                      </span>
+                      <motion.button
+                        onClick={() => onDelete(e.id)}
+                        whileTap={{ scale: 0.78 }}
+                        style={{ background: 'none', border: 0, padding: 0, marginLeft: 1, color: 'var(--stone-2)', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center' }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
+                          <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </AnimatePresence>
+          </motion.div>
+          <motion.button
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.22, delay: 0.22, ease: [0.2, 0, 0, 1] }}
+            onClick={onAdd} className="lb-btn lb-btn--ghost" style={{ width: '100%', marginTop: 14 }}
+          >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
             Maaltijd toevoegen
-          </button>
+          </motion.button>
         </div>
       </motion.div>
     </>
