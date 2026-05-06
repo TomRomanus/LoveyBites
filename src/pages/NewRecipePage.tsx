@@ -153,10 +153,10 @@ export default function NewRecipePage() {
   async function handleSubmit(data: RecipeInput) {
     if (id) {
       await updateRecipe(id, data)
-      navigate(`/recipe/${id}`)
+      navigate(`/recipe/${id}`, { replace: true })
     } else {
       const newId = await createRecipe(data)
-      navigate(`/recipe/${newId}`)
+      navigate(`/recipe/${newId}`, { replace: true })
     }
   }
 
