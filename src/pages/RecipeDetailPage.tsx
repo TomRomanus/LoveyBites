@@ -556,7 +556,19 @@ export default function RecipeDetailPage() {
           </h2>
           <div style={{ marginTop: 0 }}>
             {(recipe.sources ?? []).map((s, i) => (
-              <a key={i} href={s.url} target="_blank" rel="noopener noreferrer" style={{
+              <a key={i} href={s.url} target="_blank" rel="noopener noreferrer"
+                onClick={(e) => {
+                  // On iOS/Android PWA standalone, target="_blank" opens in an embedded browser sheet.
+                  // Navigating the current window to an external URL makes the OS open the real browser instead.
+                  const isStandalone =
+                    (window.navigator as { standalone?: boolean }).standalone === true ||
+                    window.matchMedia('(display-mode: standalone)').matches
+                  if (isStandalone) {
+                    e.preventDefault()
+                    window.location.href = s.url
+                  }
+                }}
+                style={{
                 display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0',
                 color: 'var(--ink)', textDecoration: 'none', borderBottom: '0.5px solid var(--line-soft)',
               }}>
