@@ -116,6 +116,22 @@ function extractLeafTexts(nodes: IngredientNode[]): string[] {
   )
 }
 
+function scaleIngredient(text: string, factor: number): string {
+  if (factor === 1) return text
+  return text.replace(/(\d+\/\d+|\d+\.?\d*)/, match => {
+    let value: number
+    if (match.includes('/')) {
+      const [n, d] = match.split('/')
+      value = parseInt(n) / parseInt(d)
+    } else {
+      value = parseFloat(match)
+    }
+    const scaled = value * factor
+    if (Number.isInteger(scaled)) return String(scaled)
+    return String(parseFloat(scaled.toFixed(2)))
+  })
+}
+
 // Monday-first grid header labels
 const NL_DAYS_GRID = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
 // Indexed by d.getDay() (0 = Sunday)
@@ -390,26 +406,34 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
     })
   }
 
-  const sections: { label: string; day: string; ingredients: string[]; isCustom?: boolean; description?: string }[] = []
+  const sectionsMap = new Map<string, { label: string; days: string[]; baseIngredients: string[]; count: number }>()
   entries.forEach(entry => {
-    if (entry.recipeId) {
-      const recipe = recipeMap.get(entry.recipeId)
-      if (recipe) {
-        sections.push({
-          label: recipe.title,
-          day: entry.date,
-          ingredients: extractLeafTexts(recipe.ingredients),
-        })
-      }
-    } else if (entry.customDescription) {
-      sections.push({ label: entry.date, day: entry.date, isCustom: true, description: entry.customDescription, ingredients: [] })
+    if (!entry.recipeId) return
+    const recipe = recipeMap.get(entry.recipeId)
+    if (!recipe) return
+    const existing = sectionsMap.get(entry.recipeId)
+    if (existing) {
+      existing.days.push(entry.date)
+      existing.count += 1
+    } else {
+      sectionsMap.set(entry.recipeId, {
+        label: recipe.title,
+        days: [entry.date],
+        baseIngredients: extractLeafTexts(recipe.ingredients),
+        count: 1,
+      })
     }
   })
+  const sections = [...sectionsMap.values()].map(s => ({
+    label: s.label,
+    days: s.days,
+    ingredients: s.baseIngredients.map(i => scaleIngredient(i, s.count)),
+  }))
 
   function buildCopyText() {
     return sections.map(s => {
-      if (s.isCustom) return `${s.day}\n  ${s.description}`
-      return `${s.label} (${s.day}):\n${s.ingredients.map(i => `  - ${i}`).join('\n')}`
+      const dayStr = s.days.map(formatEntryDate).join(', ')
+      return `${s.label} (${dayStr}):\n${s.ingredients.map(i => `  - ${i}`).join('\n')}`
     }).join('\n\n')
   }
 
@@ -493,12 +517,11 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
                     }}
                     style={{ marginBottom: 16, paddingBottom: 14, borderBottom: '0.5px solid var(--line-soft)' }}
                   >
-                    <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--stone)', letterSpacing: '0.1em' }}>{formatEntryDate(s.day)}</div>
+                    <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--stone)', letterSpacing: '0.1em' }}>
+                      {s.days.map(formatEntryDate).join(' · ')}
+                    </div>
                     <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, fontWeight: 500, marginTop: 2, marginBottom: 6, color: 'var(--bordeaux)' }}>{s.label}</div>
-                    {s.isCustom ? (
-                      <div style={{ fontSize: 14, color: 'var(--ink-2)', fontStyle: 'italic' }}>{s.description}</div>
-                    ) : (
-                      s.ingredients.map((x, j) => {
+                    {s.ingredients.map((x, j) => {
                         const key = `${i}-${j}`
                         const isChecked = checked.has(key)
                         return (
@@ -542,7 +565,7 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
                           </button>
                         )
                       })
-                    )}
+                    }
                   </motion.div>
                 ))}
               </motion.div>
