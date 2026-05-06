@@ -242,6 +242,8 @@ export default function RecipeDetailPage() {
   const [showActions, setShowActions] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [ratingSaved, setRatingSaved] = useState(false)
+  const ratingSavedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -282,6 +284,9 @@ export default function RecipeDetailPage() {
     if (!id || !recipe) return
     await updateRecipe(id, { rating })
     setRecipe({ ...recipe, rating })
+    if (ratingSavedTimer.current) clearTimeout(ratingSavedTimer.current)
+    setRatingSaved(true)
+    ratingSavedTimer.current = setTimeout(() => setRatingSaved(false), 1800)
   }
 
   async function handleDelete() {
@@ -378,7 +383,29 @@ export default function RecipeDetailPage() {
             {recipe.description}
           </p>
         )}
-        <Stars value={recipe.rating ?? 0} onChange={handleRating} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Stars value={recipe.rating ?? 0} onChange={handleRating} />
+          <AnimatePresence>
+            {ratingSaved && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.7, x: -4 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.7, x: -4 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+                style={{ color: 'var(--bordeaux)' }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                  <motion.path
+                    d="M5 13l4 4L19 7"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.28, ease: [0.2, 0, 0, 1] }}
+                  />
+                </svg>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Cook mode CTA */}

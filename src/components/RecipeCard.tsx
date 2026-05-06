@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import type { Recipe } from '../types/recipe'
 import { DEFAULT_RECIPE_COLOR } from '../utils/recipeDisplay'
@@ -38,7 +39,7 @@ export default function RecipeCard({ recipe, variant = 'default', onAddToCalenda
 
   if (variant === 'feature') {
     return (
-      <div className="lb-card" style={{ overflow: 'hidden' }}>
+      <motion.div className="lb-card" style={{ overflow: 'hidden' }} whileTap={{ scale: 0.985 }} transition={{ type: 'spring', stiffness: 400, damping: 30 }}>
         <Link to={`/recipe/${recipe.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
           {/* Color block hero */}
           <div className="lb-color-block" style={{
@@ -79,12 +80,12 @@ export default function RecipeCard({ recipe, variant = 'default', onAddToCalenda
             <CalendarIcon />
           </button>
         )}
-      </div>
+      </motion.div>
     )
   }
 
   return (
-    <div style={{ padding: '10px 0', borderBottom: '0.5px solid var(--line)', position: 'relative' }}>
+    <motion.div whileTap={{ scale: 0.98 }} transition={{ type: 'spring', stiffness: 400, damping: 30 }} style={{ padding: '10px 0', borderBottom: '0.5px solid var(--line)', position: 'relative' }}>
       <Link to={`/recipe/${recipe.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
         <h3 style={{ margin: 0, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 18, fontWeight: 500, lineHeight: 1.15, letterSpacing: '-0.015em', color: 'var(--ink)' }}>
           {recipe.title}
@@ -107,7 +108,7 @@ export default function RecipeCard({ recipe, variant = 'default', onAddToCalenda
         )}
         <Stars value={recipe.rating ?? 0} />
       </Link>
-    </div>
+    </motion.div>
   )
 }
 

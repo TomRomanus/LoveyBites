@@ -522,11 +522,18 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
                       {s.days.map(formatEntryDate).join(' · ')}
                     </div>
                     <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, fontWeight: 500, marginTop: 2, marginBottom: 6, color: 'var(--bordeaux)' }}>{s.label}</div>
+                    <motion.div
+                      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.035, delayChildren: 0.06 } } }}
+                    >
                     {s.ingredients.map((x, j) => {
                         const key = `${i}-${j}`
                         const isChecked = checked.has(key)
                         return (
-                          <button key={j} onClick={() => toggleChecked(key)} style={{
+                          <motion.div
+                            key={j}
+                            variants={{ hidden: { opacity: 0, x: -8 }, visible: { opacity: 1, x: 0, transition: { duration: 0.18, ease: [0.2, 0, 0, 1] } } }}
+                          >
+                          <button onClick={() => toggleChecked(key)} style={{
                             display: 'flex', alignItems: 'center', gap: 12, padding: '6px 0',
                             background: 'transparent', border: 0, textAlign: 'left',
                             width: '100%', cursor: 'pointer',
@@ -564,9 +571,11 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
                               </span>
                             </span>
                           </button>
+                          </motion.div>
                         )
                       })
                     }
+                    </motion.div>
                   </motion.div>
                 ))}
               </motion.div>
