@@ -428,7 +428,7 @@ function LeafRow({ node, path, isOnly, isLast, allNodes, labels, onChange, ingre
 
   return (
     <div style={{ borderBottom: isLast ? 'none' : '0.5px solid var(--line-soft)' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: ordered ? 14 : 6, padding: ordered ? '8px 0' : '6px 0' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: ordered ? 8 : 6, padding: ordered ? '8px 0' : '6px 0' }}>
         {ordered ? (
           // Steps: grip slides in alongside the number — animate width so layout shifts smoothly
           <motion.div
@@ -469,7 +469,7 @@ function LeafRow({ node, path, isOnly, isLast, allNodes, labels, onChange, ingre
               value={node.text}
               onChange={(e) => onChange(replaceAt(allNodes, path, { ...node, text: e.target.value }))}
               rows={1}
-              style={{ ...leafInputStyle, flex: 'none', width: '100%', lineHeight: 1.5, padding: '0 4px 0' }}
+              style={{ ...leafInputStyle, flex: 'none', width: '100%', boxSizing: 'border-box', lineHeight: 1.5, padding: '0 4px 0 0' }}
               placeholder={labels.leafPlaceholder}
             />
           </div>

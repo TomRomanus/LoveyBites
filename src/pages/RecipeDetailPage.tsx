@@ -527,7 +527,7 @@ export default function RecipeDetailPage() {
                       <div style={{ width: 22, height: 1.5, background: 'var(--bordeaux)', borderRadius: 1, opacity: 0.55, marginBottom: 8 }} />
                     </>
                   )}
-                  <div style={{ display: 'flex', gap: 14, padding: '8px 0', borderBottom: '0.5px solid var(--line-soft)' }}>
+                  <div style={{ display: 'flex', gap: 8, padding: '8px 0', borderBottom: '0.5px solid var(--line-soft)' }}>
                     <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 22, flexShrink: 0, lineHeight: 1.1, paddingTop: 1 }}>
                       {num}
                     </div>
