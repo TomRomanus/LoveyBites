@@ -15,6 +15,7 @@ dist-ssr/
 .idea/
 .claude/
 .superpowers/
+docs/superpowers/
 *.suo
 *.ntvs*
 *.njsproj

@@ -1,19 +1,19 @@
 import { useLayoutEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { AuthProvider, useAuth } from './contexts/AuthContext'
-import ProtectedRoute from './components/ProtectedRoute'
-import BottomNav from './components/BottomNav'
-import LoadingLogo from './components/LoadingLogo'
-import LoginPage from './pages/LoginPage'
-import RecipesPage from './pages/RecipesPage'
-import RecipeDetailPage from './pages/RecipeDetailPage'
-import NewRecipePage from './pages/NewRecipePage'
-import CalendarPage from './pages/CalendarPage'
+import { AuthProvider, useAuth } from './auth/contexts/AuthContext'
+import ProtectedRoute from './auth/components/ProtectedRoute'
+import BottomNav from './shared/components/BottomNav'
+import LoadingLogo from './shared/components/LoadingLogo'
+import LoginPage from './auth/pages/LoginPage'
+import RecipesPage from './recipe/pages/RecipesPage'
+import RecipeDetailPage from './recipe/pages/RecipeDetailPage'
+import RecipeFormPage from './recipe/pages/RecipeFormPage'
+import CalendarPage from './calendar/pages/CalendarPage'
 
 const NAV_ROUTES = ['/', '/calendar']
 
-function AppShell() {
+const AppShell = () => {
   const { loading } = useAuth()
   const location = useLocation()
   const showNav = NAV_ROUTES.includes(location.pathname)
@@ -45,8 +45,8 @@ function AppShell() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<ProtectedRoute><RecipesPage /></ProtectedRoute>} />
           <Route path="/recipe/:id" element={<ProtectedRoute><RecipeDetailPage /></ProtectedRoute>} />
-          <Route path="/new" element={<ProtectedRoute><NewRecipePage /></ProtectedRoute>} />
-          <Route path="/edit/:id" element={<ProtectedRoute><NewRecipePage /></ProtectedRoute>} />
+          <Route path="/new" element={<ProtectedRoute><RecipeFormPage /></ProtectedRoute>} />
+          <Route path="/edit/:id" element={<ProtectedRoute><RecipeFormPage /></ProtectedRoute>} />
           <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
         </Routes>
         </motion.div>
@@ -56,12 +56,12 @@ function AppShell() {
   )
 }
 
-export default function App() {
-  return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppShell />
-      </BrowserRouter>
-    </AuthProvider>
-  )
-}
+const App = () => (
+  <AuthProvider>
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
+  </AuthProvider>
+)
+
+export default App
