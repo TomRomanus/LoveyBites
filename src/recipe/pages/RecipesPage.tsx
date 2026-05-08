@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { sheetVariants, backdropVariants } from '../../shared/constants/animations'
 import { Link, useNavigate } from 'react-router-dom'
 import { Check, Search, X, SlidersHorizontal, ArrowUpDown, ChevronDown, Plus } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
@@ -25,17 +26,6 @@ const SORT_LABELS: Record<SortOption, string> = {
   'rating-asc': 'Laagste beoordeling',
 }
 
-const sheetVariants = {
-  hidden: {
-    y: '100%',
-    transition: { type: 'tween' as const, duration: 0.22, ease: [0.4, 0, 1, 1] as const },
-  },
-  visible: { y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 32 } },
-}
-const backdropVariants = {
-  hidden: { opacity: 0, transition: { duration: 0.2 } },
-  visible: { opacity: 1, transition: { duration: 0.24 } },
-}
 
 const FilterSheet = ({
   activeTags,

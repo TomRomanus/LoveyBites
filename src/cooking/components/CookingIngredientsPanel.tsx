@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Minus, Plus } from 'lucide-react'
+import IngredientCheckbox from '../../shared/components/IngredientCheckbox'
 import type { Recipe } from '../../recipe/types/recipe'
 import type { TreeNode } from '../types/cooking'
 
@@ -60,36 +61,7 @@ const IngredientRow = ({
       cursor: 'pointer',
     }}
   >
-    <motion.span
-      initial={false}
-      animate={{
-        background: isChecked ? 'var(--bordeaux)' : 'transparent',
-        borderColor: isChecked ? 'transparent' : 'rgba(248,244,237,0.4)',
-        scale: isChecked ? [1, 0.82, 1] : 1,
-      }}
-      transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
-      style={{
-        width: 22,
-        height: 22,
-        borderRadius: 6,
-        border: '1.5px solid',
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexShrink: 0,
-      }}
-    >
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
-        <motion.path
-          d="M5 12l5 5L20 7"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          initial={false}
-          animate={{ pathLength: isChecked ? 1 : 0, opacity: isChecked ? 1 : 0 }}
-          transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-        />
-      </svg>
-    </motion.span>
+    <IngredientCheckbox checked={isChecked} theme="dark" />
     <span
       style={{
         fontSize: 15,

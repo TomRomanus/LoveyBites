@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useParams, useNavigate } from 'react-router-dom'
@@ -6,8 +6,6 @@ import {
   ChevronLeft,
   MoreHorizontal,
   Play,
-  Minus,
-  Plus,
   Pencil,
   Trash2,
   Link,
@@ -23,105 +21,9 @@ import { collectIngredientMap } from '../utils/ingredientUtils'
 import AddToCalendarModal from '../../calendar/components/AddToCalendarModal'
 import { flattenIngredientSections, flattenSteps } from '../utils/recipeDisplay'
 import Stars from '../components/Stars'
-
-const PortionStepper = ({
-  value,
-  onChange,
-  label,
-  dir,
-}: {
-  value: number
-  onChange: (v: number) => void
-  label: string
-  dir: 'up' | 'down' | null
-}) => (
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      background: 'var(--paper-2)',
-      borderRadius: 16,
-      padding: 3,
-    }}
-  >
-    <button
-      onClick={() => onChange(Math.max(1, value - 1))}
-      style={{
-        width: 30,
-        height: 30,
-        borderRadius: 13,
-        background: 'var(--cream-card)',
-        border: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
-        cursor: 'pointer',
-      }}
-    >
-      <Minus size={14} strokeWidth={2.4} />
-    </button>
-    <div
-      style={{
-        minWidth: 72,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4,
-        fontFamily: 'var(--mono)',
-        fontSize: 12,
-        color: 'var(--ink)',
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-      }}
-    >
-      <div style={{ overflow: 'hidden', position: 'relative' }}>
-        <AnimatePresence mode="popLayout" custom={dir}>
-          <motion.span
-            key={value}
-            custom={dir}
-            variants={{
-              enter: (d: 'up' | 'down' | null) => ({
-                y: d === 'up' ? 10 : d === 'down' ? -10 : 0,
-                opacity: 0,
-              }),
-              center: { y: 0, opacity: 1 },
-              exit: (d: 'up' | 'down' | null) => ({
-                y: d === 'up' ? -10 : d === 'down' ? 10 : 0,
-                opacity: 0,
-              }),
-            }}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            style={{ display: 'block' }}
-          >
-            {value}
-          </motion.span>
-        </AnimatePresence>
-      </div>
-      <span>{label}</span>
-    </div>
-    <button
-      onClick={() => onChange(value + 1)}
-      style={{
-        width: 30,
-        height: 30,
-        borderRadius: 13,
-        background: 'var(--cream-card)',
-        border: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
-        cursor: 'pointer',
-      }}
-    >
-      <Plus size={14} strokeWidth={2.4} />
-    </button>
-  </div>
-)
+import PortionStepper from '../components/PortionStepper'
+import IngredientCheckbox from '../../shared/components/IngredientCheckbox'
+import useDelayedReset from '../../shared/hooks/useDelayedReset'
 
 const RecipeDetailPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -141,8 +43,8 @@ const RecipeDetailPage = () => {
   const [showActions, setShowActions] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const [ratingSaved, setRatingSaved] = useState(false)
-  const ratingSavedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [ratingTick, setRatingTick] = useState(0)
+  const showRatingSaved = useDelayedReset(ratingTick, 0, 900) > 0
 
   useEffect(() => {
     if (recipe) {
@@ -190,9 +92,7 @@ const RecipeDetailPage = () => {
     if (!id || !recipe) return
     await updateRecipe(id, { rating })
     queryClient.setQueryData(recipeKeys.detail(id), { ...recipe, rating })
-    if (ratingSavedTimer.current) clearTimeout(ratingSavedTimer.current)
-    setRatingSaved(true)
-    ratingSavedTimer.current = setTimeout(() => setRatingSaved(false), 900)
+    setRatingTick((t) => t + 1)
   }
 
   const handleDelete = async () => {
@@ -367,7 +267,7 @@ const RecipeDetailPage = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Stars value={recipe.rating ?? 0} onChange={handleRating} />
           <AnimatePresence>
-            {ratingSaved && (
+            {showRatingSaved && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.7, x: -4 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}
@@ -493,43 +393,7 @@ const RecipeDetailPage = () => {
                         cursor: 'pointer',
                       }}
                     >
-                      <motion.span
-                        initial={false}
-                        animate={{
-                          background: isChecked ? 'var(--bordeaux)' : 'transparent',
-                          borderColor: isChecked ? 'var(--bordeaux)' : 'var(--stone-2)',
-                          scale: isChecked ? [1, 0.82, 1] : 1,
-                        }}
-                        transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
-                        style={{
-                          width: 22,
-                          height: 22,
-                          borderRadius: 6,
-                          border: '1.5px solid',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                        }}
-                      >
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="white"
-                          strokeWidth="3"
-                        >
-                          <motion.path
-                            d="M5 12l5 5L20 7"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            initial={false}
-                            animate={{ pathLength: isChecked ? 1 : 0, opacity: isChecked ? 1 : 0 }}
-                            transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                          />
-                        </svg>
-                      </motion.span>
+                      <IngredientCheckbox checked={isChecked} />
                       <span
                         style={{
                           flex: 1,

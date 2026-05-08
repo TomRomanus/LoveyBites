@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { collectIngredientMap } from '../../recipe/utils/ingredientUtils'
 import type { CookingScreenProps, CookTab } from '../types/cooking'
 import { flattenCookSteps } from '../utils/cookingUtils'
+import useBodyScrollLock from '../../shared/hooks/useBodyScrollLock'
 import CookingHeader from './CookingHeader'
 import CookingTabs from './CookingTabs'
 import CookingStepsPanel from './CookingStepsPanel'
@@ -35,12 +36,7 @@ const CookingScreen = ({
     onPortionsChange(p)
   }
 
-  useEffect(() => {
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [])
+  useBodyScrollLock(true)
 
   if (total === 0) return null
 

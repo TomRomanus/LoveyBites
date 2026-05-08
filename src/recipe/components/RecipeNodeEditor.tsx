@@ -1,6 +1,7 @@
 import { useState, createContext, useContext } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { sheetVariants, backdropVariants } from '../../shared/constants/animations'
 import { X, Plus, GripVertical, Check } from 'lucide-react'
 import { produce } from 'immer'
 import {
@@ -26,16 +27,6 @@ import type { IngredientNode } from '../types/recipe'
 export { pruneEmpty } from '../utils/ingredientUtils'
 import AutoGrowTextarea from '../../shared/components/AutoGrowTextarea'
 
-// ── Sheet animation ──────────────────────────────────────────────────────────
-
-const sheetVariants = {
-  hidden: {
-    y: '100%',
-    transition: { type: 'tween' as const, duration: 0.22, ease: [0.4, 0, 1, 1] as const },
-  },
-  visible: { y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 32 } },
-}
-
 // ── Ingredient picker sheet ──────────────────────────────────────────────────
 
 const IngredientPickerSheet = ({
@@ -51,11 +42,6 @@ const IngredientPickerSheet = ({
 }) => {
   const [visible, setVisible] = useState(true)
   const close = () => setVisible(false)
-
-  const backdropVariants = {
-    hidden: { opacity: 0, transition: { duration: 0.2 } },
-    visible: { opacity: 1, transition: { duration: 0.24 } },
-  }
 
   return createPortal(
     <AnimatePresence onExitComplete={onClose}>
