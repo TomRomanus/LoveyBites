@@ -17,7 +17,7 @@ function locateAddButton(page: Page) {
   return page
     .locator('button')
     .filter({
-      has: page.locator('svg path[d*="M12 5v14M5 12h14"]'),
+      has: page.locator('svg path[d*="M5 12h14"]'),
     })
     .first()
 }
@@ -26,7 +26,7 @@ function locateShoppingButton(page: Page) {
   return page
     .locator('button')
     .filter({
-      has: page.locator('svg path[d*="M6 2L3 6v14"]'),
+      has: page.locator('svg path[d*="M16 10a4 4"]'),
     })
     .first()
 }
@@ -190,7 +190,7 @@ test.describe('Calendar — shopping list date range', () => {
     const pickerDropdown = page.locator('[style*="z-index: 400"]')
     await pickerDropdown
       .locator('button')
-      .filter({ has: page.locator('svg path[d="M9 6l6 6-6 6"]') })
+      .filter({ has: page.locator('svg path[d="m9 18 6-6-6-6"]') })
       .click()
 
     // Click day 15 of next month (sets FROM to a future date, excluding today's meal)
@@ -213,7 +213,7 @@ test.describe('Calendar — week navigation', () => {
   test('next week button advances past current week', async ({ page }) => {
     const forwardBtn = page
       .locator('button')
-      .filter({ has: page.locator('svg path[d="M9 6l6 6-6 6"]') })
+      .filter({ has: page.locator('svg path[d="m9 18 6-6-6-6"]') })
       .first()
     await forwardBtn.click()
     // Vandaag becomes enabled when not on the current period
@@ -223,7 +223,7 @@ test.describe('Calendar — week navigation', () => {
   test('"Vandaag" button returns to current week after navigating away', async ({ page }) => {
     const forwardBtn = page
       .locator('button')
-      .filter({ has: page.locator('svg path[d="M9 6l6 6-6 6"]') })
+      .filter({ has: page.locator('svg path[d="m9 18 6-6-6-6"]') })
       .first()
     await forwardBtn.click()
 
@@ -316,7 +316,7 @@ test.describe('Calendar — day detail sheet', () => {
     const deleteBtn = page
       .locator('.lb-sheet')
       .locator('button')
-      .filter({ has: page.locator('svg path[d*="M18 6L6 18"]') })
+      .filter({ has: page.locator('svg path[d*="M18 6 6"]') })
       .first()
     await deleteBtn.click()
 

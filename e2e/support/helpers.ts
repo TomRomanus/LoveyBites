@@ -17,7 +17,7 @@ export function locateCloseButton(page: Page) {
   return page
     .locator('button')
     .filter({
-      has: page.locator('svg path[d*="M18 6L6 18"]'),
+      has: page.locator('svg path[d*="M18 6 6"]'),
     })
     .first()
 }

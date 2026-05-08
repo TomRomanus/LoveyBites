@@ -145,7 +145,7 @@ test.describe('Recipe detail — navigation', () => {
     const backBtn = page
       .locator('button')
       .filter({
-        has: page.locator('svg path[d*="M15 6l-6 6 6 6"]'),
+        has: page.locator('svg path[d*="m15 18-6-6"]'),
       })
       .first()
     await backBtn.click()
