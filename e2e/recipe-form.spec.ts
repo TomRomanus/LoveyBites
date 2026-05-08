@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { waitForData, locateCloseButton } from './support/helpers'
+import { waitForData } from './support/helpers'
 
 // ── New recipe chooser ────────────────────────────────────────────────────────
 
@@ -10,7 +10,7 @@ test.describe('New recipe — chooser screen', () => {
     await page.click('a[href="/new"]')
     await expect(page).toHaveURL('/new')
 
-    await locateCloseButton(page).click()
+    await page.locator('[data-testid="form-close-btn"]').click()
     await expect(page).toHaveURL('/')
   })
 })
@@ -79,7 +79,7 @@ test.describe('Recipe editing', () => {
   test('close (X) button navigates back without saving', async ({ page }) => {
     // beforeEach already loaded /recipe/test-pasta-001 then /edit/test-pasta-001 (history is set)
     await page.fill('input[placeholder*="Wat gaan we maken"]', 'Unsaved Title')
-    await locateCloseButton(page).click()
+    await page.locator('[data-testid="form-close-btn"]').click()
     await expect(page).toHaveURL('/recipe/test-pasta-001')
     // Full page reload gives a fresh Firebase SDK connection — avoids emulator cold-start hang
     // that occurs after client-side navigation.

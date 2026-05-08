@@ -14,12 +14,7 @@ export async function waitForData(page: Page, detachTimeout = 20_000) {
 }
 
 export function locateCloseButton(page: Page) {
-  return page
-    .locator('button')
-    .filter({
-      has: page.locator('svg path[d*="M18 6 6"]'),
-    })
-    .first()
+  return page.locator('[data-testid="cooking-close-btn"]')
 }
 
 export async function resetMealPlan() {

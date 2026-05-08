@@ -175,6 +175,7 @@ const CalendarPage = () => {
             </h1>
           </div>
           <motion.button
+            data-testid="shopping-list-btn"
             onClick={() => setShowShopping(true)}
             whileTap={{ scale: 0.88 }}
             style={{
@@ -253,6 +254,7 @@ const CalendarPage = () => {
         </LayoutGroup>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <motion.button
+            data-testid="prev-period-btn"
             onClick={() => movePeriod(-1)}
             className="lb-icon-btn"
             whileTap={{ scale: 0.88 }}
@@ -276,6 +278,7 @@ const CalendarPage = () => {
             Vandaag
           </motion.button>
           <motion.button
+            data-testid="next-period-btn"
             onClick={() => movePeriod(1)}
             className="lb-icon-btn"
             whileTap={{ scale: 0.88 }}

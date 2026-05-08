@@ -65,6 +65,7 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
         {label}
       </div>
       <button
+        data-testid="date-picker-trigger"
         onClick={handleOpen}
         style={{
           width: '100%',
@@ -109,6 +110,7 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
       <AnimatePresence>
         {open && (
           <motion.div
+            data-testid="date-picker-dropdown"
             initial={{ opacity: 0, y: -6, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.97 }}
@@ -128,6 +130,7 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
             {/* Month navigation */}
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10, gap: 4 }}>
               <button
+                data-testid="date-picker-prev-month"
                 onClick={() => moveMonth(-1)}
                 style={{
                   background: 'none',
@@ -167,6 +170,7 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
                 </AnimatePresence>
               </div>
               <button
+                data-testid="date-picker-next-month"
                 onClick={() => moveMonth(1)}
                 style={{
                   background: 'none',

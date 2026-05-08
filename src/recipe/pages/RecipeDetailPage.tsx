@@ -520,6 +520,7 @@ const RecipeDetailPage = () => {
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <button
+            data-testid="recipe-back-btn"
             onClick={() => navigate(-1)}
             style={{
               width: 40,
@@ -537,6 +538,7 @@ const RecipeDetailPage = () => {
             <ChevronLeft size={16} />
           </button>
           <button
+            data-testid="recipe-actions-btn"
             onClick={() => setShowActions(true)}
             style={{
               width: 40,

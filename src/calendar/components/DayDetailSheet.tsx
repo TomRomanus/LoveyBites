@@ -149,6 +149,7 @@ const DayDetailSheet = ({
                         {recipe ? recipe.title : e.customDescription}
                       </span>
                       <motion.button
+                        data-testid="delete-entry-btn"
                         onClick={() => onDelete(e.id)}
                         whileTap={{ scale: 0.78 }}
                         style={{

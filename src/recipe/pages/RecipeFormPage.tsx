@@ -252,7 +252,7 @@ const RecipeFormPage = () => {
             transition={slideTransition}
           >
             <div style={headerStyle}>
-              <button onClick={() => navigate(-1)} style={circleBtn}>
+              <button data-testid="form-close-btn" onClick={() => navigate(-1)} style={circleBtn}>
                 <X size={13} strokeWidth={2.2} />
               </button>
               <div style={monoTitle}>Nieuw recept</div>
@@ -361,15 +361,19 @@ const RecipeFormPage = () => {
           >
             <div style={headerStyle}>
               {mode !== null && !isEdit ? (
-                <button onClick={handleBack} style={circleBtn}>
+                <button data-testid="form-close-btn" onClick={handleBack} style={circleBtn}>
                   <X size={13} strokeWidth={2.2} />
                 </button>
               ) : isEdit ? (
-                <button onClick={() => navigate(`/recipe/${id}`)} style={circleBtn}>
+                <button
+                  data-testid="form-close-btn"
+                  onClick={() => navigate(`/recipe/${id}`)}
+                  style={circleBtn}
+                >
                   <X size={13} strokeWidth={2.2} />
                 </button>
               ) : (
-                <Link to="/" style={{ ...circleBtn, textDecoration: 'none' }}>
+                <Link data-testid="form-close-btn" to="/" style={{ ...circleBtn, textDecoration: 'none' }}>
                   <X size={13} strokeWidth={2.2} />
                 </Link>
               )}

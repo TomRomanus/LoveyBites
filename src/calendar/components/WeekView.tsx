@@ -142,6 +142,7 @@ const WeekView = ({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
                         {recipe ? recipe.title : e.customDescription}
                       </span>
                       <motion.button
+                        data-testid="delete-meal-entry-btn"
                         onClick={() => onDelete(e.id)}
                         whileTap={{ scale: 0.78 }}
                         style={{
@@ -174,6 +175,7 @@ const WeekView = ({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
               }}
             />
             <motion.button
+              data-testid="add-meal-btn"
               onClick={() => onAdd(iso)}
               whileTap={{ scale: 0.78 }}
               style={{

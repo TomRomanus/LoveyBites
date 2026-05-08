@@ -7,12 +7,7 @@ async function gotoDetail(page: Page, id = 'test-pasta-001') {
 }
 
 function locateActionsButton(page: Page) {
-  return page
-    .locator('button')
-    .filter({
-      has: page.locator('circle[r="1.6"]'),
-    })
-    .first()
+  return page.locator('[data-testid="recipe-actions-btn"]')
 }
 
 // ── Display ───────────────────────────────────────────────────────────────────
@@ -142,13 +137,7 @@ test.describe('Recipe detail — navigation', () => {
     await waitForData(page, 10_000)
     await gotoDetail(page)
 
-    const backBtn = page
-      .locator('button')
-      .filter({
-        has: page.locator('svg path[d*="m15 18-6-6"]'),
-      })
-      .first()
-    await backBtn.click()
+    await page.locator('[data-testid="recipe-back-btn"]').click()
     await expect(page).toHaveURL('/')
   })
 
@@ -184,6 +173,6 @@ test.describe('Recipe detail — calendar modal day selection', () => {
     await todayBtn.click()
 
     // Checkmark animation briefly confirms the save
-    await expect(page.locator('path[d*="M5 13l4 4"]').first()).toBeVisible({ timeout: 10_000 })
+    await expect(page.locator('[data-testid="day-saved-check"]').first()).toBeVisible({ timeout: 10_000 })
   })
 })

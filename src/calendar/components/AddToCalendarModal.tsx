@@ -382,6 +382,7 @@ const AddToCalendarModal = ({ recipe, onClose }: Props) => {
                             <AnimatePresence>
                               {isRecentlySaved && (
                                 <motion.span
+                                  data-testid="day-saved-check"
                                   initial={{ scale: 0 }}
                                   animate={{ scale: 1 }}
                                   exit={{ opacity: 0 }}

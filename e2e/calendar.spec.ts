@@ -1,10 +1,5 @@
 import { test, expect, Page } from '@playwright/test'
-import {
-  resetMealPlan,
-  seedMealPlanEntry,
-  waitForData,
-  locateCloseButton,
-} from './support/helpers'
+import { resetMealPlan, seedMealPlanEntry, waitForData } from './support/helpers'
 
 async function gotoCalendar(page: Page) {
   // Full page load gives a fresh Firebase SDK connection — avoids the emulator
@@ -14,21 +9,11 @@ async function gotoCalendar(page: Page) {
 }
 
 function locateAddButton(page: Page) {
-  return page
-    .locator('button')
-    .filter({
-      has: page.locator('svg path[d*="M5 12h14"]'),
-    })
-    .first()
+  return page.locator('[data-testid="add-meal-btn"]').first()
 }
 
 function locateShoppingButton(page: Page) {
-  return page
-    .locator('button')
-    .filter({
-      has: page.locator('svg path[d*="M16 10a4 4"]'),
-    })
-    .first()
+  return page.locator('[data-testid="shopping-list-btn"]')
 }
 
 async function openAddSheet(page: Page) {
@@ -117,7 +102,7 @@ test.describe('Calendar — meal management in week view', () => {
     await clickRecipeInSheet(page, 'Tomatensoep')
     await expect(page.getByText('Tomatensoep').first()).toBeVisible()
 
-    await locateCloseButton(page).click()
+    await page.locator('[data-testid="delete-meal-entry-btn"]').first().click()
     await expect(page.getByText('Tomatensoep')).toBeHidden()
   })
 
@@ -180,21 +165,14 @@ test.describe('Calendar — shopping list date range', () => {
     // Verify the meal's ingredient appears in the current range
     await expect(page.getByText(/tomaten/).first()).toBeVisible({ timeout: 10_000 })
 
-    // Open the VAN (FROM) date picker (first button containing the calendar icon)
-    const pickerButtons = page.locator('.lb-sheet').locator('button').filter({
-      has: page.locator('svg rect[x="3"][y="4"]'),
-    })
-    await pickerButtons.nth(0).click()
+    // Open the VAN (FROM) date picker (first trigger button in the sheet)
+    await page.locator('.lb-sheet').locator('[data-testid="date-picker-trigger"]').nth(0).click()
 
     // Navigate to next month in the date picker dropdown
-    const pickerDropdown = page.locator('[style*="z-index: 400"]')
-    await pickerDropdown
-      .locator('button')
-      .filter({ has: page.locator('svg path[d="m9 18 6-6-6-6"]') })
-      .click()
+    await page.locator('[data-testid="date-picker-next-month"]').click()
 
     // Click day 15 of next month (sets FROM to a future date, excluding today's meal)
-    await pickerDropdown.locator('button').filter({ hasText: '15' }).first().click()
+    await page.locator('[data-testid="date-picker-dropdown"]').locator('button').filter({ hasText: '15' }).first().click()
 
     // Shopping list should now show the empty state
     await expect(
@@ -211,21 +189,13 @@ test.describe('Calendar — week navigation', () => {
   })
 
   test('next week button advances past current week', async ({ page }) => {
-    const forwardBtn = page
-      .locator('button')
-      .filter({ has: page.locator('svg path[d="m9 18 6-6-6-6"]') })
-      .first()
-    await forwardBtn.click()
+    await page.locator('[data-testid="next-period-btn"]').click()
     // Vandaag becomes enabled when not on the current period
     await expect(page.locator('button:has-text("Vandaag")')).toBeEnabled()
   })
 
   test('"Vandaag" button returns to current week after navigating away', async ({ page }) => {
-    const forwardBtn = page
-      .locator('button')
-      .filter({ has: page.locator('svg path[d="m9 18 6-6-6-6"]') })
-      .first()
-    await forwardBtn.click()
+    await page.locator('[data-testid="next-period-btn"]').click()
 
     const vandaagBtn = page.locator('button:has-text("Vandaag")')
     await expect(vandaagBtn).toBeEnabled()
@@ -313,12 +283,7 @@ test.describe('Calendar — day detail sheet', () => {
     await expect(page.locator('.lb-sheet').getByText('Tomatensoep').first()).toBeVisible()
 
     // Delete via the X button inside the sheet
-    const deleteBtn = page
-      .locator('.lb-sheet')
-      .locator('button')
-      .filter({ has: page.locator('svg path[d*="M18 6 6"]') })
-      .first()
-    await deleteBtn.click()
+    await page.locator('.lb-sheet').locator('[data-testid="delete-entry-btn"]').first().click()
 
     // Entry animates out of the sheet; month-grid label behind the backdrop can't interfere
     await expect(page.locator('.lb-sheet').getByText('Tomatensoep')).toBeHidden()

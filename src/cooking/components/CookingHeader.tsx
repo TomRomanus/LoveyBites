@@ -7,6 +7,7 @@ type CookingHeaderProps = {
 const CookingHeader = ({ onClose }: CookingHeaderProps) => (
   <div style={{ display: 'flex', alignItems: 'center', padding: '20px 20px 14px', flexShrink: 0 }}>
     <button
+      data-testid="cooking-close-btn"
       onClick={onClose}
       style={{
         background: 'transparent',
