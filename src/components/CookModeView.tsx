@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import type { Recipe, IngredientNode as TreeNode } from '../types/recipe'
+import { collectIngredientMap } from '../utils/ingredientUtils'
 
 // ─── Shared helpers (exported for RecipeDetailPage) ───────────────────────────
 
-interface IngredientListProps {
+type IngredientListProps = {
   nodes: TreeNode[]
   pathPrefix: string
   depth: number
@@ -62,37 +63,22 @@ function IngredientList({ nodes, pathPrefix, depth, checked, onToggle }: Ingredi
   )
 }
 
-export function collectIngredientMap(nodes: TreeNode[]): Map<string, string> {
-  const map = new Map<string, string>()
-  function traverse(ns: TreeNode[]) {
-    for (const node of ns) {
-      if (node.kind === 'leaf' && node.id) {
-        map.set(node.id, node.text)
-      } else if (node.kind === 'group') {
-        traverse(node.children)
-      }
-    }
-  }
-  traverse(nodes)
-  return map
-}
-
 // ─── Cook mode types ──────────────────────────────────────────────────────────
 
-interface FlatStep {
+type FlatStep = {
   text: string
   sectionTitle?: string
   ingredientRefs?: string[]
   globalIndex: number
 }
 
-function flattenSteps(nodes: TreeNode[], sectionTitle?: string, counter = { n: 0 }): FlatStep[] {
+function flattenCookSteps(nodes: TreeNode[], sectionTitle?: string, counter = { n: 0 }): FlatStep[] {
   const result: FlatStep[] = []
   for (const node of nodes) {
     if (node.kind === 'leaf') {
       result.push({ text: node.text, sectionTitle, ingredientRefs: node.ingredientRefs, globalIndex: counter.n++ })
     } else {
-      result.push(...flattenSteps(node.children, node.title, counter))
+      result.push(...flattenCookSteps(node.children, node.title, counter))
     }
   }
   return result
@@ -102,7 +88,7 @@ function flattenSteps(nodes: TreeNode[], sectionTitle?: string, counter = { n: 0
 
 type CookTab = 'step' | 'ingredients' | 'overview'
 
-interface CookModeViewProps {
+type CookModeViewProps = {
   recipe: Recipe
   scaledIngredients: TreeNode[]
   selectedPortions: number
@@ -122,7 +108,7 @@ export default function CookModeView({
   onClose,
 }: CookModeViewProps) {
   const ingredientMap = collectIngredientMap(scaledIngredients)
-  const steps = flattenSteps(recipe.steps)
+  const steps = flattenCookSteps(recipe.steps)
   const total = steps.length
 
   const [currentIndex, setCurrentIndex] = useState(0)
