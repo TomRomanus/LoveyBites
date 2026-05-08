@@ -4,7 +4,7 @@ import type { Recipe, IngredientNode as TreeNode } from '../types/recipe'
 
 // ─── Shared helpers (exported for RecipeDetailPage) ───────────────────────────
 
-export interface IngredientListProps {
+interface IngredientListProps {
   nodes: TreeNode[]
   pathPrefix: string
   depth: number
@@ -12,7 +12,7 @@ export interface IngredientListProps {
   onToggle: (path: string) => void
 }
 
-export function IngredientList({ nodes, pathPrefix, depth, checked, onToggle }: IngredientListProps) {
+function IngredientList({ nodes, pathPrefix, depth, checked, onToggle }: IngredientListProps) {
   return (
     <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
       {nodes.map((node, i) => {

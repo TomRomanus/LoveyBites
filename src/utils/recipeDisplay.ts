@@ -1,7 +1,5 @@
 import type { IngredientNode } from '../types/recipe'
 
-export const DEFAULT_RECIPE_COLOR = '#6b1f2a'
-
 /** Flatten a tree of ingredient nodes into `{ section, items }[]` for display. */
 export function flattenIngredientSections(
   nodes: IngredientNode[],
@@ -52,27 +50,3 @@ export function flattenSteps(
   return steps
 }
 
-/** Convert flat `{ section, items }[]` editor format to IngredientNode tree. */
-export function sectionsToNodes(
-  sections: { section: string; items: string[] }[],
-): IngredientNode[] {
-  const nodes: IngredientNode[] = []
-  for (const sec of sections) {
-    const children: IngredientNode[] = sec.items
-      .filter(t => t.trim())
-      .map(t => ({ kind: 'leaf' as const, text: t }))
-    if (sec.section) {
-      nodes.push({ kind: 'group', title: sec.section, children })
-    } else {
-      nodes.push(...children)
-    }
-  }
-  return nodes
-}
-
-/** Convert IngredientNode tree to flat `{ section, items }[]` for the editor. */
-export function nodesToSections(
-  nodes: IngredientNode[],
-): { section: string; items: string[] }[] {
-  return flattenIngredientSections(nodes)
-}

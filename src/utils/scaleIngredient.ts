@@ -46,7 +46,7 @@ function formatNumber(n: number, useFraction = false): string {
 
 const LEADING_NUMBER = /^(\d+\s+\d+\/\d+|\d+\/\d+|\d+(?:[.,]\d+)?)/
 
-export function scaleIngredient(text: string, ratio: number): string {
+function scaleIngredient(text: string, ratio: number): string {
   if (ratio === 1) return text
   const match = text.match(LEADING_NUMBER)
   if (!match) return text

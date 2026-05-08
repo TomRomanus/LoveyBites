@@ -206,8 +206,6 @@ export default function NewRecipePage() {
     )
   }
 
-  const screenKey = mode === null ? 'chooser' : isImportMode(mode) && !extracted ? `import-${mode}` : 'form'
-
   return (
     <div className="lb-paper" style={{ minHeight: '100dvh', overflow: 'hidden' }}>
       <AnimatePresence mode="wait" custom={direction.current}>

@@ -9,25 +9,6 @@ import CookModeView, { collectIngredientMap } from '../components/CookModeView'
 import AddToCalendarModal from '../components/AddToCalendarModal'
 import { flattenIngredientSections, flattenSteps } from '../utils/recipeDisplay'
 
-function scaleItem(text: string, ratio: number): string {
-  if (ratio === 1) return text
-  const m = text.match(/^(\d+(?:\.\d+)?(?:\/\d+)?)\s*(.+)/)
-  if (!m) return text
-  let num: number
-  if (m[1].includes('/')) {
-    const [a, b] = m[1].split('/').map(Number)
-    num = a / b
-  } else {
-    num = parseFloat(m[1])
-  }
-  const scaled = num * ratio
-  let display: string
-  if (scaled >= 10) display = String(Math.round(scaled))
-  else if (Number.isInteger(scaled)) display = String(scaled)
-  else display = scaled.toFixed(1).replace(/\.0$/, '')
-  return display + ' ' + m[2]
-}
-
 const STAR_COUNT = 5
 const STAR_PATH = 'M12 3l3 6 6.5 1-4.7 4.6 1.1 6.4L12 18l-5.9 3 1.1-6.4L2.5 10 9 9l3-6z'
 
@@ -708,7 +689,7 @@ export default function RecipeDetailPage() {
       )}
 
       {calendarOpen && (
-        <AddToCalendarModal recipe={recipe} onClose={() => setCalendarOpen(false)} onSaved={() => setCalendarOpen(false)} />
+        <AddToCalendarModal recipe={recipe} onClose={() => setCalendarOpen(false)} />
       )}
 
       {createPortal(

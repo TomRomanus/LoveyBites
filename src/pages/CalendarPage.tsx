@@ -1272,7 +1272,6 @@ function MonthView({ anchor, today, entries, recipeMap, onPickDay, selectedDay }
 type ViewMode = 'week' | 'month'
 
 export default function CalendarPage() {
-  const nav = useNavigate()
   const today = new Date()
   today.setHours(0, 0, 0, 0)
 
@@ -1325,13 +1324,6 @@ export default function CalendarPage() {
       return d
     })
   }
-
-  const periodLabel = (() => {
-    if (view === 'week') {
-      return `${NL_MONTHS_SHORT[anchor.getMonth()]} ${anchor.getDate()}`
-    }
-    return NL_MONTHS[anchor.getMonth()]
-  })()
 
   const isCurrentPeriod = view === 'week'
     ? toISO(anchor) === toISO(startOfWeek(today))

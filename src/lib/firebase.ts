@@ -1,6 +1,5 @@
 import { initializeApp } from 'firebase/app'
 import { getFirestore, connectFirestoreEmulator, initializeFirestore } from 'firebase/firestore'
-import { getAnalytics } from "firebase/analytics";
 import { getStorage } from 'firebase/storage'
 import { getAuth, GoogleAuthProvider, connectAuthEmulator, browserLocalPersistence, setPersistence } from 'firebase/auth'
 
@@ -15,7 +14,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig)
-export const analytics = import.meta.env.VITE_USE_EMULATOR === 'true' ? null : getAnalytics(app);
 // In emulator mode use long-polling — WebChannel cold-start takes 15–30 s per fresh browser
 // context, which blows past the 30 s test timeout. Long-polling connects in milliseconds.
 export const db = import.meta.env.VITE_USE_EMULATOR === 'true'

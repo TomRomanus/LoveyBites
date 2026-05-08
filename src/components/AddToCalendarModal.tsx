@@ -43,10 +43,9 @@ const NL_MONTHS = [
 interface Props {
   recipe: Pick<Recipe, 'id' | 'title'>
   onClose: () => void
-  onSaved: (date: string) => void
 }
 
-export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) {
+export default function AddToCalendarModal({ recipe, onClose }: Props) {
   const { user } = useAuth()
   const today = new Date()
   today.setHours(0, 0, 0, 0)

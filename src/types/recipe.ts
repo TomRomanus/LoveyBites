@@ -12,14 +12,14 @@ export interface MealPlanEntry {
 
 export type MealPlanEntryInput = Omit<MealPlanEntry, 'id' | 'createdAt'>
 
-export interface IngredientLeaf {
+interface IngredientLeaf {
   kind: 'leaf'
   text: string
   id?: string
   ingredientRefs?: string[]
 }
 
-export interface IngredientGroup {
+interface IngredientGroup {
   kind: 'group'
   title: string
   id?: string

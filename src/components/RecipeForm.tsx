@@ -5,7 +5,6 @@ import type { RecipeInput, IngredientNode } from '../types/recipe'
 import IngredientEditor, { pruneEmpty } from './IngredientEditor'
 import SourceEditor from './SourceEditor'
 import AutoGrowTextarea from './AutoGrowTextarea'
-import { DEFAULT_RECIPE_COLOR } from '../utils/recipeDisplay'
 
 interface Props {
   initial?: Partial<RecipeInput>
@@ -47,7 +46,6 @@ const emptyInput = (): RecipeInput => ({
   tags: [],
   imageUrl: '',
   createdBy: 'us',
-  color: DEFAULT_RECIPE_COLOR,
 })
 
 const stepLabels = {

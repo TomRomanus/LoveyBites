@@ -470,7 +470,6 @@ export default function RecipesPage() {
         <AddToCalendarModal
           recipe={calendarRecipe}
           onClose={() => setCalendarRecipe(null)}
-          onSaved={() => setCalendarRecipe(null)}
         />
       )}
     </div>
