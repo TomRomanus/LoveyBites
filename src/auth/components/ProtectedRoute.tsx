@@ -8,7 +8,16 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 
   if (loading) {
     return (
-      <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--paper)' }}>
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--paper)',
+        }}
+      >
         <LoadingLogo />
       </div>
     )

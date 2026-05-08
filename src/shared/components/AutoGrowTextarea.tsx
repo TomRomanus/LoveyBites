@@ -12,14 +12,7 @@ const AutoGrowTextarea = ({ value, style, ...props }: Props) => {
     el.style.height = `${el.scrollHeight}px`
   }, [value])
 
-  return (
-    <textarea
-      ref={ref}
-      value={value}
-      style={{ overflow: 'hidden', ...style }}
-      {...props}
-    />
-  )
+  return <textarea ref={ref} value={value} style={{ overflow: 'hidden', ...style }} {...props} />
 }
 
 export default AutoGrowTextarea

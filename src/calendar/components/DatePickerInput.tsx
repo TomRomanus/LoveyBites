@@ -16,21 +16,22 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
   const [open, setOpen] = useState(false)
   const [monthDir, setMonthDir] = useState(1)
   const ref = useRef<HTMLDivElement>(null)
-  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
   const selected = value ? new Date(value + 'T00:00:00') : null
   const [viewMonth, setViewMonth] = useState<Date>(() =>
     selected
       ? new Date(selected.getFullYear(), selected.getMonth(), 1)
-      : new Date(today.getFullYear(), today.getMonth(), 1)
+      : new Date(today.getFullYear(), today.getMonth(), 1),
   )
 
   const handleOpen = () => {
     setViewMonth(
       selected
         ? new Date(selected.getFullYear(), selected.getMonth(), 1)
-        : new Date(today.getFullYear(), today.getMonth(), 1)
+        : new Date(today.getFullYear(), today.getMonth(), 1),
     )
-    setOpen(o => !o)
+    setOpen((o) => !o)
   }
 
   useEffect(() => {
@@ -47,8 +48,10 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
 
   const moveMonth = (dir: -1 | 1) => {
     setMonthDir(dir)
-    setViewMonth(prev => {
-      const d = new Date(prev); d.setMonth(d.getMonth() + dir); return d
+    setViewMonth((prev) => {
+      const d = new Date(prev)
+      d.setMonth(d.getMonth() + dir)
+      return d
     })
   }
 
@@ -58,15 +61,21 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
 
   return (
     <div ref={ref} style={{ position: 'relative', flex: 1 }}>
-      <div className="lb-eyebrow" style={{ marginBottom: 5 }}>{label}</div>
+      <div className="lb-eyebrow" style={{ marginBottom: 5 }}>
+        {label}
+      </div>
       <button
         onClick={handleOpen}
         style={{
-          width: '100%', height: 46,
+          width: '100%',
+          height: 46,
           background: open ? 'var(--cream-card)' : 'var(--paper-2)',
           border: 0,
           borderRadius: 14,
-          display: 'flex', alignItems: 'center', gap: 9, padding: '0 12px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 9,
+          padding: '0 12px',
           cursor: 'pointer',
           boxShadow: open
             ? '0 0 0 1.5px var(--bordeaux), 0 2px 8px rgba(107,31,42,0.08)'
@@ -75,14 +84,17 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
         }}
       >
         <Calendar size={14} strokeWidth={1.8} color="var(--bordeaux)" style={{ flexShrink: 0 }} />
-        <span style={{
-          flex: 1, textAlign: 'left',
-          fontFamily: 'var(--mono)',
-          fontSize: 13,
-          fontWeight: selected ? 500 : 400,
-          color: selected ? 'var(--ink)' : 'var(--stone)',
-          whiteSpace: 'nowrap',
-        }}>
+        <span
+          style={{
+            flex: 1,
+            textAlign: 'left',
+            fontFamily: 'var(--mono)',
+            fontSize: 13,
+            fontWeight: selected ? 500 : 400,
+            color: selected ? 'var(--ink)' : 'var(--stone)',
+            whiteSpace: 'nowrap',
+          }}
+        >
           {displayDate}
         </span>
         <motion.span
@@ -117,7 +129,16 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10, gap: 4 }}>
               <button
                 onClick={() => moveMonth(-1)}
-                style={{ background: 'none', border: 0, padding: 5, color: 'var(--stone)', cursor: 'pointer', borderRadius: 8, display: 'flex', alignItems: 'center' }}
+                style={{
+                  background: 'none',
+                  border: 0,
+                  padding: 5,
+                  color: 'var(--stone)',
+                  cursor: 'pointer',
+                  borderRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
               >
                 <ChevronLeft size={13} strokeWidth={2.2} />
               </button>
@@ -130,74 +151,131 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
                     initial="enter"
                     animate="center"
                     exit="exit"
-                    style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14.5, fontWeight: 500, letterSpacing: '-0.01em' }}
+                    style={{
+                      fontFamily: 'var(--serif)',
+                      fontStyle: 'italic',
+                      fontSize: 14.5,
+                      fontWeight: 500,
+                      letterSpacing: '-0.01em',
+                    }}
                   >
-                    <span style={{ color: 'var(--bordeaux)' }}>{NL_MONTHS[viewMonth.getMonth()]}</span>{' '}
+                    <span style={{ color: 'var(--bordeaux)' }}>
+                      {NL_MONTHS[viewMonth.getMonth()]}
+                    </span>{' '}
                     <span style={{ color: 'var(--ink)' }}>{viewMonth.getFullYear()}</span>
                   </motion.div>
                 </AnimatePresence>
               </div>
               <button
                 onClick={() => moveMonth(1)}
-                style={{ background: 'none', border: 0, padding: 5, color: 'var(--stone)', cursor: 'pointer', borderRadius: 8, display: 'flex', alignItems: 'center' }}
+                style={{
+                  background: 'none',
+                  border: 0,
+                  padding: 5,
+                  color: 'var(--stone)',
+                  cursor: 'pointer',
+                  borderRadius: 8,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
               >
                 <ChevronRight size={13} strokeWidth={2.2} />
               </button>
             </div>
 
             {/* Day headers */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2, marginBottom: 4 }}>
-              {NL_DAYS_GRID.map(d => (
-                <div key={d} style={{ textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 8, letterSpacing: '0.1em', color: 'var(--stone-2)', fontWeight: 600, textTransform: 'uppercase', padding: '0 0 3px' }}>{d}</div>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(7, 1fr)',
+                gap: 2,
+                marginBottom: 4,
+              }}
+            >
+              {NL_DAYS_GRID.map((d) => (
+                <div
+                  key={d}
+                  style={{
+                    textAlign: 'center',
+                    fontFamily: 'var(--mono)',
+                    fontSize: 8,
+                    letterSpacing: '0.1em',
+                    color: 'var(--stone-2)',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    padding: '0 0 3px',
+                  }}
+                >
+                  {d}
+                </div>
               ))}
             </div>
 
             {/* Calendar days */}
             <div style={{ position: 'relative', overflow: 'hidden' }}>
-            <AnimatePresence mode="popLayout" custom={monthDir} initial={false}>
-            <motion.div
-              key={`grid-${viewMonth.getFullYear()}-${viewMonth.getMonth()}`}
-              custom={monthDir}
-              variants={pageVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}
-            >
-              {days.map(day => {
-                const isSelected = selected ? isSameDay(day, selected) : false
-                const isToday = isSameDay(day, today)
-                const inMonth = day.getMonth() === monthStart.getMonth()
-                return (
-                  <motion.button
-                    key={toISO(day)}
-                    onClick={() => { onChange(toISO(day)); setOpen(false) }}
-                    whileTap={{ scale: 0.84 }}
-                    style={{
-                      height: 30, borderRadius: isSelected ? '50%' : 8, border: 0,
-                      background: isSelected ? 'var(--bordeaux)' : 'transparent',
-                      color: isSelected ? 'var(--cream-card)' : isToday ? 'var(--bordeaux)' : inMonth ? 'var(--ink)' : 'var(--stone-2)',
-                      fontFamily: 'var(--sans)',
-                      fontSize: 12.5,
-                      fontWeight: isSelected || isToday ? 600 : 400,
-                      cursor: 'pointer',
-                      opacity: inMonth ? 1 : 0.28,
-                      position: 'relative',
-                    }}
-                  >
-                    {day.getDate()}
-                    {isToday && !isSelected && (
-                      <span style={{
-                        position: 'absolute', bottom: 3, left: '50%', transform: 'translateX(-50%)',
-                        width: 3, height: 3, borderRadius: '50%', background: 'var(--bordeaux)',
-                        display: 'block',
-                      }} />
-                    )}
-                  </motion.button>
-                )
-              })}
-            </motion.div>
-            </AnimatePresence>
+              <AnimatePresence mode="popLayout" custom={monthDir} initial={false}>
+                <motion.div
+                  key={`grid-${viewMonth.getFullYear()}-${viewMonth.getMonth()}`}
+                  custom={monthDir}
+                  variants={pageVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}
+                >
+                  {days.map((day) => {
+                    const isSelected = selected ? isSameDay(day, selected) : false
+                    const isToday = isSameDay(day, today)
+                    const inMonth = day.getMonth() === monthStart.getMonth()
+                    return (
+                      <motion.button
+                        key={toISO(day)}
+                        onClick={() => {
+                          onChange(toISO(day))
+                          setOpen(false)
+                        }}
+                        whileTap={{ scale: 0.84 }}
+                        style={{
+                          height: 30,
+                          borderRadius: isSelected ? '50%' : 8,
+                          border: 0,
+                          background: isSelected ? 'var(--bordeaux)' : 'transparent',
+                          color: isSelected
+                            ? 'var(--cream-card)'
+                            : isToday
+                              ? 'var(--bordeaux)'
+                              : inMonth
+                                ? 'var(--ink)'
+                                : 'var(--stone-2)',
+                          fontFamily: 'var(--sans)',
+                          fontSize: 12.5,
+                          fontWeight: isSelected || isToday ? 600 : 400,
+                          cursor: 'pointer',
+                          opacity: inMonth ? 1 : 0.28,
+                          position: 'relative',
+                        }}
+                      >
+                        {day.getDate()}
+                        {isToday && !isSelected && (
+                          <span
+                            style={{
+                              position: 'absolute',
+                              bottom: 3,
+                              left: '50%',
+                              transform: 'translateX(-50%)',
+                              width: 3,
+                              height: 3,
+                              borderRadius: '50%',
+                              background: 'var(--bordeaux)',
+                              display: 'block',
+                            }}
+                          />
+                        )}
+                      </motion.button>
+                    )
+                  })}
+                </motion.div>
+              </AnimatePresence>
             </div>
           </motion.div>
         )}

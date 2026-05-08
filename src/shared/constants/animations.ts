@@ -1,7 +1,10 @@
 import type { Variants } from 'framer-motion'
 
 export const sheetVariants: Variants = {
-  hidden: { y: '100%', transition: { type: 'tween' as const, duration: 0.22, ease: [0.4, 0, 1, 1] as const } },
+  hidden: {
+    y: '100%',
+    transition: { type: 'tween' as const, duration: 0.22, ease: [0.4, 0, 1, 1] as const },
+  },
   visible: { y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 32 } },
 }
 

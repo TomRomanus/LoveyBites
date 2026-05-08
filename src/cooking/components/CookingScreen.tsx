@@ -37,7 +37,9 @@ const CookingScreen = ({
 
   useEffect(() => {
     document.body.style.overflow = 'hidden'
-    return () => { document.body.style.overflow = '' }
+    return () => {
+      document.body.style.overflow = ''
+    }
   }, [])
 
   if (total === 0) return null
@@ -66,7 +68,16 @@ const CookingScreen = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.22, ease: [0.2, 0, 0.2, 1] }}
-      style={{ position: 'fixed', inset: 0, zIndex: 100, height: '100dvh', ...dark, display: 'flex', flexDirection: 'column', userSelect: 'none' }}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 100,
+        height: '100dvh',
+        ...dark,
+        display: 'flex',
+        flexDirection: 'column',
+        userSelect: 'none',
+      }}
     >
       <CookingHeader onClose={onClose} />
 
@@ -86,7 +97,9 @@ const CookingScreen = ({
         {tab !== 'step' && (
           <motion.div
             key="list-panel"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             style={{ flex: 1, overflow: 'auto', paddingBottom: 40 }}
           >
@@ -107,7 +120,10 @@ const CookingScreen = ({
                 steps={steps}
                 currentIndex={currentIndex}
                 ingredientMap={ingredientMap}
-                onGoTo={(i) => { setCurrentIndex(i); setTab('step') }}
+                onGoTo={(i) => {
+                  setCurrentIndex(i)
+                  setTab('step')
+                }}
               />
             )}
           </motion.div>

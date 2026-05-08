@@ -43,28 +43,32 @@ const CalendarPage = () => {
   const loadEntries = useCallback(async () => {
     const es = await getMealPlanEntries(visibleStartISO, visibleEndISO)
     setEntries(es)
-    const ids = [...new Set(es.map(e => e.recipeId).filter(Boolean) as string[])]
-    const pairs = await Promise.all(ids.map(async id => {
-      const r = await getRecipe(id)
-      return r ? ([id, r] as [string, Recipe]) : null
-    }))
+    const ids = [...new Set(es.map((e) => e.recipeId).filter(Boolean) as string[])]
+    const pairs = await Promise.all(
+      ids.map(async (id) => {
+        const r = await getRecipe(id)
+        return r ? ([id, r] as [string, Recipe]) : null
+      }),
+    )
     const map = new Map<string, Recipe>()
-    pairs.forEach(p => p && map.set(p[0], p[1]))
+    pairs.forEach((p) => p && map.set(p[0], p[1]))
     setRecipeMap(map)
     setLoading(false)
   }, [visibleStartISO, visibleEndISO])
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { loadEntries() }, [loadEntries])
+  useEffect(() => {
+    loadEntries()
+  }, [loadEntries])
 
   const handleDelete = async (id: string) => {
     await deleteMealPlanEntry(id)
-    setEntries(prev => prev.filter(e => e.id !== id))
+    setEntries((prev) => prev.filter((e) => e.id !== id))
   }
 
   const movePeriod = (dir: -1 | 1) => {
     setNavDir(dir)
-    setAnchor(prev => {
+    setAnchor((prev) => {
       if (view === 'week') return addDays(prev, dir * 7)
       const d = new Date(prev)
       d.setMonth(d.getMonth() + dir)
@@ -72,9 +76,10 @@ const CalendarPage = () => {
     })
   }
 
-  const isCurrentPeriod = view === 'week'
-    ? toISO(anchor) === toISO(startOfWeek(today))
-    : anchor.getMonth() === today.getMonth() && anchor.getFullYear() === today.getFullYear()
+  const isCurrentPeriod =
+    view === 'week'
+      ? toISO(anchor) === toISO(startOfWeek(today))
+      : anchor.getMonth() === today.getMonth() && anchor.getFullYear() === today.getFullYear()
 
   const goToToday = () => {
     setAnchor(view === 'week' ? startOfWeek(today) : startOfMonth(today))
@@ -84,10 +89,26 @@ const CalendarPage = () => {
   const shoppingEnd = toISO(addDays(startOfWeek(today), 6))
 
   return (
-    <div className="lb-paper" style={{ height: '100dvh', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+    <div
+      className="lb-paper"
+      style={{
+        height: '100dvh',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+      }}
+    >
       {/* Header */}
       <div style={{ padding: '24px 20px 0' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+          }}
+        >
           <div>
             <div className="lb-eyebrow">HET MENU</div>
             <h1 className="lb-display" style={{ margin: '8px 0 0', fontSize: 34 }}>
@@ -106,8 +127,7 @@ const CalendarPage = () => {
                     >
                       {NL_MONTHS_SHORT[anchor.getMonth()]}
                     </motion.b>
-                  </AnimatePresence>
-                  {' '}
+                  </AnimatePresence>{' '}
                   <AnimatePresence mode="popLayout" custom={navDir}>
                     <motion.b
                       key={`wd-${toISO(anchor)}`}
@@ -136,8 +156,7 @@ const CalendarPage = () => {
                     >
                       {NL_MONTHS[anchor.getMonth()]}
                     </motion.b>
-                  </AnimatePresence>
-                  {' '}
+                  </AnimatePresence>{' '}
                   <AnimatePresence mode="popLayout" custom={navDir}>
                     <motion.b
                       key={`year-${anchor.getFullYear()}`}
@@ -159,12 +178,18 @@ const CalendarPage = () => {
             onClick={() => setShowShopping(true)}
             whileTap={{ scale: 0.88 }}
             style={{
-              width: 40, height: 40, borderRadius: 20, border: 0,
+              width: 40,
+              height: 40,
+              borderRadius: 20,
+              border: 0,
               background: 'var(--paper)',
               boxShadow: '0 1px 2px rgba(31,29,26,0.04), 0 0 0 0.5px var(--line)',
               color: 'var(--bordeaux)',
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', flexShrink: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              flexShrink: 0,
             }}
           >
             <ShoppingBag size={15} strokeWidth={1.8} />
@@ -176,19 +201,33 @@ const CalendarPage = () => {
       <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
         <LayoutGroup id="calendar-tabs">
           <div style={{ display: 'flex', borderBottom: '0.5px solid var(--line)' }}>
-            {([['week', 'WEEK'], ['month', 'MAAND']] as const).map(([v, l]) => (
+            {(
+              [
+                ['week', 'WEEK'],
+                ['month', 'MAAND'],
+              ] as const
+            ).map(([v, l]) => (
               <motion.button
                 key={v}
-                onClick={() => { setNavDir(v === 'month' ? 2 : -2); setView(v); setAnchor(v === 'week' ? startOfWeek(today) : startOfMonth(today)) }}
+                onClick={() => {
+                  setNavDir(v === 'month' ? 2 : -2)
+                  setView(v)
+                  setAnchor(v === 'week' ? startOfWeek(today) : startOfMonth(today))
+                }}
                 animate={{ color: view === v ? 'var(--bordeaux)' : 'var(--stone)' }}
                 transition={{ duration: 0.2 }}
                 style={{
                   position: 'relative',
-                  background: 'none', border: 0, padding: '0 2px 7px',
+                  background: 'none',
+                  border: 0,
+                  padding: '0 2px 7px',
                   marginRight: v === 'week' ? 20 : 0,
                   marginBottom: -0.5,
-                  fontFamily: 'var(--mono)', fontSize: 11.5, letterSpacing: '0.1em',
-                  textTransform: 'uppercase', fontWeight: view === v ? 700 : 600,
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11.5,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  fontWeight: view === v ? 700 : 600,
                   cursor: 'pointer',
                 }}
               >
@@ -197,8 +236,13 @@ const CalendarPage = () => {
                   <motion.div
                     layoutId="cal-tab-line"
                     style={{
-                      position: 'absolute', bottom: 0, left: 0, right: 0,
-                      height: 2.5, background: 'var(--bordeaux)', borderRadius: '2px 2px 0 0',
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: 2.5,
+                      background: 'var(--bordeaux)',
+                      borderRadius: '2px 2px 0 0',
                     }}
                     transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                   />
@@ -208,15 +252,35 @@ const CalendarPage = () => {
           </div>
         </LayoutGroup>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <motion.button onClick={() => movePeriod(-1)} className="lb-icon-btn" whileTap={{ scale: 0.88 }} style={{ width: 40, height: 40 }}>
+          <motion.button
+            onClick={() => movePeriod(-1)}
+            className="lb-icon-btn"
+            whileTap={{ scale: 0.88 }}
+            style={{ width: 40, height: 40 }}
+          >
             <ChevronLeft size={18} />
           </motion.button>
-          <motion.button onClick={goToToday} disabled={isCurrentPeriod} className="lb-btn lb-btn--ghost lb-btn--small"
+          <motion.button
+            onClick={goToToday}
+            disabled={isCurrentPeriod}
+            className="lb-btn lb-btn--ghost lb-btn--small"
             whileTap={{ scale: 0.95 }}
-            style={{ flex: 1, height: 40, borderRadius: 20, fontSize: 13, opacity: isCurrentPeriod ? 0.45 : 1 }}>
+            style={{
+              flex: 1,
+              height: 40,
+              borderRadius: 20,
+              fontSize: 13,
+              opacity: isCurrentPeriod ? 0.45 : 1,
+            }}
+          >
             Vandaag
           </motion.button>
-          <motion.button onClick={() => movePeriod(1)} className="lb-icon-btn" whileTap={{ scale: 0.88 }} style={{ width: 40, height: 40 }}>
+          <motion.button
+            onClick={() => movePeriod(1)}
+            className="lb-icon-btn"
+            whileTap={{ scale: 0.88 }}
+            style={{ width: 40, height: 40 }}
+          >
             <ChevronRight size={18} />
           </motion.button>
         </div>
@@ -226,32 +290,92 @@ const CalendarPage = () => {
       {loading ? (
         <div style={{ flex: 1, overflowY: 'auto', padding: '12px 20px 120px' }}>
           {Array.from({ length: 7 }).map((_, i) => (
-            <div key={i} style={{
-              display: 'flex', alignItems: 'flex-start', gap: 5,
-              padding: '15px 0',
-              borderBottom: i < 6 ? '0.5px solid var(--line)' : 'none',
-              minHeight: 38,
-            }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '17px 22px', columnGap: 5, alignItems: 'center', flexShrink: 0, width: 48, marginTop: 1 }}>
+            <div
+              key={i}
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: 5,
+                padding: '15px 0',
+                borderBottom: i < 6 ? '0.5px solid var(--line)' : 'none',
+                minHeight: 38,
+              }}
+            >
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '17px 22px',
+                  columnGap: 5,
+                  alignItems: 'center',
+                  flexShrink: 0,
+                  width: 48,
+                  marginTop: 1,
+                }}
+              >
                 <div className="lb-skeleton" style={{ width: 14, height: 9, borderRadius: 2 }} />
-                <div className="lb-skeleton" style={{ width: 22, height: 22, borderRadius: '50%' }} />
+                <div
+                  className="lb-skeleton"
+                  style={{ width: 22, height: 22, borderRadius: '50%' }}
+                />
               </div>
-              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5, paddingRight: 6, paddingTop: 3 }}>
+              <div
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 5,
+                  paddingRight: 6,
+                  paddingTop: 3,
+                }}
+              >
                 {([1, 2, 1, 0, 1, 2, 0] as const)[i] > 0 && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <div className="lb-skeleton" style={{ width: 2.5, height: 13, borderRadius: 2, flexShrink: 0 }} />
-                    <div className="lb-skeleton" style={{ height: 13, borderRadius: 5, flex: 1, maxWidth: ['60%', '45%', '70%', '30%', '55%', '40%', '65%'][i] }} />
+                    <div
+                      className="lb-skeleton"
+                      style={{ width: 2.5, height: 13, borderRadius: 2, flexShrink: 0 }}
+                    />
+                    <div
+                      className="lb-skeleton"
+                      style={{
+                        height: 13,
+                        borderRadius: 5,
+                        flex: 1,
+                        maxWidth: ['60%', '45%', '70%', '30%', '55%', '40%', '65%'][i],
+                      }}
+                    />
                   </div>
                 )}
                 {([1, 2, 1, 0, 1, 2, 0] as const)[i] > 1 && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                    <div className="lb-skeleton" style={{ width: 2.5, height: 13, borderRadius: 2, flexShrink: 0 }} />
-                    <div className="lb-skeleton" style={{ height: 13, borderRadius: 5, flex: 1, maxWidth: ['75%', '35%', '55%', '80%', '40%', '50%', '70%'][i] }} />
+                    <div
+                      className="lb-skeleton"
+                      style={{ width: 2.5, height: 13, borderRadius: 2, flexShrink: 0 }}
+                    />
+                    <div
+                      className="lb-skeleton"
+                      style={{
+                        height: 13,
+                        borderRadius: 5,
+                        flex: 1,
+                        maxWidth: ['75%', '35%', '55%', '80%', '40%', '50%', '70%'][i],
+                      }}
+                    />
                   </div>
                 )}
               </div>
-              <div style={{ width: 0, alignSelf: 'stretch', borderLeft: '0.5px solid var(--line)', flexShrink: 0 }} />
-              <div className="lb-skeleton" style={{ width: 12, height: 12, borderRadius: 3, flexShrink: 0, marginTop: 3 }} />
+              <div
+                style={{
+                  width: 0,
+                  alignSelf: 'stretch',
+                  borderLeft: '0.5px solid var(--line)',
+                  flexShrink: 0,
+                }}
+              />
+              <div
+                className="lb-skeleton"
+                style={{ width: 12, height: 12, borderRadius: 3, flexShrink: 0, marginTop: 3 }}
+              />
             </div>
           ))}
         </div>
@@ -264,7 +388,13 @@ const CalendarPage = () => {
             initial="enter"
             animate="center"
             exit="exit"
-            style={{ willChange: 'transform, opacity', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+            style={{
+              willChange: 'transform, opacity',
+              flex: 1,
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
           >
             {view === 'week' ? (
               <WeekView
@@ -294,10 +424,15 @@ const CalendarPage = () => {
         {detailDay && (
           <DayDetailSheet
             date={detailDay}
-            entries={entries.filter(e => e.date === toISO(detailDay))}
+            entries={entries.filter((e) => e.date === toISO(detailDay))}
             recipeMap={recipeMap}
-            onDelete={async (id) => { await handleDelete(id) }}
-            onAdd={() => { setModalDate(toISO(detailDay)); setDetailDay(null) }}
+            onDelete={async (id) => {
+              await handleDelete(id)
+            }}
+            onAdd={() => {
+              setModalDate(toISO(detailDay))
+              setDetailDay(null)
+            }}
             onClose={() => setDetailDay(null)}
           />
         )}
@@ -308,9 +443,14 @@ const CalendarPage = () => {
         {modalDate && (
           <AddMealSheet
             date={modalDate}
-            existingRecipeIds={entries.filter(e => e.date === modalDate && e.recipeId).map(e => e.recipeId!)}
+            existingRecipeIds={entries
+              .filter((e) => e.date === modalDate && e.recipeId)
+              .map((e) => e.recipeId!)}
             onClose={() => setModalDate(null)}
-            onSaved={() => { setModalDate(null); loadEntries() }}
+            onSaved={() => {
+              setModalDate(null)
+              loadEntries()
+            }}
           />
         )}
       </AnimatePresence>
@@ -325,7 +465,6 @@ const CalendarPage = () => {
           />
         )}
       </AnimatePresence>
-
     </div>
   )
 }

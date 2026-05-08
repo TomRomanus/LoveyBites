@@ -35,7 +35,9 @@ const RecipeUrlImport = ({ onExtracted }: Props) => {
   return (
     <form onSubmit={handleImport} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div>
-        <div className="lb-eyebrow" style={{ marginBottom: 8 }}>Link</div>
+        <div className="lb-eyebrow" style={{ marginBottom: 8 }}>
+          Link
+        </div>
         <input
           type="url"
           value={url}
@@ -58,12 +60,30 @@ const RecipeUrlImport = ({ onExtracted }: Props) => {
         />
       </div>
 
-      <p style={{ margin: 0, fontSize: 13, color: 'var(--stone)', textAlign: 'center', lineHeight: 1.5 }}>
+      <p
+        style={{
+          margin: 0,
+          fontSize: 13,
+          color: 'var(--stone)',
+          textAlign: 'center',
+          lineHeight: 1.5,
+        }}
+      >
         Plak een link van een receptenwebsite of TikTok-video
       </p>
 
       {error && (
-        <div style={{ background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)', padding: '10px 14px', borderRadius: '0 12px 12px 0', fontSize: 13, fontWeight: 500, borderLeft: '3px solid var(--bordeaux)' }}>
+        <div
+          style={{
+            background: 'var(--bordeaux-tint)',
+            color: 'var(--bordeaux)',
+            padding: '10px 14px',
+            borderRadius: '0 12px 12px 0',
+            fontSize: 13,
+            fontWeight: 500,
+            borderLeft: '3px solid var(--bordeaux)',
+          }}
+        >
           {error}
         </div>
       )}

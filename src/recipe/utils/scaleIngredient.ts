@@ -18,7 +18,8 @@ const parseFraction = (s: string): number => {
   return parseFloat(normalized)
 }
 
-const VOLUME_UNIT = /^(cups?|c\.|tbsp?\.?|tbs\.?|tablespoons?|tsp\.?|teaspoons?|kop(?:jes?|pen)?|el|tl|eetlepels?|theelepels?)\b/i
+const VOLUME_UNIT =
+  /^(cups?|c\.|tbsp?\.?|tbs\.?|tablespoons?|tsp\.?|teaspoons?|kop(?:jes?|pen)?|el|tl|eetlepels?|theelepels?)\b/i
 
 const formatNumber = (n: number, useFraction = false): string => {
   const rounded = Math.round(n * 1e6) / 1e6

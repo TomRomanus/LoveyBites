@@ -13,14 +13,13 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   // Stable per-item keys managed in state so they are never read during render from a ref
-  const [ids, setIds] = useState<string[]>(() =>
-    sources.map(() => crypto.randomUUID())
-  )
+  const [ids, setIds] = useState<string[]>(() => sources.map(() => crypto.randomUUID()))
 
   // Grow the ids array if sources were added externally (defensive)
-  const stableIds = ids.length >= sources.length
-    ? ids
-    : [...ids, ...Array.from({ length: sources.length - ids.length }, () => crypto.randomUUID())]
+  const stableIds =
+    ids.length >= sources.length
+      ? ids
+      : [...ids, ...Array.from({ length: sources.length - ids.length }, () => crypto.randomUUID())]
 
   const update = (index: number, field: keyof Source, value: string) => {
     const next = sources.map((s, i) => (i === index ? { ...s, [field]: value } : s))
@@ -28,12 +27,12 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
   }
 
   const remove = (index: number) => {
-    setIds(prev => prev.filter((_, i) => i !== index))
+    setIds((prev) => prev.filter((_, i) => i !== index))
     onChange(sources.filter((_, i) => i !== index))
   }
 
   const add = () => {
-    setIds(prev => [...prev, crypto.randomUUID()])
+    setIds((prev) => [...prev, crypto.randomUUID()])
     onChange([...sources, { label: '', url: '' }])
   }
 
@@ -44,7 +43,7 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
     setUploading(true)
     try {
       const url = await uploadSourceImage(file)
-      setIds(prev => [...prev, crypto.randomUUID()])
+      setIds((prev) => [...prev, crypto.randomUUID()])
       onChange([...sources, { label: file.name, url }])
     } finally {
       setUploading(false)
@@ -52,11 +51,19 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
   }
 
   const dashedBtn: React.CSSProperties = {
-    display: 'flex', alignItems: 'center', gap: 8,
-    padding: '9px 12px', border: '1px dashed var(--stone-2)',
-    borderRadius: 9, color: 'var(--stone)', fontSize: 12,
-    background: 'none', cursor: 'pointer', minHeight: 38,
-    fontFamily: 'var(--sans)', width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '9px 12px',
+    border: '1px dashed var(--stone-2)',
+    borderRadius: 9,
+    color: 'var(--stone)',
+    fontSize: 12,
+    background: 'none',
+    cursor: 'pointer',
+    minHeight: 38,
+    fontFamily: 'var(--sans)',
+    width: '100%',
   }
 
   return (
@@ -70,12 +77,30 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
             exit={{ opacity: 0, y: -6, transition: { duration: 0.13, ease: 'easeIn' } }}
             layout
             transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            style={{ background: 'transparent', border: '0.5px solid rgba(31,29,26,0.20)', borderRadius: 10, padding: '10px 12px', position: 'relative' }}
+            style={{
+              background: 'transparent',
+              border: '0.5px solid rgba(31,29,26,0.20)',
+              borderRadius: 10,
+              padding: '10px 12px',
+              position: 'relative',
+            }}
           >
             <button
               type="button"
               onClick={() => remove(i)}
-              style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 0, color: 'var(--stone-2)', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', opacity: 0.8 }}
+              style={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                background: 'none',
+                border: 0,
+                color: 'var(--stone-2)',
+                cursor: 'pointer',
+                padding: 4,
+                display: 'flex',
+                alignItems: 'center',
+                opacity: 0.8,
+              }}
               aria-label="Verwijder bron"
             >
               <X size={11} strokeWidth={2.2} />
@@ -86,9 +111,15 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
               onChange={(e) => update(i, 'label', e.target.value)}
               placeholder="Naam (optioneel)"
               style={{
-                width: '100%', background: 'transparent', border: 0, outline: 'none',
-                fontSize: 13, color: 'var(--ink)', fontFamily: 'var(--sans)',
-                paddingRight: 28, paddingBottom: 6,
+                width: '100%',
+                background: 'transparent',
+                border: 0,
+                outline: 'none',
+                fontSize: 13,
+                color: 'var(--ink)',
+                fontFamily: 'var(--sans)',
+                paddingRight: 28,
+                paddingBottom: 6,
                 borderBottom: '0.5px solid var(--line)',
               }}
             />
@@ -98,9 +129,15 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
               onChange={(e) => update(i, 'url', e.target.value)}
               placeholder="https://..."
               style={{
-                width: '100%', background: 'transparent', border: 0, outline: 'none',
-                fontSize: 12, color: source.url ? '#722F37' : 'var(--stone)', fontFamily: 'var(--sans)',
-                fontStyle: 'italic', marginTop: 7,
+                width: '100%',
+                background: 'transparent',
+                border: 0,
+                outline: 'none',
+                fontSize: 12,
+                color: source.url ? '#722F37' : 'var(--stone)',
+                fontFamily: 'var(--sans)',
+                fontStyle: 'italic',
+                marginTop: 7,
               }}
             />
           </motion.div>
@@ -111,11 +148,26 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
           <Plus size={11} strokeWidth={2.5} />
           bron toevoegen
         </button>
-        <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} style={{ ...dashedBtn, color: uploading ? 'var(--stone-2)' : 'var(--stone)', cursor: uploading ? 'default' : 'pointer' }}>
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          style={{
+            ...dashedBtn,
+            color: uploading ? 'var(--stone-2)' : 'var(--stone)',
+            cursor: uploading ? 'default' : 'pointer',
+          }}
+        >
           <Upload size={11} strokeWidth={2.5} />
           {uploading ? 'uploaden…' : 'afbeelding uploaden'}
         </button>
-        <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFileChange} />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
+        />
       </div>
     </div>
   )

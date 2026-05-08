@@ -29,13 +29,21 @@ import AutoGrowTextarea from '../../shared/components/AutoGrowTextarea'
 // ── Sheet animation ──────────────────────────────────────────────────────────
 
 const sheetVariants = {
-  hidden: { y: '100%', transition: { type: 'tween' as const, duration: 0.22, ease: [0.4, 0, 1, 1] as const } },
+  hidden: {
+    y: '100%',
+    transition: { type: 'tween' as const, duration: 0.22, ease: [0.4, 0, 1, 1] as const },
+  },
   visible: { y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 32 } },
 }
 
 // ── Ingredient picker sheet ──────────────────────────────────────────────────
 
-const IngredientPickerSheet = ({ selectedIds, options, onToggle, onClose }: {
+const IngredientPickerSheet = ({
+  selectedIds,
+  options,
+  onToggle,
+  onClose,
+}: {
   selectedIds: Set<string>
   options: Array<{ id: string; text: string }>
   onToggle: (id: string) => void
@@ -52,54 +60,122 @@ const IngredientPickerSheet = ({ selectedIds, options, onToggle, onClose }: {
   return createPortal(
     <AnimatePresence onExitComplete={onClose}>
       {visible && (
-        <motion.div key="ing-bd"
-          variants={backdropVariants} initial="hidden" animate="visible" exit="hidden"
+        <motion.div
+          key="ing-bd"
+          variants={backdropVariants}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
           onClick={close}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(31,29,26,0.12)', backdropFilter: 'blur(1px)', WebkitBackdropFilter: 'blur(1px)', zIndex: 200 }} />
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(31,29,26,0.12)',
+            backdropFilter: 'blur(1px)',
+            WebkitBackdropFilter: 'blur(1px)',
+            zIndex: 200,
+          }}
+        />
       )}
       {visible && (
-        <motion.div key="ing-sheet" className="lb-sheet" style={{ animation: 'none', paddingBottom: 30 }}
-          variants={sheetVariants} initial="hidden" animate="visible" exit="hidden">
+        <motion.div
+          key="ing-sheet"
+          className="lb-sheet"
+          style={{ animation: 'none', paddingBottom: 30 }}
+          variants={sheetVariants}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+        >
           <div className="lb-sheet-grabber" />
-          <div style={{ padding: '12px 20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <h3 className="lb-display" style={{ margin: 0, fontSize: 22 }}>Ingrediënten</h3>
+          <div
+            style={{
+              padding: '12px 20px 0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <h3 className="lb-display" style={{ margin: 0, fontSize: 22 }}>
+              Ingrediënten
+            </h3>
             {selectedIds.size > 0 && (
-              <button type="button" onClick={() => options.filter(o => selectedIds.has(o.id)).forEach(o => onToggle(o.id))}
-                style={{ background: 'none', border: 0, color: 'var(--bordeaux)', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}>
+              <button
+                type="button"
+                onClick={() =>
+                  options.filter((o) => selectedIds.has(o.id)).forEach((o) => onToggle(o.id))
+                }
+                style={{
+                  background: 'none',
+                  border: 0,
+                  color: 'var(--bordeaux)',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                }}
+              >
                 Alles wissen
               </button>
             )}
           </div>
-          <div style={{ padding: '16px 20px 20px', display: 'flex', flexWrap: 'wrap', gap: 8, overflow: 'hidden' }}>
-            {options.length > 0 ? options.map(opt => (
-              <motion.button key={opt.id} type="button" className="lb-tag"
-                data-active={selectedIds.has(opt.id) ? 'true' : 'false'}
-                onClick={() => onToggle(opt.id)}
-                layout transition={{ layout: { type: 'spring', stiffness: 400, damping: 32 } }}
-                style={{ cursor: 'pointer', gap: 4 }}>
-                <AnimatePresence mode="popLayout">
-                  {selectedIds.has(opt.id) && (
-                    <motion.span key="check"
-                      initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0, opacity: 0 }}
-                      transition={{ type: 'spring', stiffness: 420, damping: 25 }}
-                      style={{ display: 'inline-flex' }}>
-                      <Check size={14} strokeWidth={2.5} />
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-                {opt.text}
-              </motion.button>
-            )) : (
-              <span style={{ fontSize: 13, color: 'var(--stone)' }}>Voeg eerst ingrediënten toe</span>
+          <div
+            style={{
+              padding: '16px 20px 20px',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 8,
+              overflow: 'hidden',
+            }}
+          >
+            {options.length > 0 ? (
+              options.map((opt) => (
+                <motion.button
+                  key={opt.id}
+                  type="button"
+                  className="lb-tag"
+                  data-active={selectedIds.has(opt.id) ? 'true' : 'false'}
+                  onClick={() => onToggle(opt.id)}
+                  layout
+                  transition={{ layout: { type: 'spring', stiffness: 400, damping: 32 } }}
+                  style={{ cursor: 'pointer', gap: 4 }}
+                >
+                  <AnimatePresence mode="popLayout">
+                    {selectedIds.has(opt.id) && (
+                      <motion.span
+                        key="check"
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 420, damping: 25 }}
+                        style={{ display: 'inline-flex' }}
+                      >
+                        <Check size={14} strokeWidth={2.5} />
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                  {opt.text}
+                </motion.button>
+              ))
+            ) : (
+              <span style={{ fontSize: 13, color: 'var(--stone)' }}>
+                Voeg eerst ingrediënten toe
+              </span>
             )}
           </div>
           <div style={{ padding: '0 20px 14px', flexShrink: 0 }}>
-            <button type="button" onClick={close} className="lb-btn lb-btn--primary" style={{ width: '100%' }}>Klaar</button>
+            <button
+              type="button"
+              onClick={close}
+              className="lb-btn lb-btn--primary"
+              style={{ width: '100%' }}
+            >
+              Klaar
+            </button>
           </div>
         </motion.div>
       )}
     </AnimatePresence>,
-    document.body
+    document.body,
   )
 }
 
@@ -107,7 +183,11 @@ const IngredientPickerSheet = ({ selectedIds, options, onToggle, onClose }: {
 
 const newLeaf = (): IngredientNode => ({ kind: 'leaf', text: '', id: crypto.randomUUID() })
 
-const replaceAt = (nodes: IngredientNode[], path: number[], replacement: IngredientNode): IngredientNode[] => {
+const replaceAt = (
+  nodes: IngredientNode[],
+  path: number[],
+  replacement: IngredientNode,
+): IngredientNode[] => {
   if (path.length === 1) return nodes.map((n, i) => (i === path[0] ? replacement : n))
   return nodes.map((n, i) => {
     if (i !== path[0] || n.kind !== 'group') return n
@@ -123,7 +203,11 @@ const removeAt = (nodes: IngredientNode[], path: number[]): IngredientNode[] => 
   })
 }
 
-const appendChild = (nodes: IngredientNode[], path: number[], node: IngredientNode): IngredientNode[] => {
+const appendChild = (
+  nodes: IngredientNode[],
+  path: number[],
+  node: IngredientNode,
+): IngredientNode[] => {
   if (path.length === 0) return [...nodes, node]
   return nodes.map((n, i) => {
     if (i !== path[0] || n.kind !== 'group') return n
@@ -170,16 +254,22 @@ const findNode = (nodes: IngredientNode[], id: string): IngredientNode | null =>
 
 const removeDragNode = (nodes: IngredientNode[], id: string): IngredientNode[] =>
   nodes
-    .filter(n => n.id !== id)
-    .map(n => n.kind === 'group' ? { ...n, children: n.children.filter(c => c.id !== id) } : n)
+    .filter((n) => n.id !== id)
+    .map((n) =>
+      n.kind === 'group' ? { ...n, children: n.children.filter((c) => c.id !== id) } : n,
+    )
 
-const moveNodeInTree = (nodes: IngredientNode[], activeId: string, overId: string): IngredientNode[] => {
+const moveNodeInTree = (
+  nodes: IngredientNode[],
+  activeId: string,
+  overId: string,
+): IngredientNode[] => {
   if (activeId === overId) return nodes
   const activeNode = findNode(nodes, activeId)
   const overNode = findNode(nodes, overId)
   if (!activeNode || !overNode) return nodes
 
-  const rootIds = nodes.map(n => n.id!)
+  const rootIds = nodes.map((n) => n.id!)
   const activeContainer = findContainer(nodes, activeId)
   const overContainer = findContainer(nodes, overId)
 
@@ -194,10 +284,8 @@ const moveNodeInTree = (nodes: IngredientNode[], activeId: string, overId: strin
   // Dragging a leaf over a group header → append to that group
   if (overNode.kind === 'group') {
     const without = removeDragNode(nodes, activeId)
-    return without.map(n =>
-      n.kind === 'group' && n.id === overId
-        ? { ...n, children: [...n.children, activeNode] }
-        : n
+    return without.map((n) =>
+      n.kind === 'group' && n.id === overId ? { ...n, children: [...n.children, activeNode] } : n,
     )
   }
 
@@ -209,9 +297,9 @@ const moveNodeInTree = (nodes: IngredientNode[], activeId: string, overId: strin
       if (oldIdx === -1 || newIdx === -1) return nodes
       return arrayMove(nodes, oldIdx, newIdx)
     }
-    return nodes.map(n => {
+    return nodes.map((n) => {
       if (n.kind !== 'group' || n.id !== activeContainer) return n
-      const ids = n.children.map(c => c.id!)
+      const ids = n.children.map((c) => c.id!)
       const oldIdx = ids.indexOf(activeId)
       const newIdx = ids.indexOf(overId)
       if (oldIdx === -1 || newIdx === -1) return n
@@ -222,15 +310,15 @@ const moveNodeInTree = (nodes: IngredientNode[], activeId: string, overId: strin
   // Leaf over leaf — cross container
   const without = removeDragNode(nodes, activeId)
   if (overContainer === null) {
-    return produce(without, draft => {
-      const idx = draft.findIndex(n => n.id === overId)
+    return produce(without, (draft) => {
+      const idx = draft.findIndex((n) => n.id === overId)
       draft.splice(idx === -1 ? draft.length : idx, 0, activeNode as IngredientNode)
     })
   }
-  return produce(without, draft => {
-    const group = draft.find(n => n.kind === 'group' && n.id === overContainer)
+  return produce(without, (draft) => {
+    const group = draft.find((n) => n.kind === 'group' && n.id === overContainer)
     if (group?.kind !== 'group') return
-    const idx = group.children.findIndex(c => c.id === overId)
+    const idx = group.children.findIndex((c) => c.id === overId)
     group.children.splice(idx === -1 ? group.children.length : idx, 0, activeNode as IngredientNode)
   })
 }
@@ -291,8 +379,9 @@ const buildLeafIndexMap = (nodes: IngredientNode[]): Map<string, number> => {
   let n = 0
   const walk = (ns: IngredientNode[]) => {
     for (const node of ns) {
-      if (node.kind === 'leaf') { if (node.id) map.set(node.id, n++) }
-      else walk(node.children)
+      if (node.kind === 'leaf') {
+        if (node.id) map.set(node.id, n++)
+      } else walk(node.children)
     }
   }
   walk(nodes)
@@ -308,7 +397,9 @@ type DragHandleContextValue = {
 const DragHandleCtx = createContext<DragHandleContextValue>({})
 
 const SortableItem = ({ id, children }: { id: string; children: React.ReactNode }) => {
-  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id })
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
+    id,
+  })
   return (
     <DragHandleCtx.Provider value={{ listeners, attributes }}>
       <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition }}>
@@ -325,9 +416,14 @@ const GripHandle = ({ style }: { style?: React.CSSProperties }) => {
       {...listeners}
       {...attributes}
       style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        cursor: 'grab', color: 'var(--stone-2)', padding: '0 4px',
-        touchAction: 'none', flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'grab',
+        color: 'var(--stone-2)',
+        padding: '0 4px',
+        touchAction: 'none',
+        flexShrink: 0,
         ...style,
       }}
     >
@@ -360,7 +456,20 @@ type LeafRowProps = {
   reordering?: boolean
 }
 
-const LeafRow = ({ node, path, isOnly, isLast, allNodes, labels, onChange, ingredientOptions, ordered, itemIndex, leafIndexMap, reordering }: LeafRowProps) => {
+const LeafRow = ({
+  node,
+  path,
+  isOnly,
+  isLast,
+  allNodes,
+  labels,
+  onChange,
+  ingredientOptions,
+  ordered,
+  itemIndex,
+  leafIndexMap,
+  reordering,
+}: LeafRowProps) => {
   const [pickerOpen, setPickerOpen] = useState(false)
   const selectedIds = new Set(node.ingredientRefs ?? [])
   const selectedIngredients = ingredientOptions?.filter((opt) => selectedIds.has(opt.id)) ?? []
@@ -368,21 +477,62 @@ const LeafRow = ({ node, path, isOnly, isLast, allNodes, labels, onChange, ingre
   const toggleIngredient = (id: string) => {
     const cur = node.ingredientRefs ?? []
     const newRefs = selectedIds.has(id) ? cur.filter((r) => r !== id) : [...cur, id]
-    onChange(replaceAt(allNodes, path, { ...node, ingredientRefs: newRefs.length > 0 ? newRefs : undefined }))
+    onChange(
+      replaceAt(allNodes, path, {
+        ...node,
+        ingredientRefs: newRefs.length > 0 ? newRefs : undefined,
+      }),
+    )
   }
 
   const refsPanel = ordered && (
     <div style={{ marginBottom: 5 }}>
       {selectedIngredients.length === 0 ? (
-        <button type="button" onClick={() => setPickerOpen(true)}
-          style={{ background: 'none', border: 0, fontSize: 10, color: 'rgba(107,31,42,0.45)', cursor: 'pointer', padding: 0, fontFamily: 'var(--mono)', letterSpacing: '0.08em', textTransform: 'uppercase', display: 'block', textAlign: 'left', lineHeight: 'normal' }}>
+        <button
+          type="button"
+          onClick={() => setPickerOpen(true)}
+          style={{
+            background: 'none',
+            border: 0,
+            fontSize: 10,
+            color: 'rgba(107,31,42,0.45)',
+            cursor: 'pointer',
+            padding: 0,
+            fontFamily: 'var(--mono)',
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            display: 'block',
+            textAlign: 'left',
+            lineHeight: 'normal',
+          }}
+        >
           + ingrediënten
         </button>
       ) : (
-        <button type="button" onClick={() => setPickerOpen(true)}
-          style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer', display: 'block', textAlign: 'left', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(107,31,42,0.55)', lineHeight: 'normal', width: '100%' }}>
+        <button
+          type="button"
+          onClick={() => setPickerOpen(true)}
+          style={{
+            background: 'none',
+            border: 0,
+            padding: 0,
+            cursor: 'pointer',
+            display: 'block',
+            textAlign: 'left',
+            fontFamily: 'var(--mono)',
+            fontSize: 10,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'rgba(107,31,42,0.55)',
+            lineHeight: 'normal',
+            width: '100%',
+          }}
+        >
           {selectedIngredients.map((o, i) => (
-            <span key={o.id}>{i > 0 ? ' · ' : ''}{o.text}</span>
+            <span key={o.id}>
+              {i > 0 ? ' · ' : ''}
+              {o.text}
+            </span>
           ))}
         </button>
       )}
@@ -399,7 +549,14 @@ const LeafRow = ({ node, path, isOnly, isLast, allNodes, labels, onChange, ingre
 
   return (
     <div style={{ borderBottom: isLast ? 'none' : '0.5px solid var(--line-soft)' }}>
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: ordered ? 8 : 6, padding: ordered ? '8px 0' : '6px 0' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: ordered ? 8 : 6,
+          padding: ordered ? '8px 0' : '6px 0',
+        }}
+      >
         {ordered ? (
           // Steps: grip slides in alongside the number — animate width so layout shifts smoothly
           <motion.div
@@ -415,20 +572,50 @@ const LeafRow = ({ node, path, isOnly, isLast, allNodes, labels, onChange, ingre
             <motion.div
               animate={{ opacity: reordering ? 1 : 0 }}
               transition={{ duration: 0.18, ease: 'easeInOut' }}
-              style={{ position: 'absolute', top: 12, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'center' }}
+              style={{
+                position: 'absolute',
+                top: 12,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+              }}
             >
               <GripHandle />
             </motion.div>
             <motion.span
               animate={{ opacity: reordering ? 0 : 1 }}
               transition={{ duration: 0.18, ease: 'easeInOut' }}
-              style={{ color: 'var(--bordeaux)', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}
-            >•</motion.span>
+              style={{
+                color: 'var(--bordeaux)',
+                fontSize: 11,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: 1,
+              }}
+            >
+              •
+            </motion.span>
           </div>
         )}
 
         {ordered && (
-          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 22, flexShrink: 0, lineHeight: 1.1, paddingTop: 1 }}>
+          <span
+            style={{
+              fontFamily: 'var(--serif)',
+              fontStyle: 'italic',
+              fontSize: 22,
+              color: 'var(--bordeaux)',
+              fontWeight: 500,
+              width: 22,
+              flexShrink: 0,
+              lineHeight: 1.1,
+              paddingTop: 1,
+            }}
+          >
             {(leafIndexMap?.get(node.id ?? '') ?? itemIndex ?? 0) + 1}
           </span>
         )}
@@ -438,9 +625,18 @@ const LeafRow = ({ node, path, isOnly, isLast, allNodes, labels, onChange, ingre
             {refsPanel}
             <AutoGrowTextarea
               value={node.text}
-              onChange={(e) => onChange(replaceAt(allNodes, path, { ...node, text: e.target.value }))}
+              onChange={(e) =>
+                onChange(replaceAt(allNodes, path, { ...node, text: e.target.value }))
+              }
               rows={1}
-              style={{ ...leafInputStyle, flex: 'none', width: '100%', boxSizing: 'border-box', lineHeight: 1.5, padding: '0 4px 0 0' }}
+              style={{
+                ...leafInputStyle,
+                flex: 'none',
+                width: '100%',
+                boxSizing: 'border-box',
+                lineHeight: 1.5,
+                padding: '0 4px 0 0',
+              }}
               placeholder={labels.leafPlaceholder}
             />
           </div>
@@ -455,7 +651,12 @@ const LeafRow = ({ node, path, isOnly, isLast, allNodes, labels, onChange, ingre
         )}
 
         {!isOnly && (
-          <button type="button" onClick={() => onChange(removeAt(allNodes, path))} style={{ ...xBtn, marginTop: ordered ? 0 : 6 }} aria-label="Verwijderen">
+          <button
+            type="button"
+            onClick={() => onChange(removeAt(allNodes, path))}
+            style={{ ...xBtn, marginTop: ordered ? 0 : 6 }}
+            aria-label="Verwijderen"
+          >
             <X size={11} strokeWidth={2.2} />
           </button>
         )}
@@ -479,9 +680,20 @@ type GroupRowProps = {
   reordering?: boolean
 }
 
-const GroupRow = ({ node, path, isOnly, allNodes, labels, onChange, ingredientOptions, ordered, leafIndexMap, reordering }: GroupRowProps) => {
+const GroupRow = ({
+  node,
+  path,
+  isOnly,
+  allNodes,
+  labels,
+  onChange,
+  ingredientOptions,
+  ordered,
+  leafIndexMap,
+  reordering,
+}: GroupRowProps) => {
   let leafCounter = 0
-  const childIds = node.children.map(c => c.id!)
+  const childIds = node.children.map((c) => c.id!)
 
   return (
     // Handle sits OUTSIDE (to the left of) the vertical bordeaux bar
@@ -494,30 +706,68 @@ const GroupRow = ({ node, path, isOnly, allNodes, labels, onChange, ingredientOp
         <GripHandle style={{ paddingTop: 8, paddingRight: 10 }} />
       </motion.div>
 
-      <div style={{ borderLeft: '2px solid rgba(107,31,42,0.30)', padding: '2px 0 4px 12px', flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 }}>
+      <div
+        style={{
+          borderLeft: '2px solid rgba(107,31,42,0.30)',
+          padding: '2px 0 4px 12px',
+          flex: 1,
+          minWidth: 0,
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 3,
+          }}
+        >
           <input
             type="text"
             value={node.title}
-            onChange={(e) => onChange(replaceAt(allNodes, path, { ...node, title: e.target.value }))}
+            onChange={(e) =>
+              onChange(replaceAt(allNodes, path, { ...node, title: e.target.value }))
+            }
             style={{
-              flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 13, fontWeight: 500,
-              color: 'var(--bordeaux)', background: 'transparent', border: 0, outline: 'none', padding: '2px 0',
+              flex: 1,
+              fontFamily: 'var(--serif)',
+              fontStyle: 'italic',
+              fontSize: 13,
+              fontWeight: 500,
+              color: 'var(--bordeaux)',
+              background: 'transparent',
+              border: 0,
+              outline: 'none',
+              padding: '2px 0',
             }}
             placeholder={labels.groupPlaceholder}
           />
-          <button type="button" onClick={() => {
-            if (isOnly) {
-              onChange(node.children.length > 0 ? node.children : [newLeaf()])
-            } else {
-              onChange(removeAt(allNodes, path))
-            }
-          }} style={xBtn} aria-label="Sectie verwijderen">
+          <button
+            type="button"
+            onClick={() => {
+              if (isOnly) {
+                onChange(node.children.length > 0 ? node.children : [newLeaf()])
+              } else {
+                onChange(removeAt(allNodes, path))
+              }
+            }}
+            style={xBtn}
+            aria-label="Sectie verwijderen"
+          >
             <X size={11} strokeWidth={2.2} />
           </button>
         </div>
 
-        <div style={{ width: 22, height: 1.5, background: 'var(--bordeaux)', opacity: 0.55, borderRadius: 1, marginBottom: 6 }} />
+        <div
+          style={{
+            width: 22,
+            height: 1.5,
+            background: 'var(--bordeaux)',
+            opacity: 0.55,
+            borderRadius: 1,
+            marginBottom: 6,
+          }}
+        />
 
         <SortableContext items={childIds} strategy={verticalListSortingStrategy}>
           <AnimatePresence mode="popLayout" initial={false}>
@@ -553,16 +803,26 @@ const GroupRow = ({ node, path, isOnly, allNodes, labels, onChange, ingredientOp
           </AnimatePresence>
         </SortableContext>
 
-        <button type="button"
+        <button
+          type="button"
           onClick={() => onChange(appendChild(allNodes, path, newLeaf()))}
           style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '7px 8px', marginTop: 6,
-            border: '1px dashed rgba(107,31,42,0.22)', borderRadius: 7,
-            color: 'var(--stone)', fontSize: 11.5, minHeight: 32,
-            background: 'none', cursor: 'pointer', fontFamily: 'var(--sans)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '7px 8px',
+            marginTop: 6,
+            border: '1px dashed rgba(107,31,42,0.22)',
+            borderRadius: 7,
+            color: 'var(--stone)',
+            fontSize: 11.5,
+            minHeight: 32,
+            background: 'none',
+            cursor: 'pointer',
+            fontFamily: 'var(--sans)',
             width: '100%',
-          }}>
+          }}
+        >
           <Plus size={10} strokeWidth={2.5} />
           {labels.addLeafInGroup}
         </button>
@@ -573,7 +833,15 @@ const GroupRow = ({ node, path, isOnly, allNodes, labels, onChange, ingredientOp
 
 // ── Drag overlay ──────────────────────────────────────────────────────────────
 
-const OverlayContent = ({ node, ordered, leafIndexMap }: { node: IngredientNode; ordered?: boolean; leafIndexMap?: Map<string, number> }) => {
+const OverlayContent = ({
+  node,
+  ordered,
+  leafIndexMap,
+}: {
+  node: IngredientNode
+  ordered?: boolean
+  leafIndexMap?: Map<string, number>
+}) => {
   const overlayStyle: React.CSSProperties = {
     background: 'var(--cream-card)',
     borderRadius: 10,
@@ -589,7 +857,15 @@ const OverlayContent = ({ node, ordered, leafIndexMap }: { node: IngredientNode;
     return (
       <div style={overlayStyle}>
         <GripVertical size={12} />
-        <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 13, fontWeight: 500, color: 'var(--bordeaux)' }}>
+        <span
+          style={{
+            fontFamily: 'var(--serif)',
+            fontStyle: 'italic',
+            fontSize: 13,
+            fontWeight: 500,
+            color: 'var(--bordeaux)',
+          }}
+        >
           {node.title || 'Sectie'}
         </span>
       </div>
@@ -601,11 +877,35 @@ const OverlayContent = ({ node, ordered, leafIndexMap }: { node: IngredientNode;
     <div style={{ ...overlayStyle, gap: ordered ? 14 : 8 }}>
       <GripVertical size={12} />
       {ordered ? (
-        <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 22, color: 'var(--bordeaux)', fontWeight: 500, width: 22, flexShrink: 0, lineHeight: 1.1 }}>{num}</span>
+        <span
+          style={{
+            fontFamily: 'var(--serif)',
+            fontStyle: 'italic',
+            fontSize: 22,
+            color: 'var(--bordeaux)',
+            fontWeight: 500,
+            width: 22,
+            flexShrink: 0,
+            lineHeight: 1.1,
+          }}
+        >
+          {num}
+        </span>
       ) : (
-        <span style={{ color: 'var(--bordeaux)', fontFamily: 'var(--serif)', fontSize: 16, paddingLeft: 4 }}>·</span>
+        <span
+          style={{
+            color: 'var(--bordeaux)',
+            fontFamily: 'var(--serif)',
+            fontSize: 16,
+            paddingLeft: 4,
+          }}
+        >
+          ·
+        </span>
       )}
-      <span style={{ fontFamily: 'var(--sans)', fontSize: 14, color: 'var(--ink-2)' }}>{node.text || '…'}</span>
+      <span style={{ fontFamily: 'var(--sans)', fontSize: 14, color: 'var(--ink-2)' }}>
+        {node.text || '…'}
+      </span>
     </div>
   )
 }
@@ -623,7 +923,15 @@ type RecipeNodeEditorProps = {
   reordering?: boolean
 }
 
-const RecipeNodeEditor = ({ nodes, onChange, labels: labelOverrides, commonSections, ingredientOptions, ordered, reordering }: RecipeNodeEditorProps) => {
+const RecipeNodeEditor = ({
+  nodes,
+  onChange,
+  labels: labelOverrides,
+  commonSections,
+  ingredientOptions,
+  ordered,
+  reordering,
+}: RecipeNodeEditorProps) => {
   const labels = { ...defaultLabels, ...labelOverrides }
   const [activeId, setActiveId] = useState<string | null>(null)
 
@@ -651,7 +959,7 @@ const RecipeNodeEditor = ({ nodes, onChange, labels: labelOverrides, commonSecti
   const existingTitles = collectGroupTitles(nodes)
   const availableSections = commonSections?.filter((name) => !existingTitles.has(name)) ?? []
   const leafIndexMap = ordered ? buildLeafIndexMap(nodes) : undefined
-  const rootIds = nodes.map(n => n.id!)
+  const rootIds = nodes.map((n) => n.id!)
   const activeNode = activeId ? findNode(nodes, activeId) : null
 
   let rootLeafCounter = 0
@@ -660,9 +968,9 @@ const RecipeNodeEditor = ({ nodes, onChange, labels: labelOverrides, commonSecti
     <DndContext
       sensors={sensors}
       collisionDetection={(args) => {
-          const hits = pointerWithin(args)
-          return hits.length > 0 ? hits : closestCenter(args)
-        }}
+        const hits = pointerWithin(args)
+        return hits.length > 0 ? hits : closestCenter(args)
+      }}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActiveId(null)}
@@ -728,15 +1036,45 @@ const RecipeNodeEditor = ({ nodes, onChange, labels: labelOverrides, commonSecti
         </SortableContext>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
-          <button type="button"
+          <button
+            type="button"
             onClick={() => onChange([...nodes, newLeaf()])}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', border: '1px dashed var(--stone-2)', borderRadius: 9, color: 'var(--stone)', fontSize: 12, background: 'none', cursor: 'pointer', minHeight: 38, fontFamily: 'var(--sans)' }}>
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '9px 12px',
+              border: '1px dashed var(--stone-2)',
+              borderRadius: 9,
+              color: 'var(--stone)',
+              fontSize: 12,
+              background: 'none',
+              cursor: 'pointer',
+              minHeight: 38,
+              fontFamily: 'var(--sans)',
+            }}
+          >
             <Plus size={11} strokeWidth={2.5} />
             {labels.addLeaf}
           </button>
-          <button type="button"
+          <button
+            type="button"
             onClick={() => addSection('')}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', border: '1px dashed var(--stone-2)', borderRadius: 9, color: 'var(--stone)', fontSize: 12, background: 'none', cursor: 'pointer', minHeight: 38, fontFamily: 'var(--sans)' }}>
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '9px 12px',
+              border: '1px dashed var(--stone-2)',
+              borderRadius: 9,
+              color: 'var(--stone)',
+              fontSize: 12,
+              background: 'none',
+              cursor: 'pointer',
+              minHeight: 38,
+              fontFamily: 'var(--sans)',
+            }}
+          >
             <Plus size={11} strokeWidth={2.5} />
             {labels.addGroup}
           </button>
@@ -750,7 +1088,16 @@ const RecipeNodeEditor = ({ nodes, onChange, labels: labelOverrides, commonSecti
                 transition={{ duration: 0.18, ease: 'easeOut' }}
                 style={{ paddingTop: 4 }}
               >
-                <div style={{ fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--stone-2)', marginBottom: 6 }}>
+                <div
+                  style={{
+                    fontFamily: 'var(--mono)',
+                    fontSize: 8.5,
+                    letterSpacing: '0.14em',
+                    textTransform: 'uppercase',
+                    color: 'var(--stone-2)',
+                    marginBottom: 6,
+                  }}
+                >
                   Sectiesuggesties
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
@@ -762,13 +1109,27 @@ const RecipeNodeEditor = ({ nodes, onChange, labels: labelOverrides, commonSecti
                         animate={{ scale: 1, opacity: 1 }}
                         exit={{ scale: 0.85, opacity: 0, transition: { duration: 0.1 } }}
                         layout
-                        transition={{ type: 'spring', stiffness: 380, damping: 28, delay: i * 0.04 }}
-                        type="button" onClick={() => addSection(name)} style={{
-                          fontSize: 10.5, padding: '5px 11px', borderRadius: 20,
-                          border: '1px dashed var(--stone-2)', background: 'transparent',
-                          color: 'var(--stone)', fontFamily: 'var(--mono)',
-                          letterSpacing: '0.06em', textTransform: 'uppercase', cursor: 'pointer',
-                        }}>
+                        transition={{
+                          type: 'spring',
+                          stiffness: 380,
+                          damping: 28,
+                          delay: i * 0.04,
+                        }}
+                        type="button"
+                        onClick={() => addSection(name)}
+                        style={{
+                          fontSize: 10.5,
+                          padding: '5px 11px',
+                          borderRadius: 20,
+                          border: '1px dashed var(--stone-2)',
+                          background: 'transparent',
+                          color: 'var(--stone)',
+                          fontFamily: 'var(--mono)',
+                          letterSpacing: '0.06em',
+                          textTransform: 'uppercase',
+                          cursor: 'pointer',
+                        }}
+                      >
                         + {name}
                       </motion.button>
                     ))}

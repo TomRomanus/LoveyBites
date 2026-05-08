@@ -37,8 +37,18 @@ const emptyInput = (): RecipeInput => ({
   portions: 4,
   ingredients: [{ kind: 'leaf', text: '', id: crypto.randomUUID() }],
   steps: [
-    { kind: 'group', title: 'Voorbereiding', id: crypto.randomUUID(), children: [{ kind: 'leaf', text: '', id: crypto.randomUUID() }] },
-    { kind: 'group', title: 'Bereiding', id: crypto.randomUUID(), children: [{ kind: 'leaf', text: '', id: crypto.randomUUID() }] },
+    {
+      kind: 'group',
+      title: 'Voorbereiding',
+      id: crypto.randomUUID(),
+      children: [{ kind: 'leaf', text: '', id: crypto.randomUUID() }],
+    },
+    {
+      kind: 'group',
+      title: 'Bereiding',
+      id: crypto.randomUUID(),
+      children: [{ kind: 'leaf', text: '', id: crypto.randomUUID() }],
+    },
   ],
   sources: [],
   tags: [],
@@ -70,7 +80,15 @@ const sectionCard: React.CSSProperties = {
   background: 'transparent',
 }
 
-const Field = ({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) => (
+const Field = ({
+  label,
+  required,
+  children,
+}: {
+  label: string
+  required?: boolean
+  children: React.ReactNode
+}) => (
   <div>
     <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, marginBottom: 8 }}>
       <span className="lb-eyebrow">{label}</span>
@@ -80,7 +98,15 @@ const Field = ({ label, required, children }: { label: string; required?: boolea
   </div>
 )
 
-const TagsEditor = ({ tags, onChange, existingTags = [] }: { tags: string[]; onChange: (tags: string[]) => void; existingTags?: string[] }) => {
+const TagsEditor = ({
+  tags,
+  onChange,
+  existingTags = [],
+}: {
+  tags: string[]
+  onChange: (tags: string[]) => void
+  existingTags?: string[]
+}) => {
   const [input, setInput] = useState('')
   const [focused, setFocused] = useState(false)
 
@@ -96,21 +122,32 @@ const TagsEditor = ({ tags, onChange, existingTags = [] }: { tags: string[]; onC
   }
 
   const suggestions = input.trim()
-    ? existingTags.filter((t) => !tags.includes(t) && t.toLowerCase().includes(input.toLowerCase())).slice(0, 8)
+    ? existingTags
+        .filter((t) => !tags.includes(t) && t.toLowerCase().includes(input.toLowerCase()))
+        .slice(0, 8)
     : []
 
   const chipStyle: React.CSSProperties = {
-    display: 'inline-flex', alignItems: 'center', gap: 5,
-    background: 'transparent', border: '0.5px solid rgba(31,29,26,0.20)',
-    borderRadius: 20, padding: '4px 8px 4px 10px',
-    fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 500,
-    letterSpacing: '0.1em', textTransform: 'uppercase',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 5,
+    background: 'transparent',
+    border: '0.5px solid rgba(31,29,26,0.20)',
+    borderRadius: 20,
+    padding: '4px 8px 4px 10px',
+    fontFamily: 'var(--mono)',
+    fontSize: 10,
+    fontWeight: 500,
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
     color: 'var(--ink-2)',
   }
 
   return (
     <div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center', minHeight: 32 }}>
+      <div
+        style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center', minHeight: 32 }}
+      >
         <AnimatePresence mode="popLayout">
           {tags.map((t) => (
             <motion.span
@@ -123,8 +160,20 @@ const TagsEditor = ({ tags, onChange, existingTags = [] }: { tags: string[]; onC
               style={chipStyle}
             >
               {t}
-              <button type="button" onClick={() => onChange(tags.filter((x) => x !== t))}
-                style={{ background: 'none', border: 0, color: 'var(--stone)', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', padding: 0, lineHeight: 1 }}>
+              <button
+                type="button"
+                onClick={() => onChange(tags.filter((x) => x !== t))}
+                style={{
+                  background: 'none',
+                  border: 0,
+                  color: 'var(--stone)',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: 0,
+                  lineHeight: 1,
+                }}
+              >
                 <X size={9} strokeWidth={2.5} />
               </button>
             </motion.span>
@@ -135,14 +184,23 @@ const TagsEditor = ({ tags, onChange, existingTags = [] }: { tags: string[]; onC
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), add())}
           onFocus={() => setFocused(true)}
-          onBlur={() => { setFocused(false); add() }}
+          onBlur={() => {
+            setFocused(false)
+            add()
+          }}
           placeholder="+ TAG"
           size={Math.max(input.length + 1, 5)}
           style={{
             flex: '0 0 auto',
-            background: 'transparent', border: '1px dashed var(--stone-2)', borderRadius: 20, outline: 'none',
-            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em',
-            textTransform: 'uppercase', color: 'var(--ink-2)',
+            background: 'transparent',
+            border: '1px dashed var(--stone-2)',
+            borderRadius: 20,
+            outline: 'none',
+            fontFamily: 'var(--mono)',
+            fontSize: 10,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: 'var(--ink-2)',
             padding: '5px 11px',
           }}
         />
@@ -154,9 +212,26 @@ const TagsEditor = ({ tags, onChange, existingTags = [] }: { tags: string[]; onC
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 3 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0 2px', lineHeight: 2 }}
+            style={{
+              marginTop: 8,
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: '0 2px',
+              lineHeight: 2,
+            }}
           >
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.1em', color: 'var(--stone-2)', paddingRight: 2 }}>+</span>
+            <span
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 9.5,
+                letterSpacing: '0.1em',
+                color: 'var(--stone-2)',
+                paddingRight: 2,
+              }}
+            >
+              +
+            </span>
             <AnimatePresence mode="popLayout">
               {suggestions.map((t, i) => (
                 <motion.span
@@ -169,10 +244,31 @@ const TagsEditor = ({ tags, onChange, existingTags = [] }: { tags: string[]; onC
                   style={{ display: 'inline-flex', alignItems: 'center' }}
                 >
                   <span
-                    onMouseDown={(e) => { e.preventDefault(); addSuggestion(t) }}
-                    style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--stone)', cursor: 'pointer', padding: '0 4px', borderRadius: 4 }}
-                  >{t}</span>
-                  {i < suggestions.length - 1 && <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--stone-2)' }}> · </span>}
+                    onMouseDown={(e) => {
+                      e.preventDefault()
+                      addSuggestion(t)
+                    }}
+                    style={{
+                      fontFamily: 'var(--mono)',
+                      fontSize: 10,
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      color: 'var(--stone)',
+                      cursor: 'pointer',
+                      padding: '0 4px',
+                      borderRadius: 4,
+                    }}
+                  >
+                    {t}
+                  </span>
+                  {i < suggestions.length - 1 && (
+                    <span
+                      style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--stone-2)' }}
+                    >
+                      {' '}
+                      ·{' '}
+                    </span>
+                  )}
                 </motion.span>
               ))}
             </AnimatePresence>
@@ -183,13 +279,26 @@ const TagsEditor = ({ tags, onChange, existingTags = [] }: { tags: string[]; onC
   )
 }
 
-const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleChange, existingTags }: Props) => {
+const RecipeForm = ({
+  initial,
+  onSubmit: onSubmitProp,
+  onSavingChange,
+  onTitleChange,
+  existingTags,
+}: Props) => {
   const [error, setError] = useState<string | null>(null)
   const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
   const [labelDir, setLabelDir] = useState<'up' | 'down' | null>(null)
   const [isReordering, setIsReordering] = useState(false)
 
-  const { register, handleSubmit, control, reset, setValue, formState: { errors } } = useForm<RecipeInput>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<RecipeInput>({
     resolver: zodResolver(recipeInputSchema),
     defaultValues: buildInitial(initial),
   })
@@ -224,7 +333,11 @@ const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleCh
   const errorMessage = errors.title?.message ?? error
 
   return (
-    <form id="recipe-form" onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 8 }}>
+    <form
+      id="recipe-form"
+      onSubmit={onSubmit}
+      style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 8 }}
+    >
       {/* Basic info */}
       <div style={sectionCard}>
         <Field label="Titel" required>
@@ -246,41 +359,83 @@ const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleCh
               <AutoGrowTextarea
                 {...field}
                 rows={2}
-                style={{ width: '100%', background: 'var(--paper-2)', border: 0, borderRadius: 12, padding: '12px 14px', fontFamily: 'var(--sans)', fontSize: 15, color: 'var(--ink)', outline: 'none', resize: 'none', lineHeight: 1.45 }}
+                style={{
+                  width: '100%',
+                  background: 'var(--paper-2)',
+                  border: 0,
+                  borderRadius: 12,
+                  padding: '12px 14px',
+                  fontFamily: 'var(--sans)',
+                  fontSize: 15,
+                  color: 'var(--ink)',
+                  outline: 'none',
+                  resize: 'none',
+                  lineHeight: 1.45,
+                }}
                 placeholder="Beschrijf het gerecht"
               />
             )}
           />
         </Field>
         <div style={{ height: 14 }} />
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+          }}
+        >
           <span className="lb-eyebrow">PORTIES</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {/* Pers/stuks toggle with sliding pill */}
-            <div style={{ position: 'relative', display: 'flex', background: 'var(--paper-2)', borderRadius: 18, padding: 3, height: 36 }}>
-              {(['pers', 'stuks'] as const).map(opt => {
+            <div
+              style={{
+                position: 'relative',
+                display: 'flex',
+                background: 'var(--paper-2)',
+                borderRadius: 18,
+                padding: 3,
+                height: 36,
+              }}
+            >
+              {(['pers', 'stuks'] as const).map((opt) => {
                 const active = (portionsLabel || 'pers') === opt
                 return (
-                  <button key={opt} type="button"
+                  <button
+                    key={opt}
+                    type="button"
                     onClick={() => {
                       setLabelDir(opt === 'stuks' ? 'up' : 'down')
                       setValue('portionsLabel', opt === 'pers' ? undefined : opt)
                     }}
                     style={{
-                      position: 'relative', zIndex: 1,
-                      height: 30, padding: '0 12px', borderRadius: 14, border: 0,
-                      display: 'flex', alignItems: 'center',
+                      position: 'relative',
+                      zIndex: 1,
+                      height: 30,
+                      padding: '0 12px',
+                      borderRadius: 14,
+                      border: 0,
+                      display: 'flex',
+                      alignItems: 'center',
                       background: 'transparent',
                       color: active ? 'var(--ink)' : 'var(--stone)',
-                      fontFamily: 'var(--mono)', fontSize: 11, fontWeight: 500,
-                      textTransform: 'uppercase', letterSpacing: '0.06em', cursor: 'pointer',
+                      fontFamily: 'var(--mono)',
+                      fontSize: 11,
+                      fontWeight: 500,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      cursor: 'pointer',
                       transition: 'color 0.15s',
-                    }}>
+                    }}
+                  >
                     {active && (
                       <motion.div
                         layoutId="portions-label-pill"
                         style={{
-                          position: 'absolute', inset: 0, borderRadius: 14,
+                          position: 'absolute',
+                          inset: 0,
+                          borderRadius: 14,
                           background: 'var(--cream-card)',
                           boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
                           zIndex: -1,
@@ -294,24 +449,70 @@ const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleCh
               })}
             </div>
             {/* Portion stepper with animated number */}
-            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--paper-2)', borderRadius: 18, padding: 3, height: 36 }}>
-              <button type="button"
-                onClick={() => { setPortionDir('down'); setValue('portions', Math.max(1, portionsValue - 1)) }}
-                style={{ width: 30, height: 30, borderRadius: 14, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                background: 'var(--paper-2)',
+                borderRadius: 18,
+                padding: 3,
+                height: 36,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setPortionDir('down')
+                  setValue('portions', Math.max(1, portionsValue - 1))
+                }}
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 14,
+                  background: 'var(--cream-card)',
+                  border: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
+                  cursor: 'pointer',
+                }}
+              >
                 <Minus size={14} strokeWidth={2.4} />
               </button>
-              <div style={{ minWidth: 72, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--ink)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              <div
+                style={{
+                  minWidth: 72,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 4,
+                  fontFamily: 'var(--mono)',
+                  fontSize: 12,
+                  color: 'var(--ink)',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                }}
+              >
                 <div style={{ overflow: 'hidden', position: 'relative' }}>
                   <AnimatePresence mode="popLayout" custom={portionDir}>
                     <motion.span
                       key={portionsValue}
                       custom={portionDir}
                       variants={{
-                        enter: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? 10 : d === 'down' ? -10 : 0, opacity: 0 }),
+                        enter: (d: 'up' | 'down' | null) => ({
+                          y: d === 'up' ? 10 : d === 'down' ? -10 : 0,
+                          opacity: 0,
+                        }),
                         center: { y: 0, opacity: 1 },
-                        exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -10 : d === 'down' ? 10 : 0, opacity: 0 }),
+                        exit: (d: 'up' | 'down' | null) => ({
+                          y: d === 'up' ? -10 : d === 'down' ? 10 : 0,
+                          opacity: 0,
+                        }),
                       }}
-                      initial="enter" animate="center" exit="exit"
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
                       transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                       style={{ display: 'block' }}
                     >
@@ -325,11 +526,19 @@ const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleCh
                       key={portionsLabel || 'pers'}
                       custom={labelDir}
                       variants={{
-                        enter: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? 10 : d === 'down' ? -10 : 0, opacity: 0 }),
+                        enter: (d: 'up' | 'down' | null) => ({
+                          y: d === 'up' ? 10 : d === 'down' ? -10 : 0,
+                          opacity: 0,
+                        }),
                         center: { y: 0, opacity: 1 },
-                        exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -10 : d === 'down' ? 10 : 0, opacity: 0 }),
+                        exit: (d: 'up' | 'down' | null) => ({
+                          y: d === 'up' ? -10 : d === 'down' ? 10 : 0,
+                          opacity: 0,
+                        }),
                       }}
-                      initial="enter" animate="center" exit="exit"
+                      initial="enter"
+                      animate="center"
+                      exit="exit"
                       transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                       style={{ display: 'block' }}
                     >
@@ -338,9 +547,25 @@ const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleCh
                   </AnimatePresence>
                 </div>
               </div>
-              <button type="button"
-                onClick={() => { setPortionDir('up'); setValue('portions', portionsValue + 1) }}
-                style={{ width: 30, height: 30, borderRadius: 14, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setPortionDir('up')
+                  setValue('portions', portionsValue + 1)
+                }}
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 14,
+                  background: 'var(--cream-card)',
+                  border: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
+                  cursor: 'pointer',
+                }}
+              >
                 <Plus size={14} strokeWidth={2.4} />
               </button>
             </div>
@@ -350,7 +575,9 @@ const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleCh
 
       {/* Ingredients */}
       <div style={sectionCard}>
-        <div className="lb-eyebrow" style={{ marginBottom: 12 }}>INGREDIËNTEN</div>
+        <div className="lb-eyebrow" style={{ marginBottom: 12 }}>
+          INGREDIËNTEN
+        </div>
         <Controller
           name="ingredients"
           control={control}
@@ -367,7 +594,9 @@ const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleCh
 
       {/* Steps */}
       <div style={sectionCard}>
-        <div className="lb-eyebrow" style={{ marginBottom: 12 }}>INSTRUCTIES</div>
+        <div className="lb-eyebrow" style={{ marginBottom: 12 }}>
+          INSTRUCTIES
+        </div>
         <Controller
           name="steps"
           control={control}
@@ -393,7 +622,11 @@ const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleCh
             name="tags"
             control={control}
             render={({ field }) => (
-              <TagsEditor tags={field.value ?? []} onChange={field.onChange} existingTags={existingTags} />
+              <TagsEditor
+                tags={field.value ?? []}
+                onChange={field.onChange}
+                existingTags={existingTags}
+              />
             )}
           />
         </Field>
@@ -410,7 +643,17 @@ const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleCh
       </div>
 
       {errorMessage && (
-        <div style={{ background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)', padding: '10px 14px', borderRadius: '0 12px 12px 0', fontSize: 13, fontWeight: 500, borderLeft: '3px solid var(--bordeaux)' }}>
+        <div
+          style={{
+            background: 'var(--bordeaux-tint)',
+            color: 'var(--bordeaux)',
+            padding: '10px 14px',
+            borderRadius: '0 12px 12px 0',
+            fontSize: 13,
+            fontWeight: 500,
+            borderLeft: '3px solid var(--bordeaux)',
+          }}
+        >
           {errorMessage}
         </div>
       )}
@@ -418,7 +661,7 @@ const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleCh
       {createPortal(
         <button
           type="button"
-          onClick={() => setIsReordering(r => !r)}
+          onClick={() => setIsReordering((r) => !r)}
           aria-label={isReordering ? 'Klaar met sorteren' : 'Volgorde aanpassen'}
           style={{
             position: 'fixed',
@@ -448,7 +691,7 @@ const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleCh
             <ArrowUpDown size={16} strokeWidth={2.1} color="var(--stone)" />
           )}
         </button>,
-        document.body
+        document.body,
       )}
     </form>
   )

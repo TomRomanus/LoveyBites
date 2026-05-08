@@ -12,11 +12,30 @@ export const StarRating = ({ value, size = 13 }: StarRatingProps) => (
       return (
         <div key={i} style={{ width: size, height: size, position: 'relative', flexShrink: 0 }}>
           <svg width={size} height={size} viewBox="0 0 24 24" style={{ position: 'absolute' }}>
-            <path d={STAR_PATH} fill="none" stroke="var(--stone-2)" strokeWidth="1.4" strokeLinejoin="round" />
+            <path
+              d={STAR_PATH}
+              fill="none"
+              stroke="var(--stone-2)"
+              strokeWidth="1.4"
+              strokeLinejoin="round"
+            />
           </svg>
-          <svg width={size} height={size} viewBox="0 0 24 24"
-            style={{ position: 'absolute', clipPath: `inset(0 ${((1 - frac) * 100).toFixed(1)}% 0 0)` }}>
-            <path d={STAR_PATH} fill="var(--bordeaux)" stroke="var(--bordeaux)" strokeWidth="1.4" strokeLinejoin="round" />
+          <svg
+            width={size}
+            height={size}
+            viewBox="0 0 24 24"
+            style={{
+              position: 'absolute',
+              clipPath: `inset(0 ${((1 - frac) * 100).toFixed(1)}% 0 0)`,
+            }}
+          >
+            <path
+              d={STAR_PATH}
+              fill="var(--bordeaux)"
+              stroke="var(--bordeaux)"
+              strokeWidth="1.4"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
       )

@@ -71,7 +71,7 @@ export const ingredientNodeSchema: z.ZodType<IngredientNode> = z.lazy(() =>
       id: z.string().optional(),
       children: z.array(ingredientNodeSchema),
     }),
-  ])
+  ]),
 )
 
 const sourceSchema = z.object({ label: z.string(), url: z.string() })

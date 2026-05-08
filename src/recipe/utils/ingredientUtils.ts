@@ -2,9 +2,7 @@ import type { IngredientNode } from '../types/recipe'
 
 /** Recursively collect all leaf text values from an ingredient/step tree. */
 export const extractLeafTexts = (nodes: IngredientNode[]): string[] =>
-  nodes.flatMap(n =>
-    n.kind === 'leaf' ? [n.text] : extractLeafTexts(n.children)
-  )
+  nodes.flatMap((n) => (n.kind === 'leaf' ? [n.text] : extractLeafTexts(n.children)))
 
 /** Ensure every leaf and group node has a unique id, assigning one if missing. */
 export const ensureIngredientIds = (nodes: IngredientNode[]): IngredientNode[] =>

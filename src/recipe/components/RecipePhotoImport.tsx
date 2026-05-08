@@ -60,18 +60,41 @@ const RecipePhotoImport = ({ onExtracted }: Props) => {
       />
 
       <div>
-        <div className="lb-eyebrow" style={{ marginBottom: 8 }}>Foto</div>
+        <div className="lb-eyebrow" style={{ marginBottom: 8 }}>
+          Foto
+        </div>
         {preview ? (
           <div style={{ position: 'relative' }}>
             <img
               src={preview}
               alt="Geselecteerde foto"
-              style={{ width: '100%', maxHeight: 220, objectFit: 'cover', borderRadius: 12, border: '0.5px solid rgba(31,29,26,0.14)', display: 'block' }}
+              style={{
+                width: '100%',
+                maxHeight: 220,
+                objectFit: 'cover',
+                borderRadius: 12,
+                border: '0.5px solid rgba(31,29,26,0.14)',
+                display: 'block',
+              }}
             />
             <button
               type="button"
               onClick={handleClear}
-              style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: 14, background: 'rgba(248,244,237,0.9)', border: '0.5px solid rgba(31,29,26,0.18)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+              style={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                width: 28,
+                height: 28,
+                borderRadius: 14,
+                background: 'rgba(248,244,237,0.9)',
+                border: '0.5px solid rgba(31,29,26,0.18)',
+                color: 'var(--ink)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+              }}
             >
               <X size={10} strokeWidth={2.2} />
             </button>
@@ -80,20 +103,59 @@ const RecipePhotoImport = ({ onExtracted }: Props) => {
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            style={{ width: '100%', background: 'var(--cream-card)', border: '0.5px dashed rgba(31,29,26,0.25)', borderRadius: 12, padding: '32px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, cursor: 'pointer', boxSizing: 'border-box' }}
+            style={{
+              width: '100%',
+              background: 'var(--cream-card)',
+              border: '0.5px dashed rgba(31,29,26,0.25)',
+              borderRadius: 12,
+              padding: '32px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 10,
+              cursor: 'pointer',
+              boxSizing: 'border-box',
+            }}
           >
             <Image size={28} strokeWidth={1.5} color="var(--stone)" />
-            <span style={{ fontFamily: 'var(--sans)', fontSize: 14, fontWeight: 500, color: 'var(--stone)' }}>Foto kiezen of maken</span>
+            <span
+              style={{
+                fontFamily: 'var(--sans)',
+                fontSize: 14,
+                fontWeight: 500,
+                color: 'var(--stone)',
+              }}
+            >
+              Foto kiezen of maken
+            </span>
           </button>
         )}
       </div>
 
-      <p style={{ margin: 0, fontSize: 13, color: 'var(--stone)', textAlign: 'center', lineHeight: 1.5 }}>
+      <p
+        style={{
+          margin: 0,
+          fontSize: 13,
+          color: 'var(--stone)',
+          textAlign: 'center',
+          lineHeight: 1.5,
+        }}
+      >
         Maak een foto van een receptenboek of geschreven recept
       </p>
 
       {error && (
-        <div style={{ background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)', padding: '10px 14px', borderRadius: '0 12px 12px 0', fontSize: 13, fontWeight: 500, borderLeft: '3px solid var(--bordeaux)' }}>
+        <div
+          style={{
+            background: 'var(--bordeaux-tint)',
+            color: 'var(--bordeaux)',
+            padding: '10px 14px',
+            borderRadius: '0 12px 12px 0',
+            fontSize: 13,
+            fontWeight: 500,
+            borderLeft: '3px solid var(--bordeaux)',
+          }}
+        >
           {error}
         </div>
       )}

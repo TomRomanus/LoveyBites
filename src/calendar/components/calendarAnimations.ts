@@ -6,7 +6,9 @@ export const titleVariants = {
     transition: { duration: 0.18, ease: [0.2, 0, 0, 1] },
   }),
   center: {
-    opacity: 1, x: 0, y: 0,
+    opacity: 1,
+    x: 0,
+    y: 0,
     transition: { duration: 0.22, ease: [0.2, 0, 0, 1] },
   },
   exit: (dir: number) => ({
@@ -24,7 +26,9 @@ export const pageVariants = {
     scale: dir === 0 ? 0.97 : 1,
   }),
   center: {
-    opacity: 1, x: 0, scale: 1,
+    opacity: 1,
+    x: 0,
+    scale: 1,
     transition: { duration: 0.22, ease: [0.2, 0, 0, 1] },
   },
   exit: (dir: number) => ({

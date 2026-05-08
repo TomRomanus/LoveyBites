@@ -1,7 +1,16 @@
 import { useMemo, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { X, Link as LinkIcon, AlignLeft, Image, Pencil, ChevronRight, Check, Loader } from 'lucide-react'
+import {
+  X,
+  Link as LinkIcon,
+  AlignLeft,
+  Image,
+  Pencil,
+  ChevronRight,
+  Check,
+  Loader,
+} from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import RecipeForm from '../components/RecipeForm'
 import RecipeUrlImport from '../components/RecipeUrlImport'
@@ -50,7 +59,11 @@ const listContainer = {
 }
 const listItem = {
   hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 380, damping: 28 } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring' as const, stiffness: 380, damping: 28 },
+  },
 }
 
 const slideVariants = {
@@ -61,27 +74,40 @@ const slideVariants = {
 const slideTransition = { type: 'spring' as const, stiffness: 420, damping: 36, mass: 0.8 }
 
 const headerStyle: React.CSSProperties = {
-  position: 'sticky', top: 0,
+  position: 'sticky',
+  top: 0,
   background: 'rgba(248, 244, 237, 0.92)',
   backdropFilter: 'blur(10px)',
   WebkitBackdropFilter: 'blur(10px)',
   zIndex: 10,
   padding: '24px 20px 14px',
-  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
   borderBottom: '0.5px solid var(--line)',
 }
 
 const circleBtn: React.CSSProperties = {
-  width: 40, height: 40, borderRadius: 20,
-  background: 'transparent', border: '0.5px solid var(--line)',
-  color: 'var(--ink)', display: 'flex', alignItems: 'center',
-  justifyContent: 'center', cursor: 'pointer', flexShrink: 0,
+  width: 40,
+  height: 40,
+  borderRadius: 20,
+  background: 'transparent',
+  border: '0.5px solid var(--line)',
+  color: 'var(--ink)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  flexShrink: 0,
 }
 
 const monoTitle: React.CSSProperties = {
-  fontFamily: 'var(--mono)', fontSize: 11,
-  letterSpacing: '0.12em', textTransform: 'uppercase',
-  color: 'var(--stone)', fontWeight: 500,
+  fontFamily: 'var(--mono)',
+  fontSize: 11,
+  letterSpacing: '0.12em',
+  textTransform: 'uppercase',
+  color: 'var(--stone)',
+  fontWeight: 500,
 }
 
 const RecipeFormPage = () => {
@@ -104,7 +130,7 @@ const RecipeFormPage = () => {
 
   const existingTags = useMemo(
     () => [...new Set(allRecipes.flatMap((r) => r.tags))].sort((a, b) => a.localeCompare(b)),
-    [allRecipes]
+    [allRecipes],
   )
 
   const formInitial = isEdit ? (fetchedRecipe ?? undefined) : importedData
@@ -152,8 +178,12 @@ const RecipeFormPage = () => {
           <div className="lb-skeleton" style={{ height: 48, borderRadius: 14 }} />
           {/* Color row */}
           <div style={{ display: 'flex', gap: 8 }}>
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="lb-skeleton" style={{ width: 32, height: 32, borderRadius: 16, flexShrink: 0 }} />
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div
+                key={i}
+                className="lb-skeleton"
+                style={{ width: 32, height: 32, borderRadius: 16, flexShrink: 0 }}
+              />
             ))}
           </div>
           {/* Description */}
@@ -162,17 +192,43 @@ const RecipeFormPage = () => {
           <div className="lb-skeleton" style={{ height: 9, width: '22%', borderRadius: 3 }} />
           {/* Ingredients */}
           {[75, 60, 82, 55].map((w, i) => (
-            <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'center', paddingBottom: 12, borderBottom: '0.5px solid var(--line-soft)' }}>
+            <div
+              key={i}
+              style={{
+                display: 'flex',
+                gap: 10,
+                alignItems: 'center',
+                paddingBottom: 12,
+                borderBottom: '0.5px solid var(--line-soft)',
+              }}
+            >
               <div className="lb-skeleton" style={{ flex: 1, height: 40, borderRadius: 12 }} />
-              <div className="lb-skeleton" style={{ width: 32, height: 32, borderRadius: 8, flexShrink: 0 }} />
+              <div
+                className="lb-skeleton"
+                style={{ width: 32, height: 32, borderRadius: 8, flexShrink: 0 }}
+              />
             </div>
           ))}
           {/* Section label */}
-          <div className="lb-skeleton" style={{ height: 9, width: '18%', borderRadius: 3, marginTop: 4 }} />
+          <div
+            className="lb-skeleton"
+            style={{ height: 9, width: '18%', borderRadius: 3, marginTop: 4 }}
+          />
           {/* Steps */}
           {[65, 80, 50].map((w, i) => (
-            <div key={i} style={{ display: 'flex', gap: 14, paddingBottom: 12, borderBottom: '0.5px solid var(--line-soft)' }}>
-              <div className="lb-skeleton" style={{ width: 22, height: 22, borderRadius: 11, flexShrink: 0, marginTop: 2 }} />
+            <div
+              key={i}
+              style={{
+                display: 'flex',
+                gap: 14,
+                paddingBottom: 12,
+                borderBottom: '0.5px solid var(--line-soft)',
+              }}
+            >
+              <div
+                className="lb-skeleton"
+                style={{ width: 22, height: 22, borderRadius: 11, flexShrink: 0, marginTop: 2 }}
+              />
               <div className="lb-skeleton" style={{ height: 60, flex: 1, borderRadius: 12 }} />
             </div>
           ))}
@@ -196,7 +252,9 @@ const RecipeFormPage = () => {
             transition={slideTransition}
           >
             <div style={headerStyle}>
-              <button onClick={() => navigate(-1)} style={circleBtn}><X size={13} strokeWidth={2.2} /></button>
+              <button onClick={() => navigate(-1)} style={circleBtn}>
+                <X size={13} strokeWidth={2.2} />
+              </button>
               <div style={monoTitle}>Nieuw recept</div>
               <div style={{ width: 40 }} />
             </div>
@@ -211,14 +269,46 @@ const RecipeFormPage = () => {
                   key={modeId}
                   variants={listItem}
                   onClick={() => handleSelectMode(modeId)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: '16px 4px', textAlign: 'left', cursor: 'pointer', background: 'transparent', border: 'none', borderBottom: index < MODES.length - 1 ? '0.5px solid var(--line)' : 'none' }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 14,
+                    width: '100%',
+                    padding: '16px 4px',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: index < MODES.length - 1 ? '0.5px solid var(--line)' : 'none',
+                  }}
                 >
-                  <div style={{ width: 20, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bordeaux)' }}>
+                  <div
+                    style={{
+                      width: 20,
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--bordeaux)',
+                    }}
+                  >
                     {icon}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 17, fontWeight: 500, color: 'var(--ink)' }}>{label}</div>
-                    <div style={{ fontSize: 12, color: 'var(--stone)', marginTop: 2 }}>{description}</div>
+                    <div
+                      style={{
+                        fontFamily: 'var(--serif)',
+                        fontStyle: 'italic',
+                        fontSize: 17,
+                        fontWeight: 500,
+                        color: 'var(--ink)',
+                      }}
+                    >
+                      {label}
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--stone)', marginTop: 2 }}>
+                      {description}
+                    </div>
                   </div>
                   <ChevronRight size={14} strokeWidth={1.6} color="var(--stone-2)" />
                 </motion.button>
@@ -239,8 +329,10 @@ const RecipeFormPage = () => {
             transition={slideTransition}
           >
             <div style={headerStyle}>
-              <button onClick={handleBack} style={circleBtn}><X size={13} strokeWidth={2.2} /></button>
-              <div style={monoTitle}>{MODES.find(m => m.id === mode)?.label}</div>
+              <button onClick={handleBack} style={circleBtn}>
+                <X size={13} strokeWidth={2.2} />
+              </button>
+              <div style={monoTitle}>{MODES.find((m) => m.id === mode)?.label}</div>
               <div style={{ width: 40 }} />
             </div>
             <motion.div
@@ -269,11 +361,17 @@ const RecipeFormPage = () => {
           >
             <div style={headerStyle}>
               {mode !== null && !isEdit ? (
-                <button onClick={handleBack} style={circleBtn}><X size={13} strokeWidth={2.2} /></button>
+                <button onClick={handleBack} style={circleBtn}>
+                  <X size={13} strokeWidth={2.2} />
+                </button>
               ) : isEdit ? (
-                <button onClick={() => navigate(`/recipe/${id}`)} style={circleBtn}><X size={13} strokeWidth={2.2} /></button>
+                <button onClick={() => navigate(`/recipe/${id}`)} style={circleBtn}>
+                  <X size={13} strokeWidth={2.2} />
+                </button>
               ) : (
-                <Link to="/" style={{ ...circleBtn, textDecoration: 'none' }}><X size={13} strokeWidth={2.2} /></Link>
+                <Link to="/" style={{ ...circleBtn, textDecoration: 'none' }}>
+                  <X size={13} strokeWidth={2.2} />
+                </Link>
               )}
               <div style={monoTitle}>{isEdit ? 'Bewerk recept' : 'Nieuw recept'}</div>
               {isEdit ? (
@@ -281,11 +379,29 @@ const RecipeFormPage = () => {
                   type="submit"
                   form="recipe-form"
                   disabled={saving}
-                  style={{ width: 40, height: 40, borderRadius: 20, background: saving ? 'var(--stone-2)' : 'var(--bordeaux)', border: 0, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: saving ? 'default' : 'pointer', flexShrink: 0 }}>
-                  {saving
-                    ? <Loader size={13} strokeWidth={2.2} style={{ animation: 'lb-spin 1s linear infinite' }} />
-                    : <Check size={13} strokeWidth={2.5} />
-                  }
+                  style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: 20,
+                    background: saving ? 'var(--stone-2)' : 'var(--bordeaux)',
+                    border: 0,
+                    color: '#fff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: saving ? 'default' : 'pointer',
+                    flexShrink: 0,
+                  }}
+                >
+                  {saving ? (
+                    <Loader
+                      size={13}
+                      strokeWidth={2.2}
+                      style={{ animation: 'lb-spin 1s linear infinite' }}
+                    />
+                  ) : (
+                    <Check size={13} strokeWidth={2.5} />
+                  )}
                 </button>
               ) : (
                 <div style={{ width: 40 }} />

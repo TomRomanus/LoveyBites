@@ -17,7 +17,11 @@ type OpenAIMessage =
   | { role: 'system' | 'user' | 'assistant'; content: string }
   | { role: 'user'; content: Array<{ type: string; [key: string]: unknown }> }
 
-const callOpenAI = async (apiKey: string, systemPrompt: string, messages: OpenAIMessage[]): Promise<string> => {
+const callOpenAI = async (
+  apiKey: string,
+  systemPrompt: string,
+  messages: OpenAIMessage[],
+): Promise<string> => {
   const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
@@ -37,7 +41,11 @@ type AnthropicMessage = {
   content: string | Array<{ type: string; [key: string]: unknown }>
 }
 
-const callAnthropic = async (apiKey: string, systemPrompt: string, messages: AnthropicMessage[]): Promise<string> => {
+const callAnthropic = async (
+  apiKey: string,
+  systemPrompt: string,
+  messages: AnthropicMessage[],
+): Promise<string> => {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -133,7 +141,11 @@ const parseAIResponse = (text: string): { recipe: Partial<RecipeInput>; sourceNa
     (arr ?? []).map((n: unknown) => {
       if (!isRecord(n)) return { kind: 'leaf' as const, id: crypto.randomUUID(), text: '' }
       if (n.kind === 'group') {
-        return { kind: 'group' as const, title: String(n.title ?? ''), children: buildNodes((n.children as unknown[]) ?? []) }
+        return {
+          kind: 'group' as const,
+          title: String(n.title ?? ''),
+          children: buildNodes((n.children as unknown[]) ?? []),
+        }
       }
       return { kind: 'leaf' as const, id: crypto.randomUUID(), text: String(n.text ?? '') }
     })
@@ -194,29 +206,37 @@ If a field is not available, use an empty string, 0, or empty array as appropria
   if (provider === 'openai') {
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY
     if (!apiKey) throw new Error('VITE_OPENAI_API_KEY is not set in .env.local')
-    return callOpenAI(apiKey, systemPrompt, [{
-      role: 'user',
-      content: [
-        { type: 'image_url', image_url: { url: `data:${mediaType};base64,${base64}` } },
-        { type: 'text', text: 'Extract the recipe from this image.' },
-      ],
-    }])
+    return callOpenAI(apiKey, systemPrompt, [
+      {
+        role: 'user',
+        content: [
+          { type: 'image_url', image_url: { url: `data:${mediaType};base64,${base64}` } },
+          { type: 'text', text: 'Extract the recipe from this image.' },
+        ],
+      },
+    ])
   }
 
   // Default: Anthropic
   const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
   if (!apiKey) throw new Error('VITE_ANTHROPIC_API_KEY is not set in .env.local')
-  return callAnthropic(apiKey, systemPrompt, [{
-    role: 'user',
-    content: [
-      { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
-      { type: 'text', text: 'Extract the recipe from this image.' },
-    ],
-  }])
+  return callAnthropic(apiKey, systemPrompt, [
+    {
+      role: 'user',
+      content: [
+        { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+        { type: 'text', text: 'Extract the recipe from this image.' },
+      ],
+    },
+  ])
 }
 
 export const importRecipeFromImage = async (file: File): Promise<Partial<RecipeInput>> => {
-  const mediaType = (file.type || 'image/jpeg') as 'image/jpeg' | 'image/png' | 'image/gif' | 'image/webp'
+  const mediaType = (file.type || 'image/jpeg') as
+    | 'image/jpeg'
+    | 'image/png'
+    | 'image/gif'
+    | 'image/webp'
   const base64 = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = () => resolve((reader.result as string).split(',')[1])

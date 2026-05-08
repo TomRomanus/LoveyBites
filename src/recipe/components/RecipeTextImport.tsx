@@ -36,7 +36,9 @@ const RecipeTextImport = ({ onExtracted }: Props) => {
   return (
     <form onSubmit={handleConvert} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <div>
-        <div className="lb-eyebrow" style={{ marginBottom: 8 }}>Tekst</div>
+        <div className="lb-eyebrow" style={{ marginBottom: 8 }}>
+          Tekst
+        </div>
         <AutoGrowTextarea
           value={text}
           onChange={(e) => setText(e.target.value)}
@@ -61,12 +63,30 @@ const RecipeTextImport = ({ onExtracted }: Props) => {
         />
       </div>
 
-      <p style={{ margin: 0, fontSize: 13, color: 'var(--stone)', textAlign: 'center', lineHeight: 1.5 }}>
+      <p
+        style={{
+          margin: 0,
+          fontSize: 13,
+          color: 'var(--stone)',
+          textAlign: 'center',
+          lineHeight: 1.5,
+        }}
+      >
         Schrijf of plak het recept, de AI structureert het voor je
       </p>
 
       {error && (
-        <div style={{ background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)', padding: '10px 14px', borderRadius: '0 12px 12px 0', fontSize: 13, fontWeight: 500, borderLeft: '3px solid var(--bordeaux)' }}>
+        <div
+          style={{
+            background: 'var(--bordeaux-tint)',
+            color: 'var(--bordeaux)',
+            padding: '10px 14px',
+            borderRadius: '0 12px 12px 0',
+            fontSize: 13,
+            fontWeight: 500,
+            borderLeft: '3px solid var(--bordeaux)',
+          }}
+        >
           {error}
         </div>
       )}

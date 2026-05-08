@@ -15,7 +15,7 @@ const mealPlanCol = collection(db, 'mealPlan')
 
 export const getMealPlanEntries = async (
   startDate: string,
-  endDate: string
+  endDate: string,
 ): Promise<MealPlanEntry[]> => {
   // Use orderBy-only (no where filters) to avoid the Firestore emulator's
   // cold-start hang on range queries. Client-side filtering is fine for the

@@ -19,11 +19,9 @@ export const startOfWeek = (d: Date): Date => {
   return r
 }
 
-export const startOfMonth = (d: Date): Date =>
-  new Date(d.getFullYear(), d.getMonth(), 1)
+export const startOfMonth = (d: Date): Date => new Date(d.getFullYear(), d.getMonth(), 1)
 
-export const endOfMonth = (d: Date): Date =>
-  new Date(d.getFullYear(), d.getMonth() + 1, 0)
+export const endOfMonth = (d: Date): Date => new Date(d.getFullYear(), d.getMonth() + 1, 0)
 
 export const isSameDay = (a: Date, b: Date): boolean =>
   a.getFullYear() === b.getFullYear() &&

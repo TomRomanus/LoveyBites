@@ -25,7 +25,16 @@ const AppShell = () => {
 
   if (loading) {
     return (
-      <div style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--paper)' }}>
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--paper)',
+        }}
+      >
         <LoadingLogo />
       </div>
     )
@@ -41,14 +50,49 @@ const AppShell = () => {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.22, ease: [0.2, 0, 0.2, 1] }}
         >
-        <Routes location={location}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={<ProtectedRoute><RecipesPage /></ProtectedRoute>} />
-          <Route path="/recipe/:id" element={<ProtectedRoute><RecipeDetailPage /></ProtectedRoute>} />
-          <Route path="/new" element={<ProtectedRoute><RecipeFormPage /></ProtectedRoute>} />
-          <Route path="/edit/:id" element={<ProtectedRoute><RecipeFormPage /></ProtectedRoute>} />
-          <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
-        </Routes>
+          <Routes location={location}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <RecipesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/recipe/:id"
+              element={
+                <ProtectedRoute>
+                  <RecipeDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/new"
+              element={
+                <ProtectedRoute>
+                  <RecipeFormPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <RecipeFormPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <ProtectedRoute>
+                  <CalendarPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
         </motion.div>
       </AnimatePresence>
       {showNav && <BottomNav />}
