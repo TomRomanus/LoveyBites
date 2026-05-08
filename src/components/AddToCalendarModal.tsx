@@ -102,7 +102,7 @@ export default function AddToCalendarModal({ recipe, onClose }: Props) {
         <div style={{ padding: '20px 20px 12px', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 4 }}>
             <div>
-              <p className="lb-eyebrow truncate max-w-xs" style={{ margin: '0 0 4px' }}>{recipe.title}</p>
+              <p className="lb-eyebrow" style={{ margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '20rem' }}>{recipe.title}</p>
               <h2 style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500, fontSize: 18, letterSpacing: '-0.02em', lineHeight: 1.05, color: 'var(--ink)', margin: 0 }}>
                 Toevoegen aan menu
               </h2>
