@@ -247,13 +247,27 @@ export default function RecipeDetailPage() {
 
   useEffect(() => {
     if (!id) return
-    getRecipe(id).then(r => {
-      setRecipe(r)
-      if (r) {
-        setPortions(2)
-        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', r.color ?? DEFAULT_RECIPE_COLOR)
-      }
-    }).finally(() => setLoading(false))
+    let cancelled = false
+    let seq = 0
+    const load = () => {
+      const mySeq = ++seq
+      const timeoutId = setTimeout(() => { if (!cancelled && seq === mySeq) load() }, 5_000)
+      getRecipe(id)
+        .then(r => {
+          clearTimeout(timeoutId)
+          if (!cancelled && seq === mySeq) {
+            setRecipe(r)
+            if (r) {
+              setPortions(2)
+              document.querySelector('meta[name="theme-color"]')?.setAttribute('content', r.color ?? DEFAULT_RECIPE_COLOR)
+            }
+            setLoading(false)
+          }
+        })
+        .catch(() => { clearTimeout(timeoutId); if (!cancelled && seq === mySeq) setTimeout(load, 500) })
+    }
+    load()
+    return () => { cancelled = true }
   }, [id])
 
   useEffect(() => {

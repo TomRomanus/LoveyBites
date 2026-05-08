@@ -792,7 +792,14 @@ function AddMealSheet({ date, existingRecipeIds, onClose, onSaved }: AddMealShee
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const searchRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => { getRecipes().then(setRecipes) }, [])
+  useEffect(() => {
+    let cancelled = false
+    const load = () => getRecipes()
+      .then(r => { if (!cancelled) setRecipes(r) })
+      .catch(() => { if (!cancelled) setTimeout(load, 500) })
+    load()
+    return () => { cancelled = true }
+  }, [])
   useEffect(() => { if (tab === 'recipe') searchRef.current?.focus() }, [tab])
 
   const available = recipes.filter(r => !existingRecipeIds.includes(r.id))

@@ -118,10 +118,12 @@ export default function NewRecipePage() {
 
   useEffect(() => {
     if (!id) return
-    getRecipe(id).then((r) => {
-      if (r) setInitial(r)
-      setLoading(false)
-    })
+    let cancelled = false
+    const load = () => getRecipe(id)
+      .then(r => { if (!cancelled) { if (r) setInitial(r); setLoading(false) } })
+      .catch(() => { if (!cancelled) setTimeout(load, 500) })
+    load()
+    return () => { cancelled = true }
   }, [id])
 
   useEffect(() => {
@@ -298,7 +300,7 @@ export default function NewRecipePage() {
               {mode !== null && !isEdit ? (
                 <button onClick={handleBack} style={circleBtn}><XIcon /></button>
               ) : isEdit ? (
-                <button onClick={() => navigate(-1)} style={circleBtn}><XIcon /></button>
+                <button onClick={() => navigate(`/recipe/${id}`)} style={circleBtn}><XIcon /></button>
               ) : (
                 <Link to="/" style={{ ...circleBtn, textDecoration: 'none' }}><XIcon /></Link>
               )}

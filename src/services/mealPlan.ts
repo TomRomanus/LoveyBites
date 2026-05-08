@@ -6,7 +6,6 @@ import {
   deleteDoc,
   orderBy,
   query,
-  where,
   serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '../lib/firebase'
@@ -18,15 +17,14 @@ export async function getMealPlanEntries(
   startDate: string,
   endDate: string
 ): Promise<MealPlanEntry[]> {
-  const q = query(
-    mealPlanCol,
-    where('date', '>=', startDate),
-    where('date', '<=', endDate),
-    orderBy('date')
-  )
+  // Use orderBy-only (no where filters) to avoid the Firestore emulator's
+  // cold-start hang on range queries. Client-side filtering is fine for the
+  // small meal-plan collection.
+  const q = query(mealPlanCol, orderBy('date'))
   const snapshot = await getDocs(q)
   return snapshot.docs
     .map((d) => ({ id: d.id, ...d.data() }) as MealPlanEntry)
+    .filter((e) => e.date >= startDate && e.date <= endDate)
     .sort((a, b) => {
       if (a.date !== b.date) return a.date.localeCompare(b.date)
       return (a.createdAt?.toMillis() ?? 0) - (b.createdAt?.toMillis() ?? 0)
