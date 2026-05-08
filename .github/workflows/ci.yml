@@ -35,7 +35,7 @@ jobs:
           key: firebase-emulators-${{ runner.os }}-java21-${{ hashFiles('firebase.json') }}
 
       - name: Install Playwright browser
-        run: npx playwright install --with-deps webkit
+        run: npx playwright install --with-deps chromium
 
       - name: Run E2E tests
         run: npm run test:e2e

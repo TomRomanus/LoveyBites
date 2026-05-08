@@ -10,7 +10,7 @@ export default defineConfig({
   globalSetup: './e2e/support/global-setup.ts',
   use: {
     baseURL: 'http://localhost:5174',
-    ...devices['iPhone 12'],
+    ...devices['Pixel 7'],
     trace: 'on-first-retry',
     // Framer Motion animations can interfere with timing — prefer waiting for
     // DOM state rather than fixed timeouts where possible.
@@ -25,9 +25,9 @@ export default defineConfig({
     },
     // ── 2. Main test suite (uses saved auth) ──────────────────────────────
     {
-      name: 'chromium',
+      name: 'android',
       use: {
-        ...devices['iPhone 12'],
+        ...devices['Pixel 7'],
         storageState: 'e2e/.auth/user.json',
       },
       dependencies: ['setup'],
@@ -36,7 +36,7 @@ export default defineConfig({
     // ── 3. Auth-specific tests (no saved auth, fresh context) ─────────────
     {
       name: 'auth-tests',
-      use: { ...devices['iPhone 12'] },
+      use: { ...devices['Pixel 7'] },
       testMatch: /auth\.spec\.ts/,
       dependencies: ['setup'], // still need setup to have run (for the emulator users)
     },
