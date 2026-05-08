@@ -1,6 +1,6 @@
 import type { Timestamp } from 'firebase/firestore'
 
-export interface MealPlanEntry {
+export type MealPlanEntry = {
   id: string
   date: string
   recipeId?: string
@@ -12,14 +12,14 @@ export interface MealPlanEntry {
 
 export type MealPlanEntryInput = Omit<MealPlanEntry, 'id' | 'createdAt'>
 
-interface IngredientLeaf {
+type IngredientLeaf = {
   kind: 'leaf'
   text: string
   id?: string
   ingredientRefs?: string[]
 }
 
-interface IngredientGroup {
+type IngredientGroup = {
   kind: 'group'
   title: string
   id?: string
@@ -28,12 +28,12 @@ interface IngredientGroup {
 
 export type IngredientNode = IngredientLeaf | IngredientGroup
 
-export interface Source {
+export type Source = {
   label: string
   url: string
 }
 
-export interface Recipe {
+export type Recipe = {
   id: string
   title: string
   description: string
