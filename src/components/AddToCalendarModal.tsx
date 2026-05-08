@@ -5,42 +5,12 @@ import { getMealPlanEntries, createMealPlanEntry, deleteMealPlanEntry } from '..
 import { getRecipes } from '../services/recipes'
 import type { MealPlanEntry, Recipe } from '../types/recipe'
 import { useAuth } from '../contexts/AuthContext'
-
-// ── date helpers (local-time safe) ────────────────────────────────────────────
-
-function toISO(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
-function addDays(d: Date, n: number): Date {
-  const r = new Date(d)
-  r.setDate(r.getDate() + n)
-  return r
-}
-
-function startOfWeek(d: Date): Date {
-  const r = new Date(d)
-  r.setHours(0, 0, 0, 0)
-  const day = r.getDay()
-  r.setDate(r.getDate() + (day === 0 ? -6 : 1 - day))
-  return r
-}
-
-function isSameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-}
-
-const NL_DAYS_SHORT = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
-const NL_MONTHS = [
-  'januari', 'februari', 'maart', 'april', 'mei', 'juni',
-  'juli', 'augustus', 'september', 'oktober', 'november', 'december',
-]
+import { toISO, addDays, startOfWeek, isSameDay } from '../utils/dateUtils'
+import { NL_DAYS_GRID, NL_MONTHS } from '../constants/locale'
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface Props {
+type Props = {
   recipe: Pick<Recipe, 'id' | 'title'>
   onClose: () => void
 }
@@ -109,9 +79,9 @@ export default function AddToCalendarModal({ recipe, onClose }: Props) {
   return createPortal(
     <AnimatePresence onExitComplete={onClose}>
     {visible && (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
       <motion.div
-        className="absolute inset-0 bg-black/40"
+        style={{ position: 'absolute', inset: 0, background: 'rgba(31,29,26,0.4)' }}
         variants={{
           hidden: { opacity: 0, transition: { duration: 0.2 } },
           visible: { opacity: 1, transition: { duration: 0.24 } },
@@ -120,7 +90,8 @@ export default function AddToCalendarModal({ recipe, onClose }: Props) {
         onClick={handleClose}
       />
       <motion.div
-        className="lb-paper relative w-full sm:max-w-lg sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col"
+        className="lb-paper"
+        style={{ position: 'relative', width: '100%', borderRadius: '24px 24px 0 0', boxShadow: '0 -8px 40px rgba(31,29,26,0.16)', display: 'flex', flexDirection: 'column' }}
         variants={{
           hidden: { y: '100%', transition: { type: 'tween', duration: 0.22, ease: [0.4, 0, 1, 1] } },
           visible: { y: 0, transition: { type: 'spring', stiffness: 300, damping: 32 } },
@@ -128,28 +99,28 @@ export default function AddToCalendarModal({ recipe, onClose }: Props) {
         initial="hidden" animate="visible" exit="hidden"
       >
         {/* Header */}
-        <div className="px-5 pt-5 pb-3 flex-shrink-0">
-          <div className="flex items-start justify-between gap-3 mb-1">
+        <div style={{ padding: '20px 20px 12px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 4 }}>
             <div>
               <p className="lb-eyebrow truncate max-w-xs" style={{ margin: '0 0 4px' }}>{recipe.title}</p>
               <h2 style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500, fontSize: 18, letterSpacing: '-0.02em', lineHeight: 1.05, color: 'var(--ink)', margin: 0 }}>
                 Toevoegen aan menu
               </h2>
             </div>
-            <button onClick={handleClose} className="text-stone hover:text-ink-2 p-1 flex-shrink-0 mt-0.5">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <button onClick={handleClose} style={{ background: 'none', border: 0, color: 'var(--stone)', padding: 4, flexShrink: 0, marginTop: 2, cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
           {/* Week navigation */}
-          <div className="flex items-center justify-between mt-3">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 }}>
             <button
               onClick={() => { setWeekDir('prev'); setWeekStart(prev => addDays(prev, -7)) }}
-              className="w-7 h-7 flex items-center justify-center rounded-full text-stone transition-colors" style={{ border: '0.5px solid var(--line)', background: 'var(--cream-card)' }}
+              style={{ width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', color: 'var(--stone)', border: '0.5px solid var(--line)', background: 'var(--cream-card)', cursor: 'pointer' }}
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
@@ -165,8 +136,7 @@ export default function AddToCalendarModal({ recipe, onClose }: Props) {
                   }}
                   initial="enter" animate="center" exit="exit"
                   transition={{ type: 'spring', stiffness: 420, damping: 36 }}
-                  className="text-sm font-medium text-ink-2 capitalize"
-                  style={{ display: 'block' }}
+                  style={{ display: 'block', fontSize: 14, fontWeight: 500, color: 'var(--ink-2)', textTransform: 'capitalize' }}
                 >
                   {weekLabel}
                 </motion.span>
@@ -174,9 +144,9 @@ export default function AddToCalendarModal({ recipe, onClose }: Props) {
             </div>
             <button
               onClick={() => { setWeekDir('next'); setWeekStart(prev => addDays(prev, 7)) }}
-              className="w-7 h-7 flex items-center justify-center rounded-full text-stone transition-colors" style={{ border: '0.5px solid var(--line)', background: 'var(--cream-card)' }}
+              style={{ width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', color: 'var(--stone)', border: '0.5px solid var(--line)', background: 'var(--cream-card)', cursor: 'pointer' }}
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -184,7 +154,7 @@ export default function AddToCalendarModal({ recipe, onClose }: Props) {
         </div>
 
         {/* Week grid */}
-        <div className="px-4 pt-1 pb-8 sm:pb-4">
+        <div style={{ padding: '4px 16px 32px' }}>
           <AnimatePresence mode="popLayout" custom={weekDir}>
           <motion.div
             key={toISO(weekStart)}
@@ -198,8 +168,8 @@ export default function AddToCalendarModal({ recipe, onClose }: Props) {
             transition={{ type: 'spring', stiffness: 380, damping: 36 }}
           >
           {/* Day headers */}
-          <div className="grid grid-cols-7 gap-1.5 mb-2">
-            {NL_DAYS_SHORT.map(d => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6, marginBottom: 8 }}>
+            {NL_DAYS_GRID.map(d => (
               <div key={d} style={{ textAlign: 'center', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600, color: 'var(--stone-2)', padding: '4px 0' }}>
                 {d}
               </div>
@@ -207,7 +177,7 @@ export default function AddToCalendarModal({ recipe, onClose }: Props) {
           </div>
 
           {/* Day cells */}
-          <div className="grid grid-cols-7 gap-1.5">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
             {days.map(day => {
               const iso = toISO(day)
               const isToday = isSameDay(day, today)
@@ -223,8 +193,7 @@ export default function AddToCalendarModal({ recipe, onClose }: Props) {
                   disabled={isSaving}
                   animate={{ boxShadow: hasThisRecipe ? '0 0 0 2px rgba(107,31,42,0.40)' : '0 0 0 0px rgba(107,31,42,0.00)' }}
                   transition={{ duration: 0.15, ease: [0.25, 0, 0, 1] }}
-                  className="flex flex-col items-center gap-1.5 rounded-xl transition-all text-left active:scale-95 disabled:cursor-default"
-                  style={{ background: 'var(--cream-card)', border: '0.5px solid var(--line)', padding: '8px 4px 12px' }}
+                  style={{ background: 'var(--cream-card)', border: '0.5px solid var(--line)', padding: '8px 4px 12px', borderRadius: 12, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, cursor: 'pointer' }}
                 >
                   {/* Day number */}
                   <span style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 24, height: 24, borderRadius: '50%', flexShrink: 0, fontSize: 14, fontWeight: 600, lineHeight: 1, color: isToday ? 'var(--cream-card)' : 'var(--ink-2)', background: isToday ? 'var(--bordeaux)' : 'transparent' }}>
@@ -292,7 +261,7 @@ export default function AddToCalendarModal({ recipe, onClose }: Props) {
           </motion.div>
           </AnimatePresence>
 
-          <p className="text-xs text-stone text-center mt-3">
+          <p style={{ fontSize: 12, color: 'var(--stone)', textAlign: 'center', marginTop: 12, marginBottom: 0 }}>
             Klik om toe te voegen · nogmaals klikken verwijdert
           </p>
         </div>
