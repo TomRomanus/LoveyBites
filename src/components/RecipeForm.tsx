@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { RecipeInput, IngredientNode } from '../types/recipe'
-import IngredientEditor, { pruneEmpty } from './IngredientEditor'
+import IngredientEditor from './IngredientEditor'
+import { pruneEmpty, ensureIngredientIds } from '../utils/ingredientUtils'
 import SourceEditor from './SourceEditor'
 import AutoGrowTextarea from './AutoGrowTextarea'
 
-interface Props {
+type Props = {
   initial?: Partial<RecipeInput>
   onSubmit: (data: RecipeInput) => Promise<void>
   onSavingChange?: (saving: boolean) => void
@@ -14,12 +15,6 @@ interface Props {
   existingTags?: string[]
 }
 
-function ensureIngredientIds(nodes: IngredientNode[]): IngredientNode[] {
-  return nodes.map((node) => {
-    if (node.kind === 'leaf') return node.id ? node : { ...node, id: crypto.randomUUID() }
-    return { ...node, id: node.id ?? crypto.randomUUID(), children: ensureIngredientIds(node.children) }
-  })
-}
 
 function collectIngredientOptions(nodes: IngredientNode[]): Array<{ id: string; text: string }> {
   const options: Array<{ id: string; text: string }> = []
