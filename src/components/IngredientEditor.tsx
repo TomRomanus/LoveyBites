@@ -237,7 +237,7 @@ function moveNodeInTree(nodes: IngredientNode[], activeId: string, overId: strin
 
 // ── Labels ───────────────────────────────────────────────────────────────────
 
-interface EditorLabels {
+type EditorLabels = {
   leafPlaceholder: string
   groupPlaceholder: string
   addLeafInGroup: string
@@ -360,14 +360,14 @@ function GripHandle({ style }: { style?: React.CSSProperties }) {
 
 // ── Ingredient option type ────────────────────────────────────────────────────
 
-interface IngredientOption {
+type IngredientOption = {
   id: string
   text: string
 }
 
 // ── Leaf row ─────────────────────────────────────────────────────────────────
 
-interface LeafRowProps {
+type LeafRowProps = {
   node: IngredientNode & { kind: 'leaf' }
   path: number[]
   isOnly: boolean
@@ -488,7 +488,7 @@ function LeafRow({ node, path, isOnly, isLast, allNodes, labels, onChange, ingre
 
 // ── Group row ────────────────────────────────────────────────────────────────
 
-interface GroupRowProps {
+type GroupRowProps = {
   node: IngredientNode & { kind: 'group' }
   path: number[]
   isOnly: boolean
@@ -634,7 +634,7 @@ function OverlayContent({ node, ordered, leafIndexMap }: { node: IngredientNode;
 
 // ── Public component ──────────────────────────────────────────────────────────
 
-interface IngredientEditorProps {
+type IngredientEditorProps = {
   nodes: IngredientNode[]
   onChange: (nodes: IngredientNode[]) => void
   labels?: Partial<EditorLabels>
