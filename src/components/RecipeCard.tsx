@@ -1,36 +1,13 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import type { Recipe } from '../types/recipe'
+import { StarRating } from './StarRating'
 
-
-interface Props {
+type Props = {
   recipe: Recipe
   variant?: 'feature' | 'default'
   onAddToCalendar?: (recipe: Recipe) => void
   highlightTags?: string[]
-}
-
-const STAR_PATH = 'M12 3l3 6 6.5 1-4.7 4.6 1.1 6.4L12 18l-5.9 3 1.1-6.4L2.5 10 9 9l3-6z'
-
-function Stars({ value }: { value: number }) {
-  return (
-    <div style={{ display: 'inline-flex', alignItems: 'flex-end', gap: 2 }}>
-      {Array.from({ length: 5 }, (_, i) => {
-        const frac = Math.max(0, Math.min(1, value - i))
-        return (
-          <div key={i} style={{ width: 13, height: 13, position: 'relative', flexShrink: 0 }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" style={{ position: 'absolute' }}>
-              <path d={STAR_PATH} fill="none" stroke="var(--stone-2)" strokeWidth="1.4" strokeLinejoin="round" />
-            </svg>
-            <svg width="13" height="13" viewBox="0 0 24 24"
-              style={{ position: 'absolute', clipPath: `inset(0 ${((1 - frac) * 100).toFixed(1)}% 0 0)` }}>
-              <path d={STAR_PATH} fill="var(--bordeaux)" stroke="var(--bordeaux)" strokeWidth="1.4" strokeLinejoin="round" />
-            </svg>
-          </div>
-        )
-      })}
-    </div>
-  )
 }
 
 export default function RecipeCard({ recipe, variant = 'default', onAddToCalendar, highlightTags }: Props) {
@@ -61,7 +38,7 @@ export default function RecipeCard({ recipe, variant = 'default', onAddToCalenda
               </p>
             )}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Stars value={recipe.rating ?? 0} />
+              <StarRating value={recipe.rating ?? 0} />
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                 {recipe.tags.slice(0, 3).map(t => (
                   <span key={t} className="lb-tag">{t}</span>
@@ -105,7 +82,7 @@ export default function RecipeCard({ recipe, variant = 'default', onAddToCalenda
             ))}
           </div>
         )}
-        <Stars value={recipe.rating ?? 0} />
+        <StarRating value={recipe.rating ?? 0} />
       </Link>
     </motion.div>
   )
