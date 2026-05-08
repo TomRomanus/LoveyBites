@@ -90,4 +90,4 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_LOVEYBITES_2E816 }}
           projectId: loveybites-2e816
-          # No channelId: action deploys to live on push, preview channel on PR
+          channelId: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || 'live' }}
