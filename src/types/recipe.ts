@@ -42,9 +42,8 @@ export interface Recipe {
   sources?: Source[]
   tags: string[]
   imageUrl: string
-  color?: string
   portions?: number
-  portionsLabel?: string
+  portionsLabel?: 'pers' | 'stuks'
   rating?: number
   createdAt: Timestamp
   updatedAt: Timestamp

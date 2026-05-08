@@ -59,7 +59,7 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
   const [weekStart, setWeekStart] = useState<Date>(() => startOfWeek(today))
   const [weekDir, setWeekDir] = useState<'next' | 'prev'>('next')
   const [entries, setEntries] = useState<MealPlanEntry[]>([])
-  const [recipeMap, setRecipeMap] = useState<Map<string, { title: string; color: string }>>(new Map())
+  const [recipeMap, setRecipeMap] = useState<Map<string, { title: string }>>(new Map())
   const [saving, setSaving] = useState<string | null>(null)
   const [recentlySaved, setRecentlySaved] = useState<Set<string>>(new Set())
 
@@ -72,7 +72,7 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
 
   useEffect(() => {
     getRecipes().then(recipes => {
-      setRecipeMap(new Map(recipes.map(r => [r.id, { title: r.title, color: r.color ?? '#6b1f2a' }])))
+      setRecipeMap(new Map(recipes.map(r => [r.id, { title: r.title }])))
     })
   }, [])
 
@@ -252,7 +252,6 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
                     {dayEntries.slice(0, 2).map((e) => {
                       const recipeData = e.recipeId ? recipeMap.get(e.recipeId) : undefined
                       const label = recipeData?.title ?? e.recipeTitle ?? e.customDescription ?? ''
-                      const color = recipeData?.color ?? null
                       return (
                         <motion.div
                           key={e.id}
@@ -263,8 +262,8 @@ export default function AddToCalendarModal({ recipe, onClose, onSaved }: Props) 
                           style={{ overflow: 'hidden' }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '0 2px 2px' }}>
-                            <div style={{ width: 2.5, height: 10, borderRadius: 2, flexShrink: 0, background: color ?? 'var(--stone)' }} />
-                            <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500, fontSize: 7, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, color: color ?? 'var(--stone)' }}>
+                            <div style={{ width: 2.5, height: 10, borderRadius: 2, flexShrink: 0, background: 'var(--bordeaux)' }} />
+                            <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500, fontSize: 7, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0, color: 'var(--bordeaux)' }}>
                               {label}
                             </span>
                           </div>

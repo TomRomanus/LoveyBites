@@ -7,7 +7,7 @@ import type { Recipe } from '../types/recipe'
 import { scaleIngredients } from '../utils/scaleIngredient'
 import CookModeView, { collectIngredientMap } from '../components/CookModeView'
 import AddToCalendarModal from '../components/AddToCalendarModal'
-import { DEFAULT_RECIPE_COLOR, flattenIngredientSections, flattenSteps } from '../utils/recipeDisplay'
+import { flattenIngredientSections, flattenSteps } from '../utils/recipeDisplay'
 
 function scaleItem(text: string, ratio: number): string {
   if (ratio === 1) return text
@@ -259,7 +259,7 @@ export default function RecipeDetailPage() {
             setRecipe(r)
             if (r) {
               setPortions(2)
-              document.querySelector('meta[name="theme-color"]')?.setAttribute('content', r.color ?? DEFAULT_RECIPE_COLOR)
+              document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#6b1f2a')
             }
             setLoading(false)
           }
@@ -271,9 +271,8 @@ export default function RecipeDetailPage() {
   }, [id])
 
   useEffect(() => {
-    const recipeColor = recipe?.color ?? DEFAULT_RECIPE_COLOR
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', cookMode ? '#1f1d1a' : recipeColor)
-  }, [cookMode, recipe?.color])
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', cookMode ? '#1f1d1a' : '#6b1f2a')
+  }, [cookMode])
 
   // Wake lock while viewing recipe
   useEffect(() => {
@@ -347,7 +346,6 @@ export default function RecipeDetailPage() {
     )
   }
 
-  const color = recipe.color ?? DEFAULT_RECIPE_COLOR
   const ratio = portions / (recipe.portions ?? 4)
   const scaledIngredients = scaleIngredients(recipe.ingredients, ratio)
   const ingredientSections = flattenIngredientSections(scaledIngredients)
@@ -358,7 +356,7 @@ export default function RecipeDetailPage() {
     <div style={{ minHeight: '100dvh', position: 'relative', background: 'var(--paper)' }}>
       {/* Hero color block */}
       <div className="lb-color-block" style={{
-        '--block-bg': color,
+        '--block-bg': 'var(--bordeaux)',
         minHeight: 185,
         padding: '24px 22px 24px',
         borderRadius: 0,

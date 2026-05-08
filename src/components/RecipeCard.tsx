@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import type { Recipe } from '../types/recipe'
-import { DEFAULT_RECIPE_COLOR } from '../utils/recipeDisplay'
+
 
 interface Props {
   recipe: Recipe
@@ -34,7 +34,6 @@ function Stars({ value }: { value: number }) {
 }
 
 export default function RecipeCard({ recipe, variant = 'default', onAddToCalendar, highlightTags }: Props) {
-  const color = recipe.color ?? DEFAULT_RECIPE_COLOR
   const shortId = recipe.id.slice(-2).toUpperCase()
 
   if (variant === 'feature') {
@@ -43,7 +42,7 @@ export default function RecipeCard({ recipe, variant = 'default', onAddToCalenda
         <Link to={`/recipe/${recipe.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
           {/* Color block hero */}
           <div className="lb-color-block" style={{
-            '--block-bg': color,
+            '--block-bg': 'var(--bordeaux)',
             height: 170,
             borderRadius: 0,
           } as React.CSSProperties}>

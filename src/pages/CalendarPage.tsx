@@ -5,7 +5,7 @@ import { getMealPlanEntries, deleteMealPlanEntry, createMealPlanEntry } from '..
 import { getRecipes, getRecipe } from '../services/recipes'
 import type { MealPlanEntry, Recipe, IngredientNode } from '../types/recipe'
 import { useAuth } from '../contexts/AuthContext'
-import { DEFAULT_RECIPE_COLOR } from '../utils/recipeDisplay'
+
 
 const titleVariants = {
   enter: (dir: number) => ({
@@ -717,7 +717,6 @@ function DayDetailSheet({ date, entries, recipeMap, onDelete, onAdd, onClose }: 
             <AnimatePresence initial={false}>
               {entries.map(e => {
                 const recipe = recipeMap.get(e.recipeId ?? '')
-                const color = recipe?.color ?? DEFAULT_RECIPE_COLOR
                 return (
                   <motion.div
                     key={e.id}
@@ -729,13 +728,13 @@ function DayDetailSheet({ date, entries, recipeMap, onDelete, onAdd, onClose }: 
                     style={{ overflow: 'hidden' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0', borderBottom: '0.5px solid var(--line-soft)' }}>
-                      <div style={{ width: 2.5, alignSelf: 'stretch', borderRadius: 2, flexShrink: 0, background: recipe ? color : 'var(--stone)' }} />
+                      <div style={{ width: 2.5, alignSelf: 'stretch', borderRadius: 2, flexShrink: 0, background: recipe ? 'var(--bordeaux)' : 'var(--stone)' }} />
                       <span
                         onClick={() => recipe && nav(`/recipe/${recipe.id}`)}
                         style={{
                           flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16,
                           lineHeight: 1.25, fontWeight: 500,
-                          color: recipe ? color : 'var(--stone)',
+                          color: recipe ? 'var(--bordeaux)' : 'var(--stone)',
                           cursor: recipe ? 'pointer' : 'default',
                           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                         }}
@@ -1114,7 +1113,6 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
               <AnimatePresence initial={false}>
                 {dayEntries.map(e => {
                   const recipe = recipeMap.get(e.recipeId ?? '')
-                  const color = recipe?.color ?? DEFAULT_RECIPE_COLOR
                   return (
                     <motion.div
                       key={e.id}
@@ -1124,13 +1122,13 @@ function WeekView({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
                       transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
                       style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 5 }}
                     >
-                      <div style={{ width: 2.5, alignSelf: 'stretch', borderRadius: 2, flexShrink: 0, background: recipe ? color : 'var(--stone)' }} />
+                      <div style={{ width: 2.5, alignSelf: 'stretch', borderRadius: 2, flexShrink: 0, background: recipe ? 'var(--bordeaux)' : 'var(--stone)' }} />
                       <span
                         onClick={() => recipe && nav(`/recipe/${recipe.id}`)}
                         style={{
                           flex: 1, fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 13.5,
                           lineHeight: 1.25, fontWeight: 500,
-                          color: recipe ? color : 'var(--stone)',
+                          color: recipe ? 'var(--bordeaux)' : 'var(--stone)',
                           cursor: recipe ? 'pointer' : 'default',
                           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                         }}
@@ -1226,7 +1224,6 @@ function MonthView({ anchor, today, entries, recipeMap, onPickDay, selectedDay }
                 {dayEntries.slice(0, 2).map(e => {
                   const recipe = recipeMap.get(e.recipeId ?? '')
                   const label = recipe ? recipe.title : e.customDescription ?? ''
-                  const color = recipe?.color ?? DEFAULT_RECIPE_COLOR
                   return (
                     <motion.div
                       key={e.id}
@@ -1237,12 +1234,12 @@ function MonthView({ anchor, today, entries, recipeMap, onPickDay, selectedDay }
                       style={{ overflow: 'hidden' }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 2, width: '100%', paddingBottom: 2 }}>
-                        <div style={{ width: 2, height: 10, borderRadius: 2, flexShrink: 0, background: recipe ? color : 'var(--stone)' }} />
+                        <div style={{ width: 2, height: 10, borderRadius: 2, flexShrink: 0, background: recipe ? 'var(--bordeaux)' : 'var(--stone)' }} />
                         <span style={{
                           fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 500,
                           fontSize: 7, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                           flex: 1, minWidth: 0,
-                          color: recipe ? color : 'var(--stone)',
+                          color: recipe ? 'var(--bordeaux)' : 'var(--stone)',
                         }}>{label}</span>
                       </div>
                     </motion.div>
