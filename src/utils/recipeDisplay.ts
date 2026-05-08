@@ -1,4 +1,5 @@
 import type { IngredientNode } from '../types/recipe'
+import { extractLeafTexts } from './ingredientUtils'
 
 /** Flatten a tree of ingredient nodes into `{ section, items }[]` for display. */
 export function flattenIngredientSections(
@@ -14,7 +15,7 @@ export function flattenIngredientSections(
       if (loose.length) {
         sections.push({ section: '', items: loose.splice(0) })
       }
-      const items = collectLeafTexts(node.children)
+      const items = extractLeafTexts(node.children)
       sections.push({ section: node.title || '', items })
     }
   }
@@ -22,12 +23,6 @@ export function flattenIngredientSections(
     sections.push({ section: '', items: loose })
   }
   return sections.length ? sections : [{ section: '', items: [] }]
-}
-
-function collectLeafTexts(nodes: IngredientNode[]): string[] {
-  return nodes.flatMap(n =>
-    n.kind === 'leaf' ? [n.text] : collectLeafTexts(n.children),
-  )
 }
 
 /** Flatten a tree of step nodes into `{ phase, text, ingredientRefs }[]` for display. */
