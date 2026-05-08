@@ -1,13 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { Check, Search, X, SlidersHorizontal, ArrowUpDown, ChevronDown, Plus } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import RecipeCard from '../components/RecipeCard'
 import AddToCalendarModal from '../../calendar/components/AddToCalendarModal'
 import { StarRating } from '../components/StarRating'
 import { getRecipes, getRecipe } from '../services/recipes'
 import { getMealPlanEntries } from '../../calendar/services/mealPlan'
+import { recipeKeys } from '../services/queryKeys'
+import { calendarKeys } from '../../calendar/services/queryKeys'
 import type { Recipe } from '../types/recipe'
 import { toISO } from '../../calendar/utils/dateUtils'
 import { extractLeafTexts } from '../utils/ingredientUtils'
@@ -156,35 +159,31 @@ const SortSheet = ({ sort, onChange, onClose }: {
 
 const RecipesPage = () => {
   const navigate = useNavigate()
-  const [recipes, setRecipes] = useState<Recipe[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [calendarRecipe, setCalendarRecipe] = useState<Recipe | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTags, setActiveTags] = useState<string[]>([])
   const [sort, setSort] = useState<SortOption>('name-asc')
   const [showFilters, setShowFilters] = useState(false)
   const [showSort, setShowSort] = useState(false)
-  const [todayRecipe, setTodayRecipe] = useState<Recipe | null>(null)
-  const [todayLoading, setTodayLoading] = useState(true)
 
-  useEffect(() => {
-    const today = toISO(new Date())
-    getMealPlanEntries(today, today).then(async entries => {
+  const today = useMemo(() => toISO(new Date()), [])
+
+  const { data: recipes = [], isLoading: loading, error: recipesError } = useQuery({
+    queryKey: recipeKeys.list(),
+    queryFn: getRecipes,
+  })
+
+  const { data: todayRecipe, isLoading: todayLoading } = useQuery({
+    queryKey: calendarKeys.todayRecipe(today),
+    queryFn: async () => {
+      const entries = await getMealPlanEntries(today, today)
       const entry = entries.find(e => e.recipeId)
-      if (entry?.recipeId) {
-        const recipe = await getRecipe(entry.recipeId)
-        setTodayRecipe(recipe)
-      }
-    }).catch(() => {}).finally(() => setTodayLoading(false))
-  }, [])
+      if (!entry?.recipeId) return null
+      return getRecipe(entry.recipeId)
+    },
+  })
 
-  useEffect(() => {
-    getRecipes()
-      .then(setRecipes)
-      .catch(() => setError('Recepten konden niet worden geladen. Controleer je Firebase-configuratie.'))
-      .finally(() => setLoading(false))
-  }, [])
+  const error = recipesError ? 'Recepten konden niet worden geladen. Controleer je Firebase-configuratie.' : null
 
   const allTags = [...new Set(recipes.flatMap(r => r.tags))].sort((a, b) => a.localeCompare(b))
 

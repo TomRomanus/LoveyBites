@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Minus, Plus, Check, ArrowUpDown } from 'lucide-react'
+import { useForm, Controller, useWatch } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import type { RecipeInput, IngredientNode } from '../types/recipe'
+import { recipeInputSchema } from '../types/recipe'
 import RecipeNodeEditor from './RecipeNodeEditor'
 import { pruneEmpty, ensureIngredientIds } from '../utils/ingredientUtils'
 import RecipeSourceEditor from './RecipeSourceEditor'
@@ -42,6 +45,15 @@ const emptyInput = (): RecipeInput => ({
   imageUrl: '',
   createdBy: 'us',
 })
+
+const buildInitial = (initial?: Partial<RecipeInput>): RecipeInput => {
+  const base = { ...emptyInput(), ...initial }
+  return {
+    ...base,
+    ingredients: ensureIngredientIds(base.ingredients),
+    steps: ensureIngredientIds(base.steps),
+  }
+}
 
 const stepLabels = {
   leafPlaceholder: 'bijv. Verwarm de oven voor op 180°C',
@@ -171,65 +183,74 @@ const TagsEditor = ({ tags, onChange, existingTags = [] }: { tags: string[]; onC
   )
 }
 
-const RecipeForm = ({ initial, onSubmit, onSavingChange, onTitleChange, existingTags }: Props) => {
-  const [form, setForm] = useState<RecipeInput>(() => {
-    const base = { ...emptyInput(), ...initial }
-    return {
-      ...base,
-      ingredients: ensureIngredientIds(base.ingredients),
-      steps: ensureIngredientIds(base.steps),
-    }
-  })
+const RecipeForm = ({ initial, onSubmit: onSubmitProp, onSavingChange, onTitleChange, existingTags }: Props) => {
   const [error, setError] = useState<string | null>(null)
   const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
   const [labelDir, setLabelDir] = useState<'up' | 'down' | null>(null)
   const [isReordering, setIsReordering] = useState(false)
 
-  const setField = <K extends keyof RecipeInput>(key: K, value: RecipeInput[K]) => {
-    setForm((f) => ({ ...f, [key]: value }))
-  }
+  const { register, handleSubmit, control, reset, setValue, formState: { errors } } = useForm<RecipeInput>({
+    resolver: zodResolver(recipeInputSchema),
+    defaultValues: buildInitial(initial),
+  })
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  useEffect(() => {
+    if (initial !== undefined) reset(buildInitial(initial))
+  }, [initial, reset])
+
+  const portionsValue = useWatch({ control, name: 'portions' }) ?? 4
+  const portionsLabel = useWatch({ control, name: 'portionsLabel' })
+  const ingredients = useWatch({ control, name: 'ingredients' })
+
+  const ingredientOptions = collectIngredientOptions(ingredients)
+
+  const onSubmit = handleSubmit(async (data) => {
     setError(null)
-    const data: RecipeInput = {
-      ...form,
-      ingredients: pruneEmpty(form.ingredients),
-      steps: pruneEmpty(form.steps),
-      sources: (form.sources ?? []).filter((s) => s.url.trim()),
-    }
-    if (!data.title.trim()) {
-      setError('Titel is verplicht.')
-      return
+    const cleaned: RecipeInput = {
+      ...data,
+      ingredients: pruneEmpty(data.ingredients),
+      steps: pruneEmpty(data.steps),
+      sources: (data.sources ?? []).filter((s) => s.url.trim()),
     }
     onSavingChange?.(true)
     try {
-      await onSubmit(data)
+      await onSubmitProp(cleaned)
     } catch {
       setError('Recept opslaan mislukt. Probeer opnieuw.')
       onSavingChange?.(false)
     }
-  }
+  })
 
-  const ingredientOptions = collectIngredientOptions(form.ingredients)
-  const portionsValue = form.portions ?? 4
+  const errorMessage = errors.title?.message ?? error
 
   return (
-    <form id="recipe-form" onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 8 }}>
+    <form id="recipe-form" onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 8 }}>
       {/* Basic info */}
       <div style={sectionCard}>
         <Field label="Titel" required>
-          <input className="lb-input" type="text" value={form.title}
-            onChange={(e) => { setField('title', e.target.value); onTitleChange?.(e.target.value.trim().length > 0) }}
-            placeholder="Wat gaan we maken?" />
+          <input
+            className="lb-input"
+            type="text"
+            placeholder="Wat gaan we maken?"
+            {...register('title', {
+              onChange: (e) => onTitleChange?.(e.target.value.trim().length > 0),
+            })}
+          />
         </Field>
         <div style={{ height: 14 }} />
         <Field label="Beschrijving">
-          <AutoGrowTextarea value={form.description}
-            onChange={(e) => setField('description', e.target.value)}
-            rows={2}
-            style={{ width: '100%', background: 'var(--paper-2)', border: 0, borderRadius: 12, padding: '12px 14px', fontFamily: 'var(--sans)', fontSize: 15, color: 'var(--ink)', outline: 'none', resize: 'none', lineHeight: 1.45 }}
-            placeholder="Beschrijf het gerecht" />
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <AutoGrowTextarea
+                {...field}
+                rows={2}
+                style={{ width: '100%', background: 'var(--paper-2)', border: 0, borderRadius: 12, padding: '12px 14px', fontFamily: 'var(--sans)', fontSize: 15, color: 'var(--ink)', outline: 'none', resize: 'none', lineHeight: 1.45 }}
+                placeholder="Beschrijf het gerecht"
+              />
+            )}
+          />
         </Field>
         <div style={{ height: 14 }} />
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
@@ -238,10 +259,13 @@ const RecipeForm = ({ initial, onSubmit, onSavingChange, onTitleChange, existing
             {/* Pers/stuks toggle with sliding pill */}
             <div style={{ position: 'relative', display: 'flex', background: 'var(--paper-2)', borderRadius: 18, padding: 3, height: 36 }}>
               {(['pers', 'stuks'] as const).map(opt => {
-                const active = (form.portionsLabel || 'pers') === opt
+                const active = (portionsLabel || 'pers') === opt
                 return (
                   <button key={opt} type="button"
-                    onClick={() => { setLabelDir(opt === 'stuks' ? 'up' : 'down'); setField('portionsLabel', opt === 'pers' ? undefined : opt) }}
+                    onClick={() => {
+                      setLabelDir(opt === 'stuks' ? 'up' : 'down')
+                      setValue('portionsLabel', opt === 'pers' ? undefined : opt)
+                    }}
                     style={{
                       position: 'relative', zIndex: 1,
                       height: 30, padding: '0 12px', borderRadius: 14, border: 0,
@@ -272,7 +296,7 @@ const RecipeForm = ({ initial, onSubmit, onSavingChange, onTitleChange, existing
             {/* Portion stepper with animated number */}
             <div style={{ display: 'flex', alignItems: 'center', background: 'var(--paper-2)', borderRadius: 18, padding: 3, height: 36 }}>
               <button type="button"
-                onClick={() => { setPortionDir('down'); setField('portions', Math.max(1, portionsValue - 1)) }}
+                onClick={() => { setPortionDir('down'); setValue('portions', Math.max(1, portionsValue - 1)) }}
                 style={{ width: 30, height: 30, borderRadius: 14, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
                 <Minus size={14} strokeWidth={2.4} />
               </button>
@@ -298,7 +322,7 @@ const RecipeForm = ({ initial, onSubmit, onSavingChange, onTitleChange, existing
                 <div style={{ overflow: 'hidden', position: 'relative' }}>
                   <AnimatePresence mode="popLayout" custom={labelDir}>
                     <motion.span
-                      key={form.portionsLabel || 'pers'}
+                      key={portionsLabel || 'pers'}
                       custom={labelDir}
                       variants={{
                         enter: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? 10 : d === 'down' ? -10 : 0, opacity: 0 }),
@@ -309,13 +333,13 @@ const RecipeForm = ({ initial, onSubmit, onSavingChange, onTitleChange, existing
                       transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                       style={{ display: 'block' }}
                     >
-                      {form.portionsLabel || 'pers'}
+                      {portionsLabel || 'pers'}
                     </motion.span>
                   </AnimatePresence>
                 </div>
               </div>
               <button type="button"
-                onClick={() => { setPortionDir('up'); setField('portions', portionsValue + 1) }}
+                onClick={() => { setPortionDir('up'); setValue('portions', portionsValue + 1) }}
                 style={{ width: 30, height: 30, borderRadius: 14, background: 'var(--cream-card)', border: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.06)', cursor: 'pointer' }}>
                 <Plus size={14} strokeWidth={2.4} />
               </button>
@@ -327,43 +351,67 @@ const RecipeForm = ({ initial, onSubmit, onSavingChange, onTitleChange, existing
       {/* Ingredients */}
       <div style={sectionCard}>
         <div className="lb-eyebrow" style={{ marginBottom: 12 }}>INGREDIËNTEN</div>
-        <RecipeNodeEditor
-          nodes={form.ingredients}
-          onChange={(v) => setField('ingredients', ensureIngredientIds(v))}
-          commonSections={['Deeg', 'Vulling', 'Marinade', 'Coating', 'Saus', 'Glazuur']}
-          reordering={isReordering}
+        <Controller
+          name="ingredients"
+          control={control}
+          render={({ field }) => (
+            <RecipeNodeEditor
+              nodes={field.value}
+              onChange={(v) => field.onChange(ensureIngredientIds(v))}
+              commonSections={['Deeg', 'Vulling', 'Marinade', 'Coating', 'Saus', 'Glazuur']}
+              reordering={isReordering}
+            />
+          )}
         />
       </div>
 
       {/* Steps */}
       <div style={sectionCard}>
         <div className="lb-eyebrow" style={{ marginBottom: 12 }}>INSTRUCTIES</div>
-        <RecipeNodeEditor
-          nodes={form.steps}
-          onChange={(v) => setField('steps', ensureIngredientIds(v))}
-          labels={stepLabels}
-          commonSections={['Voorbereiding', 'Bereiding', 'Assembleren']}
-          ingredientOptions={ingredientOptions}
-          leafMultiline
-          ordered
-          reordering={isReordering}
+        <Controller
+          name="steps"
+          control={control}
+          render={({ field }) => (
+            <RecipeNodeEditor
+              nodes={field.value}
+              onChange={(v) => field.onChange(ensureIngredientIds(v))}
+              labels={stepLabels}
+              commonSections={['Voorbereiding', 'Bereiding', 'Assembleren']}
+              ingredientOptions={ingredientOptions}
+              leafMultiline
+              ordered
+              reordering={isReordering}
+            />
+          )}
         />
       </div>
 
       {/* Tags + Sources */}
       <div style={sectionCard}>
         <Field label="Tags">
-          <TagsEditor tags={form.tags ?? []} onChange={(v) => setField('tags', v)} existingTags={existingTags} />
+          <Controller
+            name="tags"
+            control={control}
+            render={({ field }) => (
+              <TagsEditor tags={field.value ?? []} onChange={field.onChange} existingTags={existingTags} />
+            )}
+          />
         </Field>
         <div style={{ height: 18 }} />
         <Field label="Bronnen">
-          <RecipeSourceEditor sources={form.sources ?? []} onChange={(v) => setField('sources', v)} />
+          <Controller
+            name="sources"
+            control={control}
+            render={({ field }) => (
+              <RecipeSourceEditor sources={field.value ?? []} onChange={field.onChange} />
+            )}
+          />
         </Field>
       </div>
 
-      {error && (
+      {errorMessage && (
         <div style={{ background: 'var(--bordeaux-tint)', color: 'var(--bordeaux)', padding: '10px 14px', borderRadius: '0 12px 12px 0', fontSize: 13, fontWeight: 500, borderLeft: '3px solid var(--bordeaux)' }}>
-          {error}
+          {errorMessage}
         </div>
       )}
 

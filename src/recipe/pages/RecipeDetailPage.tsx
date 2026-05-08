@@ -3,8 +3,10 @@ import { createPortal } from 'react-dom'
 import { animate, motion, AnimatePresence } from 'framer-motion'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ChevronLeft, MoreHorizontal, Play, Minus, Plus, Pencil, Trash2, Link, Calendar } from 'lucide-react'
-import { getRecipe, deleteRecipe, updateRecipe } from '../services/recipes'
-import type { Recipe } from '../types/recipe'
+import { useQueryClient } from '@tanstack/react-query'
+import { deleteRecipe, updateRecipe } from '../services/recipes'
+import { recipeKeys } from '../services/queryKeys'
+import useRecipeLoad from '../hooks/useRecipeLoad'
 import { scaleIngredients } from '../utils/scaleIngredient'
 import CookingScreen from '../../cooking/components/CookingScreen'
 import { collectIngredientMap } from '../utils/ingredientUtils'
@@ -211,8 +213,8 @@ const PortionStepper = ({ value, onChange, label, dir }: { value: number; onChan
 const RecipeDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const [recipe, setRecipe] = useState<Recipe | null>(null)
-  const [loading, setLoading] = useState(true)
+  const queryClient = useQueryClient()
+  const { data: recipe, isLoading: loading } = useRecipeLoad(id)
   const [checked, setChecked] = useState<Set<string>>(new Set())
   const [portions, setPortions] = useState(2)
   const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
@@ -230,29 +232,10 @@ const RecipeDetailPage = () => {
   const ratingSavedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    if (!id) return
-    let cancelled = false
-    let seq = 0
-    const load = () => {
-      const mySeq = ++seq
-      const timeoutId = setTimeout(() => { if (!cancelled && seq === mySeq) load() }, 5_000)
-      getRecipe(id)
-        .then(r => {
-          clearTimeout(timeoutId)
-          if (!cancelled && seq === mySeq) {
-            setRecipe(r)
-            if (r) {
-              setPortions(2)
-              document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#6b1f2a')
-            }
-            setLoading(false)
-          }
-        })
-        .catch(() => { clearTimeout(timeoutId); if (!cancelled && seq === mySeq) setTimeout(load, 500) })
+    if (recipe) {
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#6b1f2a')
     }
-    load()
-    return () => { cancelled = true }
-  }, [id])
+  }, [recipe])
 
   useEffect(() => {
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', cookMode ? '#1f1d1a' : '#6b1f2a')
@@ -284,7 +267,7 @@ const RecipeDetailPage = () => {
   const handleRating = async (rating: number) => {
     if (!id || !recipe) return
     await updateRecipe(id, { rating })
-    setRecipe({ ...recipe, rating })
+    queryClient.setQueryData(recipeKeys.detail(id), { ...recipe, rating })
     if (ratingSavedTimer.current) clearTimeout(ratingSavedTimer.current)
     setRatingSaved(true)
     ratingSavedTimer.current = setTimeout(() => setRatingSaved(false), 900)
@@ -294,6 +277,7 @@ const RecipeDetailPage = () => {
     if (!id) return
     setDeleting(true)
     await deleteRecipe(id)
+    queryClient.invalidateQueries({ queryKey: recipeKeys.list() })
     navigate('/')
   }
 

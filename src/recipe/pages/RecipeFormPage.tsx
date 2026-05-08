@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X, Link as LinkIcon, AlignLeft, Image, Pencil, ChevronRight, Check, Loader } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import RecipeForm from '../components/RecipeForm'
 import RecipeUrlImport from '../components/RecipeUrlImport'
 import RecipeTextImport from '../components/RecipeTextImport'
 import RecipePhotoImport from '../components/RecipePhotoImport'
-import { createRecipe, updateRecipe, getRecipe, getRecipes } from '../services/recipes'
+import { createRecipe, updateRecipe, getRecipes } from '../services/recipes'
+import { recipeKeys } from '../services/queryKeys'
+import useRecipeLoad from '../hooks/useRecipeLoad'
 import type { RecipeInput } from '../types/recipe'
 
 type Mode = 'url' | 'text' | 'photo' | 'manual'
@@ -87,30 +90,24 @@ const RecipeFormPage = () => {
   const isEdit = Boolean(id)
   const [mode, setMode] = useState<Mode | null>(null)
   const [extracted, setExtracted] = useState(false)
-  const [initial, setInitial] = useState<Partial<RecipeInput> | undefined>(undefined)
-  const [formKey, setFormKey] = useState(0)
-  const [loading, setLoading] = useState(isEdit)
+  const [importedData, setImportedData] = useState<Partial<RecipeInput> | undefined>(undefined)
   const [saving, setSaving] = useState(false)
-  const [hasTitle, setHasTitle] = useState(() => Boolean(initial?.title?.trim()))
-  const [existingTags, setExistingTags] = useState<string[]>([])
+  const [hasTitle, setHasTitle] = useState(false)
   const [direction, setDirection] = useState(1)
 
-  useEffect(() => {
-    if (!id) return
-    let cancelled = false
-    const load = () => getRecipe(id)
-      .then(r => { if (!cancelled) { if (r) setInitial(r); setLoading(false) } })
-      .catch(() => { if (!cancelled) setTimeout(load, 500) })
-    load()
-    return () => { cancelled = true }
-  }, [id])
+  const { data: fetchedRecipe, isLoading: loading } = useRecipeLoad(id)
 
-  useEffect(() => {
-    getRecipes().then((recipes) => {
-      const tags = [...new Set(recipes.flatMap((r) => r.tags))].sort((a, b) => a.localeCompare(b))
-      setExistingTags(tags)
-    })
-  }, [])
+  const { data: allRecipes = [] } = useQuery({
+    queryKey: recipeKeys.list(),
+    queryFn: getRecipes,
+  })
+
+  const existingTags = useMemo(
+    () => [...new Set(allRecipes.flatMap((r) => r.tags))].sort((a, b) => a.localeCompare(b)),
+    [allRecipes]
+  )
+
+  const formInitial = isEdit ? (fetchedRecipe ?? undefined) : importedData
 
   const handleSelectMode = (m: Mode) => {
     setDirection(1)
@@ -126,8 +123,7 @@ const RecipeFormPage = () => {
 
   const handleExtracted = (data: Partial<RecipeInput>) => {
     setDirection(1)
-    setInitial(data)
-    setFormKey((k) => k + 1)
+    setImportedData(data)
     setExtracted(true)
   }
 
@@ -302,8 +298,7 @@ const RecipeFormPage = () => {
               transition={{ delay: 0.08, duration: 0.22, ease: [0.2, 0, 0.2, 1] }}
             >
               <RecipeForm
-                key={formKey}
-                initial={initial}
+                initial={formInitial}
                 onSubmit={handleSubmit}
                 onSavingChange={setSaving}
                 onTitleChange={setHasTitle}

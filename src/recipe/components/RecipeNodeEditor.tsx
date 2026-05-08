@@ -2,6 +2,7 @@ import { useState, createContext, useContext } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Plus, GripVertical, Check } from 'lucide-react'
+import { produce } from 'immer'
 import {
   DndContext,
   DragOverlay,
@@ -221,17 +222,16 @@ const moveNodeInTree = (nodes: IngredientNode[], activeId: string, overId: strin
   // Leaf over leaf — cross container
   const without = removeDragNode(nodes, activeId)
   if (overContainer === null) {
-    const idx = without.findIndex(n => n.id === overId)
-    const result = [...without]
-    result.splice(idx === -1 ? result.length : idx, 0, activeNode)
-    return result
+    return produce(without, draft => {
+      const idx = draft.findIndex(n => n.id === overId)
+      draft.splice(idx === -1 ? draft.length : idx, 0, activeNode as IngredientNode)
+    })
   }
-  return without.map(n => {
-    if (n.kind !== 'group' || n.id !== overContainer) return n
-    const idx = n.children.findIndex(c => c.id === overId)
-    const children = [...n.children]
-    children.splice(idx === -1 ? children.length : idx, 0, activeNode)
-    return { ...n, children }
+  return produce(without, draft => {
+    const group = draft.find(n => n.kind === 'group' && n.id === overContainer)
+    if (group?.kind !== 'group') return
+    const idx = group.children.findIndex(c => c.id === overId)
+    group.children.splice(idx === -1 ? group.children.length : idx, 0, activeNode as IngredientNode)
   })
 }
 
