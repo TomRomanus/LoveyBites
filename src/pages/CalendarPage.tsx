@@ -3,8 +3,12 @@ import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { getMealPlanEntries, deleteMealPlanEntry, createMealPlanEntry } from '../services/mealPlan'
 import { getRecipes, getRecipe } from '../services/recipes'
-import type { MealPlanEntry, Recipe, IngredientNode } from '../types/recipe'
+import type { MealPlanEntry, Recipe } from '../types/recipe'
 import { useAuth } from '../contexts/AuthContext'
+import { toISO, addDays, startOfWeek, startOfMonth, endOfMonth, isSameDay, weekDays, calendarGrid } from '../utils/dateUtils'
+import { NL_DAYS_GRID, NL_DAYS_SHORT, NL_DAYS_LONG, NL_MONTHS, NL_MONTHS_SHORT } from '../constants/locale'
+import { extractLeafTexts } from '../utils/ingredientUtils'
+import { scaleIngredientText } from '../utils/scaleIngredient'
 
 
 const titleVariants = {
@@ -55,90 +59,6 @@ const weekRowVariants = {
 }
 
 // ── Date helpers ──────────────────────────────────────────────────────────────
-
-function toISO(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
-
-function addDays(d: Date, n: number): Date {
-  const r = new Date(d)
-  r.setDate(r.getDate() + n)
-  return r
-}
-
-function startOfWeek(d: Date): Date {
-  const r = new Date(d)
-  const day = r.getDay()
-  const diff = day === 0 ? -6 : 1 - day
-  r.setDate(r.getDate() + diff)
-  r.setHours(0, 0, 0, 0)
-  return r
-}
-
-function startOfMonth(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), 1)
-}
-
-function endOfMonth(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth() + 1, 0)
-}
-
-function isSameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-}
-
-function weekDays(weekStart: Date): Date[] {
-  return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
-}
-
-function calendarGrid(monthStart: Date): Date[] {
-  const gridStart = startOfWeek(monthStart)
-  const end = endOfMonth(monthStart)
-  const endWeekStart = startOfWeek(end)
-  const gridEnd = addDays(endWeekStart, 6)
-  const days: Date[] = []
-  let cur = gridStart
-  while (cur <= gridEnd) {
-    days.push(new Date(cur))
-    cur = addDays(cur, 1)
-  }
-  return days
-}
-
-function extractLeafTexts(nodes: IngredientNode[]): string[] {
-  return nodes.flatMap(n =>
-    n.kind === 'leaf' ? [n.text] : extractLeafTexts(n.children)
-  )
-}
-
-function scaleIngredient(text: string, factor: number): string {
-  if (factor === 1) return text
-  return text.replace(/(\d+\/\d+|\d+\.?\d*)/, match => {
-    let value: number
-    if (match.includes('/')) {
-      const [n, d] = match.split('/')
-      value = parseInt(n) / parseInt(d)
-    } else {
-      value = parseFloat(match)
-    }
-    const scaled = value * factor
-    if (Number.isInteger(scaled)) return String(scaled)
-    return String(parseFloat(scaled.toFixed(2)))
-  })
-}
-
-// Monday-first grid header labels
-const NL_DAYS_GRID = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
-// Indexed by d.getDay() (0 = Sunday)
-const NL_DAYS_SHORT = ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za']
-const NL_DAYS_LONG = ['Zondag', 'Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag', 'Zaterdag']
-const NL_MONTHS = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december']
-const NL_MONTHS_SHORT = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec']
 
 function formatEntryDate(iso: string): string {
   const d = new Date(iso + 'T00:00:00')
@@ -428,7 +348,7 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
   const sections = [...sectionsMap.values()].map(s => ({
     label: s.label,
     days: s.days,
-    ingredients: s.baseIngredients.map(i => scaleIngredient(i, (2 * s.count) / s.portions)),
+    ingredients: s.baseIngredients.map(i => scaleIngredientText(i, (2 * s.count) / s.portions)),
   }))
 
   function buildCopyText() {
