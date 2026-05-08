@@ -21,6 +21,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { IngredientNode } from '../types/recipe'
+export { pruneEmpty } from '../utils/ingredientUtils'
 import AutoGrowTextarea from './AutoGrowTextarea'
 
 // ── Sheet animation ──────────────────────────────────────────────────────────
@@ -127,12 +128,6 @@ function appendChild(nodes: IngredientNode[], path: number[], node: IngredientNo
     if (path.length === 1) return { ...n, children: [...n.children, node] }
     return { ...n, children: appendChild(n.children, path.slice(1), node) }
   })
-}
-
-export function pruneEmpty(nodes: IngredientNode[]): IngredientNode[] {
-  return nodes
-    .map((n) => (n.kind === 'leaf' ? n : { ...n, children: pruneEmpty(n.children) }))
-    .filter((n) => (n.kind === 'leaf' ? n.text.trim() !== '' : n.children.length > 0))
 }
 
 function collectGroupTitles(nodes: IngredientNode[]): Set<string> {
@@ -328,7 +323,11 @@ function buildLeafIndexMap(nodes: IngredientNode[]): Map<string, number> {
 
 // ── Drag handle context ───────────────────────────────────────────────────────
 
-const DragHandleCtx = createContext<{ listeners?: any; attributes?: any }>({})
+type DragHandleContextValue = {
+  listeners?: Record<string, React.EventHandler<React.SyntheticEvent>>
+  attributes?: Record<string, unknown>
+}
+const DragHandleCtx = createContext<DragHandleContextValue>({})
 
 function SortableItem({ id, children }: { id: string; children: React.ReactNode }) {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({ id })
