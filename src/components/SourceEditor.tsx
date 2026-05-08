@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import type { Source } from '../types/recipe'
 import { uploadSourceImage } from '../services/storage'
 
-interface Props {
+type Props = {
   sources: Source[]
   onChange: (sources: Source[]) => void
 }
@@ -11,11 +11,15 @@ interface Props {
 export default function SourceEditor({ sources, onChange }: Props) {
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const idsRef = useRef<string[]>([])
+  // Stable per-item keys managed in state so they are never read during render from a ref
+  const [ids, setIds] = useState<string[]>(() =>
+    sources.map(() => crypto.randomUUID())
+  )
 
-  while (idsRef.current.length < sources.length) {
-    idsRef.current.push(crypto.randomUUID())
-  }
+  // Grow the ids array if sources were added externally (defensive)
+  const stableIds = ids.length >= sources.length
+    ? ids
+    : [...ids, ...Array.from({ length: sources.length - ids.length }, () => crypto.randomUUID())]
 
   function update(index: number, field: keyof Source, value: string) {
     const next = sources.map((s, i) => (i === index ? { ...s, [field]: value } : s))
@@ -23,11 +27,12 @@ export default function SourceEditor({ sources, onChange }: Props) {
   }
 
   function remove(index: number) {
-    idsRef.current.splice(index, 1)
+    setIds(prev => prev.filter((_, i) => i !== index))
     onChange(sources.filter((_, i) => i !== index))
   }
 
   function add() {
+    setIds(prev => [...prev, crypto.randomUUID()])
     onChange([...sources, { label: '', url: '' }])
   }
 
@@ -38,6 +43,7 @@ export default function SourceEditor({ sources, onChange }: Props) {
     setUploading(true)
     try {
       const url = await uploadSourceImage(file)
+      setIds(prev => [...prev, crypto.randomUUID()])
       onChange([...sources, { label: file.name, url }])
     } finally {
       setUploading(false)
@@ -57,7 +63,7 @@ export default function SourceEditor({ sources, onChange }: Props) {
       <AnimatePresence mode="popLayout" initial={false}>
         {sources.map((source, i) => (
           <motion.div
-            key={idsRef.current[i]}
+            key={stableIds[i]}
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6, transition: { duration: 0.13, ease: 'easeIn' } }}

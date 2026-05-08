@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getMealPlanEntries, createMealPlanEntry, deleteMealPlanEntry } from '../services/mealPlan'
 import { getRecipes } from '../services/recipes'
+import type { Timestamp } from 'firebase/firestore'
 import type { MealPlanEntry, Recipe } from '../types/recipe'
 import { useAuth } from '../contexts/AuthContext'
 import { toISO, addDays, startOfWeek, isSameDay } from '../utils/dateUtils'
@@ -56,7 +57,7 @@ export default function AddToCalendarModal({ recipe, onClose }: Props) {
         setEntries(prev => prev.filter(e => e.id !== existing.id))
       } else {
         const entryId = await createMealPlanEntry({ date: iso, recipeId: recipe.id, recipeTitle: recipe.title, createdBy: user.uid })
-        setEntries(prev => [...prev, { id: entryId, date: iso, recipeId: recipe.id, recipeTitle: recipe.title, createdBy: user.uid, createdAt: null as any }])
+        setEntries(prev => [...prev, { id: entryId, date: iso, recipeId: recipe.id, recipeTitle: recipe.title, createdBy: user.uid, createdAt: null as unknown as Timestamp }])
         setRecentlySaved(prev => new Set([...prev, iso]))
         setTimeout(() => setRecentlySaved(prev => { const n = new Set(prev); n.delete(iso); return n }), 950)
       }

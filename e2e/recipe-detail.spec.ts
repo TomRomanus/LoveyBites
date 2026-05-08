@@ -126,7 +126,7 @@ test.describe('Recipe detail — delete flow', () => {
     await gotoDetail(page, 'test-cake-001')
     await locateActionsButton(page).click()
     await page.click('text=Recept verwijderen')
-    await expect(page.getByText('"Appeltaart" wordt uit ons kookboek gehaald.')).toBeVisible()
+    await expect(page.getByText('“Appeltaart” wordt uit ons kookboek gehaald.')).toBeVisible()
     await page.click('button:has-text("Verwijderen")')
     await page.waitForURL('/')
     await waitForData(page, 10_000)

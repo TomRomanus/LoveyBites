@@ -24,16 +24,23 @@ function Stars({ value, onChange }: { value: number; onChange?: (v: number) => v
   const committedRef = useRef(value)
   const livePosRef   = useRef(value)
   const onChangeRef  = useRef(onChange)
-  onChangeRef.current = onChange
 
-  const [livePos, setLivePos] = useState(value)
-  const [dir,     setDir]     = useState<'up' | 'down'>('up')
-
+  useEffect(() => { onChangeRef.current = onChange })
   useEffect(() => {
     committedRef.current = value
     livePosRef.current   = value
-    setLivePos(value)
   }, [value])
+
+  const [livePos, setLivePos] = useState(value)
+  const [dir,     setDir]     = useState<'up' | 'down'>('up')
+  const [prevValue, setPrevValue] = useState(value)
+
+  // Derived-state sync: when value prop changes externally, reset live position
+  // (React-recommended pattern: update state during render instead of in an effect)
+  if (value !== prevValue) {
+    setPrevValue(value)
+    setLivePos(value)
+  }
 
   const posFromX = useCallback((clientX: number) => {
     const rect = rowRef.current?.getBoundingClientRect()
@@ -272,7 +279,12 @@ export default function RecipeDetailPage() {
   }, [recipe])
 
   function toggleCheck(key: string) {
-    setChecked(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n })
+    setChecked(prev => {
+      const n = new Set(prev)
+      if (n.has(key)) n.delete(key)
+      else n.add(key)
+      return n
+    })
   }
 
   async function handleRating(rating: number) {
@@ -648,7 +660,7 @@ export default function RecipeDetailPage() {
             >
               <h3 className="lb-display" style={{ margin: 0, fontSize: 22, textAlign: 'center' }}>Dit recept verwijderen?</h3>
               <p style={{ margin: '10px 0 22px', textAlign: 'center', fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.5 }}>
-                "{recipe.title}" wordt uit ons kookboek gehaald.
+                &ldquo;{recipe.title}&rdquo; wordt uit ons kookboek gehaald.
               </p>
               <div style={{ display: 'flex', gap: 10 }}>
                 <button onClick={() => setConfirmDelete(false)} className="lb-btn lb-btn--ghost" style={{ flex: 1 }}>Annuleren</button>

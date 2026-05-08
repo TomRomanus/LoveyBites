@@ -109,7 +109,7 @@ function FilterSheet({ activeTags, allTags, onChange, onClose }: {
             )
           })}
           {filtered.length === 0 && (
-            <div style={{ fontSize: 13, color: 'var(--stone)' }}>Geen tags voor "{q}".</div>
+            <div style={{ fontSize: 13, color: 'var(--stone)' }}>Geen tags voor &ldquo;{q}&rdquo;.</div>
           )}
         </div>
         <div style={{ padding: '0 20px 14px', flexShrink: 0 }}>

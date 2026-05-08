@@ -5,7 +5,7 @@ import { getMealPlanEntries, deleteMealPlanEntry, createMealPlanEntry } from '..
 import { getRecipes, getRecipe } from '../services/recipes'
 import type { MealPlanEntry, Recipe } from '../types/recipe'
 import { useAuth } from '../contexts/AuthContext'
-import { toISO, addDays, startOfWeek, startOfMonth, endOfMonth, isSameDay, weekDays, calendarGrid } from '../utils/dateUtils'
+import { toISO, addDays, startOfWeek, startOfMonth, isSameDay, weekDays, calendarGrid } from '../utils/dateUtils'
 import { NL_DAYS_GRID, NL_DAYS_SHORT, NL_DAYS_LONG, NL_MONTHS, NL_MONTHS_SHORT } from '../constants/locale'
 import { extractLeafTexts } from '../utils/ingredientUtils'
 import { scaleIngredientText } from '../utils/scaleIngredient'
@@ -321,7 +321,8 @@ function ShoppingListSheet({ defaultStart, defaultEnd, onClose }: ShoppingListSh
   function toggleChecked(key: string) {
     setChecked(prev => {
       const next = new Set(prev)
-      next.has(key) ? next.delete(key) : next.add(key)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
       return next
     })
   }
@@ -1214,8 +1215,11 @@ export default function CalendarPage() {
     return { visibleStart: grid[0], visibleEnd: grid[grid.length - 1] }
   })()
 
+  const visibleStartISO = toISO(visibleStart)
+  const visibleEndISO = toISO(visibleEnd)
+
   const loadEntries = useCallback(async () => {
-    const es = await getMealPlanEntries(toISO(visibleStart), toISO(visibleEnd))
+    const es = await getMealPlanEntries(visibleStartISO, visibleEndISO)
     setEntries(es)
     const ids = [...new Set(es.map(e => e.recipeId).filter(Boolean) as string[])]
     const pairs = await Promise.all(ids.map(async id => {
@@ -1226,8 +1230,9 @@ export default function CalendarPage() {
     pairs.forEach(p => p && map.set(p[0], p[1]))
     setRecipeMap(map)
     setLoading(false)
-  }, [toISO(visibleStart), toISO(visibleEnd)])
+  }, [visibleStartISO, visibleEndISO])
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadEntries() }, [loadEntries])
 
   async function handleDelete(id: string) {

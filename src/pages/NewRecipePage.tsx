@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import RecipeForm from '../components/RecipeForm'
@@ -114,7 +114,7 @@ export default function NewRecipePage() {
   const [saving, setSaving] = useState(false)
   const [hasTitle, setHasTitle] = useState(() => Boolean(initial?.title?.trim()))
   const [existingTags, setExistingTags] = useState<string[]>([])
-  const direction = useRef(1)
+  const [direction, setDirection] = useState(1)
 
   useEffect(() => {
     if (!id) return
@@ -134,19 +134,19 @@ export default function NewRecipePage() {
   }, [])
 
   function handleSelectMode(m: Mode) {
-    direction.current = 1
+    setDirection(1)
     setMode(m)
     setExtracted(false)
   }
 
   function handleBack() {
-    direction.current = -1
+    setDirection(-1)
     setMode(null)
     setExtracted(false)
   }
 
   function handleExtracted(data: Partial<RecipeInput>) {
-    direction.current = 1
+    setDirection(1)
     setInitial(data)
     setFormKey((k) => k + 1)
     setExtracted(true)
@@ -208,12 +208,12 @@ export default function NewRecipePage() {
 
   return (
     <div className="lb-paper" style={{ minHeight: '100dvh', overflow: 'hidden' }}>
-      <AnimatePresence mode="wait" custom={direction.current}>
+      <AnimatePresence mode="wait" custom={direction}>
         {/* ── Chooser ── */}
         {!isEdit && mode === null && (
           <motion.div
             key="chooser"
-            custom={direction.current}
+            custom={direction}
             variants={slideVariants}
             initial="enter"
             animate="center"
@@ -258,7 +258,7 @@ export default function NewRecipePage() {
         {!isEdit && isImportMode(mode) && !extracted && (
           <motion.div
             key={`import-${mode}`}
-            custom={direction.current}
+            custom={direction}
             variants={slideVariants}
             initial="enter"
             animate="center"
@@ -287,7 +287,7 @@ export default function NewRecipePage() {
         {(isEdit || mode === 'manual' || extracted) && (
           <motion.div
             key="form"
-            custom={direction.current}
+            custom={direction}
             variants={slideVariants}
             initial="enter"
             animate="center"
