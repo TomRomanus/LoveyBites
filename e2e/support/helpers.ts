@@ -68,6 +68,18 @@ export async function deleteAllRecipes() {
   await deleteApp(app)
 }
 
+export async function seedMealPlanEntry(recipeId: string, date?: string) {
+  process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8181'
+  const app = initializeApp({ projectId: 'demo-loveybites' }, 'seed-meal-' + Date.now())
+  const db = getFirestore(app)
+  const today = new Date()
+  const isoDate =
+    date ??
+    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+  await db.collection('mealPlan').add({ recipeId, date: isoDate })
+  await deleteApp(app)
+}
+
 export async function resetSignupUser() {
   process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8181'
   process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9199'

@@ -1,8 +1,8 @@
 import { test, expect, Page } from '@playwright/test'
-import { reseedRecipes, waitForData, deleteAllRecipes } from './support/helpers'
+import { reseedRecipes, resetMealPlan, waitForData, deleteAllRecipes } from './support/helpers'
 
 test.beforeAll(async () => {
-  await reseedRecipes()
+  await Promise.all([reseedRecipes(), resetMealPlan()])
 })
 
 async function waitForRecipes(page: Page) {

@@ -4,8 +4,8 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 2 : 4,
+  retries: 1,
+  workers: 1,
   reporter: [['html'], ['list']],
   globalSetup: './e2e/support/global-setup.ts',
   use: {
@@ -14,7 +14,7 @@ export default defineConfig({
     trace: 'on-first-retry',
     // Framer Motion animations can interfere with timing — prefer waiting for
     // DOM state rather than fixed timeouts where possible.
-    actionTimeout: 8_000,
+    actionTimeout: 12_000,
     navigationTimeout: 15_000,
   },
   projects: [

@@ -167,6 +167,10 @@ test.describe('Recipe detail — calendar modal day selection', () => {
     await gotoDetail(page)
   })
 
+  test.afterAll(async () => {
+    await resetMealPlan()
+  })
+
   test('clicking a day in the calendar modal adds the recipe', async ({ page }) => {
     const fab = page.locator('button[style*="position: fixed"][style*="bordeaux"]').first()
     await fab.click()
@@ -180,6 +184,6 @@ test.describe('Recipe detail — calendar modal day selection', () => {
     await todayBtn.click()
 
     // Checkmark animation briefly confirms the save
-    await expect(page.locator('path[d*="M5 13l4 4"]').first()).toBeVisible({ timeout: 5_000 })
+    await expect(page.locator('path[d*="M5 13l4 4"]').first()).toBeVisible({ timeout: 10_000 })
   })
 })

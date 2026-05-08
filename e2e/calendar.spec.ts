@@ -1,5 +1,10 @@
 import { test, expect, Page } from '@playwright/test'
-import { reseedRecipes, resetMealPlan, waitForData, locateCloseButton } from './support/helpers'
+import {
+  resetMealPlan,
+  seedMealPlanEntry,
+  waitForData,
+  locateCloseButton,
+} from './support/helpers'
 
 async function gotoCalendar(page: Page) {
   // Full page load gives a fresh Firebase SDK connection — avoids the emulator
@@ -31,14 +36,15 @@ async function openAddSheet(page: Page) {
   await expect(page.getByText('Maaltijd toevoegen')).toBeVisible()
 }
 
+// Click a recipe item in the add sheet by targeting its button element directly.
+// Using text= on the inner span is unreliable during Framer Motion layout animations.
+function clickRecipeInSheet(page: Page, name: string) {
+  return page.locator('.lb-sheet button').filter({ hasText: name }).first().click()
+}
+
 // ── Add meal sheet — recipe tab ───────────────────────────────────────────────
 
 test.describe('Calendar — add meal sheet (recipe tab)', () => {
-  test.beforeAll(async () => {
-    // Guard against parallel test files deleting a seeded recipe (e.g. recipe-detail delete flow).
-    await reseedRecipes()
-  })
-
   test.beforeEach(async ({ page }) => {
     await gotoCalendar(page)
     await openAddSheet(page)
@@ -65,7 +71,7 @@ test.describe('Calendar — add meal sheet (recipe tab)', () => {
   })
 
   test('selecting a recipe closes the sheet and shows it in the week', async ({ page }) => {
-    await page.click('text=Pasta Carbonara')
+    await clickRecipeInSheet(page, 'Pasta Carbonara')
     await expect(page.getByText('Maaltijd toevoegen')).toBeHidden()
     await expect(page.getByText('Pasta Carbonara').first()).toBeVisible()
   })
@@ -101,14 +107,14 @@ test.describe('Calendar — meal management in week view', () => {
   test('adding a recipe shows it in the week row', async ({ page }) => {
     await openAddSheet(page)
     await expect(page.getByText('Tomatensoep').first()).toBeVisible({ timeout: 30_000 })
-    await page.click('text=Tomatensoep')
+    await clickRecipeInSheet(page, 'Tomatensoep')
     await expect(page.getByText('Tomatensoep').first()).toBeVisible()
   })
 
   test('can delete a meal entry from week view', async ({ page }) => {
     await openAddSheet(page)
     await expect(page.getByText('Tomatensoep').first()).toBeVisible({ timeout: 30_000 })
-    await page.click('text=Tomatensoep')
+    await clickRecipeInSheet(page, 'Tomatensoep')
     await expect(page.getByText('Tomatensoep').first()).toBeVisible()
 
     await locateCloseButton(page).click()
@@ -120,7 +126,7 @@ test.describe('Calendar — meal management in week view', () => {
   }) => {
     await openAddSheet(page)
     await expect(page.getByText('Pasta Carbonara').first()).toBeVisible({ timeout: 30_000 })
-    await page.click('text=Pasta Carbonara')
+    await clickRecipeInSheet(page, 'Pasta Carbonara')
     await expect(page.getByText('Maaltijd toevoegen')).toBeHidden()
 
     await locateAddButton(page).click()
@@ -146,7 +152,7 @@ test.describe('Calendar — shopping list', () => {
   test('shopping list shows added recipe ingredients', async ({ page }) => {
     await openAddSheet(page)
     await expect(page.getByText('Pasta Carbonara').first()).toBeVisible({ timeout: 30_000 })
-    await page.click('text=Pasta Carbonara')
+    await clickRecipeInSheet(page, 'Pasta Carbonara')
     await expect(page.getByText('Maaltijd toevoegen')).toBeHidden()
 
     await locateShoppingButton(page).click()
@@ -167,7 +173,7 @@ test.describe('Calendar — shopping list date range', () => {
   test('changing date range to exclude added meal shows empty state', async ({ page }) => {
     await openAddSheet(page)
     await expect(page.getByText('Tomatensoep').first()).toBeVisible({ timeout: 30_000 })
-    await page.click('text=Tomatensoep')
+    await clickRecipeInSheet(page, 'Tomatensoep')
     await expect(page.getByText('Maaltijd toevoegen')).toBeHidden()
 
     await locateShoppingButton(page).click()
@@ -257,40 +263,22 @@ test.describe('Calendar — navigation', () => {
 
   test('clicking a recipe entry in day detail navigates to recipe detail', async ({ page }) => {
     await resetMealPlan()
+    await seedMealPlanEntry('test-pasta-001')
     await gotoCalendar(page)
-    await openAddSheet(page)
-    await expect(page.getByText('Pasta Carbonara').first()).toBeVisible({ timeout: 30_000 })
-    await page.click('text=Pasta Carbonara')
-    await expect(page.getByText('Maaltijd toevoegen')).toBeHidden()
-
     await page.click('button:has-text("MAAND")')
     await expect(page.locator('button[style*="border-radius: 10px"]').first()).toBeVisible()
-
-    const dayWithEntry = page
+    const todayBtn = page
       .locator('button[style*="border-radius: 10px"]')
-      .filter({
-        hasText: /\d+/,
-      })
-      .filter({
-        has: page.locator('span').filter({ hasText: /Pasta/ }),
-      })
+      .filter({ has: page.locator('div[style*="var(--bordeaux)"]') })
       .first()
-
-    if ((await dayWithEntry.count()) > 0) {
-      await dayWithEntry.click()
-      // Scope to inside the day-detail sheet — the week-view span is behind the backdrop
-      const recipeTitle = page
-        .locator('.lb-sheet span')
-        .filter({ hasText: 'Pasta Carbonara' })
-        .first()
-      // eslint-disable-next-line playwright/no-conditional-expect
-      await expect(recipeTitle).toBeVisible()
-      await recipeTitle.click()
-      // eslint-disable-next-line playwright/no-conditional-expect
-      await expect(page).toHaveURL('/recipe/test-pasta-001')
-    } else {
-      test.skip()
-    }
+    await todayBtn.click()
+    const recipeTitle = page
+      .locator('.lb-sheet span')
+      .filter({ hasText: 'Pasta Carbonara' })
+      .first()
+    await expect(recipeTitle).toBeVisible({ timeout: 8_000 })
+    await recipeTitle.click()
+    await expect(page).toHaveURL('/recipe/test-pasta-001')
   })
 })
 
@@ -306,7 +294,7 @@ test.describe('Calendar — day detail sheet', () => {
     // Add a meal via the add sheet (adds to whichever day's + button is first)
     await openAddSheet(page)
     await expect(page.getByText('Tomatensoep').first()).toBeVisible({ timeout: 30_000 })
-    await page.click('text=Tomatensoep')
+    await clickRecipeInSheet(page, 'Tomatensoep')
     await expect(page.getByText('Maaltijd toevoegen')).toBeHidden()
 
     // Switch to month view
