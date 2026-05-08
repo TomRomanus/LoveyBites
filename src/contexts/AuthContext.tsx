@@ -15,7 +15,7 @@ const ALLOWED_EMAILS = ((import.meta.env.VITE_ALLOWED_EMAILS as string) ?? '')
   .map((e: string) => e.trim().toLowerCase())
   .filter(Boolean)
 
-interface AuthContextValue {
+type AuthContextValue = {
   user: User | null
   loading: boolean
   authError: string | null
@@ -27,7 +27,7 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [authError, setAuthError] = useState<string | null>(null)
@@ -52,22 +52,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return unsubscribe
   }, [])
 
-  async function signInWithGoogle() {
+  const signInWithGoogle = async () => {
     setAuthError(null)
     await signInWithPopup(auth, googleProvider)
   }
 
-  async function signInWithEmail(email: string, password: string) {
+  const signInWithEmail = async (email: string, password: string) => {
     setAuthError(null)
     await signInWithEmailAndPassword(auth, email, password)
   }
 
-  async function signUpWithEmail(email: string, password: string) {
+  const signUpWithEmail = async (email: string, password: string) => {
     setAuthError(null)
     await createUserWithEmailAndPassword(auth, email, password)
   }
 
-  async function signOutUser() {
+  const signOutUser = async () => {
     await signOut(auth)
     setAuthError(null)
   }
@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 }
 
-export function useAuth() {
+export const useAuth = () => {
   const ctx = useContext(AuthContext)
   if (!ctx) throw new Error('useAuth must be used inside AuthProvider')
   return ctx
