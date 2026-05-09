@@ -1,17 +1,6 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  closestCenter,
-  pointerWithin,
-  type DragStartEvent,
-  type DragEndEvent,
-} from '@dnd-kit/core'
+import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import type { IngredientNode } from '@/features/recipe/types/recipe'
 import LeafRow from '@/features/recipe/components/editor/LeafRow'
@@ -20,12 +9,9 @@ import GroupRow from '@/features/recipe/components/editor/GroupRow'
 import SortableItem from '@/features/recipe/components/editor/SortableItem'
 import DragOverlayContent from '@/features/recipe/components/editor/DragOverlayContent'
 import DashedAddButton from '@/features/recipe/components/editor/DashedAddButton'
-import {
-  newLeaf,
-  collectGroupTitles,
-  buildLeafIndexMap,
-} from '@/features/recipe/components/editor/nodeTree'
-import { moveNodeInTree, findNode } from '@/features/recipe/components/editor/dndTree'
+import { newLeaf } from '@/features/recipe/components/editor/nodeTree'
+import { findNode } from '@/features/recipe/components/editor/dndTree'
+import { useNodeEditor } from '@/features/recipe/components/editor/useNodeEditor'
 
 const defaultLabels: EditorLabels = {
   leafPlaceholder: 'bijv. 360ml karnemelk',
@@ -55,45 +41,26 @@ const RecipeNodeEditor = ({
   reordering,
 }: RecipeNodeEditorProps) => {
   const labels = { ...defaultLabels, ...labelOverrides }
-  const [activeId, setActiveId] = useState<string | null>(null)
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
-  )
+  const {
+    sensors,
+    activeId,
+    collisionDetection,
+    handleDragStart,
+    handleDragEnd,
+    handleDragCancel,
+    leafIndexMap,
+    availableSections,
+  } = useNodeEditor({ nodes, onChange, commonSections, ordered })
 
-  const handleDragStart = ({ active }: DragStartEvent) => {
-    setActiveId(active.id as string)
-  }
-
-  const handleDragEnd = ({ active, over }: DragEndEvent) => {
-    setActiveId(null)
-    if (!over || active.id === over.id) return
-    onChange(moveNodeInTree(nodes, active.id as string, over.id as string))
-  }
+  const rootIds = useMemo(() => nodes.map((n) => n.id!), [nodes])
+  const activeNode = useMemo(() => (activeId ? findNode(nodes, activeId) : null), [activeId, nodes])
 
   const addSection = (title: string) => {
     const last = nodes[nodes.length - 1]
     const base = last?.kind === 'leaf' && last.text.trim() === '' ? nodes.slice(0, -1) : nodes
     onChange([...base, { kind: 'group', title, children: [newLeaf()] }])
   }
-
-  const collisionDetection = useCallback<typeof closestCenter>((args) => {
-    const hits = pointerWithin(args)
-    return hits.length > 0 ? hits : closestCenter(args)
-  }, [])
-
-  const existingTitles = useMemo(() => collectGroupTitles(nodes), [nodes])
-  const availableSections = useMemo(
-    () => commonSections?.filter((name) => !existingTitles.has(name)) ?? [],
-    [commonSections, existingTitles],
-  )
-  const leafIndexMap = useMemo(
-    () => (ordered ? buildLeafIndexMap(nodes) : undefined),
-    [ordered, nodes],
-  )
-  const rootIds = useMemo(() => nodes.map((n) => n.id!), [nodes])
-  const activeNode = useMemo(() => (activeId ? findNode(nodes, activeId) : null), [activeId, nodes])
 
   let rootLeafCounter = 0
 
@@ -103,7 +70,7 @@ const RecipeNodeEditor = ({
       collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      onDragCancel={() => setActiveId(null)}
+      onDragCancel={handleDragCancel}
     >
       <div className="flex flex-col">
         <SortableContext items={rootIds} strategy={verticalListSortingStrategy}>

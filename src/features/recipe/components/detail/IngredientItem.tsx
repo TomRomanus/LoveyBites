@@ -1,6 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import IngredientCheckbox from '@/shared/components/IngredientCheckbox'
 
+const textVariants = {
+  enter: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? 8 : d === 'down' ? -8 : 0, opacity: 0 }),
+  center: { y: 0, opacity: 1 },
+  exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -8 : d === 'down' ? 8 : 0, opacity: 0 }),
+}
+
 type IngredientItemProps = {
   item: string
   itemKey: string
@@ -30,17 +36,7 @@ const IngredientItem = ({
         <motion.span
           key={portions}
           custom={portionDir}
-          variants={{
-            enter: (d: 'up' | 'down' | null) => ({
-              y: d === 'up' ? 8 : d === 'down' ? -8 : 0,
-              opacity: 0,
-            }),
-            center: { y: 0, opacity: 1 },
-            exit: (d: 'up' | 'down' | null) => ({
-              y: d === 'up' ? -8 : d === 'down' ? 8 : 0,
-              opacity: 0,
-            }),
-          }}
+          variants={textVariants}
           initial="enter"
           animate="center"
           exit="exit"

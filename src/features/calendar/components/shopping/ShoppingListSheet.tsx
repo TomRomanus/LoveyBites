@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EASE_OUT } from '@/shared/constants/animations'
 import DatePickerInput from '@/features/calendar/components/DatePickerInput'
@@ -28,12 +28,12 @@ const ShoppingListSheet = ({
 
   const { loading, fetched, sections, buildCopyText } = useShoppingList(from, to, visible)
 
-  const handleFromChange = (v: string) => { setFrom(v); reset() }
-  const handleToChange = (v: string) => { setTo(v); reset() }
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(buildCopyText())
-  }
+  const handleFromChange = useCallback((v: string) => { setFrom(v); reset() }, [reset])
+  const handleToChange = useCallback((v: string) => { setTo(v); reset() }, [reset])
+  const handleCopy = useCallback(
+    () => navigator.clipboard.writeText(buildCopyText()),
+    [buildCopyText],
+  )
 
   return (
     <Sheet visible={visible} onClose={onClose} height="88%">
@@ -76,7 +76,7 @@ const ShoppingListSheet = ({
             >
               {sections.map((s, i) => (
                 <ShoppingSection
-                  key={i}
+                  key={s.label}
                   label={s.label}
                   days={s.days}
                   ingredients={s.ingredients}

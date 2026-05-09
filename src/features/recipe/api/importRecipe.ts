@@ -1,5 +1,6 @@
-import type { RecipeInput, IngredientNode } from '@/features/recipe/types/recipe'
+import type { RecipeInput } from '@/features/recipe/types/recipe'
 import { auth } from '@/lib/firebase'
+import { stripHtml, labelFromUrl, parseAIResponse } from '@/features/recipe/api/parseRecipeHtml'
 
 const MAX_HTML_LENGTH = 60_000
 
@@ -66,10 +67,7 @@ const callAnthropic = async (
   return data.content[0].text
 }
 
-const callAI = async (content: string): Promise<string> => {
-  const provider = import.meta.env.VITE_AI_PROVIDER ?? 'anthropic'
-
-  const systemPrompt = `You are a recipe extraction assistant. Extract the recipe from the provided content and return ONLY a valid JSON object — no markdown, no explanation, just the JSON.
+const URL_SYSTEM_PROMPT = `You are a recipe extraction assistant. Extract the recipe from the provided content and return ONLY a valid JSON object — no markdown, no explanation, just the JSON.
 
 The JSON must match this exact schema:
 {
@@ -94,92 +92,7 @@ For steps, use groups like "Voorbereiding" and "Bereiding" if the recipe has mul
 For tags, generate 3–6 relevant lowercase tags describing the dish (e.g. cuisine type, meal type, main ingredient, dietary properties, cooking method). Examples: "italiaans", "pasta", "vegetarisch", "snel", "diner", "gegrild".
 If a field is not available, use an empty string, 0, or empty array as appropriate.`
 
-  const userMessage = `Extract the recipe from this content:\n\n${content}`
-
-  if (provider === 'openai') {
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY
-    if (!apiKey) throw new Error('VITE_OPENAI_API_KEY is not set in .env.local')
-    return callOpenAI(apiKey, systemPrompt, [{ role: 'user', content: userMessage }])
-  }
-
-  // Default: Anthropic
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
-  if (!apiKey) throw new Error('VITE_ANTHROPIC_API_KEY is not set in .env.local')
-  return callAnthropic(apiKey, systemPrompt, [{ role: 'user', content: userMessage }])
-}
-
-const stripHtml = (html: string): string =>
-  html
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/<style[\s\S]*?<\/style>/gi, '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/\s{2,}/g, ' ')
-    .trim()
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null && !Array.isArray(value)
-
-const parseAIResponse = (text: string): { recipe: Partial<RecipeInput>; sourceName: string } => {
-  const jsonMatch = text.match(/\{[\s\S]*\}/)
-  if (!jsonMatch) throw new Error('AI response did not contain valid JSON')
-
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(jsonMatch[0])
-  } catch {
-    throw new Error('AI response contained malformed JSON and could not be parsed')
-  }
-
-  if (!isRecord(parsed)) throw new Error('AI response JSON was not an object')
-
-  const buildNodes = (arr: unknown[]): IngredientNode[] =>
-    (arr ?? []).map((n: unknown) => {
-      if (!isRecord(n)) return { kind: 'leaf' as const, id: crypto.randomUUID(), text: '' }
-      if (n.kind === 'group') {
-        return {
-          kind: 'group' as const,
-          title: String(n.title ?? ''),
-          children: buildNodes((n.children as unknown[]) ?? []),
-        }
-      }
-      return { kind: 'leaf' as const, id: crypto.randomUUID(), text: String(n.text ?? '') }
-    })
-
-  return {
-    sourceName: String(parsed.sourceName ?? '').trim(),
-    recipe: {
-      title: String(parsed.title ?? ''),
-      description: String(parsed.description ?? ''),
-      portions: Number(parsed.portions) || 4,
-      ingredients: buildNodes((parsed.ingredients as unknown[]) ?? []),
-      steps: buildNodes((parsed.steps as unknown[]) ?? []),
-      tags: ((parsed.tags as unknown[]) ?? []).map(String),
-      imageUrl: String(parsed.imageUrl ?? ''),
-      sources: [],
-    },
-  }
-}
-
-const labelFromUrl = (url: string): string => {
-  if (/tiktok\.com/i.test(url)) return 'TikTok'
-  try {
-    const hostname = new URL(url).hostname.replace(/^www\./, '')
-    const name = hostname.split('.')[0]
-    return name.charAt(0).toUpperCase() + name.slice(1)
-  } catch {
-    return 'Bron'
-  }
-}
-
-const callAIWithImage = async (base64: string, mediaType: string): Promise<string> => {
-  const provider = import.meta.env.VITE_AI_PROVIDER ?? 'anthropic'
-
-  const systemPrompt = `You are a recipe extraction assistant. Extract the recipe from the provided image and return ONLY a valid JSON object — no markdown, no explanation, just the JSON.
+const IMAGE_SYSTEM_PROMPT = `You are a recipe extraction assistant. Extract the recipe from the provided image and return ONLY a valid JSON object — no markdown, no explanation, just the JSON.
 
 The JSON must match this exact schema:
 {
@@ -203,10 +116,28 @@ For tags, generate 3–6 relevant lowercase tags describing the dish (e.g. cuisi
 Set "sourceName" and "imageUrl" to empty string.
 If a field is not available, use an empty string, 0, or empty array as appropriate.`
 
+const callAI = async (content: string): Promise<string> => {
+  const provider = import.meta.env.VITE_AI_PROVIDER ?? 'anthropic'
+  const userMessage = `Extract the recipe from this content:\n\n${content}`
+
   if (provider === 'openai') {
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY
     if (!apiKey) throw new Error('VITE_OPENAI_API_KEY is not set in .env.local')
-    return callOpenAI(apiKey, systemPrompt, [
+    return callOpenAI(apiKey, URL_SYSTEM_PROMPT, [{ role: 'user', content: userMessage }])
+  }
+
+  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
+  if (!apiKey) throw new Error('VITE_ANTHROPIC_API_KEY is not set in .env.local')
+  return callAnthropic(apiKey, URL_SYSTEM_PROMPT, [{ role: 'user', content: userMessage }])
+}
+
+const callAIWithImage = async (base64: string, mediaType: string): Promise<string> => {
+  const provider = import.meta.env.VITE_AI_PROVIDER ?? 'anthropic'
+
+  if (provider === 'openai') {
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY
+    if (!apiKey) throw new Error('VITE_OPENAI_API_KEY is not set in .env.local')
+    return callOpenAI(apiKey, IMAGE_SYSTEM_PROMPT, [
       {
         role: 'user',
         content: [
@@ -217,10 +148,9 @@ If a field is not available, use an empty string, 0, or empty array as appropria
     ])
   }
 
-  // Default: Anthropic
   const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
   if (!apiKey) throw new Error('VITE_ANTHROPIC_API_KEY is not set in .env.local')
-  return callAnthropic(apiKey, systemPrompt, [
+  return callAnthropic(apiKey, IMAGE_SYSTEM_PROMPT, [
     {
       role: 'user',
       content: [

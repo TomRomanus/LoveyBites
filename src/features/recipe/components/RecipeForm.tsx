@@ -1,17 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useForm, Controller, useWatch } from 'react-hook-form'
-import type { Resolver } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import type { RecipeInput, IngredientNode } from '@/features/recipe/types/recipe'
-import { recipeInputSchema } from '@/features/recipe/types/recipe'
+import { useState } from 'react'
+import { Controller } from 'react-hook-form'
+import type { RecipeInput } from '@/features/recipe/types/recipe'
+import { ensureIngredientIds } from '@/features/recipe/utils/ingredientUtils'
 import RecipeNodeEditor from '@/features/recipe/components/editor/RecipeNodeEditor'
-import { pruneEmpty, ensureIngredientIds } from '@/features/recipe/utils/ingredientUtils'
 import RecipeSourceEditor from '@/features/recipe/components/RecipeSourceEditor'
 import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
 import FormField from '@/features/recipe/components/form/FormField'
 import TagsEditor from '@/features/recipe/components/form/TagsEditor'
 import PortionsField from '@/features/recipe/components/form/PortionsField'
 import ReorderFab from '@/features/recipe/components/form/ReorderFab'
+import { useRecipeForm } from '@/features/recipe/components/form/useRecipeForm'
 
 type Props = {
   initial?: Partial<RecipeInput>
@@ -19,52 +17,6 @@ type Props = {
   onSavingChange?: (saving: boolean) => void
   onTitleChange?: (hasTitle: boolean) => void
   existingTags?: string[]
-}
-
-const collectIngredientOptions = (nodes: IngredientNode[]): Array<{ id: string; text: string }> => {
-  const options: Array<{ id: string; text: string }> = []
-  for (const node of nodes) {
-    if (node.kind === 'leaf' && node.id && node.text.trim()) {
-      options.push({ id: node.id, text: node.text.trim() })
-    } else if (node.kind === 'group') {
-      options.push(...collectIngredientOptions(node.children))
-    }
-  }
-  return options
-}
-
-const emptyInput = (): RecipeInput => ({
-  title: '',
-  description: '',
-  portions: 4,
-  ingredients: [{ kind: 'leaf', text: '', id: crypto.randomUUID() }],
-  steps: [
-    {
-      kind: 'group',
-      title: 'Voorbereiding',
-      id: crypto.randomUUID(),
-      children: [{ kind: 'leaf', text: '', id: crypto.randomUUID() }],
-    },
-    {
-      kind: 'group',
-      title: 'Bereiding',
-      id: crypto.randomUUID(),
-      children: [{ kind: 'leaf', text: '', id: crypto.randomUUID() }],
-    },
-  ],
-  sources: [],
-  tags: [],
-  imageUrl: '',
-  createdBy: 'us',
-})
-
-const buildInitial = (initial?: Partial<RecipeInput>): RecipeInput => {
-  const base = { ...emptyInput(), ...initial }
-  return {
-    ...base,
-    ingredients: ensureIngredientIds(base.ingredients),
-    steps: ensureIngredientIds(base.steps),
-  }
 }
 
 const stepLabels = {
@@ -75,56 +27,14 @@ const stepLabels = {
   addGroup: 'sectie toevoegen',
 }
 
-const RecipeForm = ({
-  initial,
-  onSubmit: onSubmitProp,
-  onSavingChange,
-  onTitleChange,
-  existingTags,
-}: Props) => {
-  const [error, setError] = useState<string | null>(null)
+const RecipeForm = (props: Props) => {
+  const { initial, existingTags } = props
   const [isReordering, setIsReordering] = useState(false)
+  const { form, ingredientOptions, errorMessage, onSubmit, onTitleChange } = useRecipeForm(props)
+  const { register, control, setValue } = form
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    setValue,
-    formState: { errors },
-  } = useForm<RecipeInput>({
-    resolver: zodResolver(recipeInputSchema) as Resolver<RecipeInput>,
-    defaultValues: buildInitial(initial),
-  })
-
-  useEffect(() => {
-    if (initial !== undefined) reset(buildInitial(initial))
-  }, [initial, reset])
-
-  const portionsValue = useWatch({ control, name: 'portions' }) ?? 4
-  const portionsLabel = useWatch({ control, name: 'portionsLabel' })
-  const ingredients = useWatch({ control, name: 'ingredients' })
-
-  const ingredientOptions = useMemo(() => collectIngredientOptions(ingredients), [ingredients])
-
-  const onSubmit = handleSubmit(async (data) => {
-    setError(null)
-    const cleaned: RecipeInput = {
-      ...data,
-      ingredients: pruneEmpty(data.ingredients),
-      steps: pruneEmpty(data.steps),
-      sources: (data.sources ?? []).filter((s) => s.url.trim()),
-    }
-    onSavingChange?.(true)
-    try {
-      await onSubmitProp(cleaned)
-    } catch {
-      setError('Recept opslaan mislukt. Probeer opnieuw.')
-      onSavingChange?.(false)
-    }
-  })
-
-  const errorMessage = errors.title?.message ?? error
+  const portionsValue = form.watch('portions') ?? 4
+  const portionsLabel = form.watch('portionsLabel')
 
   return (
     <form id="recipe-form" onSubmit={onSubmit} className="flex flex-col gap-3.5 pt-2">
