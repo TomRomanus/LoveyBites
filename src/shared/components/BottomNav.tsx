@@ -8,75 +8,34 @@ const BottomNav = () => {
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
-        zIndex: 80,
-        display: 'flex',
-        justifyContent: 'center',
-        pointerEvents: 'none',
-      }}
+      className="fixed bottom-0 left-0 right-0 z-[80] flex justify-center pointer-events-none"
+      style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}
     >
       <LayoutGroup>
         <div
+          className="flex gap-0 p-[6px] rounded-[26px] border-[0.5px] border-ink/10 shadow-[0_4px_20px_rgba(31,29,26,0.08)] pointer-events-auto"
           style={{
-            display: 'flex',
-            gap: 0,
-            padding: 6,
             background: 'rgba(248, 244, 237, 0.85)',
             backdropFilter: 'blur(20px) saturate(180%)',
             WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            borderRadius: 26,
-            border: '0.5px solid var(--line)',
-            boxShadow: '0 4px 20px rgba(31, 29, 26, 0.08)',
-            pointerEvents: 'auto',
           }}
         >
           <Link
             to="/"
+            className="relative flex-1 flex items-center justify-center h-10 px-[18px] rounded-[20px] text-[14px] font-medium font-sans no-underline tracking-[-0.01em]"
             style={{
-              position: 'relative',
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: 40,
-              padding: '0 18px',
-              borderRadius: 20,
               color: isCalendar ? 'var(--ink-2)' : 'var(--cream-card)',
-              fontSize: 14,
-              fontWeight: 500,
-              fontFamily: 'var(--sans)',
-              textDecoration: 'none',
-              letterSpacing: '-0.01em',
               transition: 'color 0.18s cubic-bezier(0.2, 0, 0.2, 1)',
             }}
           >
             {!isCalendar && (
               <motion.div
                 layoutId="nav-pill"
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  borderRadius: 20,
-                  background: 'var(--bordeaux)',
-                  zIndex: 0,
-                }}
+                className="absolute inset-0 rounded-[20px] bg-bordeaux z-0"
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               />
             )}
-            <span
-              style={{
-                position: 'relative',
-                zIndex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
+            <span className="relative z-[1] flex items-center gap-[6px]">
               <BookOpen size={16} strokeWidth={1.6} />
               Boek
             </span>
@@ -84,46 +43,20 @@ const BottomNav = () => {
 
           <Link
             to="/calendar"
+            className="relative flex-1 flex items-center justify-center h-10 px-[18px] rounded-[20px] text-[14px] font-medium font-sans no-underline tracking-[-0.01em]"
             style={{
-              position: 'relative',
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: 40,
-              padding: '0 18px',
-              borderRadius: 20,
               color: isCalendar ? 'var(--cream-card)' : 'var(--ink-2)',
-              fontSize: 14,
-              fontWeight: 500,
-              fontFamily: 'var(--sans)',
-              textDecoration: 'none',
-              letterSpacing: '-0.01em',
               transition: 'color 0.18s cubic-bezier(0.2, 0, 0.2, 1)',
             }}
           >
             {isCalendar && (
               <motion.div
                 layoutId="nav-pill"
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  borderRadius: 20,
-                  background: 'var(--bordeaux)',
-                  zIndex: 0,
-                }}
+                className="absolute inset-0 rounded-[20px] bg-bordeaux z-0"
                 transition={{ type: 'spring', stiffness: 380, damping: 30 }}
               />
             )}
-            <span
-              style={{
-                position: 'relative',
-                zIndex: 1,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
+            <span className="relative z-[1] flex items-center gap-[6px]">
               <Calendar size={16} strokeWidth={1.6} />
               Menu
             </span>

@@ -13,28 +13,14 @@ const CalendarFab = ({ visible, onClick }: CalendarFabProps) =>
       {visible && (
         <motion.button
           key="calendar-fab"
+          data-testid="calendar-fab"
           onClick={onClick}
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.6, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-          style={{
-            position: 'fixed',
-            bottom: 'max(28px, env(safe-area-inset-bottom))',
-            right: 22,
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            background: 'var(--bordeaux)',
-            color: 'var(--cream-card)',
-            border: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 16px rgba(107,31,42,0.35)',
-            cursor: 'pointer',
-            zIndex: 90,
-          }}
+          className="fixed right-[22px] w-10 h-10 rounded-[20px] bg-bordeaux text-cream border-0 flex items-center justify-center shadow-[0_4px_16px_rgba(107,31,42,0.35)] cursor-pointer z-[90]"
+          style={{ bottom: 'max(28px, env(safe-area-inset-bottom))' }}
         >
           <Calendar size={15} />
         </motion.button>

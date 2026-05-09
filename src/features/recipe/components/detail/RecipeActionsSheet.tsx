@@ -15,42 +15,16 @@ const RecipeActionsSheet = ({
   onClose,
 }: RecipeActionsSheetProps) => (
   <Sheet visible={visible} onClose={onClose}>
-    <div style={{ padding: '14px 12px' }}>
+    <div className="px-3 py-[14px]">
       <button
         onClick={onEdit}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 14,
-          width: '100%',
-          padding: '14px 16px',
-          background: 'transparent',
-          border: 0,
-          borderRadius: 12,
-          color: 'var(--ink)',
-          fontSize: 15,
-          fontWeight: 500,
-          cursor: 'pointer',
-        }}
+        className="flex items-center gap-[14px] w-full px-4 py-[14px] bg-transparent border-0 rounded-[12px] text-ink text-[15px] font-medium cursor-pointer"
       >
         <Pencil size={18} strokeWidth={1.6} /> Recept bewerken
       </button>
       <button
         onClick={onDeleteRequest}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 14,
-          width: '100%',
-          padding: '14px 16px',
-          background: 'transparent',
-          border: 0,
-          borderRadius: 12,
-          color: 'var(--bordeaux)',
-          fontSize: 15,
-          fontWeight: 500,
-          cursor: 'pointer',
-        }}
+        className="flex items-center gap-[14px] w-full px-4 py-[14px] bg-transparent border-0 rounded-[12px] text-bordeaux text-[15px] font-medium cursor-pointer"
       >
         <Trash2 size={18} strokeWidth={1.6} /> Recept verwijderen
       </button>

@@ -23,15 +23,10 @@ const RecipeSearchBar = ({
   count,
   loading,
 }: RecipeSearchBarProps) => (
-  <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
-    {loading && (
-      <div className="lb-skeleton" style={{ height: 11, width: '30%', borderRadius: 4 }} />
-    )}
+  <div className="px-5 pt-5 flex flex-col gap-[10px]">
+    {loading && <div className="lb-skeleton h-[11px] w-[30%] rounded-[4px]" />}
     {!loading && (
-      <div
-        className="lb-eyebrow"
-        style={{ display: 'flex', alignItems: 'center', gap: 4, overflow: 'hidden' }}
-      >
+      <div className="lb-eyebrow flex items-center gap-1 overflow-hidden">
         <AnimatePresence mode="popLayout">
           <motion.span
             key={count}
@@ -39,7 +34,7 @@ const RecipeSearchBar = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            style={{ display: 'block' }}
+            className="block"
           >
             {count}
           </motion.span>
@@ -54,48 +49,32 @@ const RecipeSearchBar = ({
     />
 
     {loading && (
-      <div style={{ display: 'flex', gap: 8 }}>
-        <div className="lb-skeleton" style={{ flex: 1, height: 36, borderRadius: 10 }} />
-        <div className="lb-skeleton" style={{ flex: 1, height: 36, borderRadius: 10 }} />
+      <div className="flex gap-2">
+        <div className="lb-skeleton flex-1 h-9 rounded-[10px]" />
+        <div className="lb-skeleton flex-1 h-9 rounded-[10px]" />
       </div>
     )}
     {!loading && (
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div className="flex gap-2">
         <button
           onClick={onFiltersOpen}
-          className="lb-btn lb-btn--ghost lb-btn--small"
-          style={{ flex: 1, justifyContent: 'space-between', padding: '0 14px' }}
+          className="lb-btn lb-btn--ghost lb-btn--small flex-1 justify-between px-[14px]"
         >
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <span className="inline-flex items-center gap-[6px]">
             <SlidersHorizontal size={14} strokeWidth={1.6} />
             Tags
           </span>
           {activeTags.length > 0 && (
-            <span
-              style={{
-                background: 'var(--bordeaux)',
-                color: 'var(--cream-card)',
-                borderRadius: 9,
-                height: 18,
-                minWidth: 18,
-                padding: '0 6px',
-                fontSize: 11,
-                fontWeight: 600,
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
+            <span className="bg-bordeaux text-cream rounded-[9px] h-[18px] min-w-[18px] px-[6px] text-[11px] font-semibold inline-flex items-center justify-center">
               {activeTags.length}
             </span>
           )}
         </button>
         <button
           onClick={onSortOpen}
-          className="lb-btn lb-btn--ghost lb-btn--small"
-          style={{ flex: 1, justifyContent: 'space-between', padding: '0 14px' }}
+          className="lb-btn lb-btn--ghost lb-btn--small flex-1 justify-between px-[14px]"
         >
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <span className="inline-flex items-center gap-[6px]">
             <ArrowUpDown size={14} strokeWidth={1.6} />
             {sortLabel}
           </span>

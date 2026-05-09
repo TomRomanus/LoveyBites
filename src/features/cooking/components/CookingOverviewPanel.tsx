@@ -54,9 +54,9 @@ const CookingOverviewPanel = ({
       initial={{ y: 24, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-      style={{ padding: '20px 24px' }}
+      className="py-5 px-6"
     >
-      <div className="lb-eyebrow" style={{ color: 'rgba(248,244,237,0.5)', marginBottom: 14 }}>
+      <div className="lb-eyebrow mb-[14px] text-paper/50">
         TIK EEN STAP AAN OM ERNAAR TE SPRINGEN
       </div>
       {enriched.map((s, i) => {
@@ -64,77 +64,33 @@ const CookingOverviewPanel = ({
         return (
           <div key={i} data-active={isActive}>
             {s.showSection && s.sectionTitle && (
-              <div style={{ marginTop: i > 0 ? 16 : 0 }}>
-                <div
-                  style={{
-                    fontFamily: 'var(--serif)',
-                    fontStyle: 'italic',
-                    fontSize: 14,
-                    color: SECTION_HEADER_COLOR,
-                    fontWeight: 500,
-                    marginBottom: 3,
-                  }}
-                >
+              <div className={i > 0 ? 'mt-4' : ''}>
+                <div className="font-serif italic text-[14px] font-medium mb-[3px] text-[#b8394e]">
                   {s.sectionTitle}
                 </div>
-                <div
-                  style={{
-                    width: 22,
-                    height: 1.5,
-                    background: SECTION_HEADER_COLOR,
-                    borderRadius: 1,
-                    opacity: 0.6,
-                    marginBottom: 8,
-                  }}
-                />
+                <div className="w-[22px] h-[1.5px] rounded-[1px] opacity-60 mb-2 bg-[#b8394e]" />
               </div>
             )}
             <button
               onClick={() => onGoTo(i)}
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 14,
-                padding: '8px 0',
-                width: '100%',
-                background: 'transparent',
-                border: 0,
-                borderBottom: '0.5px solid rgba(248,244,237,0.08)',
-                textAlign: 'left',
-                cursor: 'pointer',
-              }}
+              className="flex items-start gap-[14px] py-2 w-full bg-transparent border-b border-[0.5px] border-paper/[0.08] text-left cursor-pointer"
             >
               <div
-                style={{
-                  fontFamily: 'var(--serif)',
-                  fontStyle: 'italic',
-                  fontSize: 22,
-                  color: isActive ? SECTION_HEADER_COLOR : 'rgba(248,244,237,0.5)',
-                  fontWeight: 500,
-                  width: 22,
-                  flexShrink: 0,
-                  lineHeight: 1.1,
-                  paddingTop: 1,
-                }}
+                className="font-serif italic text-[22px] font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px]"
+                style={{ color: isActive ? SECTION_HEADER_COLOR : 'rgba(248,244,237,0.5)' }}
               >
                 {s.num}
               </div>
-              <div style={{ flex: 1, opacity: isActive ? 1 : 0.85 }}>
+              <div className="flex-1" style={{ opacity: isActive ? 1 : 0.85 }}>
                 {s.stepIngredients.length > 0 && (
                   <div
-                    style={{
-                      fontFamily: 'var(--mono)',
-                      fontSize: 10,
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                      color: 'rgba(243,222,224,0.5)',
-                      marginBottom: 5,
-                    }}
+                    className="font-mono text-[10px] tracking-[0.08em] uppercase mb-[5px]"
+                    style={{ color: 'rgba(243,222,224,0.5)' }}
                   >
                     {s.stepIngredients.join(' · ')}
                   </div>
                 )}
-                <div style={{ fontSize: 15, color: '#f8f4ed', lineHeight: 1.55 }}>{s.text}</div>
+                <div className="text-[15px] text-paper leading-[1.55]">{s.text}</div>
               </div>
             </button>
           </div>

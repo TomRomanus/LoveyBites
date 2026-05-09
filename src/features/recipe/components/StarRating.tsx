@@ -6,12 +6,12 @@ type StarRatingProps = {
 }
 
 export const StarRating = ({ value, size = 13 }: StarRatingProps) => (
-  <div style={{ display: 'inline-flex', alignItems: 'flex-end', gap: 2 }}>
+  <div className="inline-flex items-end gap-0.5">
     {Array.from({ length: 5 }, (_, i) => {
       const frac = Math.max(0, Math.min(1, value - i))
       return (
-        <div key={i} style={{ width: size, height: size, position: 'relative', flexShrink: 0 }}>
-          <svg width={size} height={size} viewBox="0 0 24 24" style={{ position: 'absolute' }}>
+        <div key={i} className="relative shrink-0" style={{ width: size, height: size }}>
+          <svg width={size} height={size} viewBox="0 0 24 24" className="absolute">
             <path
               d={STAR_PATH}
               fill="none"
@@ -24,8 +24,8 @@ export const StarRating = ({ value, size = 13 }: StarRatingProps) => (
             width={size}
             height={size}
             viewBox="0 0 24 24"
+            className="absolute"
             style={{
-              position: 'absolute',
               clipPath: `inset(0 ${((1 - frac) * 100).toFixed(1)}% 0 0)`,
             }}
           >

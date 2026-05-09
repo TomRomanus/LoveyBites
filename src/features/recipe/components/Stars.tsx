@@ -101,16 +101,10 @@ const Stars = ({ value, onChange }: { value: number; onChange?: (v: number) => v
   const decPart = snappedLive > 0 ? (snappedLive % 1 === 0 ? '0' : '5') : ''
 
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 5 }}>
+    <div className="flex items-start gap-[5px]">
       <div
         ref={rowRef}
-        style={{
-          display: 'flex',
-          gap: 3,
-          cursor: onChange ? 'grab' : 'default',
-          touchAction: 'none',
-          userSelect: 'none',
-        }}
+        className={`flex gap-[3px] touch-none select-none ${onChange ? 'cursor-grab' : 'cursor-default'}`}
         onMouseDown={
           onChange
             ? (e) => {
@@ -139,9 +133,9 @@ const Stars = ({ value, onChange }: { value: number; onChange?: (v: number) => v
               ref={(el) => {
                 starRefs.current[i] = el
               }}
-              style={{ width: 28, height: 28, position: 'relative', flexShrink: 0 }}
+              className="w-7 h-7 relative shrink-0"
             >
-              <svg width="28" height="28" viewBox="0 0 24 24" style={{ position: 'absolute' }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" className="absolute">
                 <path
                   d={STAR_PATH}
                   fill="none"
@@ -154,10 +148,9 @@ const Stars = ({ value, onChange }: { value: number; onChange?: (v: number) => v
                 width="28"
                 height="28"
                 viewBox="0 0 24 24"
+                className="absolute [transition:clip-path_0.06s_ease]"
                 style={{
-                  position: 'absolute',
                   clipPath: `inset(0 ${((1 - frac) * 100).toFixed(1)}% 0 0)`,
-                  transition: 'clip-path 0.06s ease',
                 }}
               >
                 <path
@@ -174,19 +167,8 @@ const Stars = ({ value, onChange }: { value: number; onChange?: (v: number) => v
       </div>
 
       {snappedLive > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            marginTop: -3,
-            fontFamily: 'var(--mono)',
-            fontSize: 12,
-            fontWeight: 500,
-            letterSpacing: 0,
-            color: 'rgba(107, 31, 42, 0.45)',
-          }}
-        >
-          <div style={{ overflow: 'hidden', height: 14, display: 'flex', alignItems: 'center' }}>
+        <div className="flex items-center -mt-[3px] font-mono text-[12px] font-medium tracking-[0] text-bordeaux/45">
+          <div className="overflow-hidden h-[14px] flex items-center">
             <AnimatePresence mode="popLayout" custom={dir}>
               <motion.span
                 key={`i${intPart}`}
@@ -200,14 +182,14 @@ const Stars = ({ value, onChange }: { value: number; onChange?: (v: number) => v
                 animate="center"
                 exit="exit"
                 transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                style={{ display: 'block' }}
+                className="block"
               >
                 {intPart}
               </motion.span>
             </AnimatePresence>
           </div>
           <span>.</span>
-          <div style={{ overflow: 'hidden', height: 14, display: 'flex', alignItems: 'center' }}>
+          <div className="overflow-hidden h-[14px] flex items-center">
             <AnimatePresence mode="popLayout" custom={dir}>
               <motion.span
                 key={`d${decPart}`}
@@ -221,7 +203,7 @@ const Stars = ({ value, onChange }: { value: number; onChange?: (v: number) => v
                 animate="center"
                 exit="exit"
                 transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                style={{ display: 'block' }}
+                className="block"
               >
                 {decPart}
               </motion.span>

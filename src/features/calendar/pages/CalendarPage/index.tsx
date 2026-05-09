@@ -27,7 +27,7 @@ const CalendarPage = () => {
     goToToday,
     switchView,
   } = useCalendarView()
-  const { entries, setEntries, recipeMap, loading, reload } = useCalendarData(
+  const { entries, recipeMap, loading, removeEntry, reload } = useCalendarData(
     visibleStartISO,
     visibleEndISO,
   )
@@ -38,23 +38,14 @@ const CalendarPage = () => {
 
   const handleDelete = async (id: string) => {
     await deleteMealPlanEntry(id)
-    setEntries((prev) => prev.filter((e) => e.id !== id))
+    removeEntry(id)
   }
 
   const shoppingStart = toISO(startOfWeek(today))
   const shoppingEnd = toISO(addDays(startOfWeek(today), 6))
 
   return (
-    <div
-      className="lb-paper"
-      style={{
-        height: '100dvh',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-      }}
-    >
+    <div className="lb-paper h-[100dvh] overflow-hidden flex flex-col relative">
       <CalendarHeader
         view={view}
         anchor={anchor}
@@ -82,13 +73,8 @@ const CalendarPage = () => {
             initial="enter"
             animate="center"
             exit="exit"
-            style={{
-              willChange: 'transform, opacity',
-              flex: 1,
-              overflow: 'hidden',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
+            className="flex-1 overflow-hidden flex flex-col"
+            style={{ willChange: 'transform, opacity' }}
           >
             {view === 'week' ? (
               <WeekView

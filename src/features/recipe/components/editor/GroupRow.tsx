@@ -13,18 +13,8 @@ import type { EditorLabels, IngredientOption } from '@/features/recipe/component
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import type { IngredientNode } from '@/features/recipe/types/recipe'
 
-const xBtn: React.CSSProperties = {
-  background: 'none',
-  border: 0,
-  color: 'var(--stone-2)',
-  padding: 6,
-  cursor: 'pointer',
-  flexShrink: 0,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  opacity: 0.8,
-}
+const xBtnCls =
+  'bg-none border-0 text-stone-2 p-1.5 cursor-pointer shrink-0 flex items-center justify-center opacity-80'
 
 type GroupRowProps = {
   node: IngredientNode & { kind: 'group' }
@@ -56,49 +46,24 @@ const GroupRow = ({
 
   return (
     // Handle sits OUTSIDE (to the left of) the vertical bordeaux bar
-    <div style={{ display: 'flex', alignItems: 'flex-start', margin: '12px 0 4px' }}>
+    <div className="flex items-start my-3 mb-1">
       <motion.div
         animate={{ width: reordering ? 30 : 0, opacity: reordering ? 1 : 0 }}
         transition={{ type: 'spring', stiffness: 340, damping: 30 }}
-        style={{ overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'flex-start' }}
+        className="overflow-hidden shrink-0 flex items-start"
       >
-        <GripHandle style={{ paddingTop: 8, paddingRight: 10 }} />
+        <GripHandle className="pt-2 pr-2.5" />
       </motion.div>
 
-      <div
-        style={{
-          borderLeft: '2px solid rgba(107,31,42,0.30)',
-          padding: '2px 0 4px 12px',
-          flex: 1,
-          minWidth: 0,
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginBottom: 3,
-          }}
-        >
+      <div className="border-l-2 border-bordeaux/30 pt-0.5 pb-1 pl-3 flex-1 min-w-0">
+        <div className="flex items-center justify-between mb-[3px]">
           <input
             type="text"
             value={node.title}
             onChange={(e) =>
               onChange(replaceAt(allNodes, path, { ...node, title: e.target.value }))
             }
-            style={{
-              flex: 1,
-              fontFamily: 'var(--serif)',
-              fontStyle: 'italic',
-              fontSize: 13,
-              fontWeight: 500,
-              color: 'var(--bordeaux)',
-              background: 'transparent',
-              border: 0,
-              outline: 'none',
-              padding: '2px 0',
-            }}
+            className="flex-1 font-serif italic text-[13px] font-medium text-bordeaux bg-transparent border-0 outline-none py-0.5"
             placeholder={labels.groupPlaceholder}
           />
           <button
@@ -110,7 +75,7 @@ const GroupRow = ({
                 onChange(removeAt(allNodes, path))
               }
             }}
-            style={xBtn}
+            className={xBtnCls}
             aria-label="Sectie verwijderen"
           >
             <X size={11} strokeWidth={2.2} />
@@ -118,14 +83,8 @@ const GroupRow = ({
         </div>
 
         <div
-          style={{
-            width: 22,
-            height: 1.5,
-            background: 'var(--bordeaux)',
-            opacity: 0.55,
-            borderRadius: 1,
-            marginBottom: 6,
-          }}
+          className="w-[22px] opacity-55 rounded-[1px] mb-1.5"
+          style={{ height: 1.5, background: 'var(--bordeaux)' }}
         />
 
         <SortableContext items={childIds} strategy={verticalListSortingStrategy}>
@@ -165,22 +124,7 @@ const GroupRow = ({
         <button
           type="button"
           onClick={() => onChange(appendChild(allNodes, path, newLeaf()))}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '7px 8px',
-            marginTop: 6,
-            border: '1px dashed rgba(107,31,42,0.22)',
-            borderRadius: 7,
-            color: 'var(--stone)',
-            fontSize: 11.5,
-            minHeight: 32,
-            background: 'none',
-            cursor: 'pointer',
-            fontFamily: 'var(--sans)',
-            width: '100%',
-          }}
+          className="flex items-center gap-1.5 px-2 py-[7px] mt-1.5 border border-dashed border-bordeaux/22 rounded-[7px] text-stone text-[11.5px] min-h-8 bg-none cursor-pointer font-sans w-full"
         >
           <Plus size={10} strokeWidth={2.5} />
           {labels.addLeafInGroup}

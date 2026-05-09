@@ -49,52 +49,29 @@ const RecipePhotoImport = ({ onExtracted }: Props) => {
   if (done) return null
 
   return (
-    <form onSubmit={handleConvert} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <form onSubmit={handleConvert} className="flex flex-col gap-4">
       <input
         ref={inputRef}
         type="file"
         accept="image/*"
         capture="environment"
         onChange={handleFileChange}
-        style={{ display: 'none' }}
+        className="hidden"
       />
 
       <div>
-        <div className="lb-eyebrow" style={{ marginBottom: 8 }}>
-          Foto
-        </div>
+        <div className="lb-eyebrow mb-2">Foto</div>
         {preview ? (
-          <div style={{ position: 'relative' }}>
+          <div className="relative">
             <img
               src={preview}
               alt="Geselecteerde foto"
-              style={{
-                width: '100%',
-                maxHeight: 220,
-                objectFit: 'cover',
-                borderRadius: 12,
-                border: '0.5px solid rgba(31,29,26,0.14)',
-                display: 'block',
-              }}
+              className="w-full max-h-[220px] object-cover rounded-[12px] border-[0.5px] border-ink/14 block"
             />
             <button
               type="button"
               onClick={handleClear}
-              style={{
-                position: 'absolute',
-                top: 8,
-                right: 8,
-                width: 28,
-                height: 28,
-                borderRadius: 14,
-                background: 'rgba(248,244,237,0.9)',
-                border: '0.5px solid rgba(31,29,26,0.18)',
-                color: 'var(--ink)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-              }}
+              className="absolute top-2 right-2 w-7 h-7 rounded-[14px] bg-[rgba(248,244,237,0.9)] border-[0.5px] border-ink/18 text-ink flex items-center justify-center cursor-pointer"
             >
               <X size={10} strokeWidth={2.2} />
             </button>
@@ -103,59 +80,22 @@ const RecipePhotoImport = ({ onExtracted }: Props) => {
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            style={{
-              width: '100%',
-              background: 'var(--cream-card)',
-              border: '0.5px dashed rgba(31,29,26,0.25)',
-              borderRadius: 12,
-              padding: '32px 20px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 10,
-              cursor: 'pointer',
-              boxSizing: 'border-box',
-            }}
+            className="w-full bg-cream border-[0.5px] border-dashed border-ink/25 rounded-[12px] py-8 px-5 flex flex-col items-center gap-[10px] cursor-pointer box-border"
           >
             <Image size={28} strokeWidth={1.5} color="var(--stone)" />
-            <span
-              style={{
-                fontFamily: 'var(--sans)',
-                fontSize: 14,
-                fontWeight: 500,
-                color: 'var(--stone)',
-              }}
-            >
+            <span className="font-sans text-[14px] font-medium text-stone">
               Foto kiezen of maken
             </span>
           </button>
         )}
       </div>
 
-      <p
-        style={{
-          margin: 0,
-          fontSize: 13,
-          color: 'var(--stone)',
-          textAlign: 'center',
-          lineHeight: 1.5,
-        }}
-      >
+      <p className="m-0 text-[13px] text-stone text-center leading-[1.5]">
         Maak een foto van een receptenboek of geschreven recept
       </p>
 
       {error && (
-        <div
-          style={{
-            background: 'var(--bordeaux-tint)',
-            color: 'var(--bordeaux)',
-            padding: '10px 14px',
-            borderRadius: '0 12px 12px 0',
-            fontSize: 13,
-            fontWeight: 500,
-            borderLeft: '3px solid var(--bordeaux)',
-          }}
-        >
+        <div className="bg-bordeaux-tint text-bordeaux px-[14px] py-[10px] rounded-[0_12px_12px_0] text-[13px] font-medium border-l-[3px] border-bordeaux">
           {error}
         </div>
       )}
@@ -163,8 +103,7 @@ const RecipePhotoImport = ({ onExtracted }: Props) => {
       <button
         type="submit"
         disabled={loading || !file}
-        className="lb-btn lb-btn--primary"
-        style={{ width: '100%', height: 40, borderRadius: 20, fontSize: 13 }}
+        className="lb-btn lb-btn--primary w-full h-10 rounded-[20px] text-[13px]"
       >
         {loading ? (
           <>

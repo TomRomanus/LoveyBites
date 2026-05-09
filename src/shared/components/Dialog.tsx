@@ -1,15 +1,14 @@
 import * as RadixDialog from '@radix-ui/react-dialog'
 import { motion, AnimatePresence } from 'framer-motion'
-import { sheetVariants, backdropVariants } from '@/shared/constants/animations'
+import { backdropVariants } from '@/shared/constants/animations'
 
-type SheetProps = {
+type DialogProps = {
   visible: boolean
   onClose: () => void
-  height?: string
   children: React.ReactNode
 }
 
-const Sheet = ({ visible, onClose, height, children }: SheetProps) => (
+const Dialog = ({ visible, onClose, children }: DialogProps) => (
   <RadixDialog.Root open={visible} onOpenChange={(open) => !open && onClose()}>
     <RadixDialog.Portal forceMount>
       <AnimatePresence>
@@ -17,12 +16,12 @@ const Sheet = ({ visible, onClose, height, children }: SheetProps) => (
           <>
             <RadixDialog.Overlay asChild forceMount>
               <motion.div
-                key="sheet-bd"
+                key="dialog-bd"
                 variants={backdropVariants}
                 initial="hidden"
                 animate="visible"
                 exit="hidden"
-                className="fixed inset-0 z-[200]"
+                className="fixed inset-0 z-[202]"
                 style={{
                   background: 'rgba(31,29,26,0.12)',
                   backdropFilter: 'blur(1px)',
@@ -30,20 +29,12 @@ const Sheet = ({ visible, onClose, height, children }: SheetProps) => (
                 }}
               />
             </RadixDialog.Overlay>
-            <RadixDialog.Content asChild forceMount>
-              <motion.div
-                key="sheet-panel"
-                className="lb-sheet"
-                style={{ animation: 'none', paddingBottom: 30, ...(height ? { height } : {}) }}
-                variants={sheetVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-              >
-                <RadixDialog.Title className="sr-only">Panel</RadixDialog.Title>
-                <div className="lb-sheet-grabber" />
-                {children}
-              </motion.div>
+            <RadixDialog.Content
+              forceMount
+              className="fixed inset-0 z-[203] flex items-center justify-center px-6 pointer-events-none outline-none"
+            >
+              <RadixDialog.Title className="sr-only">Dialog</RadixDialog.Title>
+              {children}
             </RadixDialog.Content>
           </>
         )}
@@ -52,4 +43,4 @@ const Sheet = ({ visible, onClose, height, children }: SheetProps) => (
   </RadixDialog.Root>
 )
 
-export default Sheet
+export default Dialog

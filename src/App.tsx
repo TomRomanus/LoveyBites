@@ -25,23 +25,14 @@ const AppShell = () => {
 
   if (loading) {
     return (
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'var(--paper)',
-        }}
-      >
+      <div className="fixed inset-0 flex items-center justify-center bg-paper">
         <LoadingLogo />
       </div>
     )
   }
 
   return (
-    <div style={{ maxWidth: 480, margin: '0 auto', minHeight: '100dvh', position: 'relative' }}>
+    <div className="max-w-[480px] mx-auto min-h-[100dvh] relative">
       <AnimatePresence mode="wait">
         <motion.div
           key={location.pathname}

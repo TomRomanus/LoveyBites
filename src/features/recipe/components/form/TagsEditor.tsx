@@ -29,27 +29,12 @@ const TagsEditor = ({ tags, onChange, existingTags = [] }: TagsEditorProps) => {
         .slice(0, 8)
     : []
 
-  const chipStyle: React.CSSProperties = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 5,
-    background: 'transparent',
-    border: '0.5px solid rgba(31,29,26,0.20)',
-    borderRadius: 20,
-    padding: '4px 8px 4px 10px',
-    fontFamily: 'var(--mono)',
-    fontSize: 10,
-    fontWeight: 500,
-    letterSpacing: '0.1em',
-    textTransform: 'uppercase',
-    color: 'var(--ink-2)',
-  }
+  const chipCls =
+    'inline-flex items-center gap-[5px] bg-transparent border-[0.5px] border-ink/20 rounded-[20px] py-1 pl-[10px] pr-2 font-mono text-[10px] font-medium tracking-[0.1em] uppercase text-ink-2'
 
   return (
     <div>
-      <div
-        style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center', minHeight: 32 }}
-      >
+      <div className="flex flex-wrap gap-1.5 items-center min-h-8">
         <AnimatePresence mode="popLayout">
           {tags.map((t) => (
             <motion.span
@@ -59,22 +44,13 @@ const TagsEditor = ({ tags, onChange, existingTags = [] }: TagsEditorProps) => {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.75, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 400, damping: 28 }}
-              style={chipStyle}
+              className={chipCls}
             >
               {t}
               <button
                 type="button"
                 onClick={() => onChange(tags.filter((x) => x !== t))}
-                style={{
-                  background: 'none',
-                  border: 0,
-                  color: 'var(--stone)',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  padding: 0,
-                  lineHeight: 1,
-                }}
+                className="bg-none border-0 text-stone cursor-pointer inline-flex items-center p-0 leading-none"
               >
                 <X size={9} strokeWidth={2.5} />
               </button>
@@ -92,19 +68,7 @@ const TagsEditor = ({ tags, onChange, existingTags = [] }: TagsEditorProps) => {
           }}
           placeholder="+ TAG"
           size={Math.max(input.length + 1, 5)}
-          style={{
-            flex: '0 0 auto',
-            background: 'transparent',
-            border: '1px dashed var(--stone-2)',
-            borderRadius: 20,
-            outline: 'none',
-            fontFamily: 'var(--mono)',
-            fontSize: 10,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color: 'var(--ink-2)',
-            padding: '5px 11px',
-          }}
+          className="flex-[0_0_auto] bg-transparent border border-dashed border-stone-2 rounded-[20px] outline-none font-mono text-[10px] tracking-[0.1em] uppercase text-ink-2 py-[5px] px-[11px]"
         />
       </div>
       <AnimatePresence>
@@ -114,26 +78,9 @@ const TagsEditor = ({ tags, onChange, existingTags = [] }: TagsEditorProps) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 3 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
-            style={{
-              marginTop: 8,
-              display: 'flex',
-              flexWrap: 'wrap',
-              alignItems: 'center',
-              gap: '0 2px',
-              lineHeight: 2,
-            }}
+            className="mt-2 flex flex-wrap items-center gap-x-0.5 leading-[2]"
           >
-            <span
-              style={{
-                fontFamily: 'var(--mono)',
-                fontSize: 9.5,
-                letterSpacing: '0.1em',
-                color: 'var(--stone-2)',
-                paddingRight: 2,
-              }}
-            >
-              +
-            </span>
+            <span className="font-mono text-[9.5px] tracking-[0.1em] text-stone-2 pr-0.5">+</span>
             <AnimatePresence mode="popLayout">
               {suggestions.map((t, i) => (
                 <motion.span
@@ -143,33 +90,19 @@ const TagsEditor = ({ tags, onChange, existingTags = [] }: TagsEditorProps) => {
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.85, opacity: 0, transition: { duration: 0.1 } }}
                   transition={{ type: 'spring', stiffness: 380, damping: 28, delay: i * 0.035 }}
-                  style={{ display: 'inline-flex', alignItems: 'center' }}
+                  className="inline-flex items-center"
                 >
                   <span
                     onMouseDown={(e) => {
                       e.preventDefault()
                       addSuggestion(t)
                     }}
-                    style={{
-                      fontFamily: 'var(--mono)',
-                      fontSize: 10,
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                      color: 'var(--stone)',
-                      cursor: 'pointer',
-                      padding: '0 4px',
-                      borderRadius: 4,
-                    }}
+                    className="font-mono text-[10px] tracking-[0.08em] uppercase text-stone cursor-pointer px-1 rounded-[4px]"
                   >
                     {t}
                   </span>
                   {i < suggestions.length - 1 && (
-                    <span
-                      style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--stone-2)' }}
-                    >
-                      {' '}
-                      ·{' '}
-                    </span>
+                    <span className="font-mono text-[10px] text-stone-2"> · </span>
                   )}
                 </motion.span>
               ))}

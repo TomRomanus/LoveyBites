@@ -43,7 +43,6 @@ type RecipeNodeEditorProps = {
   ingredientOptions?: IngredientOption[]
   ordered?: boolean
   reordering?: boolean
-  leafMultiline?: boolean
 }
 
 const RecipeNodeEditor = ({
@@ -106,7 +105,7 @@ const RecipeNodeEditor = ({
       onDragEnd={handleDragEnd}
       onDragCancel={() => setActiveId(null)}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+      <div className="flex flex-col">
         <SortableContext items={rootIds} strategy={verticalListSortingStrategy}>
           <AnimatePresence mode="popLayout" initial={false}>
             {nodes.map((node, i) => {
@@ -166,7 +165,7 @@ const RecipeNodeEditor = ({
           </AnimatePresence>
         </SortableContext>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
+        <div className="flex flex-col gap-1.5 mt-1.5">
           <DashedAddButton onClick={() => onChange([...nodes, newLeaf()])} label={labels.addLeaf} />
           <DashedAddButton onClick={() => addSection('')} label={labels.addGroup} />
 
@@ -177,21 +176,12 @@ const RecipeNodeEditor = ({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
                 transition={{ duration: 0.18, ease: 'easeOut' }}
-                style={{ paddingTop: 4 }}
+                className="pt-1"
               >
-                <div
-                  style={{
-                    fontFamily: 'var(--mono)',
-                    fontSize: 8.5,
-                    letterSpacing: '0.14em',
-                    textTransform: 'uppercase',
-                    color: 'var(--stone-2)',
-                    marginBottom: 6,
-                  }}
-                >
+                <div className="font-mono text-[8.5px] tracking-[0.14em] uppercase text-stone-2 mb-1.5">
                   Sectiesuggesties
                 </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                <div className="flex flex-wrap gap-[5px]">
                   <AnimatePresence>
                     {availableSections.map((name, i) => (
                       <motion.button
@@ -208,18 +198,7 @@ const RecipeNodeEditor = ({
                         }}
                         type="button"
                         onClick={() => addSection(name)}
-                        style={{
-                          fontSize: 10.5,
-                          padding: '5px 11px',
-                          borderRadius: 20,
-                          border: '1px dashed var(--stone-2)',
-                          background: 'transparent',
-                          color: 'var(--stone)',
-                          fontFamily: 'var(--mono)',
-                          letterSpacing: '0.06em',
-                          textTransform: 'uppercase',
-                          cursor: 'pointer',
-                        }}
+                        className="text-[10.5px] py-[5px] px-[11px] rounded-[20px] border border-dashed border-stone-2 bg-transparent text-stone font-mono tracking-[0.06em] uppercase cursor-pointer"
                       >
                         + {name}
                       </motion.button>

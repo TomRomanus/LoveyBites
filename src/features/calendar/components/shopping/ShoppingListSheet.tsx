@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Copy } from 'lucide-react'
 import DatePickerInput from '@/features/calendar/components/DatePickerInput'
 import Sheet from '@/shared/components/Sheet'
 import useShoppingList from '@/features/calendar/hooks/useShoppingList'
 import ShoppingSection from '@/features/calendar/components/shopping/ShoppingSection'
 import ShoppingListSkeleton from '@/features/calendar/components/shopping/ShoppingListSkeleton'
+import CopyButton from '@/shared/components/CopyButton'
 
 type ShoppingListSheetProps = {
   visible: boolean
@@ -22,7 +22,6 @@ const ShoppingListSheet = ({
 }: ShoppingListSheetProps) => {
   const [from, setFrom] = useState(defaultStart)
   const [to, setTo] = useState(defaultEnd)
-  const [copied, setCopied] = useState(false)
   const [checked, setChecked] = useState<Set<string>>(new Set())
 
   const { loading, fetched, sections, buildCopyText } = useShoppingList(from, to, visible)
@@ -43,26 +42,22 @@ const ShoppingListSheet = ({
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(buildCopyText())
-    setCopied(true)
-    setTimeout(() => setCopied(false), 1500)
   }
 
   return (
     <Sheet visible={visible} onClose={onClose} height="88%">
-      <div style={{ padding: '12px 22px 0' }}>
+      <div className="pt-3 px-[22px]">
         <div className="lb-eyebrow">BOODSCHAPPENLIJST</div>
-        <h3 className="lb-display" style={{ margin: '4px 0 0', fontSize: 26 }}>
+        <h3 className="lb-display mt-1 text-[26px]">
           Wat we <b>nodig hebben</b>
         </h3>
       </div>
-      <div style={{ padding: '14px 22px 16px', display: 'flex', gap: 10, alignItems: 'flex-end' }}>
+      <div className="py-[14px] px-[22px] pb-4 flex gap-[10px] items-end">
         <DatePickerInput label="VAN" value={from} onChange={setFrom} />
-        <div style={{ color: 'var(--stone-2)', fontSize: 14, marginBottom: 14, flexShrink: 0 }}>
-          →
-        </div>
+        <div className="text-stone-2 text-[14px] mb-[14px] shrink-0">→</div>
         <DatePickerInput label="TOT" value={to} onChange={setTo} openLeft />
       </div>
-      <div style={{ flex: 1, minHeight: 0, overflow: 'auto', padding: '6px 22px' }}>
+      <div className="flex-1 min-h-0 overflow-auto py-[6px] px-[22px]">
         <AnimatePresence mode="wait">
           {loading && <ShoppingListSkeleton />}
           {fetched && !loading && sections.length === 0 && (
@@ -72,13 +67,7 @@ const ShoppingListSheet = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
-              style={{
-                textAlign: 'center',
-                color: 'var(--stone)',
-                fontFamily: 'var(--serif)',
-                fontStyle: 'italic',
-                padding: 30,
-              }}
+              className="text-center text-stone font-serif italic p-[30px]"
             >
               Geen geplande recepten in deze periode.
             </motion.div>
@@ -116,76 +105,9 @@ const ShoppingListSheet = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ type: 'spring', stiffness: 320, damping: 28 }}
-            style={{ padding: '20px 22px 14px' }}
+            className="py-5 px-[22px] pb-[14px]"
           >
-            <motion.button
-              onClick={handleCopy}
-              className="lb-btn lb-btn--primary"
-              style={{ width: '100%' }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                {copied ? (
-                  <motion.span
-                    key="success"
-                    initial={{ opacity: 0, y: 10, scale: 0.88 }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      scale: 1,
-                      transition: { type: 'spring', stiffness: 420, damping: 26 },
-                    }}
-                    exit={{
-                      opacity: 0,
-                      y: -10,
-                      scale: 0.88,
-                      transition: { duration: 0.1, ease: [0.4, 0, 1, 1] },
-                    }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-                  >
-                    <svg
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="white"
-                      strokeWidth={2.5}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <motion.path
-                        d="M5 13l4 4L19 7"
-                        initial={{ pathLength: 0, opacity: 0 }}
-                        animate={{ pathLength: 1, opacity: 1 }}
-                        transition={{ duration: 0.32, ease: [0.2, 0, 0, 1], delay: 0.06 }}
-                      />
-                    </svg>
-                    Gekopieerd!
-                  </motion.span>
-                ) : (
-                  <motion.span
-                    key="idle"
-                    initial={{ opacity: 0, y: -10, scale: 0.88 }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      scale: 1,
-                      transition: { type: 'spring', stiffness: 420, damping: 26 },
-                    }}
-                    exit={{
-                      opacity: 0,
-                      y: 10,
-                      scale: 0.88,
-                      transition: { duration: 0.1, ease: [0.4, 0, 1, 1] },
-                    }}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
-                  >
-                    <Copy size={14} />
-                    Kopieer
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </motion.button>
+            <CopyButton onCopy={handleCopy} />
           </motion.div>
         )}
       </AnimatePresence>

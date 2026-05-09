@@ -14,40 +14,16 @@ const ShoppingListSkeleton = () => {
         { title: 45, items: [65, 48] },
         { title: 70, items: [58, 75, 42, 68] },
       ].map((sec, si) => (
-        <div
-          key={si}
-          style={{
-            marginBottom: 16,
-            paddingBottom: 14,
-            borderBottom: '0.5px solid var(--line-soft)',
-          }}
-        >
+        <div key={si} className="mb-4 pb-[14px] border-b border-[0.5px] border-ink/10">
+          <div className="lb-skeleton h-[9px] w-[28%] rounded-[3px] mb-[6px]" />
           <div
-            className="lb-skeleton"
-            style={{ height: 9, width: '28%', borderRadius: 3, marginBottom: 6 }}
-          />
-          <div
-            className="lb-skeleton"
-            style={{
-              height: 16,
-              width: `${sec.title}%`,
-              borderRadius: 4,
-              marginBottom: 10,
-            }}
+            className="lb-skeleton h-4 rounded-[4px] mb-[10px]"
+            style={{ width: `${sec.title}%` }}
           />
           {sec.items.map((w, ii) => (
-            <div
-              key={ii}
-              style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '6px 0' }}
-            >
-              <div
-                className="lb-skeleton"
-                style={{ width: 22, height: 22, borderRadius: 6, flexShrink: 0 }}
-              />
-              <div
-                className="lb-skeleton"
-                style={{ height: 13, width: `${w}%`, borderRadius: 4 }}
-              />
+            <div key={ii} className="flex items-center gap-3 py-[6px]">
+              <div className="lb-skeleton w-[22px] h-[22px] rounded-[6px] shrink-0" />
+              <div className="lb-skeleton h-[13px] rounded-[4px]" style={{ width: `${w}%` }} />
             </div>
           ))}
         </div>

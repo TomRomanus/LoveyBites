@@ -1,30 +1,21 @@
 import { createContext, useContext } from 'react'
 import { GripVertical } from 'lucide-react'
+import type { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core'
 
 export type DragHandleContextValue = {
-  listeners?: Record<string, React.EventHandler<React.SyntheticEvent>>
-  attributes?: Record<string, unknown>
+  listeners?: DraggableSyntheticListeners
+  attributes?: DraggableAttributes
 }
 
 export const DragHandleCtx = createContext<DragHandleContextValue>({})
 
-export const GripHandle = ({ style }: { style?: React.CSSProperties }) => {
+export const GripHandle = ({ className }: { className?: string }) => {
   const { listeners, attributes } = useContext(DragHandleCtx)
   return (
     <div
       {...listeners}
       {...attributes}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'grab',
-        color: 'var(--stone-2)',
-        padding: '0 4px',
-        touchAction: 'none',
-        flexShrink: 0,
-        ...style,
-      }}
+      className={`flex items-center justify-center cursor-grab text-stone-2 px-1 touch-none shrink-0${className ? ` ${className}` : ''}`}
     >
       <GripVertical size={12} />
     </div>

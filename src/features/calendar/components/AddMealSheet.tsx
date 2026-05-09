@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronRight, Check } from 'lucide-react'
-import type { Recipe } from '@/features/recipe/types/recipe'
+import { useQuery } from '@tanstack/react-query'
 import { getRecipes } from '@/features/recipe/api/recipes'
+import { recipeKeys } from '@/features/recipe/api/queryKeys'
 import { createMealPlanEntry } from '@/features/calendar/api/mealPlan'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 import { extractLeafTexts } from '@/features/recipe/utils/ingredientUtils'
@@ -10,6 +10,7 @@ import { NL_DAYS_LONG, NL_MONTHS_SHORT } from '@/shared/constants/locale'
 import Sheet from '@/shared/components/Sheet'
 import SearchInput from '@/shared/components/SearchInput'
 import AnimatedTabBar from '@/shared/components/AnimatedTabBar'
+import MealRecipeRow from './MealRecipeRow'
 
 type AddMealSheetProps = {
   visible: boolean
@@ -29,28 +30,17 @@ const AddMealSheet = ({
   const { user } = useAuth()
   const [tab, setTab] = useState<'recipe' | 'custom'>('recipe')
   const [tabDir, setTabDir] = useState(0)
-  const [recipes, setRecipes] = useState<Recipe[]>([])
   const [search, setSearch] = useState('')
   const [custom, setCustom] = useState('')
   const [saving, setSaving] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const searchRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    let cancelled = false
-    const load = () =>
-      getRecipes()
-        .then((r) => {
-          if (!cancelled) setRecipes(r)
-        })
-        .catch(() => {
-          if (!cancelled) setTimeout(load, 500)
-        })
-    load()
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  const { data: recipes = [] } = useQuery({
+    queryKey: recipeKeys.list(),
+    queryFn: getRecipes,
+  })
+
   useEffect(() => {
     if (tab === 'recipe') searchRef.current?.focus()
   }, [tab])
@@ -92,16 +82,16 @@ const AddMealSheet = ({
 
   return (
     <Sheet visible={visible} onClose={onClose} height="78%">
-      <div style={{ padding: '12px 22px 0' }}>
+      <div className="pt-3 px-[22px]">
         <div className="lb-eyebrow">
           {NL_DAYS_LONG[dateObj.getDay()]}, {NL_MONTHS_SHORT[dateObj.getMonth()]}{' '}
           {dateObj.getDate()}
         </div>
-        <h3 className="lb-display" style={{ margin: '4px 0 14px', fontSize: 24 }}>
+        <h3 className="lb-display mt-1 mb-[14px] text-[24px]">
           Maaltijd <b>toevoegen</b>
         </h3>
       </div>
-      <div style={{ padding: '0 22px 12px' }}>
+      <div className="px-[22px] pb-3">
         <AnimatedTabBar
           layoutId="meal-sheet-tabs"
           tabs={[
@@ -116,7 +106,7 @@ const AddMealSheet = ({
           variant="pill"
         />
       </div>
-      <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', position: 'relative' }}>
+      <div className="flex-1 min-h-0 overflow-hidden relative">
         <AnimatePresence mode="wait" initial={false} custom={tabDir}>
           {tab === 'recipe' && (
             <motion.div
@@ -126,15 +116,10 @@ const AddMealSheet = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: tabDir * -16 }}
               transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
-              style={{
-                padding: '6px 22px 0',
-                height: '100%',
-                overflowY: 'auto',
-                overflowX: 'hidden',
-              }}
+              className="pt-[6px] px-[22px] h-full overflow-y-auto overflow-x-hidden"
             >
               <>
-                <div style={{ marginBottom: 10 }}>
+                <div className="mb-[10px]">
                   <SearchInput
                     value={search}
                     onChange={setSearch}
@@ -142,17 +127,7 @@ const AddMealSheet = ({
                     inputRef={searchRef}
                   />
                 </div>
-                <div
-                  className="lb-eyebrow"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                    overflow: 'hidden',
-                    marginTop: 14,
-                    marginBottom: 4,
-                  }}
-                >
+                <div className="lb-eyebrow flex items-center gap-1 overflow-hidden mt-[14px] mb-1">
                   <AnimatePresence mode="popLayout">
                     <motion.span
                       key={filtered.length}
@@ -160,7 +135,7 @@ const AddMealSheet = ({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 6 }}
                       transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                      style={{ display: 'block' }}
+                      className="block"
                     >
                       {filtered.length}
                     </motion.span>
@@ -175,13 +150,7 @@ const AddMealSheet = ({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
-                      style={{
-                        textAlign: 'center',
-                        color: 'var(--stone)',
-                        fontFamily: 'var(--serif)',
-                        fontStyle: 'italic',
-                        padding: 20,
-                      }}
+                      className="text-center text-stone font-serif italic p-5"
                     >
                       Geen recepten gevonden
                     </motion.div>
@@ -189,123 +158,14 @@ const AddMealSheet = ({
                 </AnimatePresence>
                 <AnimatePresence>
                   {filtered.map((r, i) => (
-                    <motion.div
+                    <MealRecipeRow
                       key={r.id}
-                      layout
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{
-                        duration: 0.18,
-                        delay: Math.min(i * 0.03, 0.15),
-                        layout: { type: 'spring', stiffness: 350, damping: 35 },
-                      }}
-                    >
-                      <motion.button
-                        onClick={() => handleSelectRecipe(r.id)}
-                        disabled={saving}
-                        whileTap={{ scale: 0.98 }}
-                        style={{
-                          display: 'block',
-                          padding: '10px 0',
-                          border: 0,
-                          borderBottom: '0.5px solid var(--line)',
-                          width: '100%',
-                          textAlign: 'left',
-                          cursor: 'pointer',
-                          borderRadius: 4,
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            gap: 10,
-                          }}
-                        >
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div
-                              style={{
-                                margin: 0,
-                                fontFamily: 'var(--serif)',
-                                fontStyle: 'italic',
-                                fontSize: 18,
-                                fontWeight: 500,
-                                lineHeight: 1.15,
-                                letterSpacing: '-0.015em',
-                                color: 'var(--ink)',
-                              }}
-                            >
-                              {r.title}
-                            </div>
-                            <div
-                              style={{
-                                width: 24,
-                                height: 1.5,
-                                background: 'var(--bordeaux)',
-                                borderRadius: 1,
-                                opacity: 0.6,
-                                margin: '4px 0',
-                              }}
-                            />
-                            {r.tags.length > 0 && (
-                              <div
-                                style={{
-                                  fontFamily: 'var(--mono)',
-                                  fontSize: 9,
-                                  textTransform: 'uppercase',
-                                  letterSpacing: '0.08em',
-                                }}
-                              >
-                                {r.tags.map((t, i) => (
-                                  <span key={t}>
-                                    {i > 0 && (
-                                      <span style={{ color: 'rgba(107,31,42,0.40)' }}> · </span>
-                                    )}
-                                    <span style={{ color: 'rgba(107,31,42,0.40)' }}>{t}</span>
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                          <AnimatePresence mode="wait" initial={false}>
-                            {selectedId === r.id ? (
-                              <motion.div
-                                key="check"
-                                initial={{ scale: 0, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                exit={{ scale: 0, opacity: 0 }}
-                                transition={{ type: 'spring', stiffness: 420, damping: 22 }}
-                                style={{
-                                  flexShrink: 0,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  width: 22,
-                                  height: 22,
-                                  borderRadius: '50%',
-                                  background: 'var(--bordeaux)',
-                                }}
-                              >
-                                <Check size={12} strokeWidth={3} color="white" />
-                              </motion.div>
-                            ) : (
-                              <motion.div
-                                key="chevron"
-                                initial={{ scale: 0, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                exit={{ scale: 0, opacity: 0 }}
-                                transition={{ duration: 0.1 }}
-                                style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}
-                              >
-                                <ChevronRight size={16} strokeWidth={1.6} color="var(--stone)" />
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      </motion.button>
-                    </motion.div>
+                      recipe={r}
+                      index={i}
+                      selectedId={selectedId}
+                      saving={saving}
+                      onSelect={handleSelectRecipe}
+                    />
                   ))}
                 </AnimatePresence>
               </>
@@ -319,7 +179,7 @@ const AddMealSheet = ({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: tabDir * 16 }}
               transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
-              style={{ padding: '6px 22px 0', height: '100%', overflowY: 'auto' }}
+              className="pt-[6px] px-[22px] h-full overflow-y-auto"
             >
               <>
                 <input
@@ -333,8 +193,7 @@ const AddMealSheet = ({
                   onClick={handleSaveCustom}
                   disabled={!custom.trim() || saving}
                   whileTap={{ scale: 0.97 }}
-                  className="lb-btn lb-btn--primary"
-                  style={{ width: '100%', marginTop: 14 }}
+                  className="lb-btn lb-btn--primary w-full mt-[14px]"
                 >
                   {saving ? 'Opslaan…' : 'Aan planning toevoegen'}
                 </motion.button>

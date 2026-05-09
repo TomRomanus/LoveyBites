@@ -5,39 +5,18 @@ type CookingHeaderProps = {
 }
 
 const CookingHeader = ({ onClose }: CookingHeaderProps) => (
-  <div style={{ display: 'flex', alignItems: 'center', padding: '20px 20px 14px', flexShrink: 0 }}>
+  <div className="flex items-center py-5 px-5 pb-[14px] shrink-0">
     <button
       data-testid="cooking-close-btn"
       onClick={onClose}
-      style={{
-        background: 'transparent',
-        border: '0.5px solid rgba(248,244,237,0.38)',
-        color: '#f8f4ed',
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'pointer',
-      }}
+      className="bg-transparent border-[0.5px] border-paper/[0.38] text-paper w-10 h-10 rounded-full flex items-center justify-center cursor-pointer"
     >
       <X size={16} />
     </button>
-    <div
-      style={{
-        flex: 1,
-        textAlign: 'center',
-        fontFamily: 'var(--mono)',
-        fontSize: 10,
-        letterSpacing: '0.14em',
-        textTransform: 'uppercase',
-        color: 'rgba(248,244,237,0.5)',
-      }}
-    >
+    <div className="flex-1 text-center font-mono text-[10px] tracking-[0.14em] uppercase text-paper/50">
       Kookmodus
     </div>
-    <div style={{ width: 40 }} />
+    <div className="w-10" />
   </div>
 )
 

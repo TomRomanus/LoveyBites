@@ -67,7 +67,6 @@ const useRecipeFilter = (recipes: Recipe[]) => {
     sort,
     setSort,
     allTags,
-    filtered,
     sorted,
     clearFilters,
   }

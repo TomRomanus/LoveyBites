@@ -4,8 +4,6 @@ import IngredientCheckbox from '@/shared/components/IngredientCheckbox'
 import type { Recipe } from '@/features/recipe/types/recipe'
 import type { TreeNode } from '@/features/cooking/types/cooking'
 
-const SECTION_HEADER_COLOR = '#b8394e'
-
 type CookingIngredientsPanelProps = {
   recipe: Recipe
   scaledIngredients: TreeNode[]
@@ -48,29 +46,12 @@ const IngredientRow = ({
   <button
     key={itemKey}
     onClick={() => onToggle(itemKey)}
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 12,
-      padding: '10px 0',
-      width: '100%',
-      background: 'transparent',
-      border: 0,
-      borderBottom: '0.5px solid rgba(248,244,237,0.08)',
-      textAlign: 'left',
-      cursor: 'pointer',
-    }}
+    className="flex items-center gap-3 py-[10px] w-full bg-transparent border-b border-[0.5px] border-paper/[0.08] text-left cursor-pointer"
   >
     <IngredientCheckbox checked={isChecked} theme="dark" />
     <span
-      style={{
-        fontSize: 15,
-        flex: 1,
-        color: isChecked ? 'rgba(248,244,237,0.4)' : '#f8f4ed',
-        transition: 'color 0.2s ease',
-        overflow: 'hidden',
-        position: 'relative',
-      }}
+      className="text-[15px] flex-1 overflow-hidden relative transition-colors duration-200 ease-[ease]"
+      style={{ color: isChecked ? 'rgba(248,244,237,0.4)' : '#f8f4ed' }}
     >
       <AnimatePresence mode="popLayout" custom={portionDir}>
         <motion.span
@@ -81,7 +62,7 @@ const IngredientRow = ({
           animate="center"
           exit="exit"
           transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-          style={{ display: 'block', position: 'relative', width: 'fit-content' }}
+          className="block relative w-fit"
         >
           {text}
           <motion.span
@@ -119,31 +100,13 @@ const CookingIngredientsPanel = ({
     initial={{ y: 24, opacity: 0 }}
     animate={{ y: 0, opacity: 1 }}
     transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-    style={{ padding: '12px 24px' }}
+    className="py-3 px-6"
   >
     {/* Portion selector */}
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 14,
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 4,
-          fontFamily: 'var(--mono)',
-          fontSize: 12,
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          color: 'rgba(248,244,237,0.65)',
-        }}
-      >
+    <div className="flex items-center justify-between mb-[14px]">
+      <div className="flex items-center gap-1 font-mono text-[12px] tracking-[0.08em] uppercase text-paper/[0.65]">
         <span>voor</span>
-        <div style={{ overflow: 'hidden' }}>
+        <div className="overflow-hidden">
           <AnimatePresence mode="popLayout" custom={portionDir}>
             <motion.span
               key={selectedPortions}
@@ -153,7 +116,7 @@ const CookingIngredientsPanel = ({
               animate="center"
               exit="exit"
               transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-              style={{ display: 'block' }}
+              className="block"
             >
               {selectedPortions}
             </motion.span>
@@ -169,48 +132,15 @@ const CookingIngredientsPanel = ({
               : 'personen'}
         </span>
       </div>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          background: 'rgba(248,244,237,0.1)',
-          borderRadius: 16,
-          padding: 3,
-        }}
-      >
+      <div className="flex items-center rounded-[16px] p-[3px] bg-paper/10">
         <button
           onClick={() => onPortionsChange(Math.max(1, selectedPortions - 1))}
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 13,
-            background: 'rgba(248,244,237,0.15)',
-            border: 0,
-            color: '#f8f4ed',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
-          }}
+          className="w-[30px] h-[30px] rounded-[13px] border-0 text-paper flex items-center justify-center cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.2)] bg-paper/[0.15]"
         >
           <Minus size={14} strokeWidth={2.4} />
         </button>
-        <div
-          style={{
-            minWidth: 72,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 4,
-            fontFamily: 'var(--mono)',
-            fontSize: 12,
-            color: '#f8f4ed',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-          }}
-        >
-          <div style={{ overflow: 'hidden', position: 'relative' }}>
+        <div className="min-w-[72px] flex items-center justify-center gap-1 font-mono text-[12px] text-paper tracking-[0.08em] uppercase">
+          <div className="overflow-hidden relative">
             <AnimatePresence mode="popLayout" custom={portionDir}>
               <motion.span
                 key={selectedPortions}
@@ -220,7 +150,7 @@ const CookingIngredientsPanel = ({
                 animate="center"
                 exit="exit"
                 transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                style={{ display: 'block' }}
+                className="block"
               >
                 {selectedPortions}
               </motion.span>
@@ -230,19 +160,7 @@ const CookingIngredientsPanel = ({
         </div>
         <button
           onClick={() => onPortionsChange(selectedPortions + 1)}
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 13,
-            background: 'rgba(248,244,237,0.15)',
-            border: 0,
-            color: '#f8f4ed',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
-          }}
+          className="w-[30px] h-[30px] rounded-[13px] border-0 text-paper flex items-center justify-center cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.2)] bg-paper/[0.15]"
         >
           <Plus size={14} strokeWidth={2.4} />
         </button>
@@ -254,29 +172,11 @@ const CookingIngredientsPanel = ({
       if (node.kind === 'group') {
         return [
           node.title ? (
-            <div key={`h${ni}`} style={{ marginTop: ni > 0 ? 16 : 0 }}>
-              <div
-                style={{
-                  fontFamily: 'var(--serif)',
-                  fontStyle: 'italic',
-                  fontSize: 14,
-                  color: SECTION_HEADER_COLOR,
-                  fontWeight: 500,
-                  marginBottom: 3,
-                }}
-              >
+            <div key={`h${ni}`} className={ni > 0 ? 'mt-4' : ''}>
+              <div className="font-serif italic text-[14px] font-medium mb-[3px] text-[#b8394e]">
                 {node.title}
               </div>
-              <div
-                style={{
-                  width: 22,
-                  height: 1.5,
-                  background: SECTION_HEADER_COLOR,
-                  borderRadius: 1,
-                  opacity: 0.6,
-                  marginBottom: 8,
-                }}
-              />
+              <div className="w-[22px] h-[1.5px] rounded-[1px] opacity-60 mb-2 bg-[#b8394e]" />
             </div>
           ) : null,
           ...node.children

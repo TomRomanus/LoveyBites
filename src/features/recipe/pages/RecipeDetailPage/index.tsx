@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useRecipeDetailUI } from './useRecipeDetailUI'
 import { createPortal } from 'react-dom'
 import { AnimatePresence } from 'framer-motion'
 import { useParams, useNavigate } from 'react-router-dom'
@@ -12,7 +13,10 @@ import CookingScreen from '@/features/cooking/components/CookingScreen'
 import { collectIngredientMap } from '@/features/recipe/utils/ingredientUtils'
 import AddToCalendarModal from '@/features/calendar/components/AddToCalendarModal'
 import { flattenIngredientSections, flattenSteps } from '@/features/recipe/utils/recipeDisplay'
-import { useDelayedReset, useWakeLock, useThemeColor, useCheckedSet } from '@/shared/hooks'
+import useDelayedReset from '@/shared/hooks/useDelayedReset'
+import useWakeLock from '@/shared/hooks/useWakeLock'
+import useThemeColor from '@/shared/hooks/useThemeColor'
+import useCheckedSet from '@/shared/hooks/useCheckedSet'
 import RecipeDetailSkeleton from '@/features/recipe/pages/RecipeDetailPage/RecipeDetailSkeleton'
 import RecipeHero from '@/features/recipe/components/detail/RecipeHero'
 import RecipeMetaSection from '@/features/recipe/components/detail/RecipeMetaSection'
@@ -36,11 +40,18 @@ const RecipeDetailPage = () => {
     setPortionDir(v > portions ? 'up' : 'down')
     setPortions(v)
   }
-  const [cookMode, setCookMode] = useState(false)
-  const [calendarOpen, setCalendarOpen] = useState(false)
-  const [showActions, setShowActions] = useState(false)
-  const [confirmDelete, setConfirmDelete] = useState(false)
-  const [deleting, setDeleting] = useState(false)
+  const {
+    cookMode,
+    setCookMode,
+    calendarOpen,
+    setCalendarOpen,
+    showActions,
+    setShowActions,
+    confirmDelete,
+    setConfirmDelete,
+    deleting,
+    setDeleting,
+  } = useRecipeDetailUI()
   const [ratingTick, setRatingTick] = useState(0)
   const showRatingSaved = useDelayedReset(ratingTick, 0, 900) > 0
 
@@ -80,15 +91,9 @@ const RecipeDetailPage = () => {
 
   if (!recipe) {
     return (
-      <div style={{ textAlign: 'center', padding: '60px 20px' }}>
-        <p style={{ color: 'var(--stone)', fontFamily: 'var(--serif)', fontStyle: 'italic' }}>
-          Recept niet gevonden.
-        </p>
-        <button
-          onClick={() => navigate('/')}
-          className="lb-btn lb-btn--ghost"
-          style={{ marginTop: 16 }}
-        >
+      <div className="text-center px-5 pt-[60px]">
+        <p className="text-stone font-serif italic">Recept niet gevonden.</p>
+        <button onClick={() => navigate('/')} className="lb-btn lb-btn--ghost mt-4">
           ← Terug
         </button>
       </div>
@@ -96,7 +101,7 @@ const RecipeDetailPage = () => {
   }
 
   return (
-    <div style={{ minHeight: '100dvh', position: 'relative', background: 'var(--paper)' }}>
+    <div className="min-h-[100dvh] relative bg-paper">
       <RecipeHero
         title={recipe.title}
         onBack={() => navigate(-1)}
@@ -112,11 +117,10 @@ const RecipeDetailPage = () => {
       />
 
       {/* Cook mode CTA */}
-      <div style={{ padding: '20px 22px 0' }}>
+      <div className="px-[22px] pt-5">
         <button
           onClick={() => setCookMode(true)}
-          className="lb-btn lb-btn--primary"
-          style={{ width: '100%', height: 40, borderRadius: 20, fontSize: 13 }}
+          className="lb-btn lb-btn--primary w-full h-10 rounded-[20px] text-[13px]"
         >
           <Play size={16} fill="currentColor" stroke="none" />
           Start kookmodus
@@ -141,7 +145,7 @@ const RecipeDetailPage = () => {
 
       {(recipe.sources ?? []).length > 0 && <RecipeSources sources={recipe.sources ?? []} />}
 
-      <div style={{ paddingBottom: 100 }} />
+      <div className="pb-[100px]" />
 
       <RecipeActionsSheet
         visible={showActions}

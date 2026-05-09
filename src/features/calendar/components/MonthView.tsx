@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import type { MealPlanEntry, Recipe } from '@/features/recipe/types/recipe'
+import type { MealPlanEntry } from '@/features/calendar/types/calendar'
+import type { Recipe } from '@/features/recipe/types/recipe'
 import { toISO, startOfMonth, isSameDay, calendarGrid } from '@/features/calendar/utils/dateUtils'
 import { NL_DAYS_GRID } from '@/shared/constants/locale'
 
@@ -25,29 +26,18 @@ const MonthView = ({
   const entriesForDay = (day: Date) => entries.filter((e) => e.date === toISO(day))
 
   return (
-    <div style={{ padding: '16px 10px 80px' }}>
-      <div
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, marginBottom: 4 }}
-      >
+    <div className="py-4 px-[10px] pb-20">
+      <div className="grid grid-cols-7 gap-1 mb-1">
         {NL_DAYS_GRID.map((d) => (
           <div
             key={d}
-            style={{
-              textAlign: 'center',
-              fontFamily: 'var(--mono)',
-              fontSize: 10,
-              letterSpacing: '0.1em',
-              color: 'var(--stone-2)',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              padding: '4px 0',
-            }}
+            className="text-center font-mono text-[10px] tracking-[0.1em] text-stone-2 font-semibold uppercase py-1"
           >
             {d}
           </div>
         ))}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4 }}>
+      <div className="grid grid-cols-7 gap-1">
         {days.map((day) => {
           const dayEntries = entriesForDay(day)
           const isToday = isSameDay(day, today)
@@ -56,6 +46,8 @@ const MonthView = ({
           return (
             <motion.button
               key={toISO(day)}
+              data-testid="month-day-btn"
+              data-today={isToday ? 'true' : undefined}
               onClick={() => onPickDay(day)}
               animate={{
                 boxShadow: isSelected
@@ -63,44 +55,15 @@ const MonthView = ({
                   : '0 0 0 0px rgba(107,31,42,0.00)',
               }}
               transition={{ duration: 0.15, ease: [0.25, 0, 0, 1] }}
-              style={{
-                background: 'var(--cream-card)',
-                border: '0.5px solid var(--line)',
-                borderRadius: 10,
-                padding: '8px 4px 12px',
-                opacity: inMonth ? 1 : 0.28,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 5,
-                color: 'var(--ink)',
-                textAlign: 'left',
-                cursor: 'pointer',
-                overflow: 'hidden',
-              }}
+              className="bg-[var(--cream-card)] border-[0.5px] border-ink/10 rounded-[10px] py-2 px-1 pb-3 flex flex-col items-center gap-[5px] text-ink text-left cursor-pointer overflow-hidden"
+              style={{ opacity: inMonth ? 1 : 0.28 }}
             >
               <div
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  fontFamily: 'var(--sans)',
-                  fontSize: 11,
-                  fontWeight: 600,
-                  lineHeight: 1,
-                  color: isToday ? 'var(--cream-card)' : 'var(--ink-2)',
-                  background: isToday ? 'var(--bordeaux)' : 'transparent',
-                }}
+                className={`w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0 font-sans text-[11px] font-semibold leading-none ${isToday ? 'text-cream bg-bordeaux' : 'text-ink-2 bg-transparent'}`}
               >
                 {day.getDate()}
               </div>
-              <div
-                style={{ width: '100%', minHeight: 10, display: 'flex', flexDirection: 'column' }}
-              >
+              <div className="w-full min-h-[10px] flex flex-col">
                 <AnimatePresence initial={false}>
                   {dayEntries.slice(0, 2).map((e) => {
                     const recipe = recipeMap.get(e.recipeId ?? '')
@@ -112,39 +75,14 @@ const MonthView = ({
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.15, ease: [0.25, 0, 0, 1] }}
-                        style={{ overflow: 'hidden' }}
+                        className="overflow-hidden"
                       >
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 2,
-                            width: '100%',
-                            paddingBottom: 2,
-                          }}
-                        >
+                        <div className="flex items-center gap-[2px] w-full pb-[2px]">
                           <div
-                            style={{
-                              width: 2,
-                              height: 10,
-                              borderRadius: 2,
-                              flexShrink: 0,
-                              background: recipe ? 'var(--bordeaux)' : 'var(--stone)',
-                            }}
+                            className={`w-[2px] h-[10px] rounded-[2px] shrink-0 ${recipe ? 'bg-bordeaux' : 'bg-stone'}`}
                           />
                           <span
-                            style={{
-                              fontFamily: 'var(--serif)',
-                              fontStyle: 'italic',
-                              fontWeight: 500,
-                              fontSize: 7,
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                              flex: 1,
-                              minWidth: 0,
-                              color: recipe ? 'var(--bordeaux)' : 'var(--stone)',
-                            }}
+                            className={`font-serif italic font-medium text-[7px] overflow-hidden text-ellipsis whitespace-nowrap flex-1 min-w-0 ${recipe ? 'text-bordeaux' : 'text-stone'}`}
                           >
                             {label}
                           </span>
@@ -161,13 +99,7 @@ const MonthView = ({
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
-                      style={{
-                        overflow: 'hidden',
-                        fontFamily: 'var(--mono)',
-                        fontSize: 7,
-                        color: 'var(--stone)',
-                        letterSpacing: '0.03em',
-                      }}
+                      className="overflow-hidden font-mono text-[7px] text-stone tracking-[0.03em]"
                     >
                       +{dayEntries.length - 2}
                     </motion.div>

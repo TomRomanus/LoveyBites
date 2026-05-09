@@ -9,7 +9,7 @@ type RecipeListContentProps = {
 }
 
 const RecipeListContent = ({ recipes, activeTags, onAddToCalendar }: RecipeListContentProps) => (
-  <div style={{ padding: '10px 20px 120px' }}>
+  <div className="px-5 pt-[10px] pb-[120px]">
     <AnimatePresence initial={false}>
       {recipes.map((r) => (
         <motion.div

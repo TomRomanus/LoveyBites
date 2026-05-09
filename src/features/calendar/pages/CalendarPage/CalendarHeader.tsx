@@ -13,18 +13,11 @@ type CalendarHeaderProps = {
 
 const CalendarHeader = ({ view, anchor, navDir, onShoppingOpen }: CalendarHeaderProps) => {
   return (
-    <div style={{ padding: '24px 20px 0' }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-        }}
-      >
+    <div className="pt-6 px-5">
+      <div className="flex items-center justify-between gap-3">
         <div>
           <div className="lb-eyebrow">HET MENU</div>
-          <h1 className="lb-display" style={{ margin: '8px 0 0', fontSize: 34 }}>
+          <h1 className="lb-display mt-2 text-[34px]">
             {view === 'week' ? (
               <>
                 {'Week van '}
@@ -36,7 +29,7 @@ const CalendarHeader = ({ view, anchor, navDir, onShoppingOpen }: CalendarHeader
                     initial="enter"
                     animate="center"
                     exit="exit"
-                    style={{ color: 'var(--bordeaux)', display: 'inline-block' }}
+                    className="text-bordeaux inline-block"
                   >
                     {NL_MONTHS_SHORT[anchor.getMonth()]}
                   </motion.b>
@@ -49,7 +42,7 @@ const CalendarHeader = ({ view, anchor, navDir, onShoppingOpen }: CalendarHeader
                     initial="enter"
                     animate="center"
                     exit="exit"
-                    style={{ color: 'var(--bordeaux)', display: 'inline-block' }}
+                    className="text-bordeaux inline-block"
                   >
                     {anchor.getDate()}
                   </motion.b>
@@ -65,7 +58,7 @@ const CalendarHeader = ({ view, anchor, navDir, onShoppingOpen }: CalendarHeader
                     initial="enter"
                     animate="center"
                     exit="exit"
-                    style={{ color: 'var(--bordeaux)', display: 'inline-block' }}
+                    className="text-bordeaux inline-block"
                   >
                     {NL_MONTHS[anchor.getMonth()]}
                   </motion.b>
@@ -78,7 +71,7 @@ const CalendarHeader = ({ view, anchor, navDir, onShoppingOpen }: CalendarHeader
                     initial="enter"
                     animate="center"
                     exit="exit"
-                    style={{ display: 'inline-block' }}
+                    className="inline-block"
                   >
                     {anchor.getFullYear()}
                   </motion.b>
@@ -91,20 +84,7 @@ const CalendarHeader = ({ view, anchor, navDir, onShoppingOpen }: CalendarHeader
           data-testid="shopping-list-btn"
           onClick={onShoppingOpen}
           whileTap={{ scale: 0.88 }}
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            border: 0,
-            background: 'var(--paper)',
-            boxShadow: '0 1px 2px rgba(31,29,26,0.04), 0 0 0 0.5px var(--line)',
-            color: 'var(--bordeaux)',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            flexShrink: 0,
-          }}
+          className="w-10 h-10 rounded-full border-0 bg-paper shadow-[0_1px_2px_rgba(31,29,26,0.04),0_0_0_0.5px_var(--line)] text-bordeaux inline-flex items-center justify-center cursor-pointer shrink-0"
         >
           <ShoppingBag size={15} strokeWidth={1.8} />
         </motion.button>

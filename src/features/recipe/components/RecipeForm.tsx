@@ -1,9 +1,7 @@
-import { useEffect, useMemo } from 'react'
-import { createPortal } from 'react-dom'
-import { Check, ArrowUpDown } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm, Controller, useWatch } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState } from 'react'
 import type { RecipeInput, IngredientNode } from '@/features/recipe/types/recipe'
 import { recipeInputSchema } from '@/features/recipe/types/recipe'
 import RecipeNodeEditor from '@/features/recipe/components/editor/RecipeNodeEditor'
@@ -13,6 +11,7 @@ import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
 import FormField from '@/features/recipe/components/form/FormField'
 import TagsEditor from '@/features/recipe/components/form/TagsEditor'
 import PortionsField from '@/features/recipe/components/form/PortionsField'
+import ReorderFab from '@/features/recipe/components/form/ReorderFab'
 
 type Props = {
   initial?: Partial<RecipeInput>
@@ -76,13 +75,6 @@ const stepLabels = {
   addGroup: 'sectie toevoegen',
 }
 
-const sectionCard: React.CSSProperties = {
-  border: '0.5px solid rgba(31,29,26,0.14)',
-  borderRadius: 13,
-  padding: '16px 16px',
-  background: 'transparent',
-}
-
 const RecipeForm = ({
   initial,
   onSubmit: onSubmitProp,
@@ -101,7 +93,7 @@ const RecipeForm = ({
     setValue,
     formState: { errors },
   } = useForm<RecipeInput>({
-    resolver: zodResolver(recipeInputSchema),
+    resolver: zodResolver(recipeInputSchema) as Resolver<RecipeInput>,
     defaultValues: buildInitial(initial),
   })
 
@@ -135,13 +127,8 @@ const RecipeForm = ({
   const errorMessage = errors.title?.message ?? error
 
   return (
-    <form
-      id="recipe-form"
-      onSubmit={onSubmit}
-      style={{ display: 'flex', flexDirection: 'column', gap: 14, paddingTop: 8 }}
-    >
-      {/* Basic info */}
-      <div style={sectionCard}>
+    <form id="recipe-form" onSubmit={onSubmit} className="flex flex-col gap-3.5 pt-2">
+      <div className="border-[0.5px] border-ink/14 rounded-[13px] p-4">
         <FormField label="Titel" required>
           <input
             className="lb-input"
@@ -152,7 +139,7 @@ const RecipeForm = ({
             })}
           />
         </FormField>
-        <div style={{ height: 14 }} />
+        <div className="h-3.5" />
         <FormField label="Beschrijving">
           <Controller
             name="description"
@@ -161,25 +148,13 @@ const RecipeForm = ({
               <AutoGrowTextarea
                 {...field}
                 rows={2}
-                style={{
-                  width: '100%',
-                  background: 'var(--paper-2)',
-                  border: 0,
-                  borderRadius: 12,
-                  padding: '12px 14px',
-                  fontFamily: 'var(--sans)',
-                  fontSize: 15,
-                  color: 'var(--ink)',
-                  outline: 'none',
-                  resize: 'none',
-                  lineHeight: 1.45,
-                }}
+                className="w-full bg-paper-2 border-0 rounded-md px-3.5 py-3 font-sans text-[15px] text-ink outline-none resize-none leading-[1.45]"
                 placeholder="Beschrijf het gerecht"
               />
             )}
           />
         </FormField>
-        <div style={{ height: 14 }} />
+        <div className="h-3.5" />
         <PortionsField
           value={portionsValue}
           onChange={(v) => setValue('portions', v)}
@@ -188,11 +163,8 @@ const RecipeForm = ({
         />
       </div>
 
-      {/* Ingredients */}
-      <div style={sectionCard}>
-        <div className="lb-eyebrow" style={{ marginBottom: 12 }}>
-          INGREDIËNTEN
-        </div>
+      <div className="border-[0.5px] border-ink/14 rounded-[13px] p-4">
+        <div className="lb-eyebrow mb-3">INGREDIËNTEN</div>
         <Controller
           name="ingredients"
           control={control}
@@ -207,11 +179,8 @@ const RecipeForm = ({
         />
       </div>
 
-      {/* Steps */}
-      <div style={sectionCard}>
-        <div className="lb-eyebrow" style={{ marginBottom: 12 }}>
-          INSTRUCTIES
-        </div>
+      <div className="border-[0.5px] border-ink/14 rounded-[13px] p-4">
+        <div className="lb-eyebrow mb-3">INSTRUCTIES</div>
         <Controller
           name="steps"
           control={control}
@@ -222,7 +191,6 @@ const RecipeForm = ({
               labels={stepLabels}
               commonSections={['Voorbereiding', 'Bereiding', 'Assembleren']}
               ingredientOptions={ingredientOptions}
-              leafMultiline
               ordered
               reordering={isReordering}
             />
@@ -230,8 +198,7 @@ const RecipeForm = ({
         />
       </div>
 
-      {/* Tags + Sources */}
-      <div style={sectionCard}>
+      <div className="border-[0.5px] border-ink/14 rounded-[13px] p-4">
         <FormField label="Tags">
           <Controller
             name="tags"
@@ -245,7 +212,7 @@ const RecipeForm = ({
             )}
           />
         </FormField>
-        <div style={{ height: 18 }} />
+        <div className="h-[18px]" />
         <FormField label="Bronnen">
           <Controller
             name="sources"
@@ -258,56 +225,12 @@ const RecipeForm = ({
       </div>
 
       {errorMessage && (
-        <div
-          style={{
-            background: 'var(--bordeaux-tint)',
-            color: 'var(--bordeaux)',
-            padding: '10px 14px',
-            borderRadius: '0 12px 12px 0',
-            fontSize: 13,
-            fontWeight: 500,
-            borderLeft: '3px solid var(--bordeaux)',
-          }}
-        >
+        <div className="bg-bordeaux-tint text-bordeaux py-2.5 px-3.5 rounded-[0_12px_12px_0] text-[13px] font-medium border-l-[3px] border-l-bordeaux">
           {errorMessage}
         </div>
       )}
 
-      {createPortal(
-        <button
-          type="button"
-          onClick={() => setIsReordering((r) => !r)}
-          aria-label={isReordering ? 'Klaar met sorteren' : 'Volgorde aanpassen'}
-          style={{
-            position: 'fixed',
-            bottom: 'max(28px, env(safe-area-inset-bottom))',
-            right: 22,
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            background: isReordering ? 'var(--bordeaux-tint)' : 'var(--cream-card)',
-            border: isReordering
-              ? '0.5px solid rgba(107,31,42,0.22)'
-              : '0.5px solid rgba(31,29,26,0.18)',
-            boxShadow: isReordering
-              ? '0 1px 4px rgba(107,31,42,0.10)'
-              : '0 1px 4px rgba(0,0,0,0.08)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            zIndex: 90,
-            transition: 'background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease',
-          }}
-        >
-          {isReordering ? (
-            <Check size={16} strokeWidth={2.5} color="var(--bordeaux)" />
-          ) : (
-            <ArrowUpDown size={16} strokeWidth={2.1} color="var(--stone)" />
-          )}
-        </button>,
-        document.body,
-      )}
+      <ReorderFab active={isReordering} onToggle={() => setIsReordering((r) => !r)} />
     </form>
   )
 }

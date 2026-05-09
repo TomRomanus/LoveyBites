@@ -4,20 +4,7 @@ const DashedAddButton = ({ onClick, label }: { onClick: () => void; label: strin
   <button
     type="button"
     onClick={onClick}
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: 8,
-      padding: '9px 12px',
-      border: '1px dashed var(--stone-2)',
-      borderRadius: 9,
-      color: 'var(--stone)',
-      fontSize: 12,
-      background: 'none',
-      cursor: 'pointer',
-      minHeight: 38,
-      fontFamily: 'var(--sans)',
-    }}
+    className="flex items-center gap-2 px-3 py-[9px] border border-dashed border-stone-2 rounded-[9px] text-stone text-[12px] bg-none cursor-pointer min-h-[38px] font-sans"
   >
     <Plus size={11} strokeWidth={2.5} />
     {label}

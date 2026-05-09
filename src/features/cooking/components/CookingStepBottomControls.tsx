@@ -20,22 +20,10 @@ const CookingStepBottomControls = ({
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: 12 }}
     transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-    style={{ padding: '20px 20px 36px', flexShrink: 0 }}
+    className="py-5 px-5 pb-9 shrink-0"
   >
-    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6 }}>
-      <div
-        style={{
-          fontFamily: 'var(--mono)',
-          fontSize: 10,
-          letterSpacing: '0.14em',
-          textTransform: 'uppercase',
-          color: 'rgba(248,244,237,0.3)',
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 5,
-        }}
-      >
+    <div className="flex justify-center mb-[6px]">
+      <div className="font-mono text-[10px] tracking-[0.14em] uppercase overflow-hidden flex items-center gap-[5px] text-paper/30">
         STAP
         <AnimatePresence mode="popLayout" custom={stepDir}>
           <motion.span
@@ -56,7 +44,7 @@ const CookingStepBottomControls = ({
             animate="center"
             exit="exit"
             transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            style={{ display: 'inline-block' }}
+            className="inline-block"
           >
             {currentIndex + 1}
           </motion.span>
@@ -65,15 +53,7 @@ const CookingStepBottomControls = ({
       </div>
     </div>
 
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: 4,
-        marginBottom: 20,
-        alignItems: 'center',
-      }}
-    >
+    <div className="flex justify-center gap-1 mb-5 items-center">
       {Array.from({ length: total }).map((_, i) => (
         <motion.div
           key={i}
@@ -87,25 +67,19 @@ const CookingStepBottomControls = ({
                   : 'rgba(248,244,237,0.13)',
           }}
           transition={{ type: 'spring', stiffness: 420, damping: 30 }}
-          style={{ height: 5, borderRadius: 3, flexShrink: 0 }}
+          className="h-[5px] rounded-[3px] shrink-0"
         />
       ))}
     </div>
 
-    <div style={{ display: 'flex', gap: 10 }}>
+    <div className="flex gap-[10px]">
       <button
         onClick={() => onGoTo(currentIndex - 1)}
         disabled={currentIndex === 0}
+        className="w-[52px] h-[52px] rounded-[26px] bg-transparent flex items-center justify-center"
         style={{
-          width: 52,
-          height: 52,
-          borderRadius: 26,
-          background: 'transparent',
           border: `0.5px solid ${currentIndex === 0 ? 'rgba(248,244,237,0.15)' : 'rgba(248,244,237,0.38)'}`,
           color: currentIndex === 0 ? 'rgba(248,244,237,0.25)' : '#f8f4ed',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           cursor: currentIndex === 0 ? 'default' : 'pointer',
         }}
       >
@@ -114,22 +88,10 @@ const CookingStepBottomControls = ({
       <button
         onClick={() => (currentIndex < total - 1 ? onGoTo(currentIndex + 1) : undefined)}
         disabled={currentIndex === total - 1}
+        className="flex-1 h-[52px] rounded-[26px] border-0 text-paper text-[16px] font-medium font-sans inline-flex items-center justify-center overflow-hidden bg-bordeaux"
         style={{
-          flex: 1,
-          height: 52,
-          borderRadius: 26,
-          background: 'var(--bordeaux)',
-          border: 0,
-          color: '#f8f4ed',
-          fontSize: 16,
-          fontWeight: 500,
-          fontFamily: 'var(--sans)',
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           cursor: currentIndex < total - 1 ? 'pointer' : 'default',
           opacity: currentIndex === total - 1 ? 0.5 : 1,
-          overflow: 'hidden',
         }}
       >
         <AnimatePresence mode="popLayout" custom={stepDir}>
@@ -152,7 +114,7 @@ const CookingStepBottomControls = ({
               animate="center"
               exit="exit"
               transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+              className="flex items-center gap-2"
             >
               Volgende stap <ArrowRight size={16} />
             </motion.span>

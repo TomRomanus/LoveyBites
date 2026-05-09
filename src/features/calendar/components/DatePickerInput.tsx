@@ -60,48 +60,29 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
     : 'Kies datum'
 
   return (
-    <div ref={ref} style={{ position: 'relative', flex: 1 }}>
-      <div className="lb-eyebrow" style={{ marginBottom: 5 }}>
-        {label}
-      </div>
+    <div ref={ref} className="relative flex-1">
+      <div className="lb-eyebrow mb-[5px]">{label}</div>
       <button
         data-testid="date-picker-trigger"
         onClick={handleOpen}
+        className="w-full h-[46px] border-0 rounded-[14px] flex items-center gap-[9px] px-3 cursor-pointer transition-[background,box-shadow] duration-150 ease-[ease]"
         style={{
-          width: '100%',
-          height: 46,
           background: open ? 'var(--cream-card)' : 'var(--paper-2)',
-          border: 0,
-          borderRadius: 14,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 9,
-          padding: '0 12px',
-          cursor: 'pointer',
           boxShadow: open
             ? '0 0 0 1.5px var(--bordeaux), 0 2px 8px rgba(107,31,42,0.08)'
             : '0 0 0 0.5px var(--line)',
-          transition: 'background 0.15s ease, box-shadow 0.15s ease',
         }}
       >
-        <Calendar size={14} strokeWidth={1.8} color="var(--bordeaux)" style={{ flexShrink: 0 }} />
+        <Calendar size={14} strokeWidth={1.8} color="var(--bordeaux)" className="shrink-0" />
         <span
-          style={{
-            flex: 1,
-            textAlign: 'left',
-            fontFamily: 'var(--mono)',
-            fontSize: 13,
-            fontWeight: selected ? 500 : 400,
-            color: selected ? 'var(--ink)' : 'var(--stone)',
-            whiteSpace: 'nowrap',
-          }}
+          className={`flex-1 text-left font-mono text-[13px] whitespace-nowrap ${selected ? 'font-medium text-ink' : 'font-normal text-stone'}`}
         >
           {displayDate}
         </span>
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
-          style={{ display: 'flex', flexShrink: 0 }}
+          className="flex shrink-0"
         >
           <ChevronDown size={11} strokeWidth={2.2} color="var(--stone)" />
         </motion.span>
@@ -115,37 +96,19 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.97 }}
             transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            style={{
-              position: 'absolute',
-              top: 'calc(100% + 8px)',
-              ...(openLeft ? { right: 0 } : { left: 0 }),
-              zIndex: 400,
-              background: 'var(--cream-card)',
-              borderRadius: 18,
-              boxShadow: '0 10px 40px rgba(31,29,26,0.16), 0 0 0 0.5px rgba(31,29,26,0.08)',
-              padding: '14px 12px 12px',
-              width: 248,
-            }}
+            className="absolute top-[calc(100%+8px)] z-[400] bg-[var(--cream-card)] rounded-[18px] shadow-[0_10px_40px_rgba(31,29,26,0.16),0_0_0_0.5px_rgba(31,29,26,0.08)] p-[14px_12px_12px] w-[248px]"
+            style={openLeft ? { right: 0 } : { left: 0 }}
           >
             {/* Month navigation */}
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10, gap: 4 }}>
+            <div className="flex items-center mb-[10px] gap-1">
               <button
                 data-testid="date-picker-prev-month"
                 onClick={() => moveMonth(-1)}
-                style={{
-                  background: 'none',
-                  border: 0,
-                  padding: 5,
-                  color: 'var(--stone)',
-                  cursor: 'pointer',
-                  borderRadius: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
+                className="bg-transparent border-0 p-[5px] text-stone cursor-pointer rounded-[8px] flex items-center"
               >
                 <ChevronLeft size={13} strokeWidth={2.2} />
               </button>
-              <div style={{ flex: 1, overflow: 'hidden', textAlign: 'center' }}>
+              <div className="flex-1 overflow-hidden text-center">
                 <AnimatePresence mode="popLayout" custom={monthDir} initial={false}>
                   <motion.div
                     key={`label-${viewMonth.getFullYear()}-${viewMonth.getMonth()}`}
@@ -154,61 +117,28 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
                     initial="enter"
                     animate="center"
                     exit="exit"
-                    style={{
-                      fontFamily: 'var(--serif)',
-                      fontStyle: 'italic',
-                      fontSize: 14.5,
-                      fontWeight: 500,
-                      letterSpacing: '-0.01em',
-                    }}
+                    className="font-serif italic text-[14.5px] font-medium tracking-[-0.01em]"
                   >
-                    <span style={{ color: 'var(--bordeaux)' }}>
-                      {NL_MONTHS[viewMonth.getMonth()]}
-                    </span>{' '}
-                    <span style={{ color: 'var(--ink)' }}>{viewMonth.getFullYear()}</span>
+                    <span className="text-bordeaux">{NL_MONTHS[viewMonth.getMonth()]}</span>{' '}
+                    <span className="text-ink">{viewMonth.getFullYear()}</span>
                   </motion.div>
                 </AnimatePresence>
               </div>
               <button
                 data-testid="date-picker-next-month"
                 onClick={() => moveMonth(1)}
-                style={{
-                  background: 'none',
-                  border: 0,
-                  padding: 5,
-                  color: 'var(--stone)',
-                  cursor: 'pointer',
-                  borderRadius: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
+                className="bg-transparent border-0 p-[5px] text-stone cursor-pointer rounded-[8px] flex items-center"
               >
                 <ChevronRight size={13} strokeWidth={2.2} />
               </button>
             </div>
 
             {/* Day headers */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(7, 1fr)',
-                gap: 2,
-                marginBottom: 4,
-              }}
-            >
+            <div className="grid grid-cols-7 gap-[2px] mb-1">
               {NL_DAYS_GRID.map((d) => (
                 <div
                   key={d}
-                  style={{
-                    textAlign: 'center',
-                    fontFamily: 'var(--mono)',
-                    fontSize: 8,
-                    letterSpacing: '0.1em',
-                    color: 'var(--stone-2)',
-                    fontWeight: 600,
-                    textTransform: 'uppercase',
-                    padding: '0 0 3px',
-                  }}
+                  className="text-center font-mono text-[8px] tracking-[0.1em] text-stone-2 font-semibold uppercase pb-[3px]"
                 >
                   {d}
                 </div>
@@ -216,7 +146,7 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
             </div>
 
             {/* Calendar days */}
-            <div style={{ position: 'relative', overflow: 'hidden' }}>
+            <div className="relative overflow-hidden">
               <AnimatePresence mode="popLayout" custom={monthDir} initial={false}>
                 <motion.div
                   key={`grid-${viewMonth.getFullYear()}-${viewMonth.getMonth()}`}
@@ -225,7 +155,7 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 2 }}
+                  className="grid grid-cols-7 gap-[2px]"
                 >
                   {days.map((day) => {
                     const isSelected = selected ? isSameDay(day, selected) : false
@@ -239,41 +169,12 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
                           setOpen(false)
                         }}
                         whileTap={{ scale: 0.84 }}
-                        style={{
-                          height: 30,
-                          borderRadius: isSelected ? '50%' : 8,
-                          border: 0,
-                          background: isSelected ? 'var(--bordeaux)' : 'transparent',
-                          color: isSelected
-                            ? 'var(--cream-card)'
-                            : isToday
-                              ? 'var(--bordeaux)'
-                              : inMonth
-                                ? 'var(--ink)'
-                                : 'var(--stone-2)',
-                          fontFamily: 'var(--sans)',
-                          fontSize: 12.5,
-                          fontWeight: isSelected || isToday ? 600 : 400,
-                          cursor: 'pointer',
-                          opacity: inMonth ? 1 : 0.28,
-                          position: 'relative',
-                        }}
+                        className={`h-[30px] border-0 font-sans text-[12.5px] cursor-pointer relative ${isSelected ? 'bg-bordeaux rounded-full' : 'bg-transparent rounded-[8px]'} ${isSelected ? 'text-cream' : isToday ? 'text-bordeaux' : inMonth ? 'text-ink' : 'text-stone-2'} ${isSelected || isToday ? 'font-semibold' : 'font-normal'}`}
+                        style={{ opacity: inMonth ? 1 : 0.28 }}
                       >
                         {day.getDate()}
                         {isToday && !isSelected && (
-                          <span
-                            style={{
-                              position: 'absolute',
-                              bottom: 3,
-                              left: '50%',
-                              transform: 'translateX(-50%)',
-                              width: 3,
-                              height: 3,
-                              borderRadius: '50%',
-                              background: 'var(--bordeaux)',
-                              display: 'block',
-                            }}
-                          />
+                          <span className="absolute bottom-[3px] left-1/2 -translate-x-1/2 w-[3px] h-[3px] rounded-full bg-bordeaux block" />
                         )}
                       </motion.button>
                     )

@@ -33,57 +33,25 @@ const RecipeUrlImport = ({ onExtracted }: Props) => {
   if (done) return null
 
   return (
-    <form onSubmit={handleImport} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <form onSubmit={handleImport} className="flex flex-col gap-4">
       <div>
-        <div className="lb-eyebrow" style={{ marginBottom: 8 }}>
-          Link
-        </div>
+        <div className="lb-eyebrow mb-2">Link</div>
         <input
           type="url"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://…"
           disabled={loading}
-          style={{
-            width: '100%',
-            background: 'var(--cream-card)',
-            border: '0.5px solid rgba(31,29,26,0.14)',
-            borderRadius: 12,
-            padding: '13px 14px',
-            fontFamily: 'var(--sans)',
-            fontSize: 15,
-            color: 'var(--ink)',
-            outline: 'none',
-            boxSizing: 'border-box',
-            opacity: loading ? 0.5 : 1,
-          }}
+          className={`w-full bg-cream border-[0.5px] border-ink/14 rounded-[12px] px-[14px] py-[13px] font-sans text-[15px] text-ink outline-none box-border ${loading ? 'opacity-50' : 'opacity-100'}`}
         />
       </div>
 
-      <p
-        style={{
-          margin: 0,
-          fontSize: 13,
-          color: 'var(--stone)',
-          textAlign: 'center',
-          lineHeight: 1.5,
-        }}
-      >
+      <p className="m-0 text-[13px] text-stone text-center leading-[1.5]">
         Plak een link van een receptenwebsite of TikTok-video
       </p>
 
       {error && (
-        <div
-          style={{
-            background: 'var(--bordeaux-tint)',
-            color: 'var(--bordeaux)',
-            padding: '10px 14px',
-            borderRadius: '0 12px 12px 0',
-            fontSize: 13,
-            fontWeight: 500,
-            borderLeft: '3px solid var(--bordeaux)',
-          }}
-        >
+        <div className="bg-bordeaux-tint text-bordeaux px-[14px] py-[10px] rounded-[0_12px_12px_0] text-[13px] font-medium border-l-[3px] border-bordeaux">
           {error}
         </div>
       )}
@@ -91,8 +59,7 @@ const RecipeUrlImport = ({ onExtracted }: Props) => {
       <button
         type="submit"
         disabled={loading || !url.trim()}
-        className="lb-btn lb-btn--primary"
-        style={{ width: '100%', height: 40, borderRadius: 20, fontSize: 13 }}
+        className="lb-btn lb-btn--primary w-full h-10 rounded-[20px] text-[13px]"
       >
         {loading ? (
           <>

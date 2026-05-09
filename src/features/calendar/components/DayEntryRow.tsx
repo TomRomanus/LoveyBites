@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import type { MealPlanEntry, Recipe } from '@/features/recipe/types/recipe'
+import type { MealPlanEntry } from '@/features/calendar/types/calendar'
+import type { Recipe } from '@/features/recipe/types/recipe'
 
 type DayEntryRowProps = {
   entry: MealPlanEntry
@@ -27,41 +28,15 @@ const DayEntryRow = ({ entry, recipe, onDelete }: DayEntryRowProps) => {
         x: 6,
         transition: { duration: 0.18, ease: [0.4, 0, 1, 1] },
       }}
-      style={{ overflow: 'hidden' }}
+      className="overflow-hidden"
     >
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          padding: '10px 0',
-          borderBottom: '0.5px solid var(--line-soft)',
-        }}
-      >
+      <div className="flex items-center gap-2 py-[10px] border-b border-[0.5px] border-ink/10">
         <div
-          style={{
-            width: 2.5,
-            alignSelf: 'stretch',
-            borderRadius: 2,
-            flexShrink: 0,
-            background: recipe ? 'var(--bordeaux)' : 'var(--stone)',
-          }}
+          className={`w-[2.5px] self-stretch rounded-[2px] shrink-0 ${recipe ? 'bg-bordeaux' : 'bg-stone'}`}
         />
         <span
           onClick={() => recipe && nav(`/recipe/${recipe.id}`)}
-          style={{
-            flex: 1,
-            fontFamily: 'var(--serif)',
-            fontStyle: 'italic',
-            fontSize: 16,
-            lineHeight: 1.25,
-            fontWeight: 500,
-            color: recipe ? 'var(--bordeaux)' : 'var(--stone)',
-            cursor: recipe ? 'pointer' : 'default',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
+          className={`flex-1 font-serif italic text-base leading-[1.25] font-medium overflow-hidden text-ellipsis whitespace-nowrap ${recipe ? 'text-bordeaux cursor-pointer' : 'text-stone cursor-default'}`}
         >
           {recipe ? recipe.title : entry.customDescription}
         </span>
@@ -69,17 +44,7 @@ const DayEntryRow = ({ entry, recipe, onDelete }: DayEntryRowProps) => {
           data-testid="delete-entry-btn"
           onClick={() => onDelete(entry.id)}
           whileTap={{ scale: 0.78 }}
-          style={{
-            background: 'none',
-            border: 0,
-            padding: 0,
-            marginLeft: 1,
-            color: 'var(--stone-2)',
-            cursor: 'pointer',
-            flexShrink: 0,
-            display: 'flex',
-            alignItems: 'center',
-          }}
+          className="bg-transparent border-0 p-0 ml-[1px] text-stone-2 cursor-pointer shrink-0 flex items-center"
         >
           <X size={12} strokeWidth={2.5} />
         </motion.button>

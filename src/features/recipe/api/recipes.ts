@@ -19,13 +19,13 @@ const recipesCol = collection(db, 'recipes')
 export const getRecipes = async (): Promise<Recipe[]> => {
   const q = query(recipesCol, orderBy('createdAt', 'desc'))
   const snapshot = await getDocs(q)
-  return snapshot.docs.map((d) => recipeSchema.parse({ id: d.id, ...d.data() }))
+  return snapshot.docs.map((d) => recipeSchema.parse({ id: d.id, ...d.data() }) as Recipe)
 }
 
 export const getRecipe = async (id: string): Promise<Recipe | null> => {
   const snapshot = await getDoc(doc(db, 'recipes', id))
   if (!snapshot.exists()) return null
-  return recipeSchema.parse({ id: snapshot.id, ...snapshot.data() })
+  return recipeSchema.parse({ id: snapshot.id, ...snapshot.data() }) as Recipe
 }
 
 export const createRecipe = async (data: RecipeInput): Promise<string> => {

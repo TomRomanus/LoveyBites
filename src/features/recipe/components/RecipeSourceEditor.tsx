@@ -50,24 +50,11 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
     }
   }
 
-  const dashedBtn: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '9px 12px',
-    border: '1px dashed var(--stone-2)',
-    borderRadius: 9,
-    color: 'var(--stone)',
-    fontSize: 12,
-    background: 'none',
-    cursor: 'pointer',
-    minHeight: 38,
-    fontFamily: 'var(--sans)',
-    width: '100%',
-  }
+  const dashedBtnCls =
+    'flex items-center gap-2 px-3 py-[9px] border border-dashed border-stone-2 rounded-[9px] text-stone text-[12px] bg-none cursor-pointer min-h-[38px] font-sans w-full'
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div className="flex flex-col gap-2">
       <AnimatePresence mode="popLayout" initial={false}>
         {sources.map((source, i) => (
           <motion.div
@@ -77,30 +64,12 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
             exit={{ opacity: 0, y: -6, transition: { duration: 0.13, ease: 'easeIn' } }}
             layout
             transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            style={{
-              background: 'transparent',
-              border: '0.5px solid rgba(31,29,26,0.20)',
-              borderRadius: 10,
-              padding: '10px 12px',
-              position: 'relative',
-            }}
+            className="bg-transparent border-[0.5px] border-ink/20 rounded-[10px] px-3 py-[10px] relative"
           >
             <button
               type="button"
               onClick={() => remove(i)}
-              style={{
-                position: 'absolute',
-                top: 8,
-                right: 8,
-                background: 'none',
-                border: 0,
-                color: 'var(--stone-2)',
-                cursor: 'pointer',
-                padding: 4,
-                display: 'flex',
-                alignItems: 'center',
-                opacity: 0.8,
-              }}
+              className="absolute top-2 right-2 bg-none border-0 text-stone-2 cursor-pointer p-1 flex items-center opacity-80"
               aria-label="Verwijder bron"
             >
               <X size={11} strokeWidth={2.2} />
@@ -110,41 +79,20 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
               value={source.label}
               onChange={(e) => update(i, 'label', e.target.value)}
               placeholder="Naam (optioneel)"
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 0,
-                outline: 'none',
-                fontSize: 13,
-                color: 'var(--ink)',
-                fontFamily: 'var(--sans)',
-                paddingRight: 28,
-                paddingBottom: 6,
-                borderBottom: '0.5px solid var(--line)',
-              }}
+              className="w-full bg-transparent border-0 border-b-[0.5px] border-ink/14 outline-none text-[13px] text-ink font-sans pr-7 pb-[6px]"
             />
             <input
               type="url"
               value={source.url}
               onChange={(e) => update(i, 'url', e.target.value)}
               placeholder="https://..."
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 0,
-                outline: 'none',
-                fontSize: 12,
-                color: source.url ? '#722F37' : 'var(--stone)',
-                fontFamily: 'var(--sans)',
-                fontStyle: 'italic',
-                marginTop: 7,
-              }}
+              className={`w-full bg-transparent border-0 outline-none text-[12px] font-sans italic mt-[7px] ${source.url ? 'text-[#722F37]' : 'text-stone'}`}
             />
           </motion.div>
         ))}
       </AnimatePresence>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <button type="button" onClick={add} style={dashedBtn}>
+      <div className="flex flex-col gap-1.5">
+        <button type="button" onClick={add} className={dashedBtnCls}>
           <Plus size={11} strokeWidth={2.5} />
           bron toevoegen
         </button>
@@ -152,11 +100,7 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          style={{
-            ...dashedBtn,
-            color: uploading ? 'var(--stone-2)' : 'var(--stone)',
-            cursor: uploading ? 'default' : 'pointer',
-          }}
+          className={`${dashedBtnCls} ${uploading ? 'text-stone-2 cursor-default' : 'text-stone cursor-pointer'}`}
         >
           <Upload size={11} strokeWidth={2.5} />
           {uploading ? 'uploaden…' : 'afbeelding uploaden'}
@@ -165,7 +109,7 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
           ref={fileInputRef}
           type="file"
           accept="image/*"
-          style={{ display: 'none' }}
+          className="hidden"
           onChange={handleFileChange}
         />
       </div>

@@ -43,42 +43,11 @@ const listItem = {
   },
 }
 
-const circleBtn: React.CSSProperties = {
-  width: 40,
-  height: 40,
-  borderRadius: 20,
-  background: 'transparent',
-  border: '0.5px solid var(--line)',
-  color: 'var(--ink)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  cursor: 'pointer',
-  flexShrink: 0,
-}
-
-const monoTitle: React.CSSProperties = {
-  fontFamily: 'var(--mono)',
-  fontSize: 11,
-  letterSpacing: '0.12em',
-  textTransform: 'uppercase',
-  color: 'var(--stone)',
-  fontWeight: 500,
-}
-
-const headerStyle: React.CSSProperties = {
-  position: 'sticky',
-  top: 0,
-  background: 'rgba(248, 244, 237, 0.92)',
-  backdropFilter: 'blur(10px)',
-  WebkitBackdropFilter: 'blur(10px)',
-  zIndex: 10,
-  padding: '24px 20px 14px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  borderBottom: '0.5px solid var(--line)',
-}
+const circleBtnCls =
+  'w-10 h-10 rounded-[20px] bg-transparent border-[0.5px] border-ink/14 text-ink flex items-center justify-center cursor-pointer shrink-0'
+const monoTitleCls = 'font-mono text-[11px] tracking-[0.12em] uppercase text-stone font-medium'
+const headerCls =
+  'sticky top-0 bg-[rgba(248,244,237,0.92)] backdrop-blur-[10px] z-10 px-5 pt-6 pb-[14px] flex items-center justify-between border-b-[0.5px] border-ink/14'
 
 type ModeChooserProps = {
   onSelect: (mode: Mode) => void
@@ -87,15 +56,15 @@ type ModeChooserProps = {
 
 const ModeChooser = ({ onSelect, onClose }: ModeChooserProps) => (
   <>
-    <div style={headerStyle}>
-      <button data-testid="form-close-btn" onClick={onClose} style={circleBtn}>
+    <div className={headerCls}>
+      <button data-testid="form-close-btn" onClick={onClose} className={circleBtnCls}>
         <X size={13} strokeWidth={2.2} />
       </button>
-      <div style={monoTitle}>Nieuw recept</div>
-      <div style={{ width: 40 }} />
+      <div className={monoTitleCls}>Nieuw recept</div>
+      <div className="w-10" />
     </div>
     <motion.div
-      style={{ padding: '8px 20px 40px' }}
+      className="px-5 pt-2 pb-10"
       variants={listContainer}
       initial="hidden"
       animate="visible"
@@ -105,44 +74,12 @@ const ModeChooser = ({ onSelect, onClose }: ModeChooserProps) => (
           key={modeId}
           variants={listItem}
           onClick={() => onSelect(modeId)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 14,
-            width: '100%',
-            padding: '16px 4px',
-            textAlign: 'left',
-            cursor: 'pointer',
-            background: 'transparent',
-            border: 'none',
-            borderBottom: index < MODES.length - 1 ? '0.5px solid var(--line)' : 'none',
-          }}
+          className={`flex items-center gap-[14px] w-full px-1 py-4 text-left cursor-pointer bg-transparent border-none ${index < MODES.length - 1 ? 'border-b-[0.5px] border-ink/14' : ''}`}
         >
-          <div
-            style={{
-              width: 20,
-              flexShrink: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--bordeaux)',
-            }}
-          >
-            {icon}
-          </div>
-          <div style={{ flex: 1 }}>
-            <div
-              style={{
-                fontFamily: 'var(--serif)',
-                fontStyle: 'italic',
-                fontSize: 17,
-                fontWeight: 500,
-                color: 'var(--ink)',
-              }}
-            >
-              {label}
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--stone)', marginTop: 2 }}>{description}</div>
+          <div className="w-5 shrink-0 flex items-center justify-center text-bordeaux">{icon}</div>
+          <div className="flex-1">
+            <div className="font-serif italic text-[17px] font-medium text-ink">{label}</div>
+            <div className="text-[12px] text-stone mt-0.5">{description}</div>
           </div>
           <ChevronRight size={14} strokeWidth={1.6} color="var(--stone-2)" />
         </motion.button>

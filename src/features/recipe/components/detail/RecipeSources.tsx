@@ -5,22 +5,12 @@ type RecipeSourcesProps = {
 }
 
 const RecipeSources = ({ sources }: RecipeSourcesProps) => (
-  <div style={{ padding: '28px 22px 0' }}>
+  <div className="px-[22px] pt-7">
     <div className="lb-eyebrow">DEEL III</div>
-    <h2
-      style={{
-        margin: '4px 0 16px',
-        fontSize: 24,
-        fontFamily: 'var(--serif)',
-        fontStyle: 'italic',
-        fontWeight: 500,
-        letterSpacing: '-0.02em',
-        lineHeight: 1.05,
-      }}
-    >
+    <h2 className="mt-1 mb-4 text-[24px] font-serif italic font-medium tracking-[-0.02em] leading-[1.05]">
       Bronnen
     </h2>
-    <div style={{ marginTop: 0 }}>
+    <div>
       {sources.map((s, i) => (
         <a
           key={i}
@@ -36,27 +26,10 @@ const RecipeSources = ({ sources }: RecipeSourcesProps) => (
               window.location.href = s.url
             }
           }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            padding: '10px 0',
-            color: 'var(--ink)',
-            textDecoration: 'none',
-            borderBottom: '0.5px solid var(--line-soft)',
-          }}
+          className="flex items-center gap-[10px] py-[10px] text-ink no-underline border-b-[0.5px] border-ink/14"
         >
           <Link size={16} strokeWidth={1.6} color="var(--bordeaux)" />
-          <span
-            style={{
-              fontSize: 14,
-              fontStyle: 'italic',
-              fontFamily: 'var(--serif)',
-              color: 'var(--bordeaux)',
-            }}
-          >
-            {s.label || s.url}
-          </span>
+          <span className="text-[14px] italic font-serif text-bordeaux">{s.label || s.url}</span>
         </a>
       ))}
     </div>

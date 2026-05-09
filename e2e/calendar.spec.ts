@@ -223,15 +223,15 @@ test.describe('Calendar — navigation', () => {
   test('switching to month view shows calendar grid', async ({ page }) => {
     await gotoCalendar(page)
     await page.click('button:has-text("MAAND")')
-    await expect(page.locator('button[style*="border-radius: 10px"]').first()).toBeVisible()
+    await expect(page.locator('[data-testid="month-day-btn"]').first()).toBeVisible()
   })
 
   test('clicking a day in month view opens day detail sheet', async ({ page }) => {
     await resetMealPlan()
     await gotoCalendar(page)
     await page.click('button:has-text("MAAND")')
-    await expect(page.locator('button[style*="border-radius: 10px"]').first()).toBeVisible()
-    await page.locator('button[style*="border-radius: 10px"]').first().click()
+    await expect(page.locator('[data-testid="month-day-btn"]').first()).toBeVisible()
+    await page.locator('[data-testid="month-day-btn"]').first().click()
     // Day detail sheet opens showing empty state
     await expect(page.getByText('Nog niets gepland.').first()).toBeVisible()
   })
@@ -241,11 +241,8 @@ test.describe('Calendar — navigation', () => {
     await seedMealPlanEntry('test-pasta-001')
     await gotoCalendar(page)
     await page.click('button:has-text("MAAND")')
-    await expect(page.locator('button[style*="border-radius: 10px"]').first()).toBeVisible()
-    const todayBtn = page
-      .locator('button[style*="border-radius: 10px"]')
-      .filter({ has: page.locator('div[style*="var(--bordeaux)"]') })
-      .first()
+    await expect(page.locator('[data-testid="month-day-btn"]').first()).toBeVisible()
+    const todayBtn = page.locator('[data-testid="month-day-btn"][data-today="true"]').first()
     await todayBtn.click()
     const recipeTitle = page
       .locator('.lb-sheet span')
@@ -274,11 +271,11 @@ test.describe('Calendar — day detail sheet', () => {
 
     // Switch to month view
     await page.click('button:has-text("MAAND")')
-    await expect(page.locator('button[style*="border-radius: 10px"]').first()).toBeVisible()
+    await expect(page.locator('[data-testid="month-day-btn"]').first()).toBeVisible()
 
     // Find the month-grid button that contains the Tomatensoep label
     const dayWithEntry = page
-      .locator('button[style*="border-radius: 10px"]')
+      .locator('[data-testid="month-day-btn"]')
       .filter({ has: page.locator('span').filter({ hasText: /Tomaten/ }) })
       .first()
     await expect(dayWithEntry).toBeVisible({ timeout: 5_000 })

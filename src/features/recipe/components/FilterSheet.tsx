@@ -19,80 +19,43 @@ const FilterSheet = ({ visible, activeTags, allTags, onChange, onClose }: Filter
 
   return (
     <Sheet visible={visible} onClose={onClose}>
-      <div
-        style={{
-          padding: '12px 20px 0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        <h3 className="lb-display" style={{ margin: 0, fontSize: 22 }}>
-          Filter op tag
-        </h3>
+      <div className="px-5 pt-3 flex items-center justify-between">
+        <h3 className="lb-display m-0 text-[22px]">Filter op tag</h3>
         {activeTags.length > 0 && (
           <button
             onClick={() => onChange([])}
-            style={{
-              background: 'none',
-              border: 0,
-              color: 'var(--bordeaux)',
-              fontSize: 13,
-              fontWeight: 500,
-              cursor: 'pointer',
-            }}
+            className="bg-none border-0 text-bordeaux text-[13px] font-medium cursor-pointer"
           >
             Alles wissen
           </button>
         )}
       </div>
-      <div style={{ padding: '14px 20px 0' }}>
-        <div style={{ position: 'relative' }}>
-          <div
-            style={{
-              position: 'absolute',
-              left: 14,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--stone)',
-              pointerEvents: 'none',
-            }}
-          >
+      <div className="px-5 pt-[14px]">
+        <div className="relative">
+          <div className="absolute left-[14px] top-1/2 -translate-y-1/2 text-stone pointer-events-none">
             <Search size={16} strokeWidth={1.6} />
           </div>
           <input
-            className="lb-input"
+            className="lb-input pl-10 h-10"
             placeholder="Zoek tags"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            style={{ paddingLeft: 40, height: 40 }}
             autoFocus
           />
         </div>
       </div>
-      <div
-        style={{
-          padding: '16px 20px 20px',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 8,
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          flex: 1,
-        }}
-      >
+      <div className="px-5 pt-4 pb-5 flex flex-wrap gap-2 overflow-y-auto overflow-x-hidden flex-1">
         {filtered.map((t) => {
           const isActive = activeTags.includes(t)
           return (
             <motion.button
               key={t}
               type="button"
-              className="lb-tag"
+              className="lb-tag cursor-pointer gap-1"
               data-active={isActive ? 'true' : 'false'}
               onClick={() => toggle(t)}
               layout
               transition={{ layout: { type: 'spring', stiffness: 400, damping: 32 } }}
-              style={{ cursor: 'pointer', gap: 4 }}
             >
               <AnimatePresence mode="popLayout">
                 {isActive && (
@@ -102,7 +65,7 @@ const FilterSheet = ({ visible, activeTags, allTags, onChange, onClose }: Filter
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0, opacity: 0 }}
                     transition={{ type: 'spring', stiffness: 420, damping: 25 }}
-                    style={{ display: 'inline-flex' }}
+                    className="inline-flex"
                   >
                     <Check size={14} strokeWidth={2.5} />
                   </motion.span>
@@ -113,13 +76,11 @@ const FilterSheet = ({ visible, activeTags, allTags, onChange, onClose }: Filter
           )
         })}
         {filtered.length === 0 && (
-          <div style={{ fontSize: 13, color: 'var(--stone)' }}>
-            Geen tags voor &ldquo;{q}&rdquo;.
-          </div>
+          <div className="text-[13px] text-stone">Geen tags voor &ldquo;{q}&rdquo;.</div>
         )}
       </div>
-      <div style={{ padding: '0 20px 14px', flexShrink: 0 }}>
-        <button onClick={onClose} className="lb-btn lb-btn--primary" style={{ width: '100%' }}>
+      <div className="px-5 pb-[14px] shrink-0">
+        <button onClick={onClose} className="lb-btn lb-btn--primary w-full">
           Toepassen
         </button>
       </div>

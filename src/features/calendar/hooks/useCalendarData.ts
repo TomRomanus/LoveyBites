@@ -1,35 +1,49 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getMealPlanEntries } from '@/features/calendar/api/mealPlan'
 import { getRecipe } from '@/features/recipe/api/recipes'
-import type { MealPlanEntry, Recipe } from '@/features/recipe/types/recipe'
+import { calendarKeys } from '@/features/calendar/api/queryKeys'
+import type { MealPlanEntry } from '@/features/calendar/types/calendar'
+import type { Recipe } from '@/features/recipe/types/recipe'
 
-const useCalendarData = (visibleStartISO: string, visibleEndISO: string) => {
-  const [entries, setEntries] = useState<MealPlanEntry[]>([])
-  const [recipeMap, setRecipeMap] = useState<Map<string, Recipe>>(new Map())
-  const [loading, setLoading] = useState(true)
+type CalendarData = { entries: MealPlanEntry[]; recipeMap: Map<string, Recipe> }
 
-  const load = useCallback(async () => {
-    const es = await getMealPlanEntries(visibleStartISO, visibleEndISO)
-    setEntries(es)
-    const ids = [...new Set(es.map((e) => e.recipeId).filter(Boolean) as string[])]
-    const pairs = await Promise.all(
-      ids.map(async (id) => {
-        const r = await getRecipe(id)
-        return r ? ([id, r] as [string, Recipe]) : null
-      }),
+const fetchCalendarData = async (startISO: string, endISO: string): Promise<CalendarData> => {
+  const entries = await getMealPlanEntries(startISO, endISO)
+  const ids = [...new Set(entries.map((e) => e.recipeId).filter(Boolean) as string[])]
+  const pairs = await Promise.all(
+    ids.map(async (id) => {
+      const r = await getRecipe(id)
+      return r ? ([id, r] as [string, Recipe]) : null
+    }),
+  )
+  const recipeMap = new Map<string, Recipe>()
+  pairs.forEach((p) => p && recipeMap.set(p[0], p[1]))
+  return { entries, recipeMap }
+}
+
+const useCalendarData = (startISO: string, endISO: string) => {
+  const queryClient = useQueryClient()
+  const key = calendarKeys.entries(startISO, endISO)
+
+  const { data, isLoading } = useQuery({
+    queryKey: key,
+    queryFn: () => fetchCalendarData(startISO, endISO),
+  })
+
+  const removeEntry = (id: string) =>
+    queryClient.setQueryData<CalendarData>(key, (old) =>
+      old ? { ...old, entries: old.entries.filter((e) => e.id !== id) } : old,
     )
-    const map = new Map<string, Recipe>()
-    pairs.forEach((p) => p && map.set(p[0], p[1]))
-    setRecipeMap(map)
-    setLoading(false)
-  }, [visibleStartISO, visibleEndISO])
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load()
-  }, [load])
+  const reload = () => queryClient.invalidateQueries({ queryKey: key })
 
-  return { entries, setEntries, recipeMap, loading, reload: load }
+  return {
+    entries: data?.entries ?? [],
+    recipeMap: data?.recipeMap ?? new Map<string, Recipe>(),
+    loading: isLoading,
+    removeEntry,
+    reload,
+  }
 }
 
 export default useCalendarData

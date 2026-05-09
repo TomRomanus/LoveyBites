@@ -20,7 +20,7 @@ const CalendarNavControls = ({
   onToday,
 }: CalendarNavControlsProps) => {
   return (
-    <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
+    <div className="pt-5 px-5 flex flex-col gap-[10px]">
       <AnimatedTabBar
         layoutId="calendar-tabs"
         tabs={[
@@ -31,37 +31,29 @@ const CalendarNavControls = ({
         onChange={onSwitch}
         variant="underline"
       />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="flex items-center gap-[10px]">
         <motion.button
           data-testid="prev-period-btn"
           onClick={onPrev}
-          className="lb-icon-btn"
+          className="lb-icon-btn w-10 h-10"
           whileTap={{ scale: 0.88 }}
-          style={{ width: 40, height: 40 }}
         >
           <ChevronLeft size={18} />
         </motion.button>
         <motion.button
           onClick={onToday}
           disabled={isCurrentPeriod}
-          className="lb-btn lb-btn--ghost lb-btn--small"
+          className="lb-btn lb-btn--ghost lb-btn--small flex-1 h-10 rounded-full text-[13px]"
           whileTap={{ scale: 0.95 }}
-          style={{
-            flex: 1,
-            height: 40,
-            borderRadius: 20,
-            fontSize: 13,
-            opacity: isCurrentPeriod ? 0.45 : 1,
-          }}
+          style={{ opacity: isCurrentPeriod ? 0.45 : 1 }}
         >
           Vandaag
         </motion.button>
         <motion.button
           data-testid="next-period-btn"
           onClick={onNext}
-          className="lb-icon-btn"
+          className="lb-icon-btn w-10 h-10"
           whileTap={{ scale: 0.88 }}
-          style={{ width: 40, height: 40 }}
         >
           <ChevronRight size={18} />
         </motion.button>

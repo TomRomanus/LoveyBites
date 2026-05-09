@@ -7,22 +7,12 @@ type RecipeEmptyStateProps = {
 }
 
 const RecipeEmptyState = ({ hasFilters, onClearFilters, onAddFirst }: RecipeEmptyStateProps) => (
-  <div style={{ padding: '60px 32px', textAlign: 'center' }}>
-    <div
-      style={{
-        fontSize: 48,
-        marginBottom: 12,
-        fontFamily: 'var(--serif)',
-        fontStyle: 'italic',
-        color: 'var(--bordeaux)',
-      }}
-    >
-      ·
-    </div>
-    <h2 className="lb-display" style={{ margin: 0, fontSize: 26 }}>
+  <div className="px-8 pt-[60px] text-center">
+    <div className="text-[48px] mb-3 font-serif italic text-bordeaux">·</div>
+    <h2 className="lb-display m-0 text-[26px]">
       {hasFilters ? 'Niets gevonden' : 'Je boek is nog leeg'}
     </h2>
-    <p style={{ margin: '10px 0 24px', color: 'var(--stone)', fontSize: 14, lineHeight: 1.5 }}>
+    <p className="mt-[10px] mb-6 text-stone text-[14px] leading-[1.5]">
       {hasFilters
         ? 'Probeer andere woorden of wis de filters.'
         : 'Begin met het bewaren van je eerste favoriete recept.'}

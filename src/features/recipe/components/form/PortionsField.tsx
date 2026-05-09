@@ -6,7 +6,7 @@ type PortionsFieldProps = {
   value: number
   onChange: (v: number) => void
   label?: string
-  onLabelChange: (label: string | undefined) => void
+  onLabelChange: (label: 'pers' | 'stuks' | undefined) => void
 }
 
 const PortionsField = ({ value, onChange, label, onLabelChange }: PortionsFieldProps) => {
@@ -14,27 +14,11 @@ const PortionsField = ({ value, onChange, label, onLabelChange }: PortionsFieldP
   const [labelDir, setLabelDir] = useState<'up' | 'down' | null>(null)
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 12,
-      }}
-    >
+    <div className="flex items-center justify-between gap-3">
       <span className="lb-eyebrow">PORTIES</span>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div className="flex items-center gap-2">
         {/* Pers/stuks toggle with sliding pill */}
-        <div
-          style={{
-            position: 'relative',
-            display: 'flex',
-            background: 'var(--paper-2)',
-            borderRadius: 18,
-            padding: 3,
-            height: 36,
-          }}
-        >
+        <div className="relative flex bg-paper-2 rounded-[18px] p-[3px] h-9">
           {(['pers', 'stuks'] as const).map((opt) => {
             const active = (label || 'pers') === opt
             return (
@@ -45,37 +29,12 @@ const PortionsField = ({ value, onChange, label, onLabelChange }: PortionsFieldP
                   setLabelDir(opt === 'stuks' ? 'up' : 'down')
                   onLabelChange(opt === 'pers' ? undefined : opt)
                 }}
-                style={{
-                  position: 'relative',
-                  zIndex: 1,
-                  height: 30,
-                  padding: '0 12px',
-                  borderRadius: 14,
-                  border: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  background: 'transparent',
-                  color: active ? 'var(--ink)' : 'var(--stone)',
-                  fontFamily: 'var(--mono)',
-                  fontSize: 11,
-                  fontWeight: 500,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.06em',
-                  cursor: 'pointer',
-                  transition: 'color 0.15s',
-                }}
+                className={`relative z-[1] h-[30px] px-3 rounded-[14px] border-0 flex items-center bg-transparent font-mono text-[11px] font-medium uppercase tracking-[0.06em] cursor-pointer transition-colors duration-150 ${active ? 'text-ink' : 'text-stone'}`}
               >
                 {active && (
                   <motion.div
                     layoutId="portions-label-pill"
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      borderRadius: 14,
-                      background: 'var(--cream-card)',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
-                      zIndex: -1,
-                    }}
+                    className="absolute inset-0 rounded-[14px] bg-cream shadow-[0_1px_2px_rgba(0,0,0,0.06)] -z-[1]"
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
@@ -85,52 +44,19 @@ const PortionsField = ({ value, onChange, label, onLabelChange }: PortionsFieldP
           })}
         </div>
         {/* Portion stepper with animated number */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            background: 'var(--paper-2)',
-            borderRadius: 18,
-            padding: 3,
-            height: 36,
-          }}
-        >
+        <div className="flex items-center bg-paper-2 rounded-[18px] p-[3px] h-9">
           <button
             type="button"
             onClick={() => {
               setPortionDir('down')
               onChange(Math.max(1, value - 1))
             }}
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: 14,
-              background: 'var(--cream-card)',
-              border: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
-              cursor: 'pointer',
-            }}
+            className="w-[30px] h-[30px] rounded-[14px] bg-cream border-0 flex items-center justify-center shadow-[0_1px_2px_rgba(0,0,0,0.06)] cursor-pointer"
           >
             <Minus size={14} strokeWidth={2.4} />
           </button>
-          <div
-            style={{
-              minWidth: 72,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 4,
-              fontFamily: 'var(--mono)',
-              fontSize: 12,
-              color: 'var(--ink)',
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-            }}
-          >
-            <div style={{ overflow: 'hidden', position: 'relative' }}>
+          <div className="min-w-[72px] flex items-center justify-center gap-1 font-mono text-[12px] text-ink tracking-[0.08em] uppercase">
+            <div className="overflow-hidden relative">
               <AnimatePresence mode="popLayout" custom={portionDir}>
                 <motion.span
                   key={value}
@@ -150,13 +76,13 @@ const PortionsField = ({ value, onChange, label, onLabelChange }: PortionsFieldP
                   animate="center"
                   exit="exit"
                   transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                  style={{ display: 'block' }}
+                  className="block"
                 >
                   {value}
                 </motion.span>
               </AnimatePresence>
             </div>
-            <div style={{ overflow: 'hidden', position: 'relative' }}>
+            <div className="overflow-hidden relative">
               <AnimatePresence mode="popLayout" custom={labelDir}>
                 <motion.span
                   key={label || 'pers'}
@@ -176,7 +102,7 @@ const PortionsField = ({ value, onChange, label, onLabelChange }: PortionsFieldP
                   animate="center"
                   exit="exit"
                   transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-                  style={{ display: 'block' }}
+                  className="block"
                 >
                   {label || 'pers'}
                 </motion.span>
@@ -189,18 +115,7 @@ const PortionsField = ({ value, onChange, label, onLabelChange }: PortionsFieldP
               setPortionDir('up')
               onChange(value + 1)
             }}
-            style={{
-              width: 30,
-              height: 30,
-              borderRadius: 14,
-              background: 'var(--cream-card)',
-              border: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
-              cursor: 'pointer',
-            }}
+            className="w-[30px] h-[30px] rounded-[14px] bg-cream border-0 flex items-center justify-center shadow-[0_1px_2px_rgba(0,0,0,0.06)] cursor-pointer"
           >
             <Plus size={14} strokeWidth={2.4} />
           </button>

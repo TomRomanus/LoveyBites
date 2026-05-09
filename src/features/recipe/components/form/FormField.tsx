@@ -6,9 +6,9 @@ type FormFieldProps = {
 
 const FormField = ({ label, required, children }: FormFieldProps) => (
   <div>
-    <div style={{ display: 'flex', alignItems: 'baseline', gap: 2, marginBottom: 8 }}>
+    <div className="flex items-baseline gap-0.5 mb-2">
       <span className="lb-eyebrow">{label}</span>
-      {required && <span style={{ color: 'var(--bordeaux)', fontSize: 11 }}>*</span>}
+      {required && <span className="text-bordeaux text-[11px]">*</span>}
     </div>
     {children}
   </div>

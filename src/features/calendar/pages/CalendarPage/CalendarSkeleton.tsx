@@ -1,90 +1,37 @@
 const CalendarSkeleton = () => {
   return (
-    <div style={{ flex: 1, overflowY: 'auto', padding: '12px 20px 120px' }}>
+    <div className="flex-1 overflow-y-auto py-3 px-5 pb-[120px]">
       {Array.from({ length: 7 }).map((_, i) => (
         <div
           key={i}
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: 5,
-            padding: '15px 0',
-            borderBottom: i < 6 ? '0.5px solid var(--line)' : 'none',
-            minHeight: 38,
-          }}
+          className={`flex items-start gap-[5px] py-[15px] min-h-[38px] ${i < 6 ? 'border-b border-[0.5px] border-ink/10' : ''}`}
         >
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '17px 22px',
-              columnGap: 5,
-              alignItems: 'center',
-              flexShrink: 0,
-              width: 48,
-              marginTop: 1,
-            }}
-          >
-            <div className="lb-skeleton" style={{ width: 14, height: 9, borderRadius: 2 }} />
-            <div className="lb-skeleton" style={{ width: 22, height: 22, borderRadius: '50%' }} />
+          <div className="grid shrink-0 w-12 mt-[1px] items-center [grid-template-columns:17px_22px] gap-x-[5px]">
+            <div className="lb-skeleton w-[14px] h-[9px] rounded-[2px]" />
+            <div className="lb-skeleton w-[22px] h-[22px] rounded-full" />
           </div>
-          <div
-            style={{
-              flex: 1,
-              minWidth: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 5,
-              paddingRight: 6,
-              paddingTop: 3,
-            }}
-          >
+          <div className="flex-1 min-w-0 flex flex-col gap-[5px] pr-[6px] pt-[3px]">
             {([1, 2, 1, 0, 1, 2, 0] as const)[i] > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div className="flex items-center gap-[5px]">
+                <div className="lb-skeleton w-[2.5px] h-[13px] rounded-[2px] shrink-0" />
                 <div
-                  className="lb-skeleton"
-                  style={{ width: 2.5, height: 13, borderRadius: 2, flexShrink: 0 }}
-                />
-                <div
-                  className="lb-skeleton"
-                  style={{
-                    height: 13,
-                    borderRadius: 5,
-                    flex: 1,
-                    maxWidth: ['60%', '45%', '70%', '30%', '55%', '40%', '65%'][i],
-                  }}
+                  className="lb-skeleton h-[13px] rounded-[5px] flex-1"
+                  style={{ maxWidth: ['60%', '45%', '70%', '30%', '55%', '40%', '65%'][i] }}
                 />
               </div>
             )}
             {([1, 2, 1, 0, 1, 2, 0] as const)[i] > 1 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div className="flex items-center gap-[5px]">
+                <div className="lb-skeleton w-[2.5px] h-[13px] rounded-[2px] shrink-0" />
                 <div
-                  className="lb-skeleton"
-                  style={{ width: 2.5, height: 13, borderRadius: 2, flexShrink: 0 }}
-                />
-                <div
-                  className="lb-skeleton"
-                  style={{
-                    height: 13,
-                    borderRadius: 5,
-                    flex: 1,
-                    maxWidth: ['75%', '35%', '55%', '80%', '40%', '50%', '70%'][i],
-                  }}
+                  className="lb-skeleton h-[13px] rounded-[5px] flex-1"
+                  style={{ maxWidth: ['75%', '35%', '55%', '80%', '40%', '50%', '70%'][i] }}
                 />
               </div>
             )}
           </div>
-          <div
-            style={{
-              width: 0,
-              alignSelf: 'stretch',
-              borderLeft: '0.5px solid var(--line)',
-              flexShrink: 0,
-            }}
-          />
-          <div
-            className="lb-skeleton"
-            style={{ width: 12, height: 12, borderRadius: 3, flexShrink: 0, marginTop: 3 }}
-          />
+          <div className="w-0 self-stretch border-l border-[0.5px] border-ink/10 shrink-0" />
+          <div className="lb-skeleton w-3 h-3 rounded-[3px] shrink-0 mt-[3px]" />
         </div>
       ))}
     </div>

@@ -9,47 +9,15 @@ type PortionStepperProps = {
 }
 
 const PortionStepper = ({ value, onChange, label, dir }: PortionStepperProps) => (
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      background: 'var(--paper-2)',
-      borderRadius: 16,
-      padding: 3,
-    }}
-  >
+  <div className="flex items-center bg-paper-2 rounded-[16px] p-[3px]">
     <button
       onClick={() => onChange(Math.max(1, value - 1))}
-      style={{
-        width: 30,
-        height: 30,
-        borderRadius: 13,
-        background: 'var(--cream-card)',
-        border: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
-        cursor: 'pointer',
-      }}
+      className="w-[30px] h-[30px] rounded-[13px] bg-cream border-0 flex items-center justify-center shadow-[0_1px_2px_rgba(0,0,0,0.06)] cursor-pointer"
     >
       <Minus size={14} strokeWidth={2.4} />
     </button>
-    <div
-      style={{
-        minWidth: 72,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4,
-        fontFamily: 'var(--mono)',
-        fontSize: 12,
-        color: 'var(--ink)',
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-      }}
-    >
-      <div style={{ overflow: 'hidden', position: 'relative' }}>
+    <div className="min-w-[72px] flex items-center justify-center gap-1 font-mono text-[12px] text-ink tracking-[0.08em] uppercase">
+      <div className="overflow-hidden relative">
         <AnimatePresence mode="popLayout" custom={dir}>
           <motion.span
             key={value}
@@ -69,7 +37,7 @@ const PortionStepper = ({ value, onChange, label, dir }: PortionStepperProps) =>
             animate="center"
             exit="exit"
             transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            style={{ display: 'block' }}
+            className="block"
           >
             {value}
           </motion.span>
@@ -79,18 +47,7 @@ const PortionStepper = ({ value, onChange, label, dir }: PortionStepperProps) =>
     </div>
     <button
       onClick={() => onChange(value + 1)}
-      style={{
-        width: 30,
-        height: 30,
-        borderRadius: 13,
-        background: 'var(--cream-card)',
-        border: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.06)',
-        cursor: 'pointer',
-      }}
+      className="w-[30px] h-[30px] rounded-[13px] bg-cream border-0 flex items-center justify-center shadow-[0_1px_2px_rgba(0,0,0,0.06)] cursor-pointer"
     >
       <Plus size={14} strokeWidth={2.4} />
     </button>

@@ -11,8 +11,6 @@ import CookingStepBottomControls from '@/features/cooking/components/CookingStep
 import CookingIngredientsPanel from '@/features/cooking/components/CookingIngredientsPanel'
 import CookingOverviewPanel from '@/features/cooking/components/CookingOverviewPanel'
 
-const dark = { background: '#1f1d1a', color: '#f8f4ed' }
-
 const CookingScreen = ({
   recipe,
   scaledIngredients,
@@ -64,16 +62,7 @@ const CookingScreen = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.22, ease: [0.2, 0, 0.2, 1] }}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 100,
-        height: '100dvh',
-        ...dark,
-        display: 'flex',
-        flexDirection: 'column',
-        userSelect: 'none',
-      }}
+      className="fixed inset-0 z-[100] h-[100dvh] bg-ink text-paper flex flex-col select-none"
     >
       <CookingHeader onClose={onClose} />
 
@@ -97,7 +86,7 @@ const CookingScreen = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            style={{ flex: 1, overflow: 'auto', paddingBottom: 40 }}
+            className="flex-1 overflow-auto pb-10"
           >
             {tab === 'ingredients' && (
               <CookingIngredientsPanel

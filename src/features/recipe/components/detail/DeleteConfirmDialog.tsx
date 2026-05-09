@@ -1,5 +1,5 @@
-import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
+import Dialog from '@/shared/components/Dialog'
 
 type DeleteConfirmDialogProps = {
   visible: boolean
@@ -15,84 +15,29 @@ const DeleteConfirmDialog = ({
   deleting,
   onConfirm,
   onCancel,
-}: DeleteConfirmDialogProps) =>
-  createPortal(
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          key="confirm-bd"
-          className="lb-sheet-backdrop"
-          style={{ animation: 'none', zIndex: 202 }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          onClick={onCancel}
-        />
-      )}
-      {visible && (
-        <motion.div
-          key="confirm-dialog"
-          style={{
-            position: 'fixed',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '0 24px',
-            zIndex: 203,
-            pointerEvents: 'none',
-          }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <motion.div
-            style={{
-              background: 'var(--paper)',
-              borderRadius: 18,
-              padding: 24,
-              width: '100%',
-              pointerEvents: 'auto',
-            }}
-            initial={{ scale: 0.92, y: 8 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.92, y: 8 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-          >
-            <h3 className="lb-display" style={{ margin: 0, fontSize: 22, textAlign: 'center' }}>
-              Dit recept verwijderen?
-            </h3>
-            <p
-              style={{
-                margin: '10px 0 22px',
-                textAlign: 'center',
-                fontSize: 14,
-                color: 'var(--ink-2)',
-                lineHeight: 1.5,
-              }}
-            >
-              &ldquo;{recipeTitle}&rdquo; wordt uit ons kookboek gehaald.
-            </p>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={onCancel} className="lb-btn lb-btn--ghost" style={{ flex: 1 }}>
-                Annuleren
-              </button>
-              <button
-                onClick={onConfirm}
-                disabled={deleting}
-                className="lb-btn lb-btn--primary"
-                style={{ flex: 1 }}
-              >
-                {deleting ? <span className="lb-spinner" /> : 'Verwijderen'}
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>,
-    document.body,
-  )
+}: DeleteConfirmDialogProps) => (
+  <Dialog visible={visible} onClose={onCancel}>
+    <motion.div
+      className="bg-paper rounded-[18px] p-6 w-full pointer-events-auto"
+      initial={{ scale: 0.92, y: 8 }}
+      animate={{ scale: 1, y: 0 }}
+      exit={{ scale: 0.92, y: 8 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+    >
+      <h3 className="lb-display m-0 text-[22px] text-center">Dit recept verwijderen?</h3>
+      <p className="mt-[10px] mb-[22px] text-center text-[14px] text-ink-2 leading-[1.5]">
+        &ldquo;{recipeTitle}&rdquo; wordt uit ons kookboek gehaald.
+      </p>
+      <div className="flex gap-[10px]">
+        <button onClick={onCancel} className="lb-btn lb-btn--ghost flex-1">
+          Annuleren
+        </button>
+        <button onClick={onConfirm} disabled={deleting} className="lb-btn lb-btn--primary flex-1">
+          {deleting ? <span className="lb-spinner" /> : 'Verwijderen'}
+        </button>
+      </div>
+    </motion.div>
+  </Dialog>
+)
 
 export default DeleteConfirmDialog

@@ -1,18 +1,6 @@
 import type { Timestamp } from 'firebase/firestore'
 import { z } from 'zod'
 
-export type MealPlanEntry = {
-  id: string
-  date: string
-  recipeId?: string
-  recipeTitle?: string
-  customDescription?: string
-  createdAt: Timestamp
-  createdBy: string
-}
-
-export type MealPlanEntryInput = Omit<MealPlanEntry, 'id' | 'createdAt'>
-
 type IngredientLeaf = {
   kind: 'leaf'
   text: string

@@ -9,7 +9,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
-import type { MealPlanEntry, MealPlanEntryInput } from '@/features/recipe/types/recipe'
+import type { MealPlanEntry, MealPlanEntryInput } from '@/features/calendar/types/calendar'
 
 const mealPlanCol = collection(db, 'mealPlan')
 

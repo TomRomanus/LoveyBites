@@ -6,7 +6,15 @@ import playwright from 'eslint-plugin-playwright'
 import prettierConfig from 'eslint-config-prettier'
 
 export default tseslint.config(
-  { ignores: ['dist/**', 'playwright-report/**', 'test-results/**', 'functions/lib/**', 'scripts/**'] },
+  {
+    ignores: [
+      'dist/**',
+      'playwright-report/**',
+      'test-results/**',
+      'functions/lib/**',
+      'scripts/**',
+    ],
+  },
 
   js.configs.recommended,
   ...tseslint.configs.recommended,

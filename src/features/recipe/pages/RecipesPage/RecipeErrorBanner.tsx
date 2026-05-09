@@ -3,18 +3,7 @@ type RecipeErrorBannerProps = {
 }
 
 const RecipeErrorBanner = ({ message }: RecipeErrorBannerProps) => (
-  <div
-    style={{
-      margin: '20px',
-      padding: '14px',
-      background: 'var(--bordeaux-tint)',
-      borderRadius: '0 12px 12px 0',
-      fontSize: 13,
-      fontWeight: 500,
-      color: 'var(--bordeaux)',
-      borderLeft: '3px solid var(--bordeaux)',
-    }}
-  >
+  <div className="m-5 p-[14px] bg-bordeaux-tint rounded-[0_12px_12px_0] text-[13px] font-medium text-bordeaux border-l-[3px] border-bordeaux">
     {message}
   </div>
 )

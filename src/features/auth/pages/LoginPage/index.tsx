@@ -90,41 +90,18 @@ const LoginPage = () => {
   const displayError = authError ?? error
 
   return (
-    <div
-      className="lb-paper"
-      style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}
-    >
+    <div className="lb-paper min-h-[100dvh] flex flex-col">
       {/* Masthead */}
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.2, 0, 0.2, 1] }}
-        style={{ padding: '70px 28px 0', flexShrink: 0 }}
+        className="pt-[70px] px-7 shrink-0"
       >
-        <div className="lb-eyebrow" style={{ marginBottom: 14 }}>
-          SINDS 2026
-        </div>
-        <h1 style={{ margin: 0, fontSize: 58, lineHeight: 1.0, letterSpacing: '-0.025em' }}>
-          <span
-            style={{
-              fontFamily: 'var(--serif)',
-              fontStyle: 'italic',
-              fontWeight: 600,
-              color: 'var(--bordeaux)',
-            }}
-          >
-            Lovey
-          </span>
-          <span
-            style={{
-              fontFamily: 'var(--serif)',
-              fontStyle: 'italic',
-              fontWeight: 600,
-              color: 'var(--ink)',
-            }}
-          >
-            Bites
-          </span>
+        <div className="lb-eyebrow mb-[14px]">SINDS 2026</div>
+        <h1 className="m-0 text-[58px] leading-none tracking-[-0.025em]">
+          <span className="font-serif italic font-semibold text-bordeaux">Lovey</span>
+          <span className="font-serif italic font-semibold text-ink">Bites</span>
         </h1>
       </motion.div>
 
@@ -133,29 +110,17 @@ const LoginPage = () => {
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.45, ease: [0.2, 0, 0.2, 1], delay: 0.12 }}
-        style={{ padding: '0 28px', marginTop: 20 }}
+        className="px-7 mt-5"
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ flex: 1, height: '0.5px', background: 'var(--line)' }} />
-          <div style={{ textAlign: 'center' }}>
-            <div className="lb-eyebrow" style={{ marginBottom: 3 }}>
-              {todayFull()}
-            </div>
-            <div
-              style={{
-                fontFamily: 'var(--serif)',
-                fontStyle: 'italic',
-                fontWeight: 500,
-                fontSize: 28,
-                color: 'var(--ink)',
-                letterSpacing: '-0.02em',
-                lineHeight: 1.05,
-              }}
-            >
+        <div className="flex items-center gap-[14px]">
+          <div className="flex-1 h-[0.5px] bg-[var(--line)]" />
+          <div className="text-center">
+            <div className="lb-eyebrow mb-[3px]">{todayFull()}</div>
+            <div className="font-serif italic font-medium text-[28px] text-ink tracking-[-0.02em] leading-[1.05]">
               Smakelijk
             </div>
           </div>
-          <div style={{ flex: 1, height: '0.5px', background: 'var(--line)' }} />
+          <div className="flex-1 h-[0.5px] bg-[var(--line)]" />
         </div>
       </motion.div>
 
@@ -165,7 +130,7 @@ const LoginPage = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.2, 0, 0.2, 1], delay: 0.22 }}
-        style={{ padding: '24px 28px 0', display: 'flex', flexDirection: 'column', gap: 12 }}
+        className="pt-6 px-7 flex flex-col gap-3"
       >
         {/* Mode toggle */}
         <AnimatedTabBar
@@ -209,15 +174,7 @@ const LoginPage = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.2 }}
-              style={{
-                background: 'var(--bordeaux-tint)',
-                color: 'var(--bordeaux)',
-                padding: '10px 14px',
-                borderRadius: '0 12px 12px 0',
-                fontSize: 13,
-                fontWeight: 500,
-                borderLeft: '3px solid var(--bordeaux)',
-              }}
+              className="bg-bordeaux-tint text-bordeaux px-[14px] py-[10px] rounded-[0_12px_12px_0] text-[13px] font-medium border-l-[3px] border-bordeaux"
             >
               {displayError}
             </motion.div>
@@ -226,8 +183,7 @@ const LoginPage = () => {
 
         <button
           type="submit"
-          className="lb-btn lb-btn--primary"
-          style={{ marginTop: 4, overflow: 'hidden' }}
+          className="lb-btn lb-btn--primary mt-1 overflow-hidden"
           disabled={loading}
         >
           <AnimatePresence mode="wait" custom={modeDir}>
@@ -298,17 +254,7 @@ const LoginPage = () => {
           </>
         )}
 
-        <div
-          style={{
-            textAlign: 'center',
-            marginTop: 18,
-            marginBottom: 32,
-            fontSize: 12,
-            color: 'var(--stone)',
-            fontFamily: 'var(--serif)',
-            fontStyle: 'italic',
-          }}
-        >
+        <div className="text-center mt-[18px] mb-8 text-[12px] text-stone font-serif italic">
           Als het mislukt, is er altijd nog de frituur.
         </div>
       </motion.form>

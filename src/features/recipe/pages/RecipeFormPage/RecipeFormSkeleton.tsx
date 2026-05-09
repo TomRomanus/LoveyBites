@@ -1,82 +1,39 @@
-const headerStyle: React.CSSProperties = {
-  position: 'static',
-  background: 'rgba(248, 244, 237, 0.92)',
-  backdropFilter: 'blur(10px)',
-  WebkitBackdropFilter: 'blur(10px)',
-  zIndex: 10,
-  padding: '24px 20px 14px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  borderBottom: '0.5px solid var(--line)',
-}
-
 const RecipeFormSkeleton = () => (
-  <div className="lb-paper" style={{ minHeight: '100dvh' }}>
+  <div className="lb-paper min-h-[100dvh]">
     {/* Header */}
-    <div style={headerStyle}>
-      <div className="lb-skeleton" style={{ width: 40, height: 40, borderRadius: 20 }} />
-      <div className="lb-skeleton" style={{ width: 100, height: 10, borderRadius: 4 }} />
-      <div className="lb-skeleton" style={{ width: 40, height: 40, borderRadius: 20 }} />
+    <div className="bg-[rgba(248,244,237,0.92)] backdrop-blur-[10px] z-10 px-5 pt-6 pb-[14px] flex items-center justify-between border-b-[0.5px] border-ink/14">
+      <div className="lb-skeleton w-10 h-10 rounded-[20px]" />
+      <div className="lb-skeleton w-[100px] h-[10px] rounded-[4px]" />
+      <div className="lb-skeleton w-10 h-10 rounded-[20px]" />
     </div>
     {/* Form body */}
-    <div style={{ padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="px-5 py-6 flex flex-col gap-5">
       {/* Title */}
-      <div className="lb-skeleton" style={{ height: 48, borderRadius: 14 }} />
+      <div className="lb-skeleton h-12 rounded-[14px]" />
       {/* Color row */}
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div className="flex gap-2">
         {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div
-            key={i}
-            className="lb-skeleton"
-            style={{ width: 32, height: 32, borderRadius: 16, flexShrink: 0 }}
-          />
+          <div key={i} className="lb-skeleton w-8 h-8 rounded-full shrink-0" />
         ))}
       </div>
       {/* Description */}
-      <div className="lb-skeleton" style={{ height: 80, borderRadius: 14 }} />
+      <div className="lb-skeleton h-20 rounded-[14px]" />
       {/* Section label */}
-      <div className="lb-skeleton" style={{ height: 9, width: '22%', borderRadius: 3 }} />
+      <div className="lb-skeleton h-[9px] w-[22%] rounded-[3px]" />
       {/* Ingredients */}
-      {[75, 60, 82, 55].map((w, i) => (
-        <div
-          key={i}
-          style={{
-            display: 'flex',
-            gap: 10,
-            alignItems: 'center',
-            paddingBottom: 12,
-            borderBottom: '0.5px solid var(--line-soft)',
-          }}
-        >
-          <div className="lb-skeleton" style={{ flex: 1, height: 40, borderRadius: 12 }} />
-          <div
-            className="lb-skeleton"
-            style={{ width: 32, height: 32, borderRadius: 8, flexShrink: 0 }}
-          />
+      {[75, 60, 82, 55].map((_w, i) => (
+        <div key={i} className="flex gap-[10px] items-center pb-3 border-b-[0.5px] border-ink/14">
+          <div className="lb-skeleton flex-1 h-10 rounded-[12px]" />
+          <div className="lb-skeleton w-8 h-8 rounded-[8px] shrink-0" />
         </div>
       ))}
       {/* Section label */}
-      <div
-        className="lb-skeleton"
-        style={{ height: 9, width: '18%', borderRadius: 3, marginTop: 4 }}
-      />
+      <div className="lb-skeleton h-[9px] w-[18%] rounded-[3px] mt-1" />
       {/* Steps */}
-      {[65, 80, 50].map((w, i) => (
-        <div
-          key={i}
-          style={{
-            display: 'flex',
-            gap: 14,
-            paddingBottom: 12,
-            borderBottom: '0.5px solid var(--line-soft)',
-          }}
-        >
-          <div
-            className="lb-skeleton"
-            style={{ width: 22, height: 22, borderRadius: 11, flexShrink: 0, marginTop: 2 }}
-          />
-          <div className="lb-skeleton" style={{ height: 60, flex: 1, borderRadius: 12 }} />
+      {[65, 80, 50].map((_w, i) => (
+        <div key={i} className="flex gap-[14px] pb-3 border-b-[0.5px] border-ink/14">
+          <div className="lb-skeleton w-[22px] h-[22px] rounded-full shrink-0 mt-0.5" />
+          <div className="lb-skeleton h-[60px] flex-1 rounded-[12px]" />
         </div>
       ))}
     </div>

@@ -81,7 +81,7 @@ test.describe('Recipe detail — calendar FAB and modal', () => {
   })
 
   test('calendar FAB opens modal showing recipe title', async ({ page }) => {
-    const fab = page.locator('button[style*="position: fixed"][style*="bordeaux"]').first()
+    const fab = page.locator('[data-testid="calendar-fab"]').first()
     await fab.click()
     await expect(page.getByText('Toevoegen aan menu')).toBeVisible()
     await expect(page.getByText('Pasta Carbonara').first()).toBeVisible()
@@ -161,15 +161,12 @@ test.describe('Recipe detail — calendar modal day selection', () => {
   })
 
   test('clicking a day in the calendar modal adds the recipe', async ({ page }) => {
-    const fab = page.locator('button[style*="position: fixed"][style*="bordeaux"]').first()
+    const fab = page.locator('[data-testid="calendar-fab"]').first()
     await fab.click()
     await expect(page.getByText('Toevoegen aan menu')).toBeVisible()
 
-    // Click today's day button (identified by its bordeaux circular background)
-    const todayBtn = page
-      .locator('button')
-      .filter({ has: page.locator('span[style*="var(--bordeaux)"]') })
-      .first()
+    // Click today's day button (identified by data-today attribute)
+    const todayBtn = page.locator('button[data-today="true"]').first()
     await todayBtn.click()
 
     // Checkmark animation briefly confirms the save

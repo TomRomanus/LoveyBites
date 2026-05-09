@@ -13,6 +13,7 @@ import type { Recipe } from '@/features/recipe/types/recipe'
 import { toISO } from '@/features/calendar/utils/dateUtils'
 import useRecipeFilter, { SORT_LABELS } from '@/features/recipe/hooks/useRecipeFilter'
 import TodayMenuCard from '@/features/recipe/pages/RecipesPage/TodayMenuCard'
+import TodayMenuCardSkeleton from '@/features/recipe/pages/RecipesPage/TodayMenuCardSkeleton'
 import RecipeListSkeleton from '@/features/recipe/pages/RecipesPage/RecipeListSkeleton'
 import RecipeErrorBanner from '@/features/recipe/pages/RecipesPage/RecipeErrorBanner'
 import RecipeEmptyState from '@/features/recipe/pages/RecipesPage/RecipeEmptyState'
@@ -63,81 +64,33 @@ const RecipesPage = () => {
   } = useRecipeFilter(recipes)
 
   return (
-    <div className="lb-paper" style={{ minHeight: '100dvh', position: 'relative' }}>
-      {/* Editorial masthead */}
-      <div style={{ padding: '24px 20px 0' }}>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 12,
-          }}
-        >
-          <h1
-            style={{
-              margin: 0,
-              fontSize: 42,
-              lineHeight: 1.05,
-              fontFamily: 'var(--serif)',
-              fontStyle: 'italic',
-              fontWeight: 500,
-              letterSpacing: '-0.02em',
-              color: 'var(--ink)',
-              whiteSpace: 'nowrap',
-            }}
-          >
+    <div className="lb-paper min-h-[100dvh] relative">
+      <div className="px-5 pt-6">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="m-0 text-[42px] leading-[1.05] font-serif italic font-medium tracking-[-0.02em] text-ink whitespace-nowrap">
             Ons kookboek
           </h1>
           <Link
             to="/new"
             title="Recept toevoegen"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              background: 'var(--paper)',
-              boxShadow: '0 1px 2px rgba(31,29,26,0.04), 0 0 0 0.5px var(--line)',
-              color: 'var(--bordeaux)',
-              flexShrink: 0,
-            }}
+            className="inline-flex items-center justify-center w-10 h-10 rounded-[20px] bg-paper shadow-icon text-bordeaux shrink-0"
           >
             <Plus size={16} />
           </Link>
         </div>
       </div>
 
-      {/* Today's menu */}
       {(todayLoading || todayRecipe) && (
-        <div style={{ padding: '20px 20px 0' }}>
-          <div className="lb-eyebrow" style={{ marginBottom: 8 }}>
-            Op het menu vandaag
-          </div>
+        <div className="px-5 pt-5">
+          <div className="lb-eyebrow mb-2">Op het menu vandaag</div>
           {todayLoading ? (
-            <div className="lb-card" style={{ overflow: 'hidden' }}>
-              <div className="lb-skeleton" style={{ height: 72, borderRadius: 0 }} />
-              <div
-                style={{
-                  padding: '10px 14px 12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 6,
-                }}
-              >
-                <div className="lb-skeleton" style={{ height: 13, width: '55%' }} />
-                <div className="lb-skeleton" style={{ height: 13, width: '35%' }} />
-              </div>
-            </div>
+            <TodayMenuCardSkeleton />
           ) : todayRecipe ? (
             <TodayMenuCard recipe={todayRecipe} />
           ) : null}
         </div>
       )}
 
-      {/* Search + filters — only shown when not error */}
       {!error && (
         <RecipeSearchBar
           searchQuery={searchQuery}
@@ -151,9 +104,7 @@ const RecipesPage = () => {
         />
       )}
 
-      {/* Content */}
       {loading && <RecipeListSkeleton />}
-
       {error && <RecipeErrorBanner message={error} />}
 
       {!loading && !error && sorted.length === 0 && (

@@ -8,63 +8,28 @@ type RecipeHeroProps = {
 
 const RecipeHero = ({ title, onBack, onActionsOpen }: RecipeHeroProps) => (
   <div
-    className="lb-color-block"
-    style={
-      {
-        '--block-bg': 'var(--bordeaux)',
-        minHeight: 185,
-        padding: '24px 22px 24px',
-        borderRadius: 0,
-        justifyContent: 'flex-start',
-      } as React.CSSProperties
-    }
+    className="lb-color-block min-h-[185px] px-[22px] py-6 rounded-none justify-start"
+    style={{ '--block-bg': 'var(--bordeaux)' } as React.CSSProperties}
   >
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div className="flex items-center justify-between">
       <button
         data-testid="recipe-back-btn"
         onClick={onBack}
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          background: 'transparent',
-          border: '0.5px solid rgba(255,250,240,0.45)',
-          color: 'var(--cream-card)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-        }}
+        className="w-10 h-10 rounded-[20px] bg-transparent border-[0.5px] border-[rgba(255,250,240,0.45)] text-cream flex items-center justify-center cursor-pointer"
       >
         <ChevronLeft size={16} />
       </button>
       <button
         data-testid="recipe-actions-btn"
         onClick={onActionsOpen}
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          background: 'transparent',
-          border: '0.5px solid rgba(255,250,240,0.45)',
-          color: 'var(--cream-card)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-        }}
+        className="w-10 h-10 rounded-[20px] bg-transparent border-[0.5px] border-[rgba(255,250,240,0.45)] text-cream flex items-center justify-center cursor-pointer"
       >
         <MoreHorizontal size={16} />
       </button>
     </div>
-    <div style={{ marginTop: 46 }}>
-      <div className="lb-color-block-corner" style={{ marginBottom: 8 }}>
-        RECEPT
-      </div>
-      <div
-        className="lb-color-block-title"
-        style={{ fontSize: 34, lineHeight: 1.0, letterSpacing: '-0.025em' }}
-      >
+    <div className="mt-[46px]">
+      <div className="lb-color-block-corner mb-2">RECEPT</div>
+      <div className="lb-color-block-title text-[34px] leading-[1.0] tracking-[-0.025em]">
         {title}
       </div>
     </div>

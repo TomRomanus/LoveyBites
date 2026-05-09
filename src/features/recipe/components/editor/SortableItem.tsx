@@ -9,7 +9,7 @@ const SortableItem = ({ id, children }: { id: string; children: React.ReactNode 
   return (
     <DragHandleCtx.Provider value={{ listeners, attributes }}>
       <div ref={setNodeRef} style={{ transform: CSS.Transform.toString(transform), transition }}>
-        {isDragging ? <div style={{ height: 38, opacity: 0 }} /> : children}
+        {isDragging ? <div className="h-[38px] opacity-0" /> : children}
       </div>
     </DragHandleCtx.Provider>
   )

@@ -8,30 +8,14 @@ type DragOverlayContentProps = {
 }
 
 const DragOverlayContent = ({ node, ordered, leafIndexMap }: DragOverlayContentProps) => {
-  const overlayStyle: React.CSSProperties = {
-    background: 'var(--cream-card)',
-    borderRadius: 10,
-    boxShadow: '0 8px 24px rgba(0,0,0,0.14)',
-    border: '0.5px solid rgba(31,29,26,0.12)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '6px 12px 6px 8px',
-  }
+  const overlayCls =
+    'bg-cream rounded-[10px] shadow-[0_8px_24px_rgba(0,0,0,0.14)] border-[0.5px] border-ink/12 flex items-center gap-2 py-1.5 pr-3 pl-2'
 
   if (node.kind === 'group') {
     return (
-      <div style={overlayStyle}>
+      <div className={overlayCls}>
         <GripVertical size={12} />
-        <span
-          style={{
-            fontFamily: 'var(--serif)',
-            fontStyle: 'italic',
-            fontSize: 13,
-            fontWeight: 500,
-            color: 'var(--bordeaux)',
-          }}
-        >
+        <span className="font-serif italic text-[13px] font-medium text-bordeaux">
           {node.title || 'Sectie'}
         </span>
       </div>
@@ -40,38 +24,16 @@ const DragOverlayContent = ({ node, ordered, leafIndexMap }: DragOverlayContentP
 
   const num = ordered && node.id ? (leafIndexMap?.get(node.id) ?? 0) + 1 : null
   return (
-    <div style={{ ...overlayStyle, gap: ordered ? 14 : 8 }}>
+    <div className={`${overlayCls} ${ordered ? 'gap-[14px]' : 'gap-2'}`}>
       <GripVertical size={12} />
       {ordered ? (
-        <span
-          style={{
-            fontFamily: 'var(--serif)',
-            fontStyle: 'italic',
-            fontSize: 22,
-            color: 'var(--bordeaux)',
-            fontWeight: 500,
-            width: 22,
-            flexShrink: 0,
-            lineHeight: 1.1,
-          }}
-        >
+        <span className="font-serif italic text-[22px] text-bordeaux font-medium w-[22px] shrink-0 leading-[1.1]">
           {num}
         </span>
       ) : (
-        <span
-          style={{
-            color: 'var(--bordeaux)',
-            fontFamily: 'var(--serif)',
-            fontSize: 16,
-            paddingLeft: 4,
-          }}
-        >
-          ·
-        </span>
+        <span className="text-bordeaux font-serif text-[16px] pl-1">·</span>
       )}
-      <span style={{ fontFamily: 'var(--sans)', fontSize: 14, color: 'var(--ink-2)' }}>
-        {node.text || '…'}
-      </span>
+      <span className="font-sans text-[14px] text-ink-2">{node.text || '…'}</span>
     </div>
   )
 }

@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { X, Check, Loader } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import RecipeForm from '@/features/recipe/components/RecipeForm'
 import RecipeUrlImport from '@/features/recipe/components/RecipeUrlImport'
@@ -13,6 +12,8 @@ import useRecipeLoad from '@/features/recipe/hooks/useRecipeLoad'
 import type { RecipeInput } from '@/features/recipe/types/recipe'
 import RecipeFormSkeleton from '@/features/recipe/pages/RecipeFormPage/RecipeFormSkeleton'
 import ModeChooser from '@/features/recipe/pages/RecipeFormPage/ModeChooser'
+import RecipeFormHeader from '@/features/recipe/pages/RecipeFormPage/RecipeFormHeader'
+import { slideVariants, slideTransition } from '@/features/recipe/utils/recipeAnimations'
 
 type Mode = 'url' | 'text' | 'photo' | 'manual'
 
@@ -24,50 +25,6 @@ const MODES_LABELS: Record<Mode, string> = {
   text: 'Vanuit tekst',
   photo: 'Vanuit foto',
   manual: 'Zelf invullen',
-}
-
-const slideVariants = {
-  enter: (dir: number) => ({ x: dir * 32, opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit: (dir: number) => ({ x: dir * -32, opacity: 0 }),
-}
-const slideTransition = { type: 'spring' as const, stiffness: 420, damping: 36, mass: 0.8 }
-
-const headerStyle: React.CSSProperties = {
-  position: 'sticky',
-  top: 0,
-  background: 'rgba(248, 244, 237, 0.92)',
-  backdropFilter: 'blur(10px)',
-  WebkitBackdropFilter: 'blur(10px)',
-  zIndex: 10,
-  padding: '24px 20px 14px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  borderBottom: '0.5px solid var(--line)',
-}
-
-const circleBtn: React.CSSProperties = {
-  width: 40,
-  height: 40,
-  borderRadius: 20,
-  background: 'transparent',
-  border: '0.5px solid var(--line)',
-  color: 'var(--ink)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  cursor: 'pointer',
-  flexShrink: 0,
-}
-
-const monoTitle: React.CSSProperties = {
-  fontFamily: 'var(--mono)',
-  fontSize: 11,
-  letterSpacing: '0.12em',
-  textTransform: 'uppercase',
-  color: 'var(--stone)',
-  fontWeight: 500,
 }
 
 const RecipeFormPage = () => {
@@ -128,7 +85,7 @@ const RecipeFormPage = () => {
   }
 
   return (
-    <div className="lb-paper" style={{ minHeight: '100dvh', overflow: 'hidden' }}>
+    <div className="lb-paper min-h-[100dvh] overflow-hidden">
       <AnimatePresence mode="wait" custom={direction}>
         {/* ── Chooser ── */}
         {!isEdit && mode === null && (
@@ -156,15 +113,15 @@ const RecipeFormPage = () => {
             exit="exit"
             transition={slideTransition}
           >
-            <div style={headerStyle}>
-              <button onClick={handleBack} style={circleBtn}>
-                <X size={13} strokeWidth={2.2} />
-              </button>
-              <div style={monoTitle}>{mode ? MODES_LABELS[mode] : ''}</div>
-              <div style={{ width: 40 }} />
-            </div>
+            <RecipeFormHeader
+              isEdit={false}
+              mode={mode}
+              saving={false}
+              title={mode ? MODES_LABELS[mode] : ''}
+              onBack={handleBack}
+            />
             <motion.div
-              style={{ padding: '28px 22px' }}
+              className="px-[22px] py-7"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.08, duration: 0.22, ease: [0.2, 0, 0.2, 1] }}
@@ -187,64 +144,15 @@ const RecipeFormPage = () => {
             exit="exit"
             transition={slideTransition}
           >
-            <div style={headerStyle}>
-              {mode !== null && !isEdit ? (
-                <button data-testid="form-close-btn" onClick={handleBack} style={circleBtn}>
-                  <X size={13} strokeWidth={2.2} />
-                </button>
-              ) : isEdit ? (
-                <button
-                  data-testid="form-close-btn"
-                  onClick={() => navigate(`/recipe/${id}`)}
-                  style={circleBtn}
-                >
-                  <X size={13} strokeWidth={2.2} />
-                </button>
-              ) : (
-                <Link
-                  data-testid="form-close-btn"
-                  to="/"
-                  style={{ ...circleBtn, textDecoration: 'none' }}
-                >
-                  <X size={13} strokeWidth={2.2} />
-                </Link>
-              )}
-              <div style={monoTitle}>{isEdit ? 'Bewerk recept' : 'Nieuw recept'}</div>
-              {isEdit ? (
-                <button
-                  type="submit"
-                  form="recipe-form"
-                  disabled={saving}
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 20,
-                    background: saving ? 'var(--stone-2)' : 'var(--bordeaux)',
-                    border: 0,
-                    color: '#fff',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: saving ? 'default' : 'pointer',
-                    flexShrink: 0,
-                  }}
-                >
-                  {saving ? (
-                    <Loader
-                      size={13}
-                      strokeWidth={2.2}
-                      style={{ animation: 'lb-spin 1s linear infinite' }}
-                    />
-                  ) : (
-                    <Check size={13} strokeWidth={2.5} />
-                  )}
-                </button>
-              ) : (
-                <div style={{ width: 40 }} />
-              )}
-            </div>
+            <RecipeFormHeader
+              isEdit={isEdit}
+              mode={mode}
+              saving={saving}
+              title={isEdit ? 'Bewerk recept' : 'Nieuw recept'}
+              onBack={isEdit ? () => navigate(`/recipe/${id}`) : handleBack}
+            />
             <motion.div
-              style={{ padding: '0 20px 32px' }}
+              className="px-5 pb-8"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.08, duration: 0.22, ease: [0.2, 0, 0.2, 1] }}
@@ -257,13 +165,12 @@ const RecipeFormPage = () => {
                 existingTags={existingTags}
               />
               {!isEdit && (
-                <div style={{ paddingTop: 16 }}>
+                <div className="pt-4">
                   <button
                     type="submit"
                     form="recipe-form"
                     disabled={saving || !hasTitle}
-                    className="lb-btn lb-btn--primary"
-                    style={{ width: '100%', height: 40, borderRadius: 20, fontSize: 13 }}
+                    className="lb-btn lb-btn--primary w-full h-10 rounded-[20px] text-[13px]"
                   >
                     {saving ? 'Opslaan…' : 'Toevoegen'}
                   </button>

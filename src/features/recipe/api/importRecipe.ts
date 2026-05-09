@@ -153,13 +153,13 @@ const parseAIResponse = (text: string): { recipe: Partial<RecipeInput>; sourceNa
   return {
     sourceName: String(parsed.sourceName ?? '').trim(),
     recipe: {
-      title: parsed.title ?? '',
-      description: parsed.description ?? '',
+      title: String(parsed.title ?? ''),
+      description: String(parsed.description ?? ''),
       portions: Number(parsed.portions) || 4,
       ingredients: buildNodes((parsed.ingredients as unknown[]) ?? []),
       steps: buildNodes((parsed.steps as unknown[]) ?? []),
       tags: ((parsed.tags as unknown[]) ?? []).map(String),
-      imageUrl: parsed.imageUrl ?? '',
+      imageUrl: String(parsed.imageUrl ?? ''),
       sources: [],
     },
   }

@@ -20,31 +20,10 @@ export type IngredientOption = {
   text: string
 }
 
-const leafInputStyle: React.CSSProperties = {
-  flex: 1,
-  background: 'transparent',
-  border: 0,
-  outline: 'none',
-  fontFamily: 'var(--sans)',
-  fontSize: 14,
-  color: 'var(--ink)',
-  padding: '8px 4px',
-  resize: 'none',
-  lineHeight: 1.45,
-}
-
-const xBtn: React.CSSProperties = {
-  background: 'none',
-  border: 0,
-  color: 'var(--stone-2)',
-  padding: 6,
-  cursor: 'pointer',
-  flexShrink: 0,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  opacity: 0.8,
-}
+const leafInputCls =
+  'flex-1 bg-transparent border-0 outline-none font-sans text-[14px] text-ink px-1 py-2 resize-none leading-[1.45]'
+const xBtnCls =
+  'bg-none border-0 text-stone-2 p-1.5 cursor-pointer shrink-0 flex items-center justify-center opacity-80'
 
 type LeafRowProps = {
   node: IngredientNode & { kind: 'leaf' }
@@ -91,25 +70,12 @@ const LeafRow = ({
   }
 
   const refsPanel = ordered && (
-    <div style={{ marginBottom: 5 }}>
+    <div className="mb-[5px]">
       {selectedIngredients.length === 0 ? (
         <button
           type="button"
           onClick={() => setPickerOpen(true)}
-          style={{
-            background: 'none',
-            border: 0,
-            fontSize: 10,
-            color: 'rgba(107,31,42,0.45)',
-            cursor: 'pointer',
-            padding: 0,
-            fontFamily: 'var(--mono)',
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            display: 'block',
-            textAlign: 'left',
-            lineHeight: 'normal',
-          }}
+          className="bg-none border-0 text-[10px] text-bordeaux/45 cursor-pointer p-0 font-mono tracking-[0.08em] uppercase block text-left leading-normal"
         >
           + ingrediënten
         </button>
@@ -117,21 +83,7 @@ const LeafRow = ({
         <button
           type="button"
           onClick={() => setPickerOpen(true)}
-          style={{
-            background: 'none',
-            border: 0,
-            padding: 0,
-            cursor: 'pointer',
-            display: 'block',
-            textAlign: 'left',
-            fontFamily: 'var(--mono)',
-            fontSize: 10,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            color: 'rgba(107,31,42,0.55)',
-            lineHeight: 'normal',
-            width: '100%',
-          }}
+          className="bg-none border-0 p-0 cursor-pointer block text-left font-mono text-[10px] tracking-[0.08em] uppercase text-bordeaux/55 leading-normal w-full"
         >
           {selectedIngredients.map((o, i) => (
             <span key={o.id}>
@@ -152,54 +104,31 @@ const LeafRow = ({
   )
 
   return (
-    <div style={{ borderBottom: isLast ? 'none' : '0.5px solid var(--line-soft)' }}>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: ordered ? 8 : 6,
-          padding: ordered ? '8px 0' : '6px 0',
-        }}
-      >
+    <div className={isLast ? '' : 'border-b-[0.5px] border-ink/14'}>
+      <div className={`flex items-start ${ordered ? 'gap-2 py-2' : 'gap-1.5 py-1.5'}`}>
         {ordered ? (
           // Steps: grip slides in alongside the number — animate width so layout shifts smoothly
           <motion.div
             animate={{ width: reordering ? 24 : 0, opacity: reordering ? 1 : 0 }}
             transition={{ type: 'spring', stiffness: 340, damping: 30 }}
-            style={{ overflow: 'hidden', flexShrink: 0, display: 'flex', alignItems: 'flex-start' }}
+            className="overflow-hidden shrink-0 flex items-start"
           >
-            <GripHandle style={{ paddingTop: 7 }} />
+            <GripHandle className="pt-[7px]" />
           </motion.div>
         ) : (
           // Ingredients: dot ↔ grip crossfade in a fixed-size slot — no layout shift at all
-          <div style={{ position: 'relative', width: 20, flexShrink: 0, paddingTop: 12 }}>
+          <div className="relative w-5 shrink-0 pt-3">
             <motion.div
               animate={{ opacity: reordering ? 1 : 0 }}
               transition={{ duration: 0.18, ease: 'easeInOut' }}
-              style={{
-                position: 'absolute',
-                top: 12,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                display: 'flex',
-                alignItems: 'flex-start',
-                justifyContent: 'center',
-              }}
+              className="absolute top-3 left-0 right-0 bottom-0 flex items-start justify-center"
             >
               <GripHandle />
             </motion.div>
             <motion.span
               animate={{ opacity: reordering ? 0 : 1 }}
               transition={{ duration: 0.18, ease: 'easeInOut' }}
-              style={{
-                color: 'var(--bordeaux)',
-                fontSize: 11,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                lineHeight: 1,
-              }}
+              className="text-bordeaux text-[11px] flex items-center justify-center leading-none"
             >
               •
             </motion.span>
@@ -207,25 +136,13 @@ const LeafRow = ({
         )}
 
         {ordered && (
-          <span
-            style={{
-              fontFamily: 'var(--serif)',
-              fontStyle: 'italic',
-              fontSize: 22,
-              color: 'var(--bordeaux)',
-              fontWeight: 500,
-              width: 22,
-              flexShrink: 0,
-              lineHeight: 1.1,
-              paddingTop: 1,
-            }}
-          >
+          <span className="font-serif italic text-[22px] text-bordeaux font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px]">
             {(leafIndexMap?.get(node.id ?? '') ?? itemIndex ?? 0) + 1}
           </span>
         )}
 
         {ordered ? (
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div className="flex-1 min-w-0">
             {refsPanel}
             <AutoGrowTextarea
               value={node.text}
@@ -233,14 +150,7 @@ const LeafRow = ({
                 onChange(replaceAt(allNodes, path, { ...node, text: e.target.value }))
               }
               rows={1}
-              style={{
-                ...leafInputStyle,
-                flex: 'none',
-                width: '100%',
-                boxSizing: 'border-box',
-                lineHeight: 1.5,
-                padding: '0 4px 0 0',
-              }}
+              className={`${leafInputCls} flex-none w-full box-border leading-[1.5] py-0 pr-1 pl-0`}
               placeholder={labels.leafPlaceholder}
             />
           </div>
@@ -249,7 +159,7 @@ const LeafRow = ({
             value={node.text}
             onChange={(e) => onChange(replaceAt(allNodes, path, { ...node, text: e.target.value }))}
             rows={1}
-            style={{ ...leafInputStyle, flex: 1, width: '100%' }}
+            className={`${leafInputCls} flex-1 w-full`}
             placeholder={labels.leafPlaceholder}
           />
         )}
@@ -258,7 +168,7 @@ const LeafRow = ({
           <button
             type="button"
             onClick={() => onChange(removeAt(allNodes, path))}
-            style={{ ...xBtn, marginTop: ordered ? 0 : 6 }}
+            className={`${xBtnCls} ${ordered ? 'mt-0' : 'mt-1.5'}`}
             aria-label="Verwijderen"
           >
             <X size={11} strokeWidth={2.2} />

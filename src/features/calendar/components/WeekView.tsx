@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import type { MealPlanEntry, Recipe } from '@/features/recipe/types/recipe'
+import type { MealPlanEntry } from '@/features/calendar/types/calendar'
+import type { Recipe } from '@/features/recipe/types/recipe'
 import { toISO, isSameDay, weekDays } from '@/features/calendar/utils/dateUtils'
 import { NL_DAYS_SHORT } from '@/shared/constants/locale'
 import {
@@ -28,7 +29,7 @@ const WeekView = ({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
       initial="hidden"
       animate="visible"
       variants={weekContainerVariants}
-      style={{ padding: '12px 20px 120px', overflowY: 'auto', height: '100%' }}
+      className="py-3 px-5 pb-[120px] overflow-y-auto h-full"
     >
       {days.map((day, idx) => {
         const dayEntries = entriesForDay(day)
@@ -38,73 +39,24 @@ const WeekView = ({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
           <motion.div
             key={iso}
             variants={weekRowVariants}
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: 5,
-              padding: '15px 0',
-              borderBottom: idx < 6 ? '0.5px solid var(--line)' : 'none',
-              minHeight: 38,
-            }}
+            className={`flex items-start gap-[5px] py-[15px] min-h-[38px] ${idx < 6 ? 'border-b border-[0.5px] border-ink/10' : ''}`}
           >
             {/* Day unit */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '17px 22px',
-                columnGap: 5,
-                alignItems: 'center',
-                flexShrink: 0,
-                width: 48,
-                marginTop: 1,
-              }}
-            >
+            <div className="grid shrink-0 w-12 mt-[1px] items-center [grid-template-columns:17px_22px] gap-x-[5px]">
               <span
-                style={{
-                  fontFamily: 'var(--mono)',
-                  fontSize: 10,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  fontWeight: 600,
-                  lineHeight: 1,
-                  color: isToday ? 'var(--bordeaux)' : 'var(--stone)',
-                }}
+                className={`font-mono text-[10px] tracking-[0.08em] uppercase font-semibold leading-none ${isToday ? 'text-bordeaux' : 'text-stone'}`}
               >
                 {NL_DAYS_SHORT[day.getDay()]}
               </span>
               <span
-                style={{
-                  fontFamily: 'var(--serif)',
-                  fontStyle: 'italic',
-                  fontSize: 17,
-                  fontWeight: 500,
-                  lineHeight: 1,
-                  color: isToday ? 'var(--cream-card)' : 'var(--ink-2)',
-                  background: isToday ? 'var(--bordeaux)' : 'transparent',
-                  borderRadius: '50%',
-                  width: 22,
-                  height: 22,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
+                className={`font-serif italic text-[17px] font-medium leading-none w-[22px] h-[22px] rounded-full flex items-center justify-center ${isToday ? 'text-cream bg-bordeaux' : 'text-ink-2 bg-transparent'}`}
               >
                 {day.getDate()}
               </span>
             </div>
 
             {/* Recipe zone */}
-            <div
-              style={{
-                flex: 1,
-                minWidth: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 5,
-                paddingRight: 6,
-                paddingTop: 3,
-              }}
-            >
+            <div className="flex-1 min-w-0 flex flex-col gap-[5px] pr-[6px] pt-[3px]">
               <AnimatePresence initial={false}>
                 {dayEntries.map((e) => {
                   const recipe = recipeMap.get(e.recipeId ?? '')
@@ -115,32 +67,14 @@ const WeekView = ({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
                       animate={{ opacity: 1, height: 'auto', x: 0 }}
                       exit={{ opacity: 0, height: 0, x: 0 }}
                       transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
-                      style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 5 }}
+                      className="overflow-hidden flex items-center gap-[5px]"
                     >
                       <div
-                        style={{
-                          width: 2.5,
-                          alignSelf: 'stretch',
-                          borderRadius: 2,
-                          flexShrink: 0,
-                          background: recipe ? 'var(--bordeaux)' : 'var(--stone)',
-                        }}
+                        className={`w-[2.5px] self-stretch rounded-[2px] shrink-0 ${recipe ? 'bg-bordeaux' : 'bg-stone'}`}
                       />
                       <span
                         onClick={() => recipe && nav(`/recipe/${recipe.id}`)}
-                        style={{
-                          flex: 1,
-                          fontFamily: 'var(--serif)',
-                          fontStyle: 'italic',
-                          fontSize: 13.5,
-                          lineHeight: 1.25,
-                          fontWeight: 500,
-                          color: recipe ? 'var(--bordeaux)' : 'var(--stone)',
-                          cursor: recipe ? 'pointer' : 'default',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
+                        className={`flex-1 font-serif italic text-[13.5px] leading-[1.25] font-medium overflow-hidden text-ellipsis whitespace-nowrap ${recipe ? 'text-bordeaux cursor-pointer' : 'text-stone cursor-default'}`}
                       >
                         {recipe ? recipe.title : e.customDescription}
                       </span>
@@ -148,17 +82,7 @@ const WeekView = ({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
                         data-testid="delete-meal-entry-btn"
                         onClick={() => onDelete(e.id)}
                         whileTap={{ scale: 0.78 }}
-                        style={{
-                          background: 'none',
-                          border: 0,
-                          padding: 0,
-                          marginLeft: 1,
-                          color: 'var(--stone-2)',
-                          cursor: 'pointer',
-                          flexShrink: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                        }}
+                        className="bg-transparent border-0 p-0 ml-[1px] text-stone-2 cursor-pointer shrink-0 flex items-center"
                       >
                         <X size={9} strokeWidth={2.5} />
                       </motion.button>
@@ -169,29 +93,12 @@ const WeekView = ({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
             </div>
 
             {/* Separator + add */}
-            <div
-              style={{
-                width: 0,
-                alignSelf: 'stretch',
-                borderLeft: '0.5px solid var(--line)',
-                flexShrink: 0,
-              }}
-            />
+            <div className="w-0 self-stretch border-l border-[0.5px] border-ink/10 shrink-0" />
             <motion.button
               data-testid="add-meal-btn"
               onClick={() => onAdd(iso)}
               whileTap={{ scale: 0.78 }}
-              style={{
-                background: 'none',
-                border: 0,
-                padding: 2,
-                color: 'var(--bordeaux)',
-                cursor: 'pointer',
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                marginTop: 3,
-              }}
+              className="bg-transparent border-0 p-[2px] text-bordeaux cursor-pointer shrink-0 flex items-center mt-[3px]"
             >
               <Plus size={12} />
             </motion.button>

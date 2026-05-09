@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { getMealPlanEntries } from '@/features/calendar/api/mealPlan'
 import { getRecipe } from '@/features/recipe/api/recipes'
-import type { MealPlanEntry, Recipe } from '@/features/recipe/types/recipe'
+import { calendarKeys } from '@/features/calendar/api/queryKeys'
+import type { MealPlanEntry } from '@/features/calendar/types/calendar'
+import type { Recipe } from '@/features/recipe/types/recipe'
 import { extractLeafTexts } from '@/features/recipe/utils/ingredientUtils'
 import { scaleIngredientText } from '@/features/recipe/utils/scaleIngredient'
-import { formatEntryDate } from '@/features/calendar/utils/calendarUtils'
+import { formatEntryDate } from '@/features/calendar/utils/dateUtils'
 
 type ShoppingSection = {
   label: string
@@ -12,42 +15,33 @@ type ShoppingSection = {
   ingredients: string[]
 }
 
-const useShoppingList = (from: string, to: string, visible: boolean) => {
-  const [entries, setEntries] = useState<MealPlanEntry[]>([])
-  const [recipeMap, setRecipeMap] = useState<Map<string, Recipe>>(new Map())
-  const [loading, setLoading] = useState(false)
-  const [fetched, setFetched] = useState(false)
+const fetchShoppingData = async (
+  from: string,
+  to: string,
+): Promise<{ entries: MealPlanEntry[]; recipeMap: Map<string, Recipe> }> => {
+  const entries = await getMealPlanEntries(from, to)
+  const ids = [...new Set(entries.map((e) => e.recipeId).filter(Boolean) as string[])]
+  const pairs = await Promise.all(
+    ids.map(async (id) => {
+      const r = await getRecipe(id)
+      return r ? ([id, r] as [string, Recipe]) : null
+    }),
+  )
+  const recipeMap = new Map<string, Recipe>()
+  pairs.forEach((p) => p && recipeMap.set(p[0], p[1]))
+  return { entries, recipeMap }
+}
 
-  useEffect(() => {
-    if (!visible) return
-    const fetch = async () => {
-      setLoading(true)
-      setFetched(false)
-      setEntries([])
-      setRecipeMap(new Map())
-      try {
-        const es = await getMealPlanEntries(from, to)
-        setEntries(es)
-        const ids = [...new Set(es.map((e) => e.recipeId).filter(Boolean) as string[])]
-        const pairs = await Promise.all(
-          ids.map(async (id) => {
-            const r = await getRecipe(id)
-            return r ? ([id, r] as [string, Recipe]) : null
-          }),
-        )
-        const map = new Map<string, Recipe>()
-        pairs.forEach((p) => p && map.set(p[0], p[1]))
-        setRecipeMap(map)
-      } finally {
-        setLoading(false)
-        setFetched(true)
-      }
-    }
-    const t = setTimeout(fetch, 350)
-    return () => clearTimeout(t)
-  }, [from, to, visible])
+const useShoppingList = (from: string, to: string, visible: boolean) => {
+  const { data, isLoading, isFetched } = useQuery({
+    queryKey: calendarKeys.entries(from, to),
+    queryFn: () => fetchShoppingData(from, to),
+    enabled: visible,
+  })
 
   const sections = useMemo<ShoppingSection[]>(() => {
+    const entries = data?.entries ?? []
+    const recipeMap = data?.recipeMap ?? new Map<string, Recipe>()
     const sectionsMap = new Map<
       string,
       { label: string; days: string[]; baseIngredients: string[]; count: number; portions: number }
@@ -75,7 +69,7 @@ const useShoppingList = (from: string, to: string, visible: boolean) => {
       days: s.days,
       ingredients: s.baseIngredients.map((i) => scaleIngredientText(i, (2 * s.count) / s.portions)),
     }))
-  }, [entries, recipeMap])
+  }, [data])
 
   const buildCopyText = () =>
     sections
@@ -85,7 +79,7 @@ const useShoppingList = (from: string, to: string, visible: boolean) => {
       })
       .join('\n\n')
 
-  return { loading, fetched, sections, buildCopyText }
+  return { loading: isLoading, fetched: isFetched, sections, buildCopyText }
 }
 
 export default useShoppingList

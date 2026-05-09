@@ -16,18 +16,9 @@ const RecipeMetaSection = ({
   showRatingSaved,
   onRating,
 }: RecipeMetaSectionProps) => (
-  <div style={{ padding: '20px 22px 0' }}>
+  <div className="px-[22px] pt-5">
     {tags.length > 0 && (
-      <div
-        style={{
-          fontFamily: 'var(--mono)',
-          fontSize: 9.5,
-          textTransform: 'uppercase',
-          letterSpacing: '0.14em',
-          marginBottom: 12,
-          color: 'var(--stone)',
-        }}
-      >
+      <div className="font-mono text-[9.5px] uppercase tracking-[0.14em] mb-3 text-stone">
         {tags.map((t, i) => (
           <span key={t}>
             {i > 0 && <span> · </span>}
@@ -37,11 +28,9 @@ const RecipeMetaSection = ({
       </div>
     )}
     {description && (
-      <p style={{ margin: '0 0 14px', color: 'var(--ink-2)', fontSize: 15, lineHeight: 1.55 }}>
-        {description}
-      </p>
+      <p className="m-0 mb-[14px] text-ink-2 text-[15px] leading-[1.55]">{description}</p>
     )}
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <div className="flex items-center gap-[10px]">
       <Stars value={rating ?? 0} onChange={onRating} />
       <AnimatePresence>
         {showRatingSaved && (
@@ -50,7 +39,7 @@ const RecipeMetaSection = ({
             animate={{ opacity: 1, scale: 1, x: 0 }}
             exit={{ opacity: 0, scale: 0.7, x: -4 }}
             transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-            style={{ color: 'var(--bordeaux)' }}
+            className="text-bordeaux"
           >
             <svg
               width="13"

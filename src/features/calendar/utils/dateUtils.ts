@@ -1,45 +1,39 @@
-export const toISO = (d: Date): string => {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
+import {
+  format,
+  parseISO,
+  addDays as dfAddDays,
+  startOfWeek as dfStartOfWeek,
+  startOfMonth as dfStartOfMonth,
+  endOfMonth as dfEndOfMonth,
+  isSameDay as dfIsSameDay,
+  eachDayOfInterval,
+} from 'date-fns'
+import { nl } from 'date-fns/locale'
 
-export const addDays = (d: Date, n: number): Date => {
-  const r = new Date(d)
-  r.setDate(r.getDate() + n)
-  return r
-}
+export const toISO = (d: Date): string => format(d, 'yyyy-MM-dd')
 
-export const startOfWeek = (d: Date): Date => {
-  const r = new Date(d)
-  r.setHours(0, 0, 0, 0)
-  const day = r.getDay()
-  r.setDate(r.getDate() + (day === 0 ? -6 : 1 - day))
-  return r
-}
+export const addDays = (d: Date, n: number): Date => dfAddDays(d, n)
 
-export const startOfMonth = (d: Date): Date => new Date(d.getFullYear(), d.getMonth(), 1)
+export const startOfWeek = (d: Date): Date => dfStartOfWeek(d, { weekStartsOn: 1 })
 
-export const endOfMonth = (d: Date): Date => new Date(d.getFullYear(), d.getMonth() + 1, 0)
+export const startOfMonth = (d: Date): Date => dfStartOfMonth(d)
 
-export const isSameDay = (a: Date, b: Date): boolean =>
-  a.getFullYear() === b.getFullYear() &&
-  a.getMonth() === b.getMonth() &&
-  a.getDate() === b.getDate()
+export const endOfMonth = (d: Date): Date => dfEndOfMonth(d)
+
+export const isSameDay = (a: Date, b: Date): boolean => dfIsSameDay(a, b)
 
 export const weekDays = (weekStart: Date): Date[] =>
-  Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
+  eachDayOfInterval({ start: weekStart, end: addDays(weekStart, 6) })
 
 export const calendarGrid = (monthStart: Date): Date[] => {
   const gridStart = startOfWeek(monthStart)
-  const end = endOfMonth(monthStart)
-  const gridEnd = addDays(startOfWeek(end), 6)
-  const days: Date[] = []
-  let cur = gridStart
-  while (cur <= gridEnd) {
-    days.push(new Date(cur))
-    cur = addDays(cur, 1)
-  }
-  return days
+  const gridEnd = addDays(startOfWeek(endOfMonth(monthStart)), 6)
+  return eachDayOfInterval({ start: gridStart, end: gridEnd })
+}
+
+export const formatEntryDate = (iso: string): string => {
+  const d = parseISO(iso)
+  const day = format(d, 'EEE', { locale: nl }).toUpperCase()
+  const rest = format(d, 'dd-MM')
+  return `${day} ${rest}`
 }

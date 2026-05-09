@@ -134,7 +134,7 @@ test.describe('Recipe list — sorting', () => {
     await locateSortButton(page).click()
     await page.locator('.lb-sheet').getByRole('button', { name: 'Naam A → Z' }).click()
 
-    const items = page.locator('[style*="border-bottom: 0.5px solid var(--line)"] h3')
+    const items = page.locator('[data-testid="recipe-list-item"] h3')
     const texts = await items.allTextContents()
     const appIdx = texts.findIndex((t) => t.includes('Appeltaart'))
     const pastaIdx = texts.findIndex((t) => t.includes('Pasta Carbonara'))
@@ -147,7 +147,7 @@ test.describe('Recipe list — sorting', () => {
     await locateSortButton(page).click()
     await page.click('text=Naam Z → A')
 
-    const items = page.locator('[style*="border-bottom: 0.5px solid var(--line)"] h3')
+    const items = page.locator('[data-testid="recipe-list-item"] h3')
     const texts = await items.allTextContents()
     const soupIdx = texts.findIndex((t) => t.includes('Tomatensoep'))
     const appIdx = texts.findIndex((t) => t.includes('Appeltaart'))
@@ -158,7 +158,7 @@ test.describe('Recipe list — sorting', () => {
     await locateSortButton(page).click()
     await page.click('text=Hoogste beoordeling')
 
-    const items = page.locator('[style*="border-bottom: 0.5px solid var(--line)"] h3')
+    const items = page.locator('[data-testid="recipe-list-item"] h3')
     const texts = await items.allTextContents()
     expect(texts[0]).toContain('Appeltaart')
   })
@@ -167,7 +167,7 @@ test.describe('Recipe list — sorting', () => {
     await locateSortButton(page).click()
     await page.click('text=Laagste beoordeling')
 
-    const items = page.locator('[style*="border-bottom: 0.5px solid var(--line)"] h3')
+    const items = page.locator('[data-testid="recipe-list-item"] h3')
     const texts = await items.allTextContents()
     expect(texts[0]).toContain('Tomatensoep')
   })
