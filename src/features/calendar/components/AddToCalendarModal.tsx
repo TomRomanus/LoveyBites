@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { EASE_IN, EASE_SUBTLE } from '@/shared/constants/animations'
 import { X, ChevronLeft, ChevronRight, Check } from 'lucide-react'
 import {
   getMealPlanEntries,
@@ -131,7 +132,7 @@ const AddToCalendarModal = ({ recipe, onClose }: Props) => {
             variants={{
               hidden: {
                 y: '100%',
-                transition: { type: 'tween', duration: 0.22, ease: [0.4, 0, 1, 1] },
+                transition: { type: 'tween', duration: 0.22, ease: EASE_IN },
               },
               visible: { y: 0, transition: { type: 'spring', stiffness: 300, damping: 32 } },
             }}
@@ -250,7 +251,7 @@ const AddToCalendarModal = ({ recipe, onClose }: Props) => {
                               ? '0 0 0 2px rgba(107,31,42,0.40)'
                               : '0 0 0 0px rgba(107,31,42,0.00)',
                           }}
-                          transition={{ duration: 0.15, ease: [0.25, 0, 0, 1] }}
+                          transition={{ duration: 0.15, ease: EASE_SUBTLE }}
                           className="bg-[var(--cream-card)] border-[0.5px] border-ink/10 py-2 px-1 pb-3 rounded-[12px] flex flex-col items-center gap-[6px] cursor-pointer"
                         >
                           {/* Day number */}
@@ -288,7 +289,7 @@ const AddToCalendarModal = ({ recipe, onClose }: Props) => {
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: 'auto', opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
-                                    transition={{ duration: 0.15, ease: [0.25, 0, 0, 1] }}
+                                    transition={{ duration: 0.15, ease: EASE_SUBTLE }}
                                     className="overflow-hidden"
                                   >
                                     <div className="flex items-center gap-[3px] px-[2px] pb-[2px]">

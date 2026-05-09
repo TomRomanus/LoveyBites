@@ -1,12 +1,13 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { animate, AnimatePresence, motion } from 'framer-motion'
+import { EASE_OVERSHOOT } from '@/shared/constants/animations'
 
 const STAR_COUNT = 5
 const STAR_PATH = 'M12 3l3 6 6.5 1-4.7 4.6 1.1 6.4L12 18l-5.9 3 1.1-6.4L2.5 10 9 9l3-6z'
 
 const snapToHalf = (n: number) => Math.round(n * 2) / 2
 
-const Stars = ({ value, onChange }: { value: number; onChange?: (v: number) => void }) => {
+const StarRatingInput = ({ value, onChange }: { value: number; onChange?: (v: number) => void }) => {
   const rowRef = useRef<HTMLDivElement>(null)
   const starRefs = useRef<(HTMLDivElement | null)[]>([])
   const isDragging = useRef(false)
@@ -52,7 +53,7 @@ const Stars = ({ value, onChange }: { value: number; onChange?: (v: number) => v
         animate(
           el,
           { scale: [0.35, 1.32, 1], rotate: [-18, 6, 0], opacity: [0.2, 1, 1] },
-          { duration: 0.38, ease: [0.34, 1.56, 0.64, 1], delay: i * 0.055 },
+          { duration: 0.38, ease: EASE_OVERSHOOT, delay: i * 0.055 },
         )
       } else if (prevF > 0 && newF === 0) {
         animate(
@@ -215,4 +216,4 @@ const Stars = ({ value, onChange }: { value: number; onChange?: (v: number) => v
   )
 }
 
-export default Stars
+export default StarRatingInput

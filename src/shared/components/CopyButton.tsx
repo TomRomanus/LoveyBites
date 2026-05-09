@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { EASE_IN, EASE_OUT } from '@/shared/constants/animations'
 import { Copy } from 'lucide-react'
 
 type CopyButtonProps = {
@@ -36,7 +37,7 @@ const CopyButton = ({ onCopy }: CopyButtonProps) => {
               opacity: 0,
               y: -10,
               scale: 0.88,
-              transition: { duration: 0.1, ease: [0.4, 0, 1, 1] },
+              transition: { duration: 0.1, ease: EASE_IN },
             }}
             className="flex items-center gap-2"
           >
@@ -54,7 +55,7 @@ const CopyButton = ({ onCopy }: CopyButtonProps) => {
                 d="M5 13l4 4L19 7"
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 0.32, ease: [0.2, 0, 0, 1], delay: 0.06 }}
+                transition={{ duration: 0.32, ease: EASE_OUT, delay: 0.06 }}
               />
             </svg>
             Gekopieerd!
@@ -73,7 +74,7 @@ const CopyButton = ({ onCopy }: CopyButtonProps) => {
               opacity: 0,
               y: 10,
               scale: 0.88,
-              transition: { duration: 0.1, ease: [0.4, 0, 1, 1] },
+              transition: { duration: 0.1, ease: EASE_IN },
             }}
             className="flex items-center gap-2"
           >

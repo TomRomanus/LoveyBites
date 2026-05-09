@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { EASE_OUT } from '@/shared/constants/animations'
 import ShoppingIngredientRow from '@/features/calendar/components/shopping/ShoppingIngredientRow'
 
 type ShoppingSectionProps = {
@@ -25,7 +26,7 @@ const ShoppingSection = ({
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.22, ease: [0.2, 0, 0, 1] },
+          transition: { duration: 0.22, ease: EASE_OUT },
         },
       }}
       className="mb-4 pb-[14px] border-b border-[0.5px] border-ink/10"
@@ -50,7 +51,7 @@ const ShoppingSection = ({
                 visible: {
                   opacity: 1,
                   x: 0,
-                  transition: { duration: 0.18, ease: [0.2, 0, 0, 1] },
+                  transition: { duration: 0.18, ease: EASE_OUT },
                 },
               }}
             >

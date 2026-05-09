@@ -1,6 +1,7 @@
 import { useLayoutEffect } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import { EASE_STANDARD } from '@/shared/constants/animations'
 import { AuthProvider, useAuth } from '@/features/auth/contexts/AuthContext'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import BottomNav from '@/shared/components/BottomNav'
@@ -39,7 +40,7 @@ const AppShell = () => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.22, ease: [0.2, 0, 0.2, 1] }}
+          transition={{ duration: 0.22, ease: EASE_STANDARD }}
         >
           <Routes location={location}>
             <Route path="/login" element={<LoginPage />} />

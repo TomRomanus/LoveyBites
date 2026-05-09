@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { EASE_OUT } from '@/shared/constants/animations'
 import DatePickerInput from '@/features/calendar/components/DatePickerInput'
 import Sheet from '@/shared/components/Sheet'
 import useShoppingList from '@/features/calendar/hooks/useShoppingList'
+import useCheckedSet from '@/shared/hooks/useCheckedSet'
 import ShoppingSection from '@/features/calendar/components/shopping/ShoppingSection'
 import ShoppingListSkeleton from '@/features/calendar/components/shopping/ShoppingListSkeleton'
 import CopyButton from '@/shared/components/CopyButton'
@@ -22,23 +24,12 @@ const ShoppingListSheet = ({
 }: ShoppingListSheetProps) => {
   const [from, setFrom] = useState(defaultStart)
   const [to, setTo] = useState(defaultEnd)
-  const [checked, setChecked] = useState<Set<string>>(new Set())
+  const { checked, toggle, reset } = useCheckedSet()
 
   const { loading, fetched, sections, buildCopyText } = useShoppingList(from, to, visible)
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setChecked(new Set())
-  }, [from, to])
-
-  const toggleChecked = (key: string) => {
-    setChecked((prev) => {
-      const next = new Set(prev)
-      if (next.has(key)) next.delete(key)
-      else next.add(key)
-      return next
-    })
-  }
+  const handleFromChange = (v: string) => { setFrom(v); reset() }
+  const handleToChange = (v: string) => { setTo(v); reset() }
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(buildCopyText())
@@ -53,9 +44,9 @@ const ShoppingListSheet = ({
         </h3>
       </div>
       <div className="py-[14px] px-[22px] pb-4 flex gap-[10px] items-end">
-        <DatePickerInput label="VAN" value={from} onChange={setFrom} />
+        <DatePickerInput label="VAN" value={from} onChange={handleFromChange} />
         <div className="text-stone-2 text-[14px] mb-[14px] shrink-0">→</div>
-        <DatePickerInput label="TOT" value={to} onChange={setTo} openLeft />
+        <DatePickerInput label="TOT" value={to} onChange={handleToChange} openLeft />
       </div>
       <div className="flex-1 min-h-0 overflow-auto py-[6px] px-[22px]">
         <AnimatePresence mode="wait">
@@ -66,7 +57,7 @@ const ShoppingListSheet = ({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
+              transition={{ duration: 0.2, ease: EASE_OUT }}
               className="text-center text-stone font-serif italic p-[30px]"
             >
               Geen geplande recepten in deze periode.
@@ -91,7 +82,7 @@ const ShoppingListSheet = ({
                   ingredients={s.ingredients}
                   checkedKeys={checked}
                   sectionIndex={i}
-                  onToggle={toggleChecked}
+                  onToggle={toggle}
                 />
               ))}
             </motion.div>

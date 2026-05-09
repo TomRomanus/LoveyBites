@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getMealPlanEntries } from '@/features/calendar/api/mealPlan'
 import { getRecipe } from '@/features/recipe/api/recipes'
@@ -71,13 +71,16 @@ const useShoppingList = (from: string, to: string, visible: boolean) => {
     }))
   }, [data])
 
-  const buildCopyText = () =>
-    sections
-      .map((s) => {
-        const dayStr = s.days.map(formatEntryDate).join(', ')
-        return `${s.label} (${dayStr}):\n${s.ingredients.map((i) => `  - ${i}`).join('\n')}`
-      })
-      .join('\n\n')
+  const buildCopyText = useCallback(
+    () =>
+      sections
+        .map((s) => {
+          const dayStr = s.days.map(formatEntryDate).join(', ')
+          return `${s.label} (${dayStr}):\n${s.ingredients.map((i) => `  - ${i}`).join('\n')}`
+        })
+        .join('\n\n'),
+    [sections],
+  )
 
   return { loading: isLoading, fetched: isFetched, sections, buildCopyText }
 }

@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import Stars from '@/features/recipe/components/Stars'
+import { EASE_OUT } from '@/shared/constants/animations'
+import StarRatingInput from '@/features/recipe/components/StarRatingInput'
 
 type RecipeMetaSectionProps = {
   tags: string[]
@@ -31,7 +32,7 @@ const RecipeMetaSection = ({
       <p className="m-0 mb-[14px] text-ink-2 text-[15px] leading-[1.55]">{description}</p>
     )}
     <div className="flex items-center gap-[10px]">
-      <Stars value={rating ?? 0} onChange={onRating} />
+      <StarRatingInput value={rating ?? 0} onChange={onRating} />
       <AnimatePresence>
         {showRatingSaved && (
           <motion.div
@@ -55,7 +56,7 @@ const RecipeMetaSection = ({
                 d="M5 13l4 4L19 7"
                 initial={{ pathLength: 0 }}
                 animate={{ pathLength: 1 }}
-                transition={{ duration: 0.28, ease: [0.2, 0, 0, 1] }}
+                transition={{ duration: 0.28, ease: EASE_OUT }}
               />
             </svg>
           </motion.div>

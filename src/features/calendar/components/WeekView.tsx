@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { EASE_OUT } from '@/shared/constants/animations'
 import { X, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { MealPlanEntry } from '@/features/calendar/types/calendar'
@@ -66,7 +67,7 @@ const WeekView = ({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
                       initial={{ opacity: 0, height: 0, x: -6 }}
                       animate={{ opacity: 1, height: 'auto', x: 0 }}
                       exit={{ opacity: 0, height: 0, x: 0 }}
-                      transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
+                      transition={{ duration: 0.2, ease: EASE_OUT }}
                       className="overflow-hidden flex items-center gap-[5px]"
                     >
                       <div

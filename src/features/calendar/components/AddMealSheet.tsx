@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { EASE_OUT } from '@/shared/constants/animations'
 import { useQuery } from '@tanstack/react-query'
 import { getRecipes } from '@/features/recipe/api/recipes'
 import { recipeKeys } from '@/features/recipe/api/queryKeys'
@@ -115,7 +116,7 @@ const AddMealSheet = ({
               initial={{ opacity: 0, y: tabDir * 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: tabDir * -16 }}
-              transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
+              transition={{ duration: 0.18, ease: EASE_OUT }}
               className="pt-[6px] px-[22px] h-full overflow-y-auto overflow-x-hidden"
             >
               <>
@@ -149,7 +150,7 @@ const AddMealSheet = ({
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
-                      transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
+                      transition={{ duration: 0.18, ease: EASE_OUT }}
                       className="text-center text-stone font-serif italic p-5"
                     >
                       Geen recepten gevonden
@@ -178,7 +179,7 @@ const AddMealSheet = ({
               initial={{ opacity: 0, y: tabDir * -16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: tabDir * 16 }}
-              transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
+              transition={{ duration: 0.18, ease: EASE_OUT }}
               className="pt-[6px] px-[22px] h-full overflow-y-auto"
             >
               <>

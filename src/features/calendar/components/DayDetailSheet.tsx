@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { EASE_OUT } from '@/shared/constants/animations'
 import { Plus } from 'lucide-react'
 import type { MealPlanEntry } from '@/features/calendar/types/calendar'
 import type { Recipe } from '@/features/recipe/types/recipe'
@@ -41,7 +42,7 @@ const DayDetailSheet = ({
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.2, ease: [0.2, 0, 0, 1] }}
+              transition={{ duration: 0.2, ease: EASE_OUT }}
               className="py-5 text-stone italic font-serif text-center"
             >
               Nog niets gepland.
@@ -70,7 +71,7 @@ const DayDetailSheet = ({
         <motion.button
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.22, delay: 0.22, ease: [0.2, 0, 0, 1] }}
+          transition={{ duration: 0.22, delay: 0.22, ease: EASE_OUT }}
           onClick={onAdd}
           className="lb-btn lb-btn--ghost w-full mt-[14px]"
         >

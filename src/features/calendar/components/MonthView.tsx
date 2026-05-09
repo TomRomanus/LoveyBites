@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { EASE_OUT, EASE_SUBTLE } from '@/shared/constants/animations'
 import type { MealPlanEntry } from '@/features/calendar/types/calendar'
 import type { Recipe } from '@/features/recipe/types/recipe'
 import { toISO, startOfMonth, isSameDay, calendarGrid } from '@/features/calendar/utils/dateUtils'
@@ -54,7 +55,7 @@ const MonthView = ({
                   ? '0 0 0 2px rgba(107,31,42,0.40)'
                   : '0 0 0 0px rgba(107,31,42,0.00)',
               }}
-              transition={{ duration: 0.15, ease: [0.25, 0, 0, 1] }}
+              transition={{ duration: 0.15, ease: EASE_SUBTLE }}
               className="bg-[var(--cream-card)] border-[0.5px] border-ink/10 rounded-[10px] py-2 px-1 pb-3 flex flex-col items-center gap-[5px] text-ink text-left cursor-pointer overflow-hidden"
               style={{ opacity: inMonth ? 1 : 0.28 }}
             >
@@ -74,7 +75,7 @@ const MonthView = ({
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.15, ease: [0.25, 0, 0, 1] }}
+                        transition={{ duration: 0.15, ease: EASE_SUBTLE }}
                         className="overflow-hidden"
                       >
                         <div className="flex items-center gap-[2px] w-full pb-[2px]">
@@ -98,7 +99,7 @@ const MonthView = ({
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.22, ease: [0.2, 0, 0, 1] }}
+                      transition={{ duration: 0.22, ease: EASE_OUT }}
                       className="overflow-hidden font-mono text-[7px] text-stone tracking-[0.03em]"
                     >
                       +{dayEntries.length - 2}

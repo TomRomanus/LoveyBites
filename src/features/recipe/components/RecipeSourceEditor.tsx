@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Plus, Upload } from 'lucide-react'
 import type { Source } from '@/features/recipe/types/recipe'
-import { uploadSourceImage } from '@/features/recipe/api/storage'
+import { uploadSourceImage } from '@/features/recipe/api/imageStorage'
 
 type Props = {
   sources: Source[]

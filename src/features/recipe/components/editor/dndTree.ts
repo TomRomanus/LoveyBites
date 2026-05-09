@@ -2,7 +2,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import { produce } from 'immer'
 import type { IngredientNode } from '@/features/recipe/types/recipe'
 
-export const findContainer = (nodes: IngredientNode[], id: string): string | null => {
+const findContainer = (nodes: IngredientNode[], id: string): string | null => {
   for (const n of nodes) {
     if (n.id === id) return null
     if (n.kind === 'group') {
@@ -25,7 +25,7 @@ export const findNode = (nodes: IngredientNode[], id: string): IngredientNode | 
   return null
 }
 
-export const removeDragNode = (nodes: IngredientNode[], id: string): IngredientNode[] =>
+const removeDragNode = (nodes: IngredientNode[], id: string): IngredientNode[] =>
   nodes
     .filter((n) => n.id !== id)
     .map((n) =>

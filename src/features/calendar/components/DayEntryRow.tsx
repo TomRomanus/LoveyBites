@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { EASE_IN, EASE_OUT } from '@/shared/constants/animations'
 import { X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { MealPlanEntry } from '@/features/calendar/types/calendar'
@@ -19,14 +20,14 @@ const DayEntryRow = ({ entry, recipe, onDelete }: DayEntryRowProps) => {
         visible: {
           opacity: 1,
           x: 0,
-          transition: { duration: 0.22, ease: [0.2, 0, 0, 1] },
+          transition: { duration: 0.22, ease: EASE_OUT },
         },
       }}
       exit={{
         opacity: 0,
         height: 0,
         x: 6,
-        transition: { duration: 0.18, ease: [0.4, 0, 1, 1] },
+        transition: { duration: 0.18, ease: EASE_IN },
       }}
       className="overflow-hidden"
     >

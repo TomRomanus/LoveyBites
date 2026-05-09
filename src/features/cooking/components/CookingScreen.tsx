@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { EASE_STANDARD } from '@/shared/constants/animations'
 import { collectIngredientMap } from '@/features/recipe/utils/ingredientUtils'
 import type { CookingScreenProps, CookTab } from '@/features/cooking/types/cooking'
-import { flattenCookSteps } from '@/features/cooking/utils/cookingUtils'
+import { flattenCookSteps } from '@/features/cooking/utils/cookSteps'
 import useBodyScrollLock from '@/shared/hooks/useBodyScrollLock'
 import CookingHeader from '@/features/cooking/components/CookingHeader'
 import CookingTabs from '@/features/cooking/components/CookingTabs'
@@ -61,7 +62,7 @@ const CookingScreen = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.22, ease: [0.2, 0, 0.2, 1] }}
+      transition={{ duration: 0.22, ease: EASE_STANDARD }}
       className="fixed inset-0 z-[100] h-[100dvh] bg-ink text-paper flex flex-col select-none"
     >
       <CookingHeader onClose={onClose} />

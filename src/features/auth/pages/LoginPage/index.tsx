@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { EASE_STANDARD } from '@/shared/constants/animations'
 import AnimatedTabBar from '@/shared/components/AnimatedTabBar'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 
@@ -95,7 +96,7 @@ const LoginPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.2, 0, 0.2, 1] }}
+        transition={{ duration: 0.5, ease: EASE_STANDARD }}
         className="pt-[70px] px-7 shrink-0"
       >
         <div className="lb-eyebrow mb-[14px]">SINDS 2026</div>
@@ -109,7 +110,7 @@ const LoginPage = () => {
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45, ease: [0.2, 0, 0.2, 1], delay: 0.12 }}
+        transition={{ duration: 0.45, ease: EASE_STANDARD, delay: 0.12 }}
         className="px-7 mt-5"
       >
         <div className="flex items-center gap-[14px]">
@@ -129,7 +130,7 @@ const LoginPage = () => {
         onSubmit={handleSubmit}
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.2, 0, 0.2, 1], delay: 0.22 }}
+        transition={{ duration: 0.4, ease: EASE_STANDARD, delay: 0.22 }}
         className="pt-6 px-7 flex flex-col gap-3"
       >
         {/* Mode toggle */}

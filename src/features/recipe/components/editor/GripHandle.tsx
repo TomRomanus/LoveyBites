@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react'
 import { GripVertical } from 'lucide-react'
 import type { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core'
 
-export type DragHandleContextValue = {
+type DragHandleContextValue = {
   listeners?: DraggableSyntheticListeners
   attributes?: DraggableAttributes
 }

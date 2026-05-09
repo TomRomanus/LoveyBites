@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import { EASE_STANDARD } from '@/shared/constants/animations'
 import { useQuery } from '@tanstack/react-query'
 import RecipeForm from '@/features/recipe/components/RecipeForm'
 import RecipeUrlImport from '@/features/recipe/components/RecipeUrlImport'
@@ -124,7 +125,7 @@ const RecipeFormPage = () => {
               className="px-[22px] py-7"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08, duration: 0.22, ease: [0.2, 0, 0.2, 1] }}
+              transition={{ delay: 0.08, duration: 0.22, ease: EASE_STANDARD }}
             >
               {mode === 'url' && <RecipeUrlImport onExtracted={handleExtracted} />}
               {mode === 'text' && <RecipeTextImport onExtracted={handleExtracted} />}
@@ -155,7 +156,7 @@ const RecipeFormPage = () => {
               className="px-5 pb-8"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.08, duration: 0.22, ease: [0.2, 0, 0.2, 1] }}
+              transition={{ delay: 0.08, duration: 0.22, ease: EASE_STANDARD }}
             >
               <RecipeForm
                 initial={formInitial}

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { EASE_OVERSHOOT, EASE_IN_OUT } from '@/shared/constants/animations'
 
 type IngredientCheckboxProps = {
   checked: boolean
@@ -19,7 +20,7 @@ const IngredientCheckbox = ({ checked, theme = 'light' }: IngredientCheckboxProp
           : 'var(--stone-2)',
       scale: checked ? [1, 0.82, 1] : 1,
     }}
-    transition={{ duration: 0.25, ease: [0.34, 1.56, 0.64, 1] }}
+    transition={{ duration: 0.25, ease: EASE_OVERSHOOT }}
     className="w-[22px] h-[22px] rounded-[6px] border-[1.5px] border-solid inline-flex items-center justify-center shrink-0"
   >
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
@@ -29,7 +30,7 @@ const IngredientCheckbox = ({ checked, theme = 'light' }: IngredientCheckboxProp
         strokeLinejoin="round"
         initial={false}
         animate={{ pathLength: checked ? 1 : 0, opacity: checked ? 1 : 0 }}
-        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+        transition={{ duration: 0.2, ease: EASE_IN_OUT }}
       />
     </svg>
   </motion.span>

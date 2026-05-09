@@ -1,5 +1,6 @@
 import { useAnimate } from 'framer-motion'
 import { useEffect } from 'react'
+import { EASE_IN_OUT, EASE_OVERSHOOT } from '@/shared/constants/animations'
 
 const LoadingLogo = ({ size = 80 }: { size?: number }) => {
   const [scope, animate] = useAnimate()
@@ -15,7 +16,7 @@ const LoadingLogo = ({ size = 80 }: { size?: number }) => {
       {
         duration: 1,
         times: [0, 0.3, 0.44, 0.8, 1],
-        ease: [0.4, 0, 0.2, 1],
+        ease: EASE_IN_OUT,
       },
     )
 
@@ -25,7 +26,7 @@ const LoadingLogo = ({ size = 80 }: { size?: number }) => {
       {
         delay: 1.2,
         duration: 0.22,
-        ease: [0.34, 1.56, 0.64, 1],
+        ease: EASE_OVERSHOOT,
       },
     )
   }, [animate])

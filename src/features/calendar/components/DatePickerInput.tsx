@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { EASE_OUT } from '@/shared/constants/animations'
 import { Calendar, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { toISO, startOfMonth, isSameDay, calendarGrid } from '@/features/calendar/utils/dateUtils'
 import { NL_DAYS_GRID, NL_MONTHS } from '@/shared/constants/locale'
@@ -81,7 +82,7 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
         </span>
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
-          transition={{ duration: 0.18, ease: [0.2, 0, 0, 1] }}
+          transition={{ duration: 0.18, ease: EASE_OUT }}
           className="flex shrink-0"
         >
           <ChevronDown size={11} strokeWidth={2.2} color="var(--stone)" />
