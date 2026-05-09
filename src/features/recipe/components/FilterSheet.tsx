@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, Search } from 'lucide-react'
+import { Check } from 'lucide-react'
 import Sheet from '@/shared/components/Sheet'
+import SearchInput from '@/shared/components/SearchInput'
 
 type FilterSheetProps = {
   visible: boolean
@@ -31,18 +32,7 @@ const FilterSheet = ({ visible, activeTags, allTags, onChange, onClose }: Filter
         )}
       </div>
       <div className="px-5 pt-[14px]">
-        <div className="relative">
-          <div className="absolute left-[14px] top-1/2 -translate-y-1/2 text-stone pointer-events-none">
-            <Search size={16} strokeWidth={1.6} />
-          </div>
-          <input
-            className="lb-input pl-10 h-10"
-            placeholder="Zoek tags"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            autoFocus
-          />
-        </div>
+        <SearchInput value={q} onChange={setQ} placeholder="Zoek tags" autoFocus />
       </div>
       <div className="px-5 pt-4 pb-5 flex flex-wrap gap-2 overflow-y-auto overflow-x-hidden flex-1">
         {filtered.map((t) => {
