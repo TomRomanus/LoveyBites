@@ -10,7 +10,13 @@ type SearchInputProps = {
   inputRef?: React.RefObject<HTMLInputElement>
 }
 
-const SearchInput = ({ value, onChange, placeholder = 'Zoeken...', autoFocus, inputRef }: SearchInputProps) => {
+const SearchInput = ({
+  value,
+  onChange,
+  placeholder = 'Zoeken...',
+  autoFocus,
+  inputRef,
+}: SearchInputProps) => {
   const localRef = useRef<HTMLInputElement>(null)
   const ref = inputRef ?? localRef
 

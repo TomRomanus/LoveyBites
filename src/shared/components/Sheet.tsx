@@ -1,6 +1,6 @@
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { sheetVariants, backdropVariants } from '../constants/animations'
+import { sheetVariants, backdropVariants } from '@/shared/constants/animations'
 
 type SheetProps = {
   visible: boolean

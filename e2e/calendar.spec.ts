@@ -172,12 +172,17 @@ test.describe('Calendar — shopping list date range', () => {
     await page.locator('[data-testid="date-picker-next-month"]').click()
 
     // Click day 15 of next month (sets FROM to a future date, excluding today's meal)
-    await page.locator('[data-testid="date-picker-dropdown"]').locator('button').filter({ hasText: '15' }).first().click()
+    await page
+      .locator('[data-testid="date-picker-dropdown"]')
+      .locator('button')
+      .filter({ hasText: '15' })
+      .first()
+      .click()
 
     // Shopping list should now show the empty state
-    await expect(
-      page.getByText('Geen geplande recepten in deze periode.'),
-    ).toBeVisible({ timeout: 8_000 })
+    await expect(page.getByText('Geen geplande recepten in deze periode.')).toBeVisible({
+      timeout: 8_000,
+    })
   })
 })
 

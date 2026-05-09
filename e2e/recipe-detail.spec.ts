@@ -173,6 +173,8 @@ test.describe('Recipe detail — calendar modal day selection', () => {
     await todayBtn.click()
 
     // Checkmark animation briefly confirms the save
-    await expect(page.locator('[data-testid="day-saved-check"]').first()).toBeVisible({ timeout: 10_000 })
+    await expect(page.locator('[data-testid="day-saved-check"]').first()).toBeVisible({
+      timeout: 10_000,
+    })
   })
 })
