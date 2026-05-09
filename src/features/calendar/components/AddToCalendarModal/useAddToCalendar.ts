@@ -5,7 +5,6 @@ import {
   deleteMealPlanEntry,
 } from '@/features/calendar/api/mealPlan'
 import { getRecipes } from '@/features/recipe/api/recipes'
-import type { Timestamp } from 'firebase/firestore'
 import type { MealPlanEntry } from '@/features/calendar/types/calendar'
 import type { Recipe } from '@/features/recipe/types/recipe'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
@@ -53,12 +52,12 @@ export function useAddToCalendar({ recipe }: UseAddToCalendarProps): UseAddToCal
   const weekStartISO = toISO(weekStart)
   const weekEndISO = toISO(weekEnd)
 
-  const weekLabel = (() => {
+  const weekLabel = useMemo(() => {
     if (weekStart.getMonth() === weekEnd.getMonth()) {
       return `${weekStart.getDate()}–${weekEnd.getDate()} ${NL_MONTHS[weekStart.getMonth()]} ${weekStart.getFullYear()}`
     }
     return `${weekStart.getDate()} ${NL_MONTHS[weekStart.getMonth()]} – ${weekEnd.getDate()} ${NL_MONTHS[weekEnd.getMonth()]}`
-  })()
+  }, [weekStart, weekEnd])
 
   useEffect(() => {
     getMealPlanEntries(weekStartISO, weekEndISO).then(setEntries)
@@ -104,7 +103,7 @@ export function useAddToCalendar({ recipe }: UseAddToCalendarProps): UseAddToCal
             recipeId: recipe.id,
             recipeTitle: recipe.title,
             createdBy: user.uid,
-            createdAt: null as unknown as Timestamp,
+            createdAt: null,
           },
         ])
         setRecentlySaved((prev) => new Set([...prev, iso]))

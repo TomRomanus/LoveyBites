@@ -19,14 +19,14 @@ const useCalendarView = () => {
   const [anchor, setAnchor] = useState<Date>(() => startOfWeek(today))
   const [navDir, setNavDir] = useState(0)
 
-  const { visibleStart, visibleEnd } = (() => {
+  const { visibleStart, visibleEnd } = useMemo(() => {
     if (view === 'week') {
       return { visibleStart: anchor, visibleEnd: addDays(anchor, 6) }
     }
     const ms = startOfMonth(anchor)
     const grid = calendarGrid(ms)
     return { visibleStart: grid[0], visibleEnd: grid[grid.length - 1] }
-  })()
+  }, [view, anchor])
 
   const visibleStartISO = toISO(visibleStart)
   const visibleEndISO = toISO(visibleEnd)

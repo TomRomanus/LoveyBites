@@ -1,6 +1,7 @@
 import * as RadixDialog from '@radix-ui/react-dialog'
-import { motion, AnimatePresence } from 'framer-motion'
-import { sheetVariants, backdropVariants } from '@/shared/constants/animations'
+import { motion } from 'framer-motion'
+import { sheetVariants } from '@/shared/constants/animations'
+import BaseOverlay from '@/shared/components/BaseOverlay'
 
 type SheetProps = {
   visible: boolean
@@ -10,46 +11,23 @@ type SheetProps = {
 }
 
 const Sheet = ({ visible, onClose, height, children }: SheetProps) => (
-  <RadixDialog.Root open={visible} onOpenChange={(open) => !open && onClose()}>
-    <RadixDialog.Portal forceMount>
-      <AnimatePresence>
-        {visible && (
-          <>
-            <RadixDialog.Overlay asChild forceMount>
-              <motion.div
-                key="sheet-bd"
-                variants={backdropVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                className="fixed inset-0 z-[200]"
-                style={{
-                  background: 'rgba(31,29,26,0.12)',
-                  backdropFilter: 'blur(1px)',
-                  WebkitBackdropFilter: 'blur(1px)',
-                }}
-              />
-            </RadixDialog.Overlay>
-            <RadixDialog.Content asChild forceMount>
-              <motion.div
-                key="sheet-panel"
-                className="lb-sheet"
-                style={{ animation: 'none', paddingBottom: 30, ...(height ? { height } : {}) }}
-                variants={sheetVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-              >
-                <RadixDialog.Title className="sr-only">Panel</RadixDialog.Title>
-                <div className="lb-sheet-grabber" />
-                {children}
-              </motion.div>
-            </RadixDialog.Content>
-          </>
-        )}
-      </AnimatePresence>
-    </RadixDialog.Portal>
-  </RadixDialog.Root>
+  <BaseOverlay visible={visible} onClose={onClose} backdropZ="z-[200]">
+    <RadixDialog.Content asChild forceMount>
+      <motion.div
+        key="sheet-panel"
+        className="lb-sheet"
+        style={{ animation: 'none', paddingBottom: 30, ...(height ? { height } : {}) }}
+        variants={sheetVariants}
+        initial="hidden"
+        animate="visible"
+        exit="hidden"
+      >
+        <RadixDialog.Title className="sr-only">Panel</RadixDialog.Title>
+        <div className="lb-sheet-grabber" />
+        {children}
+      </motion.div>
+    </RadixDialog.Content>
+  </BaseOverlay>
 )
 
 export default Sheet

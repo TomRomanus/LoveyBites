@@ -8,7 +8,7 @@ export type MealPlanEntry = {
   recipeId?: string
   recipeTitle?: string
   customDescription?: string
-  createdAt: Timestamp
+  createdAt: Timestamp | null
   createdBy: string
 }
 
