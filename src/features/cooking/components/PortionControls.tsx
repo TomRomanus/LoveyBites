@@ -15,7 +15,12 @@ const portionVariants = {
   exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -10 : d === 'down' ? 10 : 0, opacity: 0 }),
 }
 
-const PortionControls = ({ recipe, selectedPortions, portionDir, onPortionsChange }: PortionControlsProps) => (
+const PortionControls = ({
+  recipe,
+  selectedPortions,
+  portionDir,
+  onPortionsChange,
+}: PortionControlsProps) => (
   <div className="flex items-center justify-between mb-[14px]">
     <div className="flex items-center gap-1 font-mono text-[12px] tracking-[0.08em] uppercase text-paper/[0.65]">
       <span>voor</span>

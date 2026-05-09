@@ -28,8 +28,20 @@ const ShoppingListSheet = ({
 
   const { loading, fetched, sections, buildCopyText } = useShoppingList(from, to, visible)
 
-  const handleFromChange = useCallback((v: string) => { setFrom(v); reset() }, [reset])
-  const handleToChange = useCallback((v: string) => { setTo(v); reset() }, [reset])
+  const handleFromChange = useCallback(
+    (v: string) => {
+      setFrom(v)
+      reset()
+    },
+    [reset],
+  )
+  const handleToChange = useCallback(
+    (v: string) => {
+      setTo(v)
+      reset()
+    },
+    [reset],
+  )
   const handleCopy = useCallback(
     () => navigator.clipboard.writeText(buildCopyText()),
     [buildCopyText],

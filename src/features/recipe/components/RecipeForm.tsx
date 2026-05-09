@@ -28,7 +28,7 @@ const stepLabels = {
 }
 
 const RecipeForm = (props: Props) => {
-  const { initial, existingTags } = props
+  const { existingTags } = props
   const [isReordering, setIsReordering] = useState(false)
   const { form, ingredientOptions, errorMessage, onSubmit, onTitleChange } = useRecipeForm(props)
   const { register, control, setValue } = form

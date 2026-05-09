@@ -28,7 +28,9 @@ export const labelFromUrl = (url: string): string => {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
-export const parseAIResponse = (text: string): { recipe: Partial<RecipeInput>; sourceName: string } => {
+export const parseAIResponse = (
+  text: string,
+): { recipe: Partial<RecipeInput>; sourceName: string } => {
   const jsonMatch = text.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error('AI response did not contain valid JSON')
 

@@ -71,7 +71,11 @@ const AuthForm = ({
       )}
     </AnimatePresence>
 
-    <button type="submit" className="lb-btn lb-btn--primary mt-1 overflow-hidden" disabled={loading}>
+    <button
+      type="submit"
+      className="lb-btn lb-btn--primary mt-1 overflow-hidden"
+      disabled={loading}
+    >
       <AnimatePresence mode="wait" custom={modeDir}>
         {loading ? (
           <motion.span

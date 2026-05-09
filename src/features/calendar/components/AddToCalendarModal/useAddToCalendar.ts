@@ -8,7 +8,7 @@ import { getRecipes } from '@/features/recipe/api/recipes'
 import type { MealPlanEntry } from '@/features/calendar/types/calendar'
 import type { Recipe } from '@/features/recipe/types/recipe'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
-import { toISO, addDays, startOfWeek, isSameDay } from '@/features/calendar/utils/dateUtils'
+import { toISO, addDays, startOfWeek } from '@/features/calendar/utils/dateUtils'
 import { NL_MONTHS } from '@/shared/constants/locale'
 
 type UseAddToCalendarProps = {

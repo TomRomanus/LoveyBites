@@ -19,9 +19,8 @@ const useCalendarData = (startISO: string, endISO: string) => {
 
   const removeEntry = useCallback(
     (id: string) =>
-      queryClient.setQueryData<EntriesWithRecipes>(
-        calendarKeys.entries(startISO, endISO),
-        (old) => (old ? { ...old, entries: old.entries.filter((e) => e.id !== id) } : old),
+      queryClient.setQueryData<EntriesWithRecipes>(calendarKeys.entries(startISO, endISO), (old) =>
+        old ? { ...old, entries: old.entries.filter((e) => e.id !== id) } : old,
       ),
     [queryClient, startISO, endISO],
   )

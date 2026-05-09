@@ -72,7 +72,12 @@ export const useRecipeForm = ({
     defaultValues: buildInitial(initial),
   })
 
-  const { handleSubmit, control, reset, formState: { errors } } = form
+  const {
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors },
+  } = form
 
   useEffect(() => {
     if (initial !== undefined) reset(buildInitial(initial))
