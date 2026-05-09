@@ -1,88 +1,34 @@
-import { useCallback, useEffect, useState } from 'react'
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, ShoppingBag } from 'lucide-react'
-import { getMealPlanEntries, deleteMealPlanEntry } from '../services/mealPlan'
-import { getRecipe } from '../../recipe/services/recipes'
-import type { MealPlanEntry, Recipe } from '../../recipe/types/recipe'
-import { toISO, addDays, startOfWeek, startOfMonth, calendarGrid } from '../utils/dateUtils'
+import { deleteMealPlanEntry } from '../services/mealPlan'
+import { toISO, addDays, startOfWeek } from '../utils/dateUtils'
 import { NL_MONTHS, NL_MONTHS_SHORT } from '../../shared/constants/locale'
 import { titleVariants, pageVariants } from '../components/calendarAnimations'
-import type { ViewMode } from '../types/calendar'
 import WeekView from '../components/WeekView'
 import MonthView from '../components/MonthView'
 import DayDetailSheet from '../components/DayDetailSheet'
 import AddMealSheet from '../components/AddMealSheet'
 import ShoppingListSheet from '../components/ShoppingListSheet'
+import useCalendarView from '../hooks/useCalendarView'
+import useCalendarData from '../hooks/useCalendarData'
+import AnimatedTabBar from '../../shared/components/AnimatedTabBar'
 
 const CalendarPage = () => {
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const { view, anchor, navDir, today, visibleStartISO, visibleEndISO, isCurrentPeriod, movePeriod, goToToday, switchView } =
+    useCalendarView()
+  const { entries, setEntries, recipeMap, loading, reload } = useCalendarData(
+    visibleStartISO,
+    visibleEndISO,
+  )
 
-  const [view, setView] = useState<ViewMode>('week')
-  const [anchor, setAnchor] = useState<Date>(startOfWeek(today))
-  const [navDir, setNavDir] = useState(0)
-  const [entries, setEntries] = useState<MealPlanEntry[]>([])
-  const [recipeMap, setRecipeMap] = useState<Map<string, Recipe>>(new Map())
-  const [loading, setLoading] = useState(true)
   const [modalDate, setModalDate] = useState<string | null>(null)
   const [detailDay, setDetailDay] = useState<Date | null>(null)
   const [showShopping, setShowShopping] = useState(false)
 
-  const { visibleStart, visibleEnd } = (() => {
-    if (view === 'week') {
-      return { visibleStart: anchor, visibleEnd: addDays(anchor, 6) }
-    }
-    const ms = startOfMonth(anchor)
-    const grid = calendarGrid(ms)
-    return { visibleStart: grid[0], visibleEnd: grid[grid.length - 1] }
-  })()
-
-  const visibleStartISO = toISO(visibleStart)
-  const visibleEndISO = toISO(visibleEnd)
-
-  const loadEntries = useCallback(async () => {
-    const es = await getMealPlanEntries(visibleStartISO, visibleEndISO)
-    setEntries(es)
-    const ids = [...new Set(es.map((e) => e.recipeId).filter(Boolean) as string[])]
-    const pairs = await Promise.all(
-      ids.map(async (id) => {
-        const r = await getRecipe(id)
-        return r ? ([id, r] as [string, Recipe]) : null
-      }),
-    )
-    const map = new Map<string, Recipe>()
-    pairs.forEach((p) => p && map.set(p[0], p[1]))
-    setRecipeMap(map)
-    setLoading(false)
-  }, [visibleStartISO, visibleEndISO])
-
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
-    loadEntries()
-  }, [loadEntries])
-
   const handleDelete = async (id: string) => {
     await deleteMealPlanEntry(id)
     setEntries((prev) => prev.filter((e) => e.id !== id))
-  }
-
-  const movePeriod = (dir: -1 | 1) => {
-    setNavDir(dir)
-    setAnchor((prev) => {
-      if (view === 'week') return addDays(prev, dir * 7)
-      const d = new Date(prev)
-      d.setMonth(d.getMonth() + dir)
-      return d
-    })
-  }
-
-  const isCurrentPeriod =
-    view === 'week'
-      ? toISO(anchor) === toISO(startOfWeek(today))
-      : anchor.getMonth() === today.getMonth() && anchor.getFullYear() === today.getFullYear()
-
-  const goToToday = () => {
-    setAnchor(view === 'week' ? startOfWeek(today) : startOfMonth(today))
   }
 
   const shoppingStart = toISO(startOfWeek(today))
@@ -200,58 +146,16 @@ const CalendarPage = () => {
 
       {/* Controls */}
       <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <LayoutGroup id="calendar-tabs">
-          <div style={{ display: 'flex', borderBottom: '0.5px solid var(--line)' }}>
-            {(
-              [
-                ['week', 'WEEK'],
-                ['month', 'MAAND'],
-              ] as const
-            ).map(([v, l]) => (
-              <motion.button
-                key={v}
-                onClick={() => {
-                  setNavDir(v === 'month' ? 2 : -2)
-                  setView(v)
-                  setAnchor(v === 'week' ? startOfWeek(today) : startOfMonth(today))
-                }}
-                animate={{ color: view === v ? 'var(--bordeaux)' : 'var(--stone)' }}
-                transition={{ duration: 0.2 }}
-                style={{
-                  position: 'relative',
-                  background: 'none',
-                  border: 0,
-                  padding: '0 2px 7px',
-                  marginRight: v === 'week' ? 20 : 0,
-                  marginBottom: -0.5,
-                  fontFamily: 'var(--mono)',
-                  fontSize: 11.5,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  fontWeight: view === v ? 700 : 600,
-                  cursor: 'pointer',
-                }}
-              >
-                {l}
-                {view === v && (
-                  <motion.div
-                    layoutId="cal-tab-line"
-                    style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      height: 2.5,
-                      background: 'var(--bordeaux)',
-                      borderRadius: '2px 2px 0 0',
-                    }}
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  />
-                )}
-              </motion.button>
-            ))}
-          </div>
-        </LayoutGroup>
+        <AnimatedTabBar
+          layoutId="calendar-tabs"
+          tabs={[
+            { key: 'week', label: 'WEEK' },
+            { key: 'month', label: 'MAAND' },
+          ]}
+          active={view}
+          onChange={switchView}
+          variant="underline"
+        />
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <motion.button
             data-testid="prev-period-btn"
@@ -422,52 +326,40 @@ const CalendarPage = () => {
         </AnimatePresence>
       )}
 
-      {/* Day detail sheet (month view) */}
-      <AnimatePresence>
-        {detailDay && (
-          <DayDetailSheet
-            date={detailDay}
-            entries={entries.filter((e) => e.date === toISO(detailDay))}
-            recipeMap={recipeMap}
-            onDelete={async (id) => {
-              await handleDelete(id)
-            }}
-            onAdd={() => {
-              setModalDate(toISO(detailDay))
-              setDetailDay(null)
-            }}
-            onClose={() => setDetailDay(null)}
-          />
-        )}
-      </AnimatePresence>
+      <DayDetailSheet
+        visible={!!detailDay}
+        date={detailDay ?? new Date()}
+        entries={detailDay ? entries.filter((e) => e.date === toISO(detailDay)) : []}
+        recipeMap={recipeMap}
+        onDelete={handleDelete}
+        onAdd={() => {
+          setModalDate(toISO(detailDay!))
+          setDetailDay(null)
+        }}
+        onClose={() => setDetailDay(null)}
+      />
 
-      {/* Add meal sheet */}
-      <AnimatePresence>
-        {modalDate && (
-          <AddMealSheet
-            date={modalDate}
-            existingRecipeIds={entries
-              .filter((e) => e.date === modalDate && e.recipeId)
-              .map((e) => e.recipeId!)}
-            onClose={() => setModalDate(null)}
-            onSaved={() => {
-              setModalDate(null)
-              loadEntries()
-            }}
-          />
-        )}
-      </AnimatePresence>
+      <AddMealSheet
+        visible={!!modalDate}
+        date={modalDate ?? ''}
+        existingRecipeIds={
+          modalDate
+            ? entries.filter((e) => e.date === modalDate && e.recipeId).map((e) => e.recipeId!)
+            : []
+        }
+        onClose={() => setModalDate(null)}
+        onSaved={() => {
+          setModalDate(null)
+          reload()
+        }}
+      />
 
-      {/* Shopping list sheet */}
-      <AnimatePresence>
-        {showShopping && (
-          <ShoppingListSheet
-            defaultStart={shoppingStart}
-            defaultEnd={shoppingEnd}
-            onClose={() => setShowShopping(false)}
-          />
-        )}
-      </AnimatePresence>
+      <ShoppingListSheet
+        visible={showShopping}
+        defaultStart={shoppingStart}
+        defaultEnd={shoppingEnd}
+        onClose={() => setShowShopping(false)}
+      />
     </div>
   )
 }

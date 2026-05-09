@@ -3,8 +3,10 @@ import { X, Plus } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { MealPlanEntry, Recipe } from '../../recipe/types/recipe'
 import { NL_DAYS_LONG, NL_MONTHS } from '../../shared/constants/locale'
+import Sheet from '../../shared/components/Sheet'
 
 type DayDetailSheetProps = {
+  visible: boolean
   date: Date
   entries: MealPlanEntry[]
   recipeMap: Map<string, Recipe>
@@ -14,6 +16,7 @@ type DayDetailSheetProps = {
 }
 
 const DayDetailSheet = ({
+  visible,
   date,
   entries,
   recipeMap,
@@ -23,39 +26,8 @@ const DayDetailSheet = ({
 }: DayDetailSheetProps) => {
   const nav = useNavigate()
   return (
-    <>
-      <motion.div
-        className="lb-sheet-backdrop"
-        style={{
-          animation: 'none',
-          backdropFilter: 'blur(1px)',
-          WebkitBackdropFilter: 'blur(1px)',
-        }}
-        variants={{
-          hidden: { opacity: 0, transition: { duration: 0.2 } },
-          visible: { opacity: 1, transition: { duration: 0.24 } },
-        }}
-        initial="hidden"
-        animate="visible"
-        exit="hidden"
-        onClick={onClose}
-      />
-      <motion.div
-        className="lb-sheet"
-        style={{ animation: 'none', paddingBottom: 30 }}
-        variants={{
-          hidden: {
-            y: '100%',
-            transition: { type: 'tween', duration: 0.22, ease: [0.4, 0, 1, 1] },
-          },
-          visible: { y: 0, transition: { type: 'spring', stiffness: 300, damping: 32 } },
-        }}
-        initial="hidden"
-        animate="visible"
-        exit="hidden"
-      >
-        <div className="lb-sheet-grabber" />
-        <div style={{ padding: '12px 22px 0' }}>
+    <Sheet visible={visible} onClose={onClose}>
+      <div style={{ padding: '12px 22px 0' }}>
           <div className="lb-eyebrow">{NL_DAYS_LONG[date.getDay()].toUpperCase()}</div>
           <h3 className="lb-display" style={{ margin: '4px 0 0', fontSize: 26 }}>
             {NL_MONTHS[date.getMonth()]} <b>{date.getDate()}</b>
@@ -184,8 +156,7 @@ const DayDetailSheet = ({
             Maaltijd toevoegen
           </motion.button>
         </div>
-      </motion.div>
-    </>
+    </Sheet>
   )
 }
 

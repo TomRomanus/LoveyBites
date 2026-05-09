@@ -1,2 +1,5 @@
 export { default as useBodyScrollLock } from './useBodyScrollLock'
 export { default as useDelayedReset } from './useDelayedReset'
+export { default as useWakeLock } from './useWakeLock'
+export { default as useThemeColor } from './useThemeColor'
+export { default as useCheckedSet } from './useCheckedSet'

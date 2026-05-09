@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import AnimatedTabBar from '../../shared/components/AnimatedTabBar'
 import { useAuth } from '../contexts/AuthContext'
 
 const googleEnabled = import.meta.env.VITE_ENABLE_GOOGLE_LOGIN !== 'false'
@@ -167,59 +168,20 @@ const LoginPage = () => {
         style={{ padding: '24px 28px 0', display: 'flex', flexDirection: 'column', gap: 12 }}
       >
         {/* Mode toggle */}
-        <LayoutGroup>
-          <div
-            style={{
-              display: 'flex',
-              background: 'var(--paper-2)',
-              padding: 4,
-              borderRadius: 24,
-              marginBottom: 6,
-            }}
-          >
-            {(['signin', 'signup'] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => {
-                  setModeDir(m === 'signup' ? 'forward' : 'back')
-                  setMode(m)
-                  setError(null)
-                }}
-                style={{
-                  flex: 1,
-                  position: 'relative',
-                  background: 'transparent',
-                  border: 0,
-                  height: 36,
-                  borderRadius: 18,
-                  fontFamily: 'var(--sans)',
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: mode === m ? 'var(--ink)' : 'var(--stone)',
-                  cursor: 'pointer',
-                }}
-              >
-                {mode === m && (
-                  <motion.div
-                    layoutId="login-pill"
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      borderRadius: 18,
-                      background: 'var(--cream-card)',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-                    }}
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                  />
-                )}
-                <span style={{ position: 'relative', zIndex: 1 }}>
-                  {m === 'signin' ? 'Inloggen' : 'Registreren'}
-                </span>
-              </button>
-            ))}
-          </div>
-        </LayoutGroup>
+        <AnimatedTabBar
+          layoutId="login-mode"
+          tabs={[
+            { key: 'signin' as const, label: 'Inloggen' },
+            { key: 'signup' as const, label: 'Registreren' },
+          ]}
+          active={mode}
+          onChange={(m) => {
+            setModeDir(m === 'signup' ? 'forward' : 'back')
+            setMode(m)
+            setError(null)
+          }}
+          variant="pill"
+        />
 
         <input
           className="lb-input"

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useParams, useNavigate } from 'react-router-dom'
@@ -23,14 +23,20 @@ import { flattenIngredientSections, flattenSteps } from '../utils/recipeDisplay'
 import Stars from '../components/Stars'
 import PortionStepper from '../components/PortionStepper'
 import IngredientCheckbox from '../../shared/components/IngredientCheckbox'
-import useDelayedReset from '../../shared/hooks/useDelayedReset'
+import Sheet from '../../shared/components/Sheet'
+import {
+  useDelayedReset,
+  useWakeLock,
+  useThemeColor,
+  useCheckedSet,
+} from '../../shared/hooks'
 
 const RecipeDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { data: recipe, isLoading: loading } = useRecipeLoad(id)
-  const [checked, setChecked] = useState<Set<string>>(new Set())
+  const { checked, toggle: toggleCheck } = useCheckedSet()
   const [portions, setPortions] = useState(2)
   const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
 
@@ -46,47 +52,8 @@ const RecipeDetailPage = () => {
   const [ratingTick, setRatingTick] = useState(0)
   const showRatingSaved = useDelayedReset(ratingTick, 0, 900) > 0
 
-  useEffect(() => {
-    if (recipe) {
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#6b1f2a')
-    }
-  }, [recipe])
-
-  useEffect(() => {
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', cookMode ? '#1f1d1a' : '#6b1f2a')
-  }, [cookMode])
-
-  useEffect(() => {
-    if (!recipe) return
-    let wakeLock: WakeLockSentinel | null = null
-    const acquire = async () => {
-      try {
-        if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen')
-      } catch {
-        /* non-critical */
-      }
-    }
-    const onVisChange = () => {
-      if (document.visibilityState === 'visible') acquire()
-    }
-    acquire()
-    document.addEventListener('visibilitychange', onVisChange)
-    return () => {
-      document.removeEventListener('visibilitychange', onVisChange)
-      wakeLock?.release()
-    }
-  }, [recipe])
-
-  const toggleCheck = (key: string) => {
-    setChecked((prev) => {
-      const n = new Set(prev)
-      if (n.has(key)) n.delete(key)
-      else n.add(key)
-      return n
-    })
-  }
+  useThemeColor(recipe ? (cookMode ? '#1f1d1a' : '#6b1f2a') : '')
+  useWakeLock(!!recipe)
 
   const handleRating = async (rating: number) => {
     if (!id || !recipe) return
@@ -621,87 +588,18 @@ const RecipeDetailPage = () => {
 
       <div style={{ paddingBottom: 100 }} />
 
-      {createPortal(
-        <AnimatePresence>
-          {showActions && (
-            <motion.div
-              key="actions-bd"
-              className="lb-sheet-backdrop"
-              style={{ animation: 'none' }}
-              variants={{
-                hidden: { opacity: 0, transition: { duration: 0.2 } },
-                visible: { opacity: 1, transition: { duration: 0.24 } },
-              }}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              onClick={() => setShowActions(false)}
-            />
-          )}
-          {showActions && (
-            <motion.div
-              key="actions-sheet"
-              className="lb-sheet"
-              style={{ animation: 'none', paddingBottom: 30 }}
-              variants={{
-                hidden: {
-                  y: '100%',
-                  transition: { type: 'tween', duration: 0.22, ease: [0.4, 0, 1, 1] },
-                },
-                visible: { y: 0, transition: { type: 'spring', stiffness: 300, damping: 32 } },
-              }}
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-            >
-              <div className="lb-sheet-grabber" />
-              <div style={{ padding: '14px 12px' }}>
-                {[
-                  {
-                    icon: <Pencil size={18} strokeWidth={1.6} />,
-                    label: 'Recept bewerken',
-                    action: () => {
-                      setShowActions(false)
-                      navigate(`/edit/${recipe.id}`)
-                    },
-                  },
-                  {
-                    icon: <Trash2 size={18} strokeWidth={1.6} />,
-                    label: 'Recept verwijderen',
-                    action: () => {
-                      setShowActions(false)
-                      setConfirmDelete(true)
-                    },
-                    destructive: true,
-                  },
-                ].map((item, i) => (
-                  <button
-                    key={i}
-                    onClick={item.action}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 14,
-                      width: '100%',
-                      padding: '14px 16px',
-                      background: 'transparent',
-                      border: 0,
-                      borderRadius: 12,
-                      color: item.destructive ? 'var(--bordeaux)' : 'var(--ink)',
-                      fontSize: 15,
-                      fontWeight: 500,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {item.icon} {item.label}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
-        document.body,
-      )}
+      <Sheet visible={showActions} onClose={() => setShowActions(false)}>
+        <div style={{ padding: '14px 12px' }}>
+          {[
+            { icon: <Pencil size={18} strokeWidth={1.6} />, label: 'Recept bewerken', action: () => { setShowActions(false); navigate(`/edit/${recipe.id}`) } },
+            { icon: <Trash2 size={18} strokeWidth={1.6} />, label: 'Recept verwijderen', action: () => { setShowActions(false); setConfirmDelete(true) }, destructive: true },
+          ].map((item, i) => (
+            <button key={i} onClick={item.action} style={{ display: 'flex', alignItems: 'center', gap: 14, width: '100%', padding: '14px 16px', background: 'transparent', border: 0, borderRadius: 12, color: item.destructive ? 'var(--bordeaux)' : 'var(--ink)', fontSize: 15, fontWeight: 500, cursor: 'pointer' }}>
+              {item.icon} {item.label}
+            </button>
+          ))}
+        </div>
+      </Sheet>
 
       {createPortal(
         <AnimatePresence>

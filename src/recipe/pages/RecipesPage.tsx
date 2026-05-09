@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { sheetVariants, backdropVariants } from '../../shared/constants/animations'
 import { Link, useNavigate } from 'react-router-dom'
-import { Check, Search, X, SlidersHorizontal, ArrowUpDown, ChevronDown, Plus } from 'lucide-react'
+import { SlidersHorizontal, ArrowUpDown, ChevronDown, Plus } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import RecipeCard from '../components/RecipeCard'
+import FilterSheet from '../components/FilterSheet'
+import SortSheet from '../components/SortSheet'
 import AddToCalendarModal from '../../calendar/components/AddToCalendarModal'
 import { StarRating } from '../components/StarRating'
 import { getRecipes, getRecipe } from '../services/recipes'
@@ -14,265 +14,12 @@ import { recipeKeys } from '../services/queryKeys'
 import { calendarKeys } from '../../calendar/services/queryKeys'
 import type { Recipe } from '../types/recipe'
 import { toISO } from '../../calendar/utils/dateUtils'
-import { extractLeafTexts } from '../utils/ingredientUtils'
-
-type SortOption = 'default' | 'name-asc' | 'name-desc' | 'rating-desc' | 'rating-asc'
-
-const SORT_LABELS: Record<SortOption, string> = {
-  default: 'Nieuwste eerst',
-  'name-asc': 'Naam A → Z',
-  'name-desc': 'Naam Z → A',
-  'rating-desc': 'Hoogste beoordeling',
-  'rating-asc': 'Laagste beoordeling',
-}
-
-
-const FilterSheet = ({
-  activeTags,
-  allTags,
-  onChange,
-  onClose,
-}: {
-  activeTags: string[]
-  allTags: string[]
-  onChange: (tags: string[]) => void
-  onClose: () => void
-}) => {
-  const [visible, setVisible] = useState(true)
-  const [q, setQ] = useState('')
-  const filtered = allTags.filter((t) => t.toLowerCase().includes(q.toLowerCase()))
-  const toggle = (t: string) =>
-    onChange(activeTags.includes(t) ? activeTags.filter((x) => x !== t) : [...activeTags, t])
-
-  return createPortal(
-    <AnimatePresence onExitComplete={onClose}>
-      {visible && (
-        <motion.div
-          key="filter-bd"
-          variants={backdropVariants}
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          onClick={() => setVisible(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(31,29,26,0.12)',
-            backdropFilter: 'blur(1px)',
-            WebkitBackdropFilter: 'blur(1px)',
-            zIndex: 200,
-          }}
-        />
-      )}
-      {visible && (
-        <motion.div
-          key="filter-sheet"
-          className="lb-sheet"
-          style={{ animation: 'none', paddingBottom: 30 }}
-          variants={sheetVariants}
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-        >
-          <div className="lb-sheet-grabber" />
-          <div
-            style={{
-              padding: '12px 20px 0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <h3 className="lb-display" style={{ margin: 0, fontSize: 22 }}>
-              Filter op tag
-            </h3>
-            {activeTags.length > 0 && (
-              <button
-                onClick={() => onChange([])}
-                style={{
-                  background: 'none',
-                  border: 0,
-                  color: 'var(--bordeaux)',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                }}
-              >
-                Alles wissen
-              </button>
-            )}
-          </div>
-          <div style={{ padding: '14px 20px 0' }}>
-            <div style={{ position: 'relative' }}>
-              <div
-                style={{
-                  position: 'absolute',
-                  left: 14,
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--stone)',
-                  pointerEvents: 'none',
-                }}
-              >
-                <Search size={16} strokeWidth={1.6} />
-              </div>
-              <input
-                className="lb-input"
-                placeholder="Zoek tags"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                style={{ paddingLeft: 40, height: 40 }}
-                autoFocus
-              />
-            </div>
-          </div>
-          <div
-            style={{
-              padding: '16px 20px 20px',
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 8,
-              overflowY: 'auto',
-              overflowX: 'hidden',
-              flex: 1,
-            }}
-          >
-            {filtered.map((t) => {
-              const isActive = activeTags.includes(t)
-              return (
-                <motion.button
-                  key={t}
-                  type="button"
-                  className="lb-tag"
-                  data-active={isActive ? 'true' : 'false'}
-                  onClick={() => toggle(t)}
-                  layout
-                  transition={{ layout: { type: 'spring', stiffness: 400, damping: 32 } }}
-                  style={{ cursor: 'pointer', gap: 4 }}
-                >
-                  <AnimatePresence mode="popLayout">
-                    {isActive && (
-                      <motion.span
-                        key="check"
-                        initial={{ scale: 0, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0, opacity: 0 }}
-                        transition={{ type: 'spring', stiffness: 420, damping: 25 }}
-                        style={{ display: 'inline-flex' }}
-                      >
-                        <Check size={14} strokeWidth={2.5} />
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                  {t}
-                </motion.button>
-              )
-            })}
-            {filtered.length === 0 && (
-              <div style={{ fontSize: 13, color: 'var(--stone)' }}>
-                Geen tags voor &ldquo;{q}&rdquo;.
-              </div>
-            )}
-          </div>
-          <div style={{ padding: '0 20px 14px', flexShrink: 0 }}>
-            <button
-              onClick={() => setVisible(false)}
-              className="lb-btn lb-btn--primary"
-              style={{ width: '100%' }}
-            >
-              Toepassen
-            </button>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>,
-    document.body,
-  )
-}
-
-const SortSheet = ({
-  sort,
-  onChange,
-  onClose,
-}: {
-  sort: SortOption
-  onChange: (v: SortOption) => void
-  onClose: () => void
-}) => {
-  const [visible, setVisible] = useState(true)
-  const opts = Object.keys(SORT_LABELS) as SortOption[]
-  return createPortal(
-    <AnimatePresence onExitComplete={onClose}>
-      {visible && (
-        <motion.div
-          key="sort-bd"
-          className="lb-sheet-backdrop"
-          style={{ animation: 'none' }}
-          variants={backdropVariants}
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-          onClick={() => setVisible(false)}
-        />
-      )}
-      {visible && (
-        <motion.div
-          key="sort-sheet"
-          className="lb-sheet"
-          style={{ animation: 'none', paddingBottom: 30 }}
-          variants={sheetVariants}
-          initial="hidden"
-          animate="visible"
-          exit="hidden"
-        >
-          <div className="lb-sheet-grabber" />
-          <div style={{ padding: '12px 20px 0' }}>
-            <h3 className="lb-display" style={{ margin: 0, fontSize: 22 }}>
-              Sorteren
-            </h3>
-          </div>
-          <div style={{ padding: '14px 12px 16px' }}>
-            {opts.map((o) => (
-              <button
-                key={o}
-                onClick={() => {
-                  onChange(o)
-                  setVisible(false)
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  width: '100%',
-                  padding: '14px 16px',
-                  background: 'transparent',
-                  border: 0,
-                  fontFamily: 'var(--sans)',
-                  fontSize: 15,
-                  color: 'var(--ink)',
-                  borderRadius: 12,
-                  fontWeight: sort === o ? 600 : 400,
-                  cursor: 'pointer',
-                }}
-              >
-                {SORT_LABELS[o]}
-                {sort === o && <Check size={18} color="var(--bordeaux)" />}
-              </button>
-            ))}
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>,
-    document.body,
-  )
-}
+import SearchInput from '../../shared/components/SearchInput'
+import useRecipeFilter, { SORT_LABELS } from '../hooks/useRecipeFilter'
 
 const RecipesPage = () => {
   const navigate = useNavigate()
   const [calendarRecipe, setCalendarRecipe] = useState<Recipe | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [activeTags, setActiveTags] = useState<string[]>([])
-  const [sort, setSort] = useState<SortOption>('name-asc')
   const [showFilters, setShowFilters] = useState(false)
   const [showSort, setShowSort] = useState(false)
 
@@ -301,31 +48,8 @@ const RecipesPage = () => {
     ? 'Recepten konden niet worden geladen. Controleer je Firebase-configuratie.'
     : null
 
-  const allTags = [...new Set(recipes.flatMap((r) => r.tags))].sort((a, b) => a.localeCompare(b))
-
-  const filtered = recipes.filter((recipe) => {
-    if (activeTags.length && !activeTags.every((t) => recipe.tags.includes(t))) return false
-    if (!searchQuery.trim()) return true
-    const q = searchQuery.toLowerCase()
-    if (recipe.title.toLowerCase().includes(q)) return true
-    if (recipe.description?.toLowerCase().includes(q)) return true
-    return extractLeafTexts(recipe.ingredients).some((t) => t.toLowerCase().includes(q))
-  })
-
-  const sorted = [...filtered].sort((a, b) => {
-    switch (sort) {
-      case 'name-asc':
-        return a.title.localeCompare(b.title)
-      case 'name-desc':
-        return b.title.localeCompare(a.title)
-      case 'rating-desc':
-        return (b.rating ?? 0) - (a.rating ?? 0)
-      case 'rating-asc':
-        return (a.rating ?? 0) - (b.rating ?? 0)
-      default:
-        return 0
-    }
-  })
+  const { searchQuery, setSearchQuery, activeTags, setActiveTags, sort, setSort, allTags, sorted, clearFilters } =
+    useRecipeFilter(recipes)
 
   return (
     <div className="lb-paper" style={{ minHeight: '100dvh', position: 'relative' }}>
@@ -490,57 +214,11 @@ const RecipesPage = () => {
             {sorted.length === 1 ? 'RECEPT' : 'RECEPTEN'}
           </div>
         )}
-        <div style={{ position: 'relative' }}>
-          <div
-            style={{
-              position: 'absolute',
-              left: 14,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              color: 'var(--stone)',
-              pointerEvents: 'none',
-            }}
-          >
-            <Search size={18} strokeWidth={1.6} />
-          </div>
-          <input
-            className="lb-input"
-            placeholder="Zoek recept of ingrediënt"
-            style={{ paddingLeft: 42, paddingRight: searchQuery ? 42 : 14 }}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <AnimatePresence>
-            {searchQuery && (
-              <motion.button
-                key="clear"
-                onClick={() => setSearchQuery('')}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-                style={{
-                  position: 'absolute',
-                  right: 8,
-                  top: '50%',
-                  translateY: '-50%',
-                  background: 'none',
-                  border: 0,
-                  width: 26,
-                  height: 26,
-                  borderRadius: 13,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--stone)',
-                  cursor: 'pointer',
-                }}
-              >
-                <X size={14} />
-              </motion.button>
-            )}
-          </AnimatePresence>
-        </div>
+        <SearchInput
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Zoek recept of ingrediënt"
+        />
 
         {loading && (
           <div style={{ display: 'flex', gap: 8 }}>
@@ -668,13 +346,7 @@ const RecipesPage = () => {
               : 'Begin met het bewaren van je eerste favoriete recept.'}
           </p>
           {searchQuery || activeTags.length ? (
-            <button
-              onClick={() => {
-                setSearchQuery('')
-                setActiveTags([])
-              }}
-              className="lb-btn lb-btn--ghost"
-            >
+            <button onClick={clearFilters} className="lb-btn lb-btn--ghost">
               Filters wissen
             </button>
           ) : (
@@ -713,15 +385,19 @@ const RecipesPage = () => {
         </div>
       )}
 
-      {showFilters && (
-        <FilterSheet
-          activeTags={activeTags}
-          allTags={allTags}
-          onChange={setActiveTags}
-          onClose={() => setShowFilters(false)}
-        />
-      )}
-      {showSort && <SortSheet sort={sort} onChange={setSort} onClose={() => setShowSort(false)} />}
+      <FilterSheet
+        visible={showFilters}
+        activeTags={activeTags}
+        allTags={allTags}
+        onChange={setActiveTags}
+        onClose={() => setShowFilters(false)}
+      />
+      <SortSheet
+        visible={showSort}
+        sort={sort}
+        onChange={setSort}
+        onClose={() => setShowSort(false)}
+      />
 
       {calendarRecipe && (
         <AddToCalendarModal recipe={calendarRecipe} onClose={() => setCalendarRecipe(null)} />
