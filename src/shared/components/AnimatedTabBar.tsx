@@ -27,6 +27,7 @@ function AnimatedTabBar<T extends string>({
           {tabs.map(({ key, label }) => (
             <motion.button
               key={key}
+              type="button"
               onClick={() => onChange(key)}
               animate={{ color: active === key ? 'var(--bordeaux)' : 'var(--stone)' }}
               transition={{ duration: 0.2 }}
@@ -54,6 +55,7 @@ function AnimatedTabBar<T extends string>({
         {tabs.map(({ key, label }) => (
           <button
             key={key}
+            type="button"
             onClick={() => onChange(key)}
             className="relative flex-1 h-8 rounded-[16px] border-0 bg-transparent text-[13px] font-medium font-sans cursor-pointer"
             style={{ color: active === key ? 'var(--ink)' : 'var(--stone)' }}
