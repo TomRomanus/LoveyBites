@@ -38,6 +38,15 @@ test.describe('New recipe — manual form (Zelf invullen)', () => {
     await waitForData(page, 15_000)
     await expect(page.getByText('E2E Testgerecht').first()).toBeVisible()
   })
+
+  test('back from newly created recipe detail returns to home', async ({ page }) => {
+    await page.fill('input[placeholder*="Wat gaan we maken"]', 'E2E Terugtest')
+    await page.locator('button[type=submit]').filter({ hasText: 'Toevoegen' }).click()
+    // /new is replaced in history so going back should land on /
+    await page.waitForURL(/\/recipe\//)
+    await page.goBack()
+    await expect(page).toHaveURL('/')
+  })
 })
 
 // ── Edit mode ─────────────────────────────────────────────────────────────────

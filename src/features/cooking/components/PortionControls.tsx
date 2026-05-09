@@ -22,34 +22,7 @@ const PortionControls = ({
   onPortionsChange,
 }: PortionControlsProps) => (
   <div className="flex items-center justify-between mb-[14px]">
-    <div className="flex items-center gap-1 font-mono text-[12px] tracking-[0.08em] uppercase text-paper/[0.65]">
-      <span>voor</span>
-      <div className="overflow-hidden">
-        <AnimatePresence mode="popLayout" custom={portionDir}>
-          <motion.span
-            key={selectedPortions}
-            custom={portionDir}
-            variants={portionVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            className="block"
-          >
-            {selectedPortions}
-          </motion.span>
-        </AnimatePresence>
-      </div>
-      <span>
-        {recipe.portionsLabel === 'stuks'
-          ? selectedPortions === 1
-            ? 'stuk'
-            : 'stuks'
-          : selectedPortions === 1
-            ? 'persoon'
-            : 'personen'}
-      </span>
-    </div>
+    <span className="font-mono text-[12px] tracking-[0.08em] uppercase text-paper/[0.65]">porties</span>
     <div className="flex items-center rounded-[16px] p-[3px] bg-paper/10">
       <button
         onClick={() => onPortionsChange(Math.max(1, selectedPortions - 1))}

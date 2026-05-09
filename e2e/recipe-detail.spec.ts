@@ -146,6 +146,13 @@ test.describe('Recipe detail — navigation', () => {
     await waitForData(page, 5_000)
     await expect(page.getByText('Recept niet gevonden.')).toBeVisible()
   })
+
+  test('"Terug" on a missing recipe always goes to home', async ({ page }) => {
+    await page.goto('/recipe/does-not-exist-xyz')
+    await waitForData(page, 5_000)
+    await page.getByRole('button', { name: /terug/i }).click()
+    await expect(page).toHaveURL('/')
+  })
 })
 
 // ── Calendar modal ────────────────────────────────────────────────────────────

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { EASE_STANDARD } from '@/shared/constants/animations'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import RecipeForm from '@/features/recipe/components/RecipeForm'
 import RecipeUrlImport from '@/features/recipe/components/RecipeUrlImport'
 import RecipeTextImport from '@/features/recipe/components/RecipeTextImport'
@@ -31,6 +31,7 @@ const MODES_LABELS: Record<Mode, string> = {
 const RecipeFormPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const isEdit = Boolean(id)
   const [mode, setMode] = useState<Mode | null>(null)
   const [extracted, setExtracted] = useState(false)
@@ -74,7 +75,10 @@ const RecipeFormPage = () => {
   const handleSubmit = async (data: RecipeInput) => {
     if (id) {
       await updateRecipe(id, data)
-      navigate(`/recipe/${id}`, { replace: true })
+      if (fetchedRecipe) {
+        queryClient.setQueryData(recipeKeys.detail(id), { ...fetchedRecipe, ...data })
+      }
+      navigate(-1)
     } else {
       const newId = await createRecipe(data)
       navigate(`/recipe/${newId}`, { replace: true })
@@ -150,7 +154,7 @@ const RecipeFormPage = () => {
               mode={mode}
               saving={saving}
               title={isEdit ? 'Bewerk recept' : 'Nieuw recept'}
-              onBack={isEdit ? () => navigate(`/recipe/${id}`) : handleBack}
+              onBack={isEdit ? () => navigate(-1) : handleBack}
             />
             <motion.div
               className="px-5 pb-8"

@@ -41,10 +41,10 @@ const CookingIngredientsPanel = ({
         return [
           node.title ? (
             <div key={`h${ni}`} className={ni > 0 ? 'mt-4' : ''}>
-              <div className="font-serif italic text-[14px] font-medium mb-[3px] text-[var(--bordeaux)]">
+              <div className="font-serif italic text-[14px] font-medium mb-[3px] text-[#b8394e]">
                 {node.title}
               </div>
-              <div className="w-[22px] h-[1.5px] rounded-[1px] opacity-60 mb-2 bg-[var(--bordeaux)]" />
+              <div className="w-[22px] h-[1.5px] rounded-[1px] opacity-60 mb-2 bg-[#b8394e]" />
             </div>
           ) : null,
           ...node.children

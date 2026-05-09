@@ -73,7 +73,7 @@ const CookingOverviewPanel = ({
             )}
             <button
               onClick={() => onGoTo(i)}
-              className="flex items-start gap-[14px] py-2 w-full bg-transparent border-b border-[0.5px] border-paper/[0.08] text-left cursor-pointer"
+              className="flex items-start gap-[14px] py-2 w-full bg-transparent border-b-[0.5px] border-paper/[0.08] text-left cursor-pointer"
             >
               <div
                 className="font-serif italic text-[22px] font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px]"
@@ -83,10 +83,7 @@ const CookingOverviewPanel = ({
               </div>
               <div className="flex-1" style={{ opacity: isActive ? 1 : 0.85 }}>
                 {s.stepIngredients.length > 0 && (
-                  <div
-                    className="font-mono text-[10px] tracking-[0.08em] uppercase mb-[5px]"
-                    style={{ color: 'rgba(243,222,224,0.5)' }}
-                  >
+                  <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-bordeaux-soft/90 mb-[5px]">
                     {s.stepIngredients.join(' · ')}
                   </div>
                 )}

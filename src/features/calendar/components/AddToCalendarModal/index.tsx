@@ -1,5 +1,4 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { X } from 'lucide-react'
 import type { Recipe } from '@/features/recipe/types/recipe'
 import { toISO } from '@/features/calendar/utils/dateUtils'
 import { NL_DAYS_GRID } from '@/shared/constants/locale'
@@ -41,12 +40,6 @@ const AddToCalendarModal = ({ recipe, onClose }: Props) => {
               Toevoegen aan menu
             </h2>
           </div>
-          <button
-            onClick={onClose}
-            className="bg-transparent border-0 text-stone p-1 shrink-0 mt-[2px] cursor-pointer flex items-center"
-          >
-            <X size={20} />
-          </button>
         </div>
 
         <WeekHeader

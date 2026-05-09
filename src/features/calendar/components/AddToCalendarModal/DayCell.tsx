@@ -87,15 +87,15 @@ export function DayCell({
             )
           })}
         </AnimatePresence>
-        <AnimatePresence>
+        <AnimatePresence initial={false}>
           {dayEntries.length > 2 && (
             <motion.div
               key="overflow"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="font-mono text-[7px] text-stone tracking-[0.03em] shrink-0"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.15, ease: EASE_SUBTLE }}
+              className="overflow-hidden w-full px-[2px] font-mono text-[7px] text-stone tracking-[0.03em] text-left"
             >
               +{dayEntries.length - 2}
             </motion.div>

@@ -39,4 +39,6 @@ const AnimatePresence = ({ children }: { children?: ReactNode }) => children ?? 
 
 const LayoutGroup = ({ children }: { children?: ReactNode }) => children ?? null
 
-export { motion, AnimatePresence, LayoutGroup }
+const animate = () => {}
+
+export { motion, AnimatePresence, LayoutGroup, animate }

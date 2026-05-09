@@ -27,7 +27,7 @@ const IngredientRow = ({
   <button
     key={itemKey}
     onClick={() => onToggle(itemKey)}
-    className="flex items-center gap-3 py-[10px] w-full bg-transparent border-b border-[0.5px] border-paper/[0.08] text-left cursor-pointer"
+    className="flex items-center gap-3 py-[10px] w-full bg-transparent border-b-[0.5px] border-paper/[0.08] text-left cursor-pointer"
   >
     <IngredientCheckbox checked={isChecked} theme="dark" />
     <span
