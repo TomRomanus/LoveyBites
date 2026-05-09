@@ -8,7 +8,7 @@ type RecipeEmptyStateProps = {
 
 const RecipeEmptyState = ({ hasFilters, onClearFilters, onAddFirst }: RecipeEmptyStateProps) => (
   <div className="px-8 pt-[60px] text-center">
-    <div className="text-[48px] mb-3 font-serif italic text-bordeaux">·</div>
+    {!hasFilters && <div className="text-[48px] mb-3 font-serif italic text-bordeaux">·</div>}
     <h2 className="lb-display m-0 text-[26px]">
       {hasFilters ? 'Niets gevonden' : 'Je boek is nog leeg'}
     </h2>

@@ -21,7 +21,7 @@ const SearchInput = ({
   const ref = inputRef ?? localRef
 
   return (
-    <div className="relative">
+    <div className="relative flex">
       <div className="absolute left-[14px] top-1/2 -translate-y-1/2 text-stone pointer-events-none">
         <Search size={18} strokeWidth={1.6} />
       </div>
@@ -43,7 +43,8 @@ const SearchInput = ({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border-0 w-[26px] h-[26px] rounded-[13px] flex items-center justify-center text-stone cursor-pointer"
+            style={{ marginTop: -13 }}
+            className="absolute right-2 top-1/2 bg-transparent border-0 w-[26px] h-[26px] rounded-[13px] flex items-center justify-center text-stone cursor-pointer"
           >
             <X size={14} />
           </motion.button>

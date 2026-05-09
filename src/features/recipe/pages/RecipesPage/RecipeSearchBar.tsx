@@ -58,7 +58,7 @@ const RecipeSearchBar = ({
       <div className="flex gap-2">
         <button
           onClick={onFiltersOpen}
-          className="lb-btn lb-btn--ghost lb-btn--small flex-1 justify-between px-[14px]"
+          className="lb-btn lb-btn--ghost lb-btn--small flex-1 !justify-between px-[14px]"
         >
           <span className="inline-flex items-center gap-[6px]">
             <SlidersHorizontal size={14} strokeWidth={1.6} />
@@ -72,7 +72,7 @@ const RecipeSearchBar = ({
         </button>
         <button
           onClick={onSortOpen}
-          className="lb-btn lb-btn--ghost lb-btn--small flex-1 justify-between px-[14px]"
+          className="lb-btn lb-btn--ghost lb-btn--small flex-1 !justify-between px-[14px]"
         >
           <span className="inline-flex items-center gap-[6px]">
             <ArrowUpDown size={14} strokeWidth={1.6} />
