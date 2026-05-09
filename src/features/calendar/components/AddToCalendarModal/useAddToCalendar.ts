@@ -53,11 +53,12 @@ export function useAddToCalendar({ recipe }: UseAddToCalendarProps): UseAddToCal
   const weekEndISO = toISO(weekEnd)
 
   const weekLabel = useMemo(() => {
-    if (weekStart.getMonth() === weekEnd.getMonth()) {
-      return `${weekStart.getDate()}–${weekEnd.getDate()} ${NL_MONTHS[weekStart.getMonth()]} ${weekStart.getFullYear()}`
+    const end = addDays(weekStart, 6)
+    if (weekStart.getMonth() === end.getMonth()) {
+      return `${weekStart.getDate()}–${end.getDate()} ${NL_MONTHS[weekStart.getMonth()]} ${weekStart.getFullYear()}`
     }
-    return `${weekStart.getDate()} ${NL_MONTHS[weekStart.getMonth()]} – ${weekEnd.getDate()} ${NL_MONTHS[weekEnd.getMonth()]}`
-  }, [weekStart, weekEnd])
+    return `${weekStart.getDate()} ${NL_MONTHS[weekStart.getMonth()]} – ${end.getDate()} ${NL_MONTHS[end.getMonth()]}`
+  }, [weekStart])
 
   useEffect(() => {
     getMealPlanEntries(weekStartISO, weekEndISO).then(setEntries)
