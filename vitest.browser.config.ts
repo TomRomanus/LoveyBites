@@ -23,6 +23,12 @@ export default defineConfig({
       'react-router-dom',
       '@testing-library/react',
       '@testing-library/user-event',
+      'lucide-react',
+      '@tanstack/react-query',
+      '@radix-ui/react-dialog',
+      'date-fns',
+      'date-fns/locale',
+      'zod',
     ],
   },
   test: {
