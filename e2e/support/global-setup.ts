@@ -23,6 +23,8 @@ export const TEST_RECIPES = [
       { kind: 'leaf', text: 'Klop de eieren los met geraspte kaas' },
       { kind: 'leaf', text: 'Meng alles voorzichtig buiten het vuur om' },
     ],
+    benodigdheden: ['Grote pan', 'Rasp'],
+    notes: [{ label: 'Bewaren', text: 'Tot 2 dagen in de koelkast bewaren.' }],
     sources: [],
     imageUrl: '',
     portions: 4,

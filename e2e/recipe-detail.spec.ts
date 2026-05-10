@@ -38,6 +38,36 @@ test.describe('Recipe detail — display', () => {
   })
 })
 
+// ── Equipment & Notes sections ────────────────────────────────────────────────
+
+test.describe('Recipe detail — equipment section', () => {
+  test('shows Benodigdheden heading and items when recipe has equipment', async ({ page }) => {
+    await gotoDetail(page)
+    await expect(page.getByRole('heading', { name: 'Benodigdheden' })).toBeVisible()
+    await expect(page.getByText('Grote pan')).toBeVisible()
+    await expect(page.getByText('Rasp')).toBeVisible()
+  })
+
+  test('does not show Benodigdheden heading when recipe has no equipment', async ({ page }) => {
+    await gotoDetail(page, 'test-soup-001')
+    await expect(page.getByRole('heading', { name: 'Benodigdheden' })).toBeHidden()
+  })
+})
+
+test.describe('Recipe detail — notes section', () => {
+  test('shows Notities heading, label, and text when recipe has notes', async ({ page }) => {
+    await gotoDetail(page)
+    await expect(page.getByRole('heading', { name: 'Notities' })).toBeVisible()
+    await expect(page.getByText('Bewaren')).toBeVisible()
+    await expect(page.getByText('Tot 2 dagen in de koelkast bewaren.')).toBeVisible()
+  })
+
+  test('does not show Notities heading when recipe has no notes', async ({ page }) => {
+    await gotoDetail(page, 'test-soup-001')
+    await expect(page.getByRole('heading', { name: 'Notities' })).toBeHidden()
+  })
+})
+
 // ── Cook mode ─────────────────────────────────────────────────────────────────
 
 test.describe('Recipe detail — cook mode', () => {
