@@ -2,10 +2,10 @@ import { useMemo, useState } from 'react'
 import type { Recipe } from '@/features/recipe/types/recipe'
 import { extractLeafTexts } from '@/features/recipe/utils/ingredientUtils'
 
-export type SortOption = 'default' | 'name-asc' | 'name-desc' | 'rating-desc' | 'rating-asc'
+export type SortOption = 'newest' | 'name-asc' | 'name-desc' | 'rating-desc' | 'rating-asc'
 
 export const SORT_LABELS: Record<SortOption, string> = {
-  default: 'Nieuwste eerst',
+  newest: 'Nieuwste eerst',
   'name-asc': 'Naam A → Z',
   'name-desc': 'Naam Z → A',
   'rating-desc': 'Hoogste beoordeling',
@@ -15,7 +15,7 @@ export const SORT_LABELS: Record<SortOption, string> = {
 const useRecipeFilter = (recipes: Recipe[]) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTags, setActiveTags] = useState<string[]>([])
-  const [sort, setSort] = useState<SortOption>('name-asc')
+  const [sort, setSort] = useState<SortOption>('newest')
 
   const allTags = useMemo(
     () => [...new Set(recipes.flatMap((r) => r.tags))].sort((a, b) => a.localeCompare(b)),

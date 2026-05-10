@@ -13,7 +13,7 @@ type Props = React.ComponentProps<typeof SortSheet>
 function setup(overrides: Partial<Props> = {}) {
   const defaults: Props = {
     visible: true,
-    sort: 'default' as SortOption,
+    sort: 'newest' as SortOption,
     onChange: vi.fn(),
     onClose: vi.fn(),
   }
@@ -64,7 +64,7 @@ describe('SortSheet', () => {
   })
 
   it('does not apply font-semibold to inactive sort options', () => {
-    setup({ sort: 'default' })
+    setup({ sort: 'newest' })
     const btn = screen.getByText('Naam A → Z').closest('button')!
     expect(btn.className).toContain('font-normal')
   })

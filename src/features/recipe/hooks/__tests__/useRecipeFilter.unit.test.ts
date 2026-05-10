@@ -30,7 +30,7 @@ describe('useRecipeFilter', () => {
   })
 
   describe('sorted (default sort)', () => {
-    it('sorts recipes by name ascending by default', () => {
+    it('preserves the input order (newest first from Firestore) by default', () => {
       const recipes = [
         makeRecipe({ id: 'r1', title: 'Zuurkool' }),
         makeRecipe({ id: 'r2', title: 'Appeltaart' }),
@@ -38,9 +38,9 @@ describe('useRecipeFilter', () => {
       ]
       const { result } = renderHook(() => useRecipeFilter(recipes))
       expect(result.current.sorted.map((r) => r.title)).toEqual([
+        'Zuurkool',
         'Appeltaart',
         'Boerenkool',
-        'Zuurkool',
       ])
     })
   })
