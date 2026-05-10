@@ -45,7 +45,7 @@ test.describe('Recipe detail — equipment section', () => {
     await gotoDetail(page)
     await expect(page.getByRole('heading', { name: 'Benodigdheden' })).toBeVisible()
     await expect(page.getByText('Grote pan')).toBeVisible()
-    await expect(page.getByText('Rasp')).toBeVisible()
+    await expect(page.getByText('Rasp', { exact: true })).toBeVisible()
   })
 
   test('does not show Benodigdheden heading when recipe has no equipment', async ({ page }) => {
@@ -58,7 +58,7 @@ test.describe('Recipe detail — notes section', () => {
   test('shows Notities heading, label, and text when recipe has notes', async ({ page }) => {
     await gotoDetail(page)
     await expect(page.getByRole('heading', { name: 'Notities' })).toBeVisible()
-    await expect(page.getByText('Bewaren')).toBeVisible()
+    await expect(page.getByText('Bewaren', { exact: true })).toBeVisible()
     await expect(page.getByText('Tot 2 dagen in de koelkast bewaren.')).toBeVisible()
   })
 
