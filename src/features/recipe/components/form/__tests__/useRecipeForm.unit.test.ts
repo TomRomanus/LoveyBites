@@ -190,6 +190,34 @@ describe('useRecipeForm', () => {
     expect(onSavingChange).toHaveBeenCalledWith(true)
   })
 
+  it('filters out notes with empty text before calling onSubmit', async () => {
+    const onSubmitFn = vi.fn().mockResolvedValue(undefined)
+    renderHook(() => useRecipeForm({ onSubmit: onSubmitFn }))
+
+    await act(async () => {
+      await capturedSubmitHandler!({
+        title: 'Test',
+        description: '',
+        ingredients: [],
+        steps: [],
+        tags: [],
+        imageUrl: '',
+        createdBy: 'us',
+        notes: [
+          { label: 'Bewaren', text: 'Tot 3 dagen.' },
+          { label: '', text: '' },
+          { label: 'Opwarmen', text: '' },
+        ],
+      })
+    })
+
+    expect(onSubmitFn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        notes: [{ label: 'Bewaren', text: 'Tot 3 dagen.' }],
+      }),
+    )
+  })
+
   it('sets Dutch errorMessage when onSubmit throws', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const onSavingChange = vi.fn()

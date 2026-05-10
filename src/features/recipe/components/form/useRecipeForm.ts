@@ -95,6 +95,7 @@ export const useRecipeForm = ({
       ingredients: pruneEmpty(data.ingredients),
       steps: pruneEmpty(data.steps),
       sources: (data.sources ?? []).filter((s) => s.url.trim()),
+      notes: (data.notes ?? []).filter((n) => n.text.trim()),
     }
     onSavingChange?.(true)
     try {
