@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Plus } from 'lucide-react'
+import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
 
 type Props = {
   equipment: string[]
@@ -18,37 +19,40 @@ const RecipeEquipmentEditor = ({ equipment, onChange }: Props) => {
     'flex items-center gap-2 px-3 py-[9px] border border-dashed border-stone-2 rounded-[9px] text-stone text-[12px] bg-none cursor-pointer min-h-[38px] font-sans w-full'
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col">
       <AnimatePresence mode="popLayout" initial={false}>
         {equipment.map((item, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6, transition: { duration: 0.13, ease: 'easeIn' } }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.1 } }}
             layout
             transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            className="flex items-start gap-2"
+            className={i < equipment.length - 1 ? 'border-b-[0.5px] border-ink/14' : ''}
           >
-            <div
-              className="w-[3px] h-[3px] rounded-full shrink-0 mt-[8px]"
-              style={{ background: 'var(--bordeaux)' }}
-            />
-            <input
-              type="text"
-              value={item}
-              onChange={(e) => update(i, e.target.value)}
-              placeholder="bijv. Grote kom"
-              className="flex-1 bg-transparent border-0 border-b-[0.5px] border-ink/14 outline-none text-[13px] font-sans text-ink pb-[6px]"
-            />
-            <button
-              type="button"
-              onClick={() => remove(i)}
-              className="bg-none border-0 text-stone-2 cursor-pointer p-1 flex items-center opacity-80"
-              aria-label="Verwijder benodigdheid"
-            >
-              <X size={11} strokeWidth={2.2} />
-            </button>
+            <div className="flex items-start gap-[3px]">
+              <div className="relative shrink-0 pt-[13px]">
+                <span className="text-bordeaux text-[11px] flex items-center justify-center leading-none pointer-events-none">
+                  •
+                </span>
+              </div>
+              <AutoGrowTextarea
+                value={item}
+                onChange={(e) => update(i, e.target.value)}
+                rows={1}
+                placeholder="bijv. Grote kom"
+                className="flex-1 w-full bg-transparent border-0 outline-none font-sans text-[14px] text-ink px-1 py-[10px] resize-none leading-[1.45] !pt-[9px] !pb-[11px]"
+              />
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                className="bg-none border-0 text-stone-2 p-1.5 cursor-pointer shrink-0 flex items-center justify-center opacity-80 mt-[7px]"
+                aria-label="Verwijder benodigdheid"
+              >
+                <X size={11} strokeWidth={2.2} />
+              </button>
+            </div>
           </motion.div>
         ))}
       </AnimatePresence>

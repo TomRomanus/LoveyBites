@@ -22,7 +22,7 @@ export type IngredientOption = {
 }
 
 const leafInputCls =
-  'flex-1 bg-transparent border-0 outline-none font-sans text-[14px] text-ink px-1 py-2 resize-none leading-[1.45]'
+  'flex-1 bg-transparent border-0 outline-none font-sans text-[14px] text-ink px-1 py-[10px] resize-none leading-[1.45]'
 const xBtnCls =
   'bg-none border-0 text-stone-2 p-1.5 cursor-pointer shrink-0 flex items-center justify-center opacity-80'
 
@@ -110,7 +110,7 @@ const LeafRow = ({
 
   return (
     <div className={isLast ? '' : 'border-b-[0.5px] border-ink/14'}>
-      <div className={`flex items-start ${ordered ? 'gap-2 py-2' : 'gap-1.5 py-1.5'}`}>
+      <div className={`flex items-start ${ordered ? 'gap-2 py-2' : 'gap-[3px]'}`}>
         {ordered ? (
           // Steps: grip slides in alongside the number — animate width so layout shifts smoothly
           <motion.div
@@ -124,11 +124,11 @@ const LeafRow = ({
           // Ingredients: dot ↔ grip crossfade in a fixed-size slot — no layout shift at all
           // overflow-hidden + width animation (not opacity) ensures the hidden grip has zero
           // pointer-event area, preventing scroll conflicts on mobile
-          <div className="relative w-5 shrink-0 pt-3">
+          <div className="relative shrink-0 pt-[13px]">
             <motion.div
               animate={{ width: reordering ? 20 : 0, opacity: reordering ? 1 : 0 }}
               transition={{ duration: 0.18, ease: 'easeInOut' }}
-              className="absolute top-3 left-0 bottom-0 overflow-hidden flex"
+              className="absolute top-[14px] left-0 bottom-0 overflow-hidden flex"
             >
               <GripHandle />
             </motion.div>
@@ -171,7 +171,7 @@ const LeafRow = ({
             onChange={(e) => onChange(replaceAt(allNodes, path, { ...node, text: e.target.value }))}
             rows={1}
             autoFocus={shouldFocus}
-            className={`${leafInputCls} flex-1 w-full`}
+            className={`${leafInputCls} flex-1 w-full !pt-[9px] !pb-[11px]`}
             placeholder={labels.leafPlaceholder}
           />
         )}
@@ -180,7 +180,7 @@ const LeafRow = ({
           <button
             type="button"
             onClick={() => onChange(removeAt(allNodes, path))}
-            className={`${xBtnCls} ${ordered ? 'mt-0' : 'mt-1.5'}`}
+            className={`${xBtnCls} ${ordered ? 'mt-0' : 'mt-[7px]'}`}
             aria-label="Verwijderen"
           >
             <X size={11} strokeWidth={2.2} />
