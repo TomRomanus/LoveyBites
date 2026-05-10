@@ -33,6 +33,7 @@ export type Recipe = {
   description: string
   ingredients: IngredientNode[]
   steps: IngredientNode[]
+  benodigdheden?: string[]
   sources?: Source[]
   notes?: RecipeNote[]
   tags: string[]
@@ -78,6 +79,7 @@ export const recipeSchema = z.object({
   description: z.string(),
   ingredients: z.array(ingredientNodeSchema),
   steps: z.array(ingredientNodeSchema),
+  benodigdheden: z.array(z.string()).optional(),
   sources: z.array(sourceSchema).optional(),
   notes: z.array(recipeNoteSchema).optional(),
   tags: z.array(z.string()),
@@ -97,6 +99,7 @@ export const recipeInputSchema = z.object({
   portionsLabel: z.enum(['pers', 'stuks']).optional(),
   ingredients: z.array(ingredientNodeSchema),
   steps: z.array(ingredientNodeSchema),
+  benodigdheden: z.array(z.string()).optional(),
   sources: z.array(sourceSchema).optional(),
   notes: z.array(recipeNoteSchema).optional(),
   tags: z.array(z.string()),

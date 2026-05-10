@@ -5,6 +5,7 @@ import { ensureIngredientIds } from '@/features/recipe/utils/ingredientUtils'
 import RecipeNodeEditor from '@/features/recipe/components/editor/RecipeNodeEditor'
 import RecipeSourceEditor from '@/features/recipe/components/RecipeSourceEditor'
 import RecipeNotesEditor from '@/features/recipe/components/RecipeNotesEditor'
+import RecipeBenodigdhedenEditor from '@/features/recipe/components/RecipeBenodigdhedenEditor'
 import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
 import FormField from '@/features/recipe/components/form/FormField'
 import TagsEditor from '@/features/recipe/components/form/TagsEditor'
@@ -71,6 +72,20 @@ const RecipeForm = (props: Props) => {
           onChange={(v) => setValue('portions', v)}
           label={portionsLabel}
           onLabelChange={(l) => setValue('portionsLabel', l)}
+        />
+      </div>
+
+      <div className="border-[0.5px] border-ink/14 rounded-[13px] p-4">
+        <div className="lb-eyebrow mb-3">BENODIGDHEDEN</div>
+        <Controller
+          name="benodigdheden"
+          control={control}
+          render={({ field }) => (
+            <RecipeBenodigdhedenEditor
+              benodigdheden={field.value ?? []}
+              onChange={field.onChange}
+            />
+          )}
         />
       </div>
 

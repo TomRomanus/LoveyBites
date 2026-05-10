@@ -24,6 +24,7 @@ import RecipeIngredients from '@/features/recipe/components/detail/RecipeIngredi
 import RecipeSteps from '@/features/recipe/components/detail/RecipeSteps'
 import RecipeSources from '@/features/recipe/components/detail/RecipeSources'
 import RecipeNotes from '@/features/recipe/components/detail/RecipeNotes'
+import RecipeBenodigdheden from '@/features/recipe/components/detail/RecipeBenodigdheden'
 import RecipeActionsSheet from '@/features/recipe/components/detail/RecipeActionsSheet'
 import DeleteConfirmDialog from '@/features/recipe/components/detail/DeleteConfirmDialog'
 import CalendarFab from '@/features/recipe/components/detail/CalendarFab'
@@ -128,32 +129,44 @@ const RecipeDetailPage = () => {
         </button>
       </div>
 
-      {ingredientSections.some((s) => s.items.length > 0) && (
-        <RecipeIngredients
-          sections={ingredientSections}
-          portions={portions}
-          portionDir={portionDir}
-          portionsLabel={recipe.portionsLabel}
-          onPortionChange={handlePortionChange}
-          checked={checked}
-          onToggle={toggleCheck}
-        />
-      )}
-
-      {stepSections.length > 0 && (
-        <RecipeSteps steps={stepSections} ingredientMap={ingredientMap} />
-      )}
-
-      {(recipe.notes ?? []).length > 0 && (
-        <RecipeNotes notes={recipe.notes!} deel="III" />
-      )}
-
-      {(recipe.sources ?? []).length > 0 && (
-        <RecipeSources
-          sources={recipe.sources ?? []}
-          deel={(recipe.notes ?? []).length > 0 ? 'IV' : 'III'}
-        />
-      )}
+      {(() => {
+        const toRoman = (n: number) => ['I', 'II', 'III', 'IV', 'V'][n - 1]
+        let d = 0
+        const hasBenodigdheden = (recipe.benodigdheden ?? []).length > 0
+        const hasIngredients = ingredientSections.some((s) => s.items.length > 0)
+        const hasSteps = stepSections.length > 0
+        const hasNotes = (recipe.notes ?? []).length > 0
+        const hasSources = (recipe.sources ?? []).length > 0
+        const benodigdhedenDeel = hasBenodigdheden ? toRoman(++d) : ''
+        const ingredientenDeel = hasIngredients ? toRoman(++d) : ''
+        const instructiesDeel = hasSteps ? toRoman(++d) : ''
+        const notitiesDeel = hasNotes ? toRoman(++d) : ''
+        const bronnenDeel = hasSources ? toRoman(++d) : ''
+        return (
+          <>
+            {hasBenodigdheden && (
+              <RecipeBenodigdheden benodigdheden={recipe.benodigdheden!} deel={benodigdhedenDeel} />
+            )}
+            {hasIngredients && (
+              <RecipeIngredients
+                sections={ingredientSections}
+                portions={portions}
+                portionDir={portionDir}
+                portionsLabel={recipe.portionsLabel}
+                onPortionChange={handlePortionChange}
+                checked={checked}
+                onToggle={toggleCheck}
+                deel={ingredientenDeel}
+              />
+            )}
+            {hasSteps && (
+              <RecipeSteps steps={stepSections} ingredientMap={ingredientMap} deel={instructiesDeel} />
+            )}
+            {hasNotes && <RecipeNotes notes={recipe.notes!} deel={notitiesDeel} />}
+            {hasSources && <RecipeSources sources={recipe.sources ?? []} deel={bronnenDeel} />}
+          </>
+        )
+      })()}
 
       <div className="pb-[100px]" />
 

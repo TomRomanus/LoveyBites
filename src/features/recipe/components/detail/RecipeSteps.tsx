@@ -1,11 +1,12 @@
 type RecipeStepsProps = {
   steps: { phase?: string; text: string; ingredientRefs?: string[] }[]
   ingredientMap: Map<string, string>
+  deel?: string
 }
 
-const RecipeSteps = ({ steps, ingredientMap }: RecipeStepsProps) => (
+const RecipeSteps = ({ steps, ingredientMap, deel = 'II' }: RecipeStepsProps) => (
   <div className="px-[22px] pt-7">
-    <div className="lb-eyebrow">DEEL II</div>
+    <div className="lb-eyebrow">DEEL {deel}</div>
     <h2 className="mt-1 mb-4 text-[24px] font-serif italic font-medium tracking-[-0.02em] leading-[1.05]">
       Instructies
     </h2>

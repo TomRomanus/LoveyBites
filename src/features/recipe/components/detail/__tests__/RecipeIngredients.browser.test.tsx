@@ -30,9 +30,14 @@ describe('RecipeIngredients', () => {
       expect(screen.getByRole('heading', { name: 'Ingrediënten' })).toBeInTheDocument()
     })
 
-    it('renders the DEEL I eyebrow label', () => {
+    it('renders the DEEL I eyebrow label by default', () => {
       setup()
       expect(screen.getByText('DEEL I')).toBeInTheDocument()
+    })
+
+    it('renders DEEL II when deel prop is "II"', () => {
+      setup({ deel: 'II' })
+      expect(screen.getByText('DEEL II')).toBeInTheDocument()
     })
   })
 

@@ -75,10 +75,12 @@ describe('emptyInput', () => {
     expect(steps[1]).toMatchObject({ kind: 'group', title: 'Bereiding' })
   })
 
-  it('returns empty sources and tags', () => {
-    const { sources, tags } = emptyInput()
+  it('returns empty sources, tags, notes and benodigdheden', () => {
+    const { sources, tags, notes, benodigdheden } = emptyInput()
     expect(sources).toEqual([])
     expect(tags).toEqual([])
+    expect(notes).toEqual([])
+    expect(benodigdheden).toEqual([])
   })
 })
 
@@ -188,6 +190,28 @@ describe('useRecipeForm', () => {
 
     expect(callOrder).toEqual(['saving', 'submit'])
     expect(onSavingChange).toHaveBeenCalledWith(true)
+  })
+
+  it('filters out empty benodigdheden strings before calling onSubmit', async () => {
+    const onSubmitFn = vi.fn().mockResolvedValue(undefined)
+    renderHook(() => useRecipeForm({ onSubmit: onSubmitFn }))
+
+    await act(async () => {
+      await capturedSubmitHandler!({
+        title: 'Test',
+        description: '',
+        ingredients: [],
+        steps: [],
+        tags: [],
+        imageUrl: '',
+        createdBy: 'us',
+        benodigdheden: ['Grote kom', '', '  ', 'Garde'],
+      })
+    })
+
+    expect(onSubmitFn).toHaveBeenCalledWith(
+      expect.objectContaining({ benodigdheden: ['Grote kom', 'Garde'] }),
+    )
   })
 
   it('filters out notes with empty text before calling onSubmit', async () => {

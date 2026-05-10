@@ -9,6 +9,7 @@ type RecipeIngredientsProps = {
   onPortionChange: (v: number) => void
   checked: Set<string>
   onToggle: (key: string) => void
+  deel?: string
 }
 
 const RecipeIngredients = ({
@@ -19,11 +20,12 @@ const RecipeIngredients = ({
   onPortionChange,
   checked,
   onToggle,
+  deel = 'I',
 }: RecipeIngredientsProps) => (
   <div className="px-[22px] pt-7">
     <div className="flex items-start justify-between mb-[14px]">
       <div>
-        <div className="lb-eyebrow">DEEL I</div>
+        <div className="lb-eyebrow">DEEL {deel}</div>
         <h2 className="mt-1 mb-0 text-[24px] font-serif italic font-medium tracking-[-0.02em] leading-[1.05]">
           Ingrediënten
         </h2>
