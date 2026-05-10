@@ -73,10 +73,10 @@ const CookingOverviewPanel = ({
             )}
             <button
               onClick={() => onGoTo(i)}
-              className="flex items-start gap-[14px] py-2 w-full bg-transparent border-b-[0.5px] border-paper/[0.08] text-left cursor-pointer"
+              className="flex items-start gap-[20px] py-2 w-full bg-transparent border-b-[0.5px] border-paper/[0.08] text-left cursor-pointer"
             >
               <div
-                className="font-serif italic text-[22px] font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px]"
+                className="font-serif italic text-[22px] font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px] text-right"
                 style={{ color: isActive ? SECTION_HEADER_COLOR : 'rgba(248,244,237,0.5)' }}
               >
                 {s.num}

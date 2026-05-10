@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 
 type Props = React.TextareaHTMLAttributes<HTMLTextAreaElement>
 
@@ -11,6 +11,15 @@ const AutoGrowTextarea = ({ value, style, ...props }: Props) => {
     el.style.height = '1px'
     el.style.height = `${el.scrollHeight}px`
   }, [value])
+
+  // Re-run after paint on mount — handles elements added inside animated containers
+  // where scrollHeight may return 0 during the initial synchronous layout phase
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    el.style.height = '1px'
+    el.style.height = `${el.scrollHeight}px`
+  }, [])
 
   return <textarea ref={ref} value={value} style={{ overflow: 'hidden', ...style }} {...props} />
 }

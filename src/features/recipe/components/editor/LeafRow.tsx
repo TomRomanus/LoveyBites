@@ -64,7 +64,7 @@ const LeafRow = ({
   const toggleIngredient = (id: string) => {
     const cur = node.ingredientRefs ?? []
     const newRefs = selectedIds.has(id) ? cur.filter((r) => r !== id) : [...cur, id]
-    const { ingredientRefs: _, ...nodeWithoutRefs } = node
+    const { ingredientRefs: _ingredientRefs, ...nodeWithoutRefs } = node
     onChange(
       replaceAt(
         allNodes,
@@ -143,13 +143,13 @@ const LeafRow = ({
         )}
 
         {ordered && (
-          <span className="font-serif italic text-[22px] text-bordeaux font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px]">
+          <span className="font-serif italic text-[22px] text-bordeaux font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px] text-right">
             {(leafIndexMap?.get(node.id ?? '') ?? itemIndex ?? 0) + 1}
           </span>
         )}
 
         {ordered ? (
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 ml-[12px]">
             {refsPanel}
             <AutoGrowTextarea
               value={node.text}
@@ -158,7 +158,10 @@ const LeafRow = ({
               }
               rows={1}
               autoFocus={shouldFocus}
-              className={cn(leafInputCls, 'flex-none w-full box-border leading-[1.5] py-0 pr-1 pl-0')}
+              className={cn(
+                leafInputCls,
+                'flex-none w-full box-border leading-[1.5] py-0 pr-1 pl-0',
+              )}
               placeholder={labels.leafPlaceholder}
             />
           </div>

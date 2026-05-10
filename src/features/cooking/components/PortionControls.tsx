@@ -22,7 +22,9 @@ const PortionControls = ({
   onPortionsChange,
 }: PortionControlsProps) => (
   <div className="flex items-center justify-between mb-[14px]">
-    <span className="font-mono text-[12px] tracking-[0.08em] uppercase text-paper/[0.65]">porties</span>
+    <span className="font-mono text-[12px] tracking-[0.08em] uppercase text-paper/[0.65]">
+      porties
+    </span>
     <div className="flex items-center rounded-[16px] p-[3px] bg-paper/10">
       <button
         onClick={() => onPortionsChange(Math.max(1, selectedPortions - 1))}

@@ -26,8 +26,8 @@ const RecipeSteps = ({ steps, ingredientMap }: RecipeStepsProps) => (
               />
             </>
           )}
-          <div className="flex gap-2 py-2 border-b-[0.5px] border-ink/14">
-            <div className="font-serif italic text-[22px] text-bordeaux font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px]">
+          <div className="flex gap-[20px] py-2 border-b-[0.5px] border-ink/14">
+            <div className="font-serif italic text-[22px] text-bordeaux font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px] text-right">
               {i + 1}
             </div>
             <div className="flex-1">

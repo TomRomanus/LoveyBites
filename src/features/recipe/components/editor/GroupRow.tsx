@@ -61,7 +61,7 @@ const GroupRow = ({
         <GripHandle className="pt-2 pr-2.5" />
       </motion.div>
 
-      <div className="border-l-2 border-bordeaux/30 pt-0.5 pb-1 pl-3 flex-1 min-w-0">
+      <div className="border-l-2 border-bordeaux/30 pt-0.5 pb-1 pl-1 flex-1 min-w-0">
         <div className="flex items-center justify-between mb-[3px]">
           <input
             type="text"

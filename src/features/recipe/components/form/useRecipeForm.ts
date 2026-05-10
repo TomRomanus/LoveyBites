@@ -66,7 +66,7 @@ export const useRecipeForm = ({
   onSavingChange,
   onTitleChange,
 }: UseRecipeFormProps) => {
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | undefined>(undefined)
 
   const form = useForm<RecipeInput>({
     resolver: zodResolver(recipeInputSchema) as Resolver<RecipeInput>,
@@ -88,7 +88,7 @@ export const useRecipeForm = ({
   const ingredientOptions = useMemo(() => collectIngredientOptions(ingredients), [ingredients])
 
   const onSubmit = handleSubmit(async (data) => {
-    setError(null)
+    setError(undefined)
     const cleaned: RecipeInput = {
       ...data,
       ingredients: pruneEmpty(data.ingredients),
