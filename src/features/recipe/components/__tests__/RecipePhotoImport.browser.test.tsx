@@ -6,7 +6,13 @@ import { importRecipeFromImage } from '@/features/recipe/api/importRecipe'
 
 vi.mock('@/features/recipe/api/importRecipe')
 
-const mockRecipeData = { title: 'Test recept', description: '', ingredients: [], steps: [], tags: [] }
+const mockRecipeData = {
+  title: 'Test recept',
+  description: '',
+  ingredients: [],
+  steps: [],
+  tags: [],
+}
 const mockFile = new File(['(image)'], 'recept.jpg', { type: 'image/jpeg' })
 
 describe('RecipePhotoImport', () => {

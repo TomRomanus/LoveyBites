@@ -37,7 +37,11 @@ describe('useRecipeFilter', () => {
         makeRecipe({ id: 'r3', title: 'Boerenkool' }),
       ]
       const { result } = renderHook(() => useRecipeFilter(recipes))
-      expect(result.current.sorted.map((r) => r.title)).toEqual(['Appeltaart', 'Boerenkool', 'Zuurkool'])
+      expect(result.current.sorted.map((r) => r.title)).toEqual([
+        'Appeltaart',
+        'Boerenkool',
+        'Zuurkool',
+      ])
     })
   })
 
@@ -146,7 +150,11 @@ describe('useRecipeFilter', () => {
       ]
       const { result } = renderHook(() => useRecipeFilter(recipes))
       act(() => result.current.setSort('name-desc'))
-      expect(result.current.sorted.map((r) => r.title)).toEqual(['Zuurkool', 'Boerenkool', 'Appeltaart'])
+      expect(result.current.sorted.map((r) => r.title)).toEqual([
+        'Zuurkool',
+        'Boerenkool',
+        'Appeltaart',
+      ])
     })
 
     it('sort "rating-desc" puts highest rated recipes first', () => {

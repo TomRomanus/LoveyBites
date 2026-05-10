@@ -19,6 +19,16 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
 
+  // Allow intentionally-unused variables when prefixed with _
+  {
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { varsIgnorePattern: '^_', argsIgnorePattern: '^_', destructuredArrayIgnorePattern: '^_' },
+      ],
+    },
+  },
+
   // React rules — src only
   {
     files: ['src/**/*.{ts,tsx}'],
@@ -56,6 +66,14 @@ export default tseslint.config(
     files: ['e2e/support/*.ts'],
     rules: {
       'playwright/expect-expect': 'off',
+    },
+  },
+
+  // Test files — relax rules that are impractical for mocking/test utilities
+  {
+    files: ['src/**/__tests__/**/*.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 

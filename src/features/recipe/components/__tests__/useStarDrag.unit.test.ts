@@ -5,7 +5,11 @@ import useStarDrag from '../useStarDrag'
 vi.mock('framer-motion', () => ({ animate: vi.fn() }))
 
 // Injects a mock DOM node with a controllable bounding rect into the hook's rowRef.
-function mockRowRect(result: { current: ReturnType<typeof useStarDrag> }, left: number, width: number) {
+function mockRowRect(
+  result: { current: ReturnType<typeof useStarDrag> },
+  left: number,
+  width: number,
+) {
   ;(result.current.rowRef as any).current = {
     getBoundingClientRect: () => ({ left, width }),
   }

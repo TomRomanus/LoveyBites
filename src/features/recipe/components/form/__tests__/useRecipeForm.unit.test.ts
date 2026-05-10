@@ -2,14 +2,48 @@ import { renderHook, act } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { emptyInput, buildInitial, useRecipeForm } from '../useRecipeForm'
 import * as ingredientUtils from '@/features/recipe/utils/ingredientUtils'
+import type { RecipeInput } from '@/features/recipe/types/recipe'
 
-vi.mock('@/features/recipe/utils/ingredientUtils', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/features/recipe/utils/ingredientUtils')>()
-  return {
-    ...actual,
-    ensureIngredientIds: vi.fn((nodes) => actual.ensureIngredientIds(nodes)),
+vi.mock('@/features/recipe/utils/ingredientUtils', () => ({
+  ensureIngredientIds: vi.fn((nodes: unknown[]) => nodes),
+  pruneEmpty: vi.fn((nodes: unknown[]) => nodes),
+  extractLeafTexts: vi.fn(() => []),
+  collectIngredientMap: vi.fn(() => new Map()),
+}))
+
+// Mock react-hook-form to avoid loading the full library (prevents worker OOM)
+let capturedSubmitHandler: ((data: RecipeInput) => Promise<void>) | null = null
+const mockReset = vi.fn()
+const mockHandleSubmit = vi.fn((fn: (data: RecipeInput) => Promise<void>) => {
+  capturedSubmitHandler = fn
+  return async (_e?: Event) => {
+    if (capturedSubmitHandler) {
+      await capturedSubmitHandler({
+        title: 'Test',
+        description: '',
+        ingredients: [],
+        steps: [],
+        tags: [],
+        imageUrl: '',
+        createdBy: 'us',
+      })
+    }
   }
 })
+
+vi.mock('react-hook-form', () => ({
+  useForm: vi.fn(() => ({
+    handleSubmit: mockHandleSubmit,
+    control: {},
+    reset: mockReset,
+    formState: { errors: {} },
+  })),
+  useWatch: vi.fn(() => []),
+}))
+
+vi.mock('@hookform/resolvers/zod', () => ({
+  zodResolver: vi.fn(() => async (data: unknown) => ({ values: data, errors: {} })),
+}))
 
 describe('emptyInput', () => {
   it('returns portionsLabel as "pers"', () => {
@@ -87,7 +121,10 @@ describe('buildInitial', () => {
 })
 
 describe('useRecipeForm', () => {
-  beforeEach(() => vi.clearAllMocks())
+  beforeEach(() => {
+    vi.clearAllMocks()
+    capturedSubmitHandler = null
+  })
 
   it('returns form, ingredientOptions, errorMessage, onSubmit, and onTitleChange', () => {
     const { result } = renderHook(() =>
@@ -131,7 +168,15 @@ describe('useRecipeForm', () => {
 
     const { result } = renderHook(() =>
       useRecipeForm({
-        initial: { title: 'Hutspot', ingredients: [], steps: [], tags: [], imageUrl: '', createdBy: 'us', description: '' },
+        initial: {
+          title: 'Hutspot',
+          ingredients: [],
+          steps: [],
+          tags: [],
+          imageUrl: '',
+          createdBy: 'us',
+          description: '',
+        },
         onSubmit: onSubmitFn,
         onSavingChange,
       }),
@@ -146,12 +191,21 @@ describe('useRecipeForm', () => {
   })
 
   it('sets Dutch errorMessage when onSubmit throws', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const onSavingChange = vi.fn()
     const onSubmitFn = vi.fn().mockRejectedValue(new Error('network error'))
 
     const { result } = renderHook(() =>
       useRecipeForm({
-        initial: { title: 'Hutspot', ingredients: [], steps: [], tags: [], imageUrl: '', createdBy: 'us', description: '' },
+        initial: {
+          title: 'Hutspot',
+          ingredients: [],
+          steps: [],
+          tags: [],
+          imageUrl: '',
+          createdBy: 'us',
+          description: '',
+        },
         onSubmit: onSubmitFn,
         onSavingChange,
       }),
@@ -163,5 +217,6 @@ describe('useRecipeForm', () => {
 
     expect(result.current.errorMessage).toBe('Recept opslaan mislukt. Probeer opnieuw.')
     expect(onSavingChange).toHaveBeenCalledWith(false)
+    consoleSpy.mockRestore()
   })
 })

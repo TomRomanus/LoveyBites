@@ -83,7 +83,7 @@ describe('RecipeSearchBar', () => {
     })
 
     it('does not show tag badge when no tags are active', () => {
-      const { container } = setup({ activeTags: [] })
+      setup({ activeTags: [] })
       const tagsButton = screen.getByRole('button', { name: /tags/i })
       expect(tagsButton.querySelector('.bg-bordeaux')).toBeNull()
     })

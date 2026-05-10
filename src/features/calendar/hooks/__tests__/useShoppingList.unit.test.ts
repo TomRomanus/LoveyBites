@@ -63,39 +63,55 @@ describe('useShoppingList', () => {
 
   describe('when visible=false', () => {
     it('query is disabled (useQuery receives enabled=false)', () => {
-      vi.mocked(useQuery).mockReturnValue({ data: undefined, isLoading: false, isFetched: false } as any)
+      vi.mocked(useQuery).mockReturnValue({
+        data: undefined,
+        isLoading: false,
+        isFetched: false,
+      } as any)
       renderHook(() => useShoppingList('2026-05-11', '2026-05-17', false))
-      expect(vi.mocked(useQuery)).toHaveBeenCalledWith(
-        expect.objectContaining({ enabled: false }),
-      )
+      expect(vi.mocked(useQuery)).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }))
     })
   })
 
   describe('when visible=true', () => {
     it('query is enabled', () => {
-      vi.mocked(useQuery).mockReturnValue({ data: undefined, isLoading: false, isFetched: false } as any)
+      vi.mocked(useQuery).mockReturnValue({
+        data: undefined,
+        isLoading: false,
+        isFetched: false,
+      } as any)
       renderHook(() => useShoppingList('2026-05-11', '2026-05-17', true))
-      expect(vi.mocked(useQuery)).toHaveBeenCalledWith(
-        expect.objectContaining({ enabled: true }),
-      )
+      expect(vi.mocked(useQuery)).toHaveBeenCalledWith(expect.objectContaining({ enabled: true }))
     })
   })
 
   describe('loading state', () => {
     it('returns loading=true when isLoading is true', () => {
-      vi.mocked(useQuery).mockReturnValue({ data: undefined, isLoading: true, isFetched: false } as any)
+      vi.mocked(useQuery).mockReturnValue({
+        data: undefined,
+        isLoading: true,
+        isFetched: false,
+      } as any)
       const { result } = renderHook(() => useShoppingList('2026-05-11', '2026-05-17', true))
       expect(result.current.loading).toBe(true)
     })
 
     it('returns empty sections when loading', () => {
-      vi.mocked(useQuery).mockReturnValue({ data: undefined, isLoading: true, isFetched: false } as any)
+      vi.mocked(useQuery).mockReturnValue({
+        data: undefined,
+        isLoading: true,
+        isFetched: false,
+      } as any)
       const { result } = renderHook(() => useShoppingList('2026-05-11', '2026-05-17', true))
       expect(result.current.sections).toEqual([])
     })
 
     it('returns fetched=false when not yet fetched', () => {
-      vi.mocked(useQuery).mockReturnValue({ data: undefined, isLoading: true, isFetched: false } as any)
+      vi.mocked(useQuery).mockReturnValue({
+        data: undefined,
+        isLoading: true,
+        isFetched: false,
+      } as any)
       const { result } = renderHook(() => useShoppingList('2026-05-11', '2026-05-17', true))
       expect(result.current.fetched).toBe(false)
     })
@@ -196,7 +212,7 @@ describe('useShoppingList', () => {
         isLoading: false,
         isFetched: true,
       } as any)
-      const { result } = renderHook(() => useShoppingList('2026-05-11', '2026-05-17', true))
+      renderHook(() => useShoppingList('2026-05-11', '2026-05-17', true))
       // count=2, portions=2 → ratio = (2*2)/2 = 2
       expect(scaleIngredientText).toHaveBeenCalledWith('100g pasta', 2)
     })
@@ -267,7 +283,10 @@ describe('useShoppingList', () => {
       const recipe2 = makeRecipe({ id: 'r2', title: 'Soup', portions: 2 })
       const entry1 = makeEntry({ id: 'e1', date: '2026-05-11', recipeId: 'r1' })
       const entry2 = makeEntry({ id: 'e2', date: '2026-05-12', recipeId: 'r2' })
-      const recipeMap = new Map([['r1', recipe1], ['r2', recipe2]])
+      const recipeMap = new Map([
+        ['r1', recipe1],
+        ['r2', recipe2],
+      ])
       vi.mocked(extractLeafTexts).mockReturnValue(['item'])
       vi.mocked(scaleIngredientText).mockImplementation((text) => text)
       vi.mocked(useQuery).mockReturnValue({

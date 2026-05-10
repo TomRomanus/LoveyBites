@@ -81,10 +81,7 @@ describe('replaceAt', () => {
   })
 
   it('does not replace siblings when replacing a nested node', () => {
-    const nodes: IngredientNode[] = [
-      group('g1', [leaf('a'), leaf('b')]),
-      leaf('c'),
-    ]
+    const nodes: IngredientNode[] = [group('g1', [leaf('a'), leaf('b')]), leaf('c')]
     const result = replaceAt(nodes, [0, 0], leaf('x'))
     expect(result[1].id).toBe('c')
     const g = result[0]
@@ -151,10 +148,7 @@ describe('removeAt', () => {
   })
 
   it('does not affect sibling groups when removing from one group', () => {
-    const nodes: IngredientNode[] = [
-      group('g1', [leaf('a'), leaf('b')]),
-      group('g2', [leaf('c')]),
-    ]
+    const nodes: IngredientNode[] = [group('g1', [leaf('a'), leaf('b')]), group('g2', [leaf('c')])]
     const result = removeAt(nodes, [0, 0])
     const g1 = result[0]
     const g2 = result[1]
@@ -211,10 +205,7 @@ describe('appendChild', () => {
   })
 
   it('does not affect sibling nodes when appending to a group', () => {
-    const nodes: IngredientNode[] = [
-      group('g1', [leaf('a')]),
-      group('g2', [leaf('b')]),
-    ]
+    const nodes: IngredientNode[] = [group('g1', [leaf('a')]), group('g2', [leaf('b')])]
     const result = appendChild(nodes, [0], leaf('c'))
     const g1 = result[0]
     const g2 = result[1]
@@ -256,9 +247,7 @@ describe('collectGroupTitles', () => {
   })
 
   it('collects a single group title', () => {
-    const nodes: IngredientNode[] = [
-      { kind: 'group', title: 'De saus', id: 'g1', children: [] },
-    ]
+    const nodes: IngredientNode[] = [{ kind: 'group', title: 'De saus', id: 'g1', children: [] }]
     expect(collectGroupTitles(nodes)).toEqual(new Set(['De saus']))
   })
 
@@ -276,18 +265,14 @@ describe('collectGroupTitles', () => {
         kind: 'group',
         title: 'Buiten',
         id: 'g1',
-        children: [
-          { kind: 'group', title: 'Binnen', id: 'g2', children: [] },
-        ],
+        children: [{ kind: 'group', title: 'Binnen', id: 'g2', children: [] }],
       },
     ]
     expect(collectGroupTitles(nodes)).toEqual(new Set(['Buiten', 'Binnen']))
   })
 
   it('does not add a group with empty title', () => {
-    const nodes: IngredientNode[] = [
-      { kind: 'group', title: '', id: 'g1', children: [] },
-    ]
+    const nodes: IngredientNode[] = [{ kind: 'group', title: '', id: 'g1', children: [] }]
     const titles = collectGroupTitles(nodes)
     expect(titles.has('')).toBe(false)
     expect(titles.size).toBe(0)
@@ -378,9 +363,7 @@ describe('buildLeafIndexMap', () => {
   })
 
   it('does not include group ids in the map', () => {
-    const nodes: IngredientNode[] = [
-      { kind: 'group', title: 'De saus', id: 'g1', children: [] },
-    ]
+    const nodes: IngredientNode[] = [{ kind: 'group', title: 'De saus', id: 'g1', children: [] }]
     const map = buildLeafIndexMap(nodes)
     expect(map.has('g1')).toBe(false)
   })

@@ -67,9 +67,9 @@ describe('StarRating', () => {
     it('correctly distributes fill for value 2.5', () => {
       const { container } = render(<StarRating value={2.5} />)
       const fills = getFillSvgs(container)
-      expect(parseRightInsetPercent(fills[0].style.clipPath)).toBeCloseTo(0)   // fully filled
-      expect(parseRightInsetPercent(fills[1].style.clipPath)).toBeCloseTo(0)   // fully filled
-      expect(parseRightInsetPercent(fills[2].style.clipPath)).toBeCloseTo(50)  // half filled
+      expect(parseRightInsetPercent(fills[0].style.clipPath)).toBeCloseTo(0) // fully filled
+      expect(parseRightInsetPercent(fills[1].style.clipPath)).toBeCloseTo(0) // fully filled
+      expect(parseRightInsetPercent(fills[2].style.clipPath)).toBeCloseTo(50) // half filled
       expect(parseRightInsetPercent(fills[3].style.clipPath)).toBeCloseTo(100) // empty
       expect(parseRightInsetPercent(fills[4].style.clipPath)).toBeCloseTo(100) // empty
     })

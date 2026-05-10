@@ -1,4 +1,4 @@
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import RecipeSourceEditor from '../RecipeSourceEditor'
@@ -75,12 +75,16 @@ describe('RecipeSourceEditor', () => {
 
   it('shows "uploaden…" while uploading', async () => {
     let resolve: (url: string) => void
-    vi.mocked(uploadSourceImage).mockReturnValue(new Promise((r) => { resolve = r }))
+    vi.mocked(uploadSourceImage).mockReturnValue(
+      new Promise((r) => {
+        resolve = r
+      }),
+    )
     setup()
     const file = new File(['img'], 'foto.jpg', { type: 'image/jpeg' })
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
     await userEvent.upload(fileInput, file)
     expect(await screen.findByRole('button', { name: /uploaden…/i })).toBeDisabled()
-    resolve!('https://cdn.example.com/img.jpg')
+    await act(async () => { resolve!('https://cdn.example.com/img.jpg') })
   })
 })

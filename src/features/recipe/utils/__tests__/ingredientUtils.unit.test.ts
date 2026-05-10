@@ -45,9 +45,7 @@ describe('extractLeafTexts', () => {
   })
 
   it('does not include group nodes in output', () => {
-    const nodes: IngredientNode[] = [
-      { kind: 'group', title: 'Lege groep', children: [] },
-    ]
+    const nodes: IngredientNode[] = [{ kind: 'group', title: 'Lege groep', children: [] }]
     expect(extractLeafTexts(nodes)).toEqual([])
   })
 
@@ -108,9 +106,7 @@ describe('ensureIngredientIds', () => {
   })
 
   it('assigns an id to a group that has none', () => {
-    const nodes: IngredientNode[] = [
-      { kind: 'group', title: 'De saus', children: [] },
-    ]
+    const nodes: IngredientNode[] = [{ kind: 'group', title: 'De saus', children: [] }]
     const result = ensureIngredientIds(nodes)
     expect(result[0].id).toBeTruthy()
   })
@@ -232,9 +228,7 @@ describe('pruneEmpty', () => {
   })
 
   it('removes a group with no children at all', () => {
-    const nodes: IngredientNode[] = [
-      { kind: 'group', title: 'Lege groep', id: 'g1', children: [] },
-    ]
+    const nodes: IngredientNode[] = [{ kind: 'group', title: 'Lege groep', id: 'g1', children: [] }]
     expect(pruneEmpty(nodes)).toEqual([])
   })
 
@@ -329,9 +323,7 @@ describe('collectIngredientMap', () => {
   })
 
   it('does not add the group id itself to the map', () => {
-    const nodes: IngredientNode[] = [
-      { kind: 'group', title: 'De saus', id: 'g1', children: [] },
-    ]
+    const nodes: IngredientNode[] = [{ kind: 'group', title: 'De saus', id: 'g1', children: [] }]
     const map = collectIngredientMap(nodes)
     expect(map.has('g1')).toBe(false)
   })

@@ -65,40 +65,26 @@ describe('moveNodeInTree — no-op', () => {
 
 describe('moveNodeInTree — root-level group reorder', () => {
   it('swaps two adjacent root-level groups', () => {
-    const nodes: IngredientNode[] = [
-      group('g1', [leaf('a')]),
-      group('g2', [leaf('b')]),
-    ]
+    const nodes: IngredientNode[] = [group('g1', [leaf('a')]), group('g2', [leaf('b')])]
     const result = moveNodeInTree(nodes, 'g1', 'g2')
     expect(result[0].id).toBe('g2')
     expect(result[1].id).toBe('g1')
   })
 
   it('moves a group from the first position to the last', () => {
-    const nodes: IngredientNode[] = [
-      group('g1', []),
-      group('g2', []),
-      group('g3', []),
-    ]
+    const nodes: IngredientNode[] = [group('g1', []), group('g2', []), group('g3', [])]
     const result = moveNodeInTree(nodes, 'g1', 'g3')
     expect(result.map((n) => n.id)).toEqual(['g2', 'g3', 'g1'])
   })
 
   it('moves a group from the last position to the first', () => {
-    const nodes: IngredientNode[] = [
-      group('g1', []),
-      group('g2', []),
-      group('g3', []),
-    ]
+    const nodes: IngredientNode[] = [group('g1', []), group('g2', []), group('g3', [])]
     const result = moveNodeInTree(nodes, 'g3', 'g1')
     expect(result.map((n) => n.id)).toEqual(['g3', 'g1', 'g2'])
   })
 
   it('preserves group children when reordering groups', () => {
-    const nodes: IngredientNode[] = [
-      group('g1', [leaf('a'), leaf('b')]),
-      group('g2', [leaf('c')]),
-    ]
+    const nodes: IngredientNode[] = [group('g1', [leaf('a'), leaf('b')]), group('g2', [leaf('c')])]
     const result = moveNodeInTree(nodes, 'g1', 'g2')
     const first = result[0]
     if (first.kind !== 'group') throw new Error('Expected group')
@@ -162,10 +148,7 @@ describe('moveNodeInTree — leaf → group append', () => {
   })
 
   it('appends the leaf at the end of the group children', () => {
-    const nodes: IngredientNode[] = [
-      leaf('a'),
-      group('g1', [leaf('b'), leaf('c')]),
-    ]
+    const nodes: IngredientNode[] = [leaf('a'), group('g1', [leaf('b'), leaf('c')])]
     const result = moveNodeInTree(nodes, 'a', 'g1')
     const g = result.find((n) => n.id === 'g1')
     if (g?.kind !== 'group') throw new Error('Expected group')
@@ -174,10 +157,7 @@ describe('moveNodeInTree — leaf → group append', () => {
   })
 
   it('appends a leaf from one group into another group', () => {
-    const nodes: IngredientNode[] = [
-      group('g1', [leaf('a')]),
-      group('g2', [leaf('b')]),
-    ]
+    const nodes: IngredientNode[] = [group('g1', [leaf('a')]), group('g2', [leaf('b')])]
     const result = moveNodeInTree(nodes, 'a', 'g2')
     const g1 = result.find((n) => n.id === 'g1')
     const g2 = result.find((n) => n.id === 'g2')
@@ -252,10 +232,7 @@ describe('moveNodeInTree — cross-container leaf move', () => {
   })
 
   it('inserts the cross-container leaf before the over-leaf', () => {
-    const nodes: IngredientNode[] = [
-      group('g1', [leaf('a')]),
-      group('g2', [leaf('b'), leaf('c')]),
-    ]
+    const nodes: IngredientNode[] = [group('g1', [leaf('a')]), group('g2', [leaf('b'), leaf('c')])]
     // drag 'a' over 'b' in g2 — 'a' should be inserted at index of 'b'
     const result = moveNodeInTree(nodes, 'a', 'b')
     const g2 = result.find((n) => n.id === 'g2')
@@ -265,11 +242,7 @@ describe('moveNodeInTree — cross-container leaf move', () => {
   })
 
   it('moves a leaf from a group to root level and inserts before the target', () => {
-    const nodes: IngredientNode[] = [
-      leaf('a'),
-      leaf('b'),
-      group('g1', [leaf('c')]),
-    ]
+    const nodes: IngredientNode[] = [leaf('a'), leaf('b'), group('g1', [leaf('c')])]
     // drag 'c' (in g1) over 'a' at root
     const result = moveNodeInTree(nodes, 'c', 'a')
     const rootIds = result.map((n) => n.id)

@@ -40,7 +40,14 @@ function setup(props: Partial<React.ComponentProps<typeof DayDetailSheet>> = {})
     onClose: vi.fn(),
   }
   const merged = { ...defaults, ...props }
-  return { ...render(<MemoryRouter><DayDetailSheet {...merged} /></MemoryRouter>), merged }
+  return {
+    ...render(
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <DayDetailSheet {...merged} />
+      </MemoryRouter>,
+    ),
+    merged,
+  }
 }
 
 describe('DayDetailSheet', () => {

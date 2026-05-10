@@ -33,13 +33,15 @@ function makeRecipe(overrides: Partial<Recipe> = {}): Recipe {
   }
 }
 
-function setup(props: {
-  date?: string
-  existingRecipeIds?: string[]
-  onClose?: () => void
-  onSaved?: () => void
-  userUid?: string | null
-} = {}) {
+function setup(
+  props: {
+    date?: string
+    existingRecipeIds?: string[]
+    onClose?: () => void
+    onSaved?: () => void
+    userUid?: string | null
+  } = {},
+) {
   const {
     date = '2026-05-11',
     existingRecipeIds = [],
@@ -60,9 +62,6 @@ function setup(props: {
 
   return renderHook(() => useAddMeal({ date, existingRecipeIds, onClose, onSaved }))
 }
-
-// Flush pending microtasks
-const flushPromises = () => act(async () => {})
 
 describe('useAddMeal', () => {
   beforeEach(() => {
@@ -178,10 +177,7 @@ describe('useAddMeal', () => {
     })
 
     it('filters by ingredients (via extractLeafTexts)', () => {
-      const recipes = [
-        makeRecipe({ id: 'r1' }),
-        makeRecipe({ id: 'r2', title: 'Soup' }),
-      ]
+      const recipes = [makeRecipe({ id: 'r1' }), makeRecipe({ id: 'r2', title: 'Soup' })]
       vi.mocked(useQuery).mockReturnValue({ data: recipes } as any)
       // r1 has "spaghetti" in ingredients, r2 does not
       vi.mocked(extractLeafTexts).mockImplementation((ingredients) => {

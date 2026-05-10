@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import TagsEditor from '../TagsEditor'
 
-vi.mock('framer-motion', () => import('@/test/mocks/framer-motion'))
 
 type Props = React.ComponentProps<typeof TagsEditor>
 
@@ -83,7 +82,8 @@ describe('TagsEditor', () => {
       setup({ tags: [], existingTags: ['pasta', 'pizza', 'soep'] })
       const input = screen.getByPlaceholderText('+ TAG')
       await userEvent.click(input)
-      await userEvent.type(input, 'pa')
+      // 'a' is a substring of 'pasta' and 'pizza' but not 'soep'
+      await userEvent.type(input, 'a')
       expect(screen.getByText('pasta')).toBeInTheDocument()
       expect(screen.getByText('pizza')).toBeInTheDocument()
     })

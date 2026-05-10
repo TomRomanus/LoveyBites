@@ -6,7 +6,13 @@ import { importRecipeFromUrl } from '@/features/recipe/api/importRecipe'
 
 vi.mock('@/features/recipe/api/importRecipe')
 
-const mockRecipeData = { title: 'Test recept', description: '', ingredients: [], steps: [], tags: [] }
+const mockRecipeData = {
+  title: 'Test recept',
+  description: '',
+  ingredients: [],
+  steps: [],
+  tags: [],
+}
 
 describe('RecipeUrlImport', () => {
   beforeEach(() => vi.clearAllMocks())
@@ -55,9 +61,7 @@ describe('RecipeUrlImport', () => {
     render(<RecipeUrlImport onExtracted={vi.fn()} />)
     await userEvent.type(screen.getByPlaceholderText('https://…'), 'https://example.com/recept')
     await userEvent.click(screen.getByRole('button', { name: 'Importeren' }))
-    await waitFor(() =>
-      expect(screen.getByText('Kon de pagina niet ophalen')).toBeInTheDocument(),
-    )
+    await waitFor(() => expect(screen.getByText('Kon de pagina niet ophalen')).toBeInTheDocument())
   })
 
   it('shows the fallback error message when a non-Error is thrown', async () => {

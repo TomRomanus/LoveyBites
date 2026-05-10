@@ -6,8 +6,6 @@ import DayEntryRow from '../DayEntryRow'
 import type { MealPlanEntry } from '@/features/calendar/types/calendar'
 import type { Recipe } from '@/features/recipe/types/recipe'
 
-const MONDAY = new Date('2026-05-11T00:00:00.000Z')
-
 function makeEntry(overrides: Partial<MealPlanEntry> = {}): MealPlanEntry {
   return { id: 'e1', date: '2026-05-11', createdAt: null, createdBy: 'u1', ...overrides }
 }
@@ -30,9 +28,20 @@ function makeRecipe(overrides: Partial<Recipe> = {}): Recipe {
 }
 
 function setup(props: Partial<React.ComponentProps<typeof DayEntryRow>> = {}) {
-  const defaults = { entry: makeEntry(), recipe: undefined as Recipe | undefined, onDelete: vi.fn() }
+  const defaults = {
+    entry: makeEntry(),
+    recipe: undefined as Recipe | undefined,
+    onDelete: vi.fn(),
+  }
   const merged = { ...defaults, ...props }
-  return { ...render(<MemoryRouter><DayEntryRow {...merged} /></MemoryRouter>), merged }
+  return {
+    ...render(
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <DayEntryRow {...merged} />
+      </MemoryRouter>,
+    ),
+    merged,
+  }
 }
 
 describe('DayEntryRow', () => {

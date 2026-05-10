@@ -17,9 +17,9 @@ function setup(overrides: Partial<Props> = {}) {
   const props = { ...defaults, ...overrides }
   return {
     ...render(
-      <MemoryRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <RecipeFormHeader {...props} />
-      </MemoryRouter>
+      </MemoryRouter>,
     ),
     onBack: props.onBack,
   }

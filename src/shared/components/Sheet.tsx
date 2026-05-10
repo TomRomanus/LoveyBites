@@ -12,7 +12,7 @@ type SheetProps = {
 
 const Sheet = ({ visible, onClose, height, children }: SheetProps) => (
   <BaseOverlay visible={visible} onClose={onClose} backdropZ="z-[200]">
-    <RadixDialog.Content asChild forceMount>
+    <RadixDialog.Content asChild forceMount aria-describedby={undefined}>
       <motion.div
         key="sheet-panel"
         className="lb-sheet"

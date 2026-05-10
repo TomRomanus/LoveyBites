@@ -57,9 +57,7 @@ describe('AddToCalendarModal', () => {
     it('renders the hint text at the bottom', async () => {
       setup()
       await waitFor(() => {
-        expect(
-          screen.getByText(/klik om toe te voegen/i),
-        ).toBeInTheDocument()
+        expect(screen.getByText(/klik om toe te voegen/i)).toBeInTheDocument()
       })
     })
   })
@@ -88,20 +86,28 @@ describe('AddToCalendarModal', () => {
     it('clicking next week changes the week label', async () => {
       setup()
       await waitFor(() => screen.getByText('Toevoegen aan menu'))
-      const weekLabelBefore = document.body.querySelector('.text-\\[14px\\].font-medium')?.textContent
+      const weekLabelBefore = document.body.querySelector(
+        '.text-\\[14px\\].font-medium',
+      )?.textContent
       const buttons = screen.getAllByRole('button')
       await userEvent.click(buttons[1]) // next week button
-      const weekLabelAfter = document.body.querySelector('.text-\\[14px\\].font-medium')?.textContent
+      const weekLabelAfter = document.body.querySelector(
+        '.text-\\[14px\\].font-medium',
+      )?.textContent
       expect(weekLabelAfter).not.toBe(weekLabelBefore)
     })
 
     it('clicking previous week changes the week label', async () => {
       setup()
       await waitFor(() => screen.getByText('Toevoegen aan menu'))
-      const weekLabelBefore = document.body.querySelector('.text-\\[14px\\].font-medium')?.textContent
+      const weekLabelBefore = document.body.querySelector(
+        '.text-\\[14px\\].font-medium',
+      )?.textContent
       const buttons = screen.getAllByRole('button')
       await userEvent.click(buttons[0]) // prev week button
-      const weekLabelAfter = document.body.querySelector('.text-\\[14px\\].font-medium')?.textContent
+      const weekLabelAfter = document.body.querySelector(
+        '.text-\\[14px\\].font-medium',
+      )?.textContent
       expect(weekLabelAfter).not.toBe(weekLabelBefore)
     })
   })

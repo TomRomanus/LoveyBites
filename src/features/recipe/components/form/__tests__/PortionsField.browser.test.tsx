@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import PortionsField from '../PortionsField'
 
-vi.mock('framer-motion', () => import('@/test/mocks/framer-motion'))
 
 type Props = React.ComponentProps<typeof PortionsField>
 

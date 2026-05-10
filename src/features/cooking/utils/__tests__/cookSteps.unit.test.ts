@@ -37,8 +37,16 @@ describe('flattenCookSteps', () => {
     ]
     const result = flattenCookSteps(nodes)
     expect(result).toHaveLength(2)
-    expect(result[0]).toMatchObject({ text: 'Fruit de ui', sectionTitle: 'De saus', globalIndex: 0 })
-    expect(result[1]).toMatchObject({ text: 'Voeg tomaten toe', sectionTitle: 'De saus', globalIndex: 1 })
+    expect(result[0]).toMatchObject({
+      text: 'Fruit de ui',
+      sectionTitle: 'De saus',
+      globalIndex: 0,
+    })
+    expect(result[1]).toMatchObject({
+      text: 'Voeg tomaten toe',
+      sectionTitle: 'De saus',
+      globalIndex: 1,
+    })
   })
 
   it('preserves ingredientRefs on leaf nodes', () => {

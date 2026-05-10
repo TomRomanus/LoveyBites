@@ -25,7 +25,11 @@ function setup(overrides: Partial<Props> = {}) {
     onClose: vi.fn(),
   }
   const props = { ...defaults, ...overrides }
-  return { ...render(<IngredientPickerSheet {...props} />), onToggle: props.onToggle, onClose: props.onClose }
+  return {
+    ...render(<IngredientPickerSheet {...props} />),
+    onToggle: props.onToggle,
+    onClose: props.onClose,
+  }
 }
 
 describe('IngredientPickerSheet', () => {

@@ -20,7 +20,14 @@ const MONDAY = new Date('2026-05-11T00:00:00.000Z')
 const mockRecipe = { id: 'r1', title: 'Pasta Carbonara' }
 
 function makeEntry(overrides: Partial<MealPlanEntry> = {}): MealPlanEntry {
-  return { id: 'e1', date: '2026-05-11', recipeId: 'r1', createdAt: null, createdBy: 'u1', ...overrides }
+  return {
+    id: 'e1',
+    date: '2026-05-11',
+    recipeId: 'r1',
+    createdAt: null,
+    createdBy: 'u1',
+    ...overrides,
+  }
 }
 
 function setup(userUid: string | null = 'u1') {
@@ -55,20 +62,23 @@ describe('useAddToCalendar', () => {
   })
 
   describe('initial state', () => {
-    it('starts with empty entries and no saving state', () => {
+    it('starts with empty entries and no saving state', async () => {
       const { result } = setup()
+      await flushPromises()
       expect(result.current.entries).toEqual([])
       expect(result.current.saving).toBeNull()
       expect(result.current.recentlySaved.size).toBe(0)
     })
 
-    it('exposes 7 days in the current week', () => {
+    it('exposes 7 days in the current week', async () => {
       const { result } = setup()
+      await flushPromises()
       expect(result.current.days).toHaveLength(7)
     })
 
-    it('weekDir starts as "next"', () => {
+    it('weekDir starts as "next"', async () => {
       const { result } = setup()
+      await flushPromises()
       expect(result.current.weekDir).toBe('next')
     })
 
@@ -80,32 +90,41 @@ describe('useAddToCalendar', () => {
   })
 
   describe('week navigation', () => {
-    it('goToNextWeek advances weekStart by 7 days', () => {
+    it('goToNextWeek advances weekStart by 7 days', async () => {
       const { result } = setup()
+      await flushPromises()
       const initial = result.current.weekStart
       act(() => result.current.goToNextWeek())
+      await flushPromises()
       const diff = result.current.weekStart.getTime() - initial.getTime()
       expect(diff).toBe(7 * 24 * 60 * 60 * 1000)
     })
 
-    it('goToNextWeek sets weekDir to "next"', () => {
+    it('goToNextWeek sets weekDir to "next"', async () => {
       const { result } = setup()
+      await flushPromises()
       act(() => result.current.goToPrevWeek())
+      await flushPromises()
       act(() => result.current.goToNextWeek())
+      await flushPromises()
       expect(result.current.weekDir).toBe('next')
     })
 
-    it('goToPrevWeek moves weekStart back 7 days', () => {
+    it('goToPrevWeek moves weekStart back 7 days', async () => {
       const { result } = setup()
+      await flushPromises()
       const initial = result.current.weekStart
       act(() => result.current.goToPrevWeek())
+      await flushPromises()
       const diff = initial.getTime() - result.current.weekStart.getTime()
       expect(diff).toBe(7 * 24 * 60 * 60 * 1000)
     })
 
-    it('goToPrevWeek sets weekDir to "prev"', () => {
+    it('goToPrevWeek sets weekDir to "prev"', async () => {
       const { result } = setup()
+      await flushPromises()
       act(() => result.current.goToPrevWeek())
+      await flushPromises()
       expect(result.current.weekDir).toBe('prev')
     })
 
@@ -120,13 +139,15 @@ describe('useAddToCalendar', () => {
   })
 
   describe('weekLabel', () => {
-    it('returns a non-empty label string', () => {
+    it('returns a non-empty label string', async () => {
       const { result } = setup()
+      await flushPromises()
       expect(result.current.weekLabel.length).toBeGreaterThan(0)
     })
 
-    it('includes the year', () => {
+    it('includes the year', async () => {
       const { result } = setup()
+      await flushPromises()
       expect(result.current.weekLabel).toContain('2026')
     })
   })

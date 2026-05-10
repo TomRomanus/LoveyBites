@@ -6,7 +6,13 @@ import { importRecipeFromText } from '@/features/recipe/api/importRecipe'
 
 vi.mock('@/features/recipe/api/importRecipe')
 
-const mockRecipeData = { title: 'Test recept', description: '', ingredients: [], steps: [], tags: [] }
+const mockRecipeData = {
+  title: 'Test recept',
+  description: '',
+  ingredients: [],
+  steps: [],
+  tags: [],
+}
 
 describe('RecipeTextImport', () => {
   beforeEach(() => vi.clearAllMocks())

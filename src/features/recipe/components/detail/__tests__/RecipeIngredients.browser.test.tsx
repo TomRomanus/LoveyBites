@@ -14,7 +14,11 @@ function setup(props: Partial<React.ComponentProps<typeof RecipeIngredients>> = 
     checked: new Set<string>(),
     onToggle: vi.fn(),
   }
-  return { ...render(<RecipeIngredients {...defaults} {...props} />), onToggle: props.onToggle ?? defaults.onToggle, onPortionChange: props.onPortionChange ?? defaults.onPortionChange }
+  return {
+    ...render(<RecipeIngredients {...defaults} {...props} />),
+    onToggle: props.onToggle ?? defaults.onToggle,
+    onPortionChange: props.onPortionChange ?? defaults.onPortionChange,
+  }
 }
 
 describe('RecipeIngredients', () => {

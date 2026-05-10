@@ -3,10 +3,9 @@ import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import FilterSheet from '../FilterSheet'
 
-vi.mock('framer-motion', () => import('@/test/mocks/framer-motion'))
 
 vi.mock('@/shared/components/Sheet', () => ({
-  default: ({ visible, children }: any) => visible ? <div>{children}</div> : null,
+  default: ({ visible, children }: any) => (visible ? <div>{children}</div> : null),
 }))
 
 vi.mock('@/shared/components/SearchInput', () => ({

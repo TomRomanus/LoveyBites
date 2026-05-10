@@ -40,7 +40,14 @@ function setup(props: Partial<React.ComponentProps<typeof WeekView>> = {}) {
     onDelete: vi.fn(),
   }
   const merged = { ...defaults, ...props }
-  return { ...render(<MemoryRouter><WeekView {...merged} /></MemoryRouter>), merged }
+  return {
+    ...render(
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <WeekView {...merged} />
+      </MemoryRouter>,
+    ),
+    merged,
+  }
 }
 
 describe('WeekView', () => {
@@ -83,7 +90,11 @@ describe('WeekView', () => {
     })
 
     it('renders customDescription when entry has no recipe', () => {
-      const entry = makeEntry({ recipeId: undefined, customDescription: 'Eigen maaltijd', date: '2026-05-11' })
+      const entry = makeEntry({
+        recipeId: undefined,
+        customDescription: 'Eigen maaltijd',
+        date: '2026-05-11',
+      })
       setup({ entries: [entry] })
       expect(screen.getByText('Eigen maaltijd')).toBeInTheDocument()
     })

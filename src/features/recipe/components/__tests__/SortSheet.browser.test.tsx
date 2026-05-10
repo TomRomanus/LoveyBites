@@ -5,7 +5,7 @@ import SortSheet from '../SortSheet'
 import type { SortOption } from '@/features/recipe/hooks/useRecipeFilter'
 
 vi.mock('@/shared/components/Sheet', () => ({
-  default: ({ visible, children }: any) => visible ? <div>{children}</div> : null,
+  default: ({ visible, children }: any) => (visible ? <div>{children}</div> : null),
 }))
 
 type Props = React.ComponentProps<typeof SortSheet>

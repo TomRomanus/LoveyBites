@@ -58,7 +58,7 @@ function makeQueryClient() {
 function setup() {
   return render(
     <QueryClientProvider client={makeQueryClient()}>
-      <MemoryRouter initialEntries={['/']}>
+      <MemoryRouter initialEntries={['/']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/" element={<RecipesPage />} />
           <Route path="/new" element={<div>nieuw recept</div>} />
@@ -123,9 +123,7 @@ describe('RecipesPage', () => {
       vi.mocked(getRecipes).mockRejectedValue(new Error('network'))
       setup()
       await waitFor(() => {
-        expect(
-          screen.getByText(/recepten konden niet worden geladen/i),
-        ).toBeInTheDocument()
+        expect(screen.getByText(/recepten konden niet worden geladen/i)).toBeInTheDocument()
       })
     })
 
@@ -133,9 +131,7 @@ describe('RecipesPage', () => {
       vi.mocked(getRecipes).mockRejectedValue(new Error('network'))
       setup()
       await waitFor(() => {
-        expect(
-          screen.queryByPlaceholderText('Zoek recept of ingrediënt'),
-        ).not.toBeInTheDocument()
+        expect(screen.queryByPlaceholderText('Zoek recept of ingrediënt')).not.toBeInTheDocument()
       })
     })
   })
@@ -153,9 +149,7 @@ describe('RecipesPage', () => {
       vi.mocked(getRecipes).mockResolvedValue([])
       setup()
       await waitFor(() => {
-        expect(
-          screen.getByRole('button', { name: /eerste recept toevoegen/i }),
-        ).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /eerste recept toevoegen/i })).toBeInTheDocument()
       })
     })
   })

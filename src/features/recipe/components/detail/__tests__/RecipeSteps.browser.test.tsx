@@ -2,10 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import RecipeSteps from '../RecipeSteps'
 
-const baseSteps = [
-  { text: 'Kook de spaghetti al dente.' },
-  { text: 'Meng de eieren met kaas.' },
-]
+const baseSteps = [{ text: 'Kook de spaghetti al dente.' }, { text: 'Meng de eieren met kaas.' }]
 
 function setup(props: Partial<React.ComponentProps<typeof RecipeSteps>> = {}) {
   const defaults = {

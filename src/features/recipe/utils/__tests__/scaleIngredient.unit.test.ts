@@ -95,6 +95,11 @@ describe('scaleIngredients', () => {
       { kind: 'leaf', text: '2 eieren', id: 'leaf-1', ingredientRefs: ['ref-a'] },
     ]
     const result = scaleIngredients(nodes, 2)
-    expect(result[0]).toMatchObject({ kind: 'leaf', text: '4 eieren', id: 'leaf-1', ingredientRefs: ['ref-a'] })
+    expect(result[0]).toMatchObject({
+      kind: 'leaf',
+      text: '4 eieren',
+      id: 'leaf-1',
+      ingredientRefs: ['ref-a'],
+    })
   })
 })

@@ -8,7 +8,7 @@ type Recipe = React.ComponentProps<typeof TodayMenuCard>['recipe']
 function setup(recipe: Partial<Recipe> = {}) {
   const defaults: Recipe = { id: 'r1', title: 'Stamppot', description: 'Heerlijk', rating: 4 }
   return render(
-    <MemoryRouter>
+    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <TodayMenuCard recipe={{ ...defaults, ...recipe }} />
     </MemoryRouter>,
   )

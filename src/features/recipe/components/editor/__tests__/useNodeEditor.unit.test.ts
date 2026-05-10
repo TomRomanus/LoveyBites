@@ -14,7 +14,8 @@ vi.mock('@dnd-kit/core', async (importOriginal) => {
 })
 
 vi.mock('@/features/recipe/components/editor/dndTree', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/features/recipe/components/editor/dndTree')>()
+  const actual =
+    await importOriginal<typeof import('@/features/recipe/components/editor/dndTree')>()
   return {
     ...actual,
     moveNodeInTree: vi.fn((nodes) => nodes),
@@ -34,18 +35,14 @@ describe('useNodeEditor', () => {
 
   describe('initial state', () => {
     it('activeId starts as null', () => {
-      const { result } = renderHook(() =>
-        useNodeEditor({ nodes: [], onChange: vi.fn() }),
-      )
+      const { result } = renderHook(() => useNodeEditor({ nodes: [], onChange: vi.fn() }))
       expect(result.current.activeId).toBeNull()
     })
   })
 
   describe('handleDragStart', () => {
     it('sets activeId to the dragged item id', () => {
-      const { result } = renderHook(() =>
-        useNodeEditor({ nodes: [], onChange: vi.fn() }),
-      )
+      const { result } = renderHook(() => useNodeEditor({ nodes: [], onChange: vi.fn() }))
       act(() => {
         result.current.handleDragStart({ active: { id: 'node-1' } } as any)
       })
@@ -55,9 +52,7 @@ describe('useNodeEditor', () => {
 
   describe('handleDragEnd', () => {
     it('clears activeId after drag ends', () => {
-      const { result } = renderHook(() =>
-        useNodeEditor({ nodes: [], onChange: vi.fn() }),
-      )
+      const { result } = renderHook(() => useNodeEditor({ nodes: [], onChange: vi.fn() }))
       act(() => {
         result.current.handleDragStart({ active: { id: 'node-1' } } as any)
       })
@@ -95,9 +90,7 @@ describe('useNodeEditor', () => {
       const movedNodes = [leaf('knoflook', 'node-2'), leaf('ui', 'node-1')]
       vi.mocked(dndTree.moveNodeInTree).mockReturnValue(movedNodes)
 
-      const { result } = renderHook(() =>
-        useNodeEditor({ nodes, onChange }),
-      )
+      const { result } = renderHook(() => useNodeEditor({ nodes, onChange }))
       act(() => {
         result.current.handleDragEnd({ active: { id: 'node-1' }, over: { id: 'node-2' } } as any)
       })
@@ -108,9 +101,7 @@ describe('useNodeEditor', () => {
 
   describe('handleDragCancel', () => {
     it('resets activeId to null', () => {
-      const { result } = renderHook(() =>
-        useNodeEditor({ nodes: [], onChange: vi.fn() }),
-      )
+      const { result } = renderHook(() => useNodeEditor({ nodes: [], onChange: vi.fn() }))
       act(() => {
         result.current.handleDragStart({ active: { id: 'node-1' } } as any)
       })
@@ -147,9 +138,7 @@ describe('useNodeEditor', () => {
     })
 
     it('returns empty array when commonSections is not provided', () => {
-      const { result } = renderHook(() =>
-        useNodeEditor({ nodes: [], onChange: vi.fn() }),
-      )
+      const { result } = renderHook(() => useNodeEditor({ nodes: [], onChange: vi.fn() }))
       expect(result.current.availableSections).toEqual([])
     })
   })
@@ -165,9 +154,7 @@ describe('useNodeEditor', () => {
 
     it('is undefined when ordered is not provided', () => {
       const nodes = [leaf('ui', 'leaf-1')]
-      const { result } = renderHook(() =>
-        useNodeEditor({ nodes, onChange: vi.fn() }),
-      )
+      const { result } = renderHook(() => useNodeEditor({ nodes, onChange: vi.fn() }))
       expect(result.current.leafIndexMap).toBeUndefined()
     })
 

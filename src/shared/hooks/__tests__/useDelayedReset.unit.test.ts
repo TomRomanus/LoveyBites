@@ -12,19 +12,17 @@ describe('useDelayedReset', () => {
   })
 
   it('updates to the new value immediately when the prop changes', () => {
-    const { result, rerender } = renderHook(
-      ({ v }) => useDelayedReset(v, false, 1500),
-      { initialProps: { v: false } },
-    )
+    const { result, rerender } = renderHook(({ v }) => useDelayedReset(v, false, 1500), {
+      initialProps: { v: false },
+    })
     rerender({ v: true })
     expect(result.current).toBe(true)
   })
 
   it('resets back to resetTo after the delay elapses', () => {
-    const { result, rerender } = renderHook(
-      ({ v }) => useDelayedReset(v, false, 1500),
-      { initialProps: { v: false } },
-    )
+    const { result, rerender } = renderHook(({ v }) => useDelayedReset(v, false, 1500), {
+      initialProps: { v: false },
+    })
     rerender({ v: true })
     expect(result.current).toBe(true)
     act(() => vi.advanceTimersByTime(1500))
@@ -32,10 +30,9 @@ describe('useDelayedReset', () => {
   })
 
   it('does not fire a reset timer when value is already equal to resetTo', () => {
-    const { result, rerender } = renderHook(
-      ({ v }) => useDelayedReset(v, false, 1000),
-      { initialProps: { v: false } },
-    )
+    const { result, rerender } = renderHook(({ v }) => useDelayedReset(v, false, 1000), {
+      initialProps: { v: false },
+    })
     // value starts as resetTo — no timer should fire
     rerender({ v: false })
     act(() => vi.advanceTimersByTime(2000))

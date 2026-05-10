@@ -5,7 +5,6 @@ import { DayCell } from '../DayCell'
 import type { MealPlanEntry } from '@/features/calendar/types/calendar'
 
 const TODAY = new Date('2026-05-11T00:00:00.000Z')
-const NOT_TODAY = new Date('2026-05-12T00:00:00.000Z')
 
 function makeEntry(overrides: Partial<MealPlanEntry> = {}): MealPlanEntry {
   return { id: 'e1', date: '2026-05-11', createdAt: null, createdBy: 'u1', ...overrides }
@@ -99,7 +98,9 @@ describe('DayCell', () => {
     })
 
     it('falls back to customDescription when there is no recipe', () => {
-      setup({ dayEntries: [makeEntry({ recipeId: undefined, customDescription: 'Eigen maaltijd' })] })
+      setup({
+        dayEntries: [makeEntry({ recipeId: undefined, customDescription: 'Eigen maaltijd' })],
+      })
       expect(screen.getByText('Eigen maaltijd')).toBeInTheDocument()
     })
   })

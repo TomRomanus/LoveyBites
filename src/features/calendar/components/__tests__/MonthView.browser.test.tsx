@@ -145,7 +145,11 @@ describe('MonthView', () => {
     })
 
     it('shows customDescription when entry has no recipe', () => {
-      const entry = makeEntry({ recipeId: undefined, customDescription: 'Eigen maaltijd', date: '2026-05-11' })
+      const entry = makeEntry({
+        recipeId: undefined,
+        customDescription: 'Eigen maaltijd',
+        date: '2026-05-11',
+      })
       setup({ entries: [entry] })
       expect(screen.getByText('Eigen maaltijd')).toBeInTheDocument()
     })

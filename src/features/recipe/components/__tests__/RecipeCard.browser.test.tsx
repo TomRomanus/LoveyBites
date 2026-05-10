@@ -5,7 +5,6 @@ import { MemoryRouter } from 'react-router-dom'
 import RecipeCard from '../RecipeCard'
 import type { Recipe } from '@/features/recipe/types/recipe'
 
-vi.mock('framer-motion', () => import('@/test/mocks/framer-motion'))
 
 vi.mock('@/features/recipe/components/StarRating', () => ({
   StarRating: ({ value }: any) => <span data-testid="star-rating">{value}</span>,
@@ -33,7 +32,7 @@ function setup(overrides: Partial<Props> = {}) {
   }
   const props = { ...defaults, ...overrides }
   return render(
-    <MemoryRouter>
+    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <RecipeCard {...props} />
     </MemoryRouter>,
   )

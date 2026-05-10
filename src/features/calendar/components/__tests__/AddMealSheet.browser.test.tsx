@@ -25,10 +25,10 @@ function setup(props: Partial<React.ComponentProps<typeof AddMealSheet>> = {}) {
   const merged = { ...defaults, ...props }
   return render(
     <QueryClientProvider client={makeQC()}>
-      <MemoryRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AddMealSheet {...merged} />
       </MemoryRouter>
-    </QueryClientProvider>
+    </QueryClientProvider>,
   )
 }
 

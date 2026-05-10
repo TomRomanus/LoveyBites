@@ -24,9 +24,7 @@ const BASE_RECIPE: Recipe = {
 
 const EMPTY_RECIPE: Recipe = { ...BASE_RECIPE, steps: [] }
 
-const SCALED_INGREDIENTS: TreeNode[] = [
-  { kind: 'leaf', text: '200g spaghetti' },
-]
+const SCALED_INGREDIENTS: TreeNode[] = [{ kind: 'leaf', text: '200g spaghetti' }]
 
 type Props = React.ComponentProps<typeof CookingScreen>
 
@@ -153,11 +151,7 @@ describe('CookingScreen', () => {
     })
 
     it('disables the previous button on the first step', () => {
-      const { container } = setup()
-      const [prevBtn] = container.querySelectorAll<HTMLButtonElement>(
-        '[data-testid="cooking-close-btn"] ~ * button',
-      )
-      // Use the step bottom controls previous button directly
+      setup()
       const allButtons = screen.getAllByRole('button')
       // Find the prev button: it's the one just before the next/klaar button in bottom controls
       // The prev button is disabled at index 0

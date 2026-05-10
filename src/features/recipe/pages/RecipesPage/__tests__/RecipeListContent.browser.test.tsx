@@ -5,7 +5,6 @@ import { MemoryRouter } from 'react-router-dom'
 import RecipeListContent from '../RecipeListContent'
 import type { Recipe } from '@/features/recipe/types/recipe'
 
-vi.mock('framer-motion', () => import('@/test/mocks/framer-motion'))
 
 vi.mock('@/features/recipe/components/RecipeCard', () => ({
   default: ({ recipe, onAddToCalendar }: any) => (
@@ -41,7 +40,7 @@ function setup(overrides: Partial<Props> = {}) {
   const props = { ...defaults, ...overrides }
   return {
     ...render(
-      <MemoryRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <RecipeListContent {...props} />
       </MemoryRouter>,
     ),
