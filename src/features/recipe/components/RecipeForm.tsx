@@ -4,6 +4,7 @@ import type { RecipeInput } from '@/features/recipe/types/recipe'
 import { ensureIngredientIds } from '@/features/recipe/utils/ingredientUtils'
 import RecipeNodeEditor from '@/features/recipe/components/editor/RecipeNodeEditor'
 import RecipeSourceEditor from '@/features/recipe/components/RecipeSourceEditor'
+import RecipeNotesEditor from '@/features/recipe/components/RecipeNotesEditor'
 import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
 import FormField from '@/features/recipe/components/form/FormField'
 import TagsEditor from '@/features/recipe/components/form/TagsEditor'
@@ -104,6 +105,17 @@ const RecipeForm = (props: Props) => {
               ordered
               reordering={isReordering}
             />
+          )}
+        />
+      </div>
+
+      <div className="border-[0.5px] border-ink/14 rounded-[13px] p-4">
+        <div className="lb-eyebrow mb-3">NOTITIES</div>
+        <Controller
+          name="notes"
+          control={control}
+          render={({ field }) => (
+            <RecipeNotesEditor notes={field.value ?? []} onChange={field.onChange} />
           )}
         />
       </div>

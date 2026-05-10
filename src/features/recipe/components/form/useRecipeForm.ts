@@ -46,6 +46,7 @@ export const emptyInput = (): RecipeInput => ({
     },
   ],
   sources: [],
+  notes: [],
   tags: [],
   imageUrl: '',
   createdBy: 'us',
