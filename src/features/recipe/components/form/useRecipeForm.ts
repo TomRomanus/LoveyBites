@@ -29,6 +29,7 @@ export const emptyInput = (): RecipeInput => ({
   title: '',
   description: '',
   portions: 4,
+  portionsLabel: 'pers',
   ingredients: [{ kind: 'leaf', text: '', id: crypto.randomUUID() }],
   steps: [
     {
@@ -97,7 +98,8 @@ export const useRecipeForm = ({
     onSavingChange?.(true)
     try {
       await onSubmitProp(cleaned)
-    } catch {
+    } catch (e) {
+      console.error('Recipe save failed:', e)
       setError('Recept opslaan mislukt. Probeer opnieuw.')
       onSavingChange?.(false)
     }

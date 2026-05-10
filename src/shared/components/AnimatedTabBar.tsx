@@ -23,7 +23,7 @@ function AnimatedTabBar<T extends string>({
   if (variant === 'underline') {
     return (
       <LayoutGroup id={layoutId}>
-        <div className="flex border-b border-[0.5px] border-ink/10 gap-5">
+        <div className="flex border-b-[0.5px] border-ink/10 gap-5">
           {tabs.map(({ key, label }) => (
             <motion.button
               key={key}

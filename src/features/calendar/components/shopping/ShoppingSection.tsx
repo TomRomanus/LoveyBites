@@ -29,7 +29,7 @@ const ShoppingSection = ({
           transition: { duration: 0.22, ease: EASE_OUT },
         },
       }}
-      className="mb-4 pb-[14px] border-b border-[0.5px] border-ink/10"
+      className="mb-4 pb-[14px] border-b-[0.5px] border-ink/10"
     >
       <div className="font-mono text-[10px] text-stone tracking-[0.1em]">{days.join(' · ')}</div>
       <div className="font-serif italic text-base font-medium mt-[2px] mb-[6px] text-bordeaux">

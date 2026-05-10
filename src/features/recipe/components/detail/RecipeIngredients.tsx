@@ -21,7 +21,7 @@ const RecipeIngredients = ({
   onToggle,
 }: RecipeIngredientsProps) => (
   <div className="px-[22px] pt-7">
-    <div className="flex items-center justify-between mb-[14px]">
+    <div className="flex items-start justify-between mb-[14px]">
       <div>
         <div className="lb-eyebrow">DEEL I</div>
         <h2 className="mt-1 mb-0 text-[24px] font-serif italic font-medium tracking-[-0.02em] leading-[1.05]">

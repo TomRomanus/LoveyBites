@@ -27,6 +27,9 @@ type GroupRowProps = {
   ordered?: boolean
   leafIndexMap?: Map<string, number>
   reordering?: boolean
+  focusId?: string | null
+  shouldFocusTitle?: boolean
+  onRequestFocus?: (id: string) => void
 }
 
 const GroupRow = ({
@@ -40,6 +43,9 @@ const GroupRow = ({
   ordered,
   leafIndexMap,
   reordering,
+  focusId,
+  shouldFocusTitle,
+  onRequestFocus,
 }: GroupRowProps) => {
   let leafCounter = 0
   const childIds = node.children.map((c) => c.id!)
@@ -63,6 +69,7 @@ const GroupRow = ({
             onChange={(e) =>
               onChange(replaceAt(allNodes, path, { ...node, title: e.target.value }))
             }
+            autoFocus={shouldFocusTitle}
             className="flex-1 font-serif italic text-[13px] font-medium text-bordeaux bg-transparent border-0 outline-none py-0.5"
             placeholder={labels.groupPlaceholder}
           />
@@ -113,6 +120,7 @@ const GroupRow = ({
                       itemIndex={idx}
                       leafIndexMap={leafIndexMap}
                       reordering={reordering}
+                      shouldFocus={child.id === focusId}
                     />
                   </SortableItem>
                 </motion.div>
@@ -123,7 +131,11 @@ const GroupRow = ({
 
         <button
           type="button"
-          onClick={() => onChange(appendChild(allNodes, path, newLeaf()))}
+          onClick={() => {
+            const leaf = newLeaf()
+            onRequestFocus?.(leaf.id!)
+            onChange(appendChild(allNodes, path, leaf))
+          }}
           className="flex items-center gap-1.5 px-2 py-[7px] mt-1.5 border border-dashed border-bordeaux/22 rounded-[7px] text-stone text-[11.5px] min-h-8 bg-none cursor-pointer font-sans w-full"
         >
           <Plus size={10} strokeWidth={2.5} />

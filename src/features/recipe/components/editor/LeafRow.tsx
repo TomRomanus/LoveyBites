@@ -6,6 +6,7 @@ import { GripHandle } from '@/features/recipe/components/editor/GripHandle'
 import IngredientPickerSheet from '@/features/recipe/components/editor/IngredientPickerSheet'
 import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
 import type { IngredientNode } from '@/features/recipe/types/recipe'
+import { cn } from '@/lib/utils'
 
 export type EditorLabels = {
   leafPlaceholder: string
@@ -38,6 +39,7 @@ type LeafRowProps = {
   itemIndex?: number
   leafIndexMap?: Map<string, number>
   reordering?: boolean
+  shouldFocus?: boolean
 }
 
 const LeafRow = ({
@@ -53,6 +55,7 @@ const LeafRow = ({
   itemIndex,
   leafIndexMap,
   reordering,
+  shouldFocus,
 }: LeafRowProps) => {
   const [pickerOpen, setPickerOpen] = useState(false)
   const selectedIds = new Set(node.ingredientRefs ?? [])
@@ -61,11 +64,13 @@ const LeafRow = ({
   const toggleIngredient = (id: string) => {
     const cur = node.ingredientRefs ?? []
     const newRefs = selectedIds.has(id) ? cur.filter((r) => r !== id) : [...cur, id]
+    const { ingredientRefs: _, ...nodeWithoutRefs } = node
     onChange(
-      replaceAt(allNodes, path, {
-        ...node,
-        ingredientRefs: newRefs.length > 0 ? newRefs : undefined,
-      }),
+      replaceAt(
+        allNodes,
+        path,
+        newRefs.length > 0 ? { ...nodeWithoutRefs, ingredientRefs: newRefs } : nodeWithoutRefs,
+      ),
     )
   }
 
@@ -117,18 +122,20 @@ const LeafRow = ({
           </motion.div>
         ) : (
           // Ingredients: dot ↔ grip crossfade in a fixed-size slot — no layout shift at all
+          // overflow-hidden + width animation (not opacity) ensures the hidden grip has zero
+          // pointer-event area, preventing scroll conflicts on mobile
           <div className="relative w-5 shrink-0 pt-3">
             <motion.div
-              animate={{ opacity: reordering ? 1 : 0 }}
+              animate={{ width: reordering ? 20 : 0, opacity: reordering ? 1 : 0 }}
               transition={{ duration: 0.18, ease: 'easeInOut' }}
-              className="absolute top-3 left-0 right-0 bottom-0 flex items-start justify-center"
+              className="absolute top-3 left-0 bottom-0 overflow-hidden flex"
             >
               <GripHandle />
             </motion.div>
             <motion.span
               animate={{ opacity: reordering ? 0 : 1 }}
               transition={{ duration: 0.18, ease: 'easeInOut' }}
-              className="text-bordeaux text-[11px] flex items-center justify-center leading-none"
+              className="text-bordeaux text-[11px] flex items-center justify-center leading-none pointer-events-none"
             >
               •
             </motion.span>
@@ -150,7 +157,8 @@ const LeafRow = ({
                 onChange(replaceAt(allNodes, path, { ...node, text: e.target.value }))
               }
               rows={1}
-              className={`${leafInputCls} flex-none w-full box-border leading-[1.5] py-0 pr-1 pl-0`}
+              autoFocus={shouldFocus}
+              className={cn(leafInputCls, 'flex-none w-full box-border leading-[1.5] py-0 pr-1 pl-0')}
               placeholder={labels.leafPlaceholder}
             />
           </div>
@@ -159,6 +167,7 @@ const LeafRow = ({
             value={node.text}
             onChange={(e) => onChange(replaceAt(allNodes, path, { ...node, text: e.target.value }))}
             rows={1}
+            autoFocus={shouldFocus}
             className={`${leafInputCls} flex-1 w-full`}
             placeholder={labels.leafPlaceholder}
           />

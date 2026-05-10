@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -42,6 +42,8 @@ const RecipeNodeEditor = ({
 }: RecipeNodeEditorProps) => {
   const labels = { ...defaultLabels, ...labelOverrides }
 
+  const [focusId, setFocusId] = useState<string | null>(null)
+
   const {
     sensors,
     activeId,
@@ -56,10 +58,18 @@ const RecipeNodeEditor = ({
   const rootIds = useMemo(() => nodes.map((n) => n.id!), [nodes])
   const activeNode = useMemo(() => (activeId ? findNode(nodes, activeId) : null), [activeId, nodes])
 
+  const addLeaf = () => {
+    const leaf = newLeaf()
+    setFocusId(leaf.id!)
+    onChange([...nodes, leaf])
+  }
+
   const addSection = (title: string) => {
     const last = nodes[nodes.length - 1]
     const base = last?.kind === 'leaf' && last.text.trim() === '' ? nodes.slice(0, -1) : nodes
-    onChange([...base, { kind: 'group', title, children: [newLeaf()] }])
+    const id = crypto.randomUUID()
+    setFocusId(id)
+    onChange([...base, { kind: 'group', id, title, children: [newLeaf()] }])
   }
 
   let rootLeafCounter = 0
@@ -99,6 +109,7 @@ const RecipeNodeEditor = ({
                         itemIndex={idx}
                         leafIndexMap={leafIndexMap}
                         reordering={reordering}
+                        shouldFocus={node.id === focusId}
                       />
                     </SortableItem>
                   </motion.div>
@@ -124,6 +135,9 @@ const RecipeNodeEditor = ({
                       ordered={ordered}
                       leafIndexMap={leafIndexMap}
                       reordering={reordering}
+                      focusId={focusId}
+                      shouldFocusTitle={node.id === focusId}
+                      onRequestFocus={setFocusId}
                     />
                   </SortableItem>
                 </motion.div>
@@ -133,7 +147,7 @@ const RecipeNodeEditor = ({
         </SortableContext>
 
         <div className="flex flex-col gap-1.5 mt-1.5">
-          <DashedAddButton onClick={() => onChange([...nodes, newLeaf()])} label={labels.addLeaf} />
+          <DashedAddButton onClick={addLeaf} label={labels.addLeaf} />
           <DashedAddButton onClick={() => addSection('')} label={labels.addGroup} />
 
           <AnimatePresence>

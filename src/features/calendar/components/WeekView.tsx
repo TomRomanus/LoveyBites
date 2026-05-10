@@ -40,7 +40,7 @@ const WeekView = ({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
           <motion.div
             key={iso}
             variants={weekRowVariants}
-            className={`flex items-start gap-[5px] py-[15px] min-h-[38px] ${idx < 6 ? 'border-b border-[0.5px] border-ink/10' : ''}`}
+            className={`flex items-start gap-[5px] py-[15px] min-h-[38px] ${idx < 6 ? 'border-b-[0.5px] border-ink/10' : ''}`}
           >
             {/* Day unit */}
             <div className="grid shrink-0 w-12 mt-[1px] items-center [grid-template-columns:17px_22px] gap-x-[5px]">

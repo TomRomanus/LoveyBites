@@ -148,6 +148,7 @@ const RecipeFormPage = () => {
             animate="center"
             exit="exit"
             transition={slideTransition}
+            className={isEdit ? 'h-[100dvh] overflow-y-auto' : undefined}
           >
             <RecipeFormHeader
               isEdit={isEdit}

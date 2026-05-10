@@ -6,7 +6,7 @@ type PortionsFieldProps = {
   value: number
   onChange: (v: number) => void
   label?: string
-  onLabelChange: (label: 'pers' | 'stuks' | undefined) => void
+  onLabelChange: (label: 'pers' | 'stuks') => void
 }
 
 const PortionsField = ({ value, onChange, label, onLabelChange }: PortionsFieldProps) => {
@@ -27,7 +27,7 @@ const PortionsField = ({ value, onChange, label, onLabelChange }: PortionsFieldP
                 type="button"
                 onClick={() => {
                   setLabelDir(opt === 'stuks' ? 'up' : 'down')
-                  onLabelChange(opt === 'pers' ? undefined : opt)
+                  onLabelChange(opt)
                 }}
                 className={`relative z-[1] h-[30px] px-3 rounded-[14px] border-0 flex items-center bg-transparent font-mono text-[11px] font-medium uppercase tracking-[0.06em] cursor-pointer transition-colors duration-150 ${active ? 'text-ink' : 'text-stone'}`}
               >

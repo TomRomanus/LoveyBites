@@ -1,11 +1,11 @@
-import { useEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 
 type Props = React.TextareaHTMLAttributes<HTMLTextAreaElement>
 
 const AutoGrowTextarea = ({ value, style, ...props }: Props) => {
   const ref = useRef<HTMLTextAreaElement>(null)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
     el.style.height = '1px'

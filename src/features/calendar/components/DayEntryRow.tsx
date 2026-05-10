@@ -31,7 +31,7 @@ const DayEntryRow = ({ entry, recipe, onDelete }: DayEntryRowProps) => {
       }}
       className="overflow-hidden"
     >
-      <div className="flex items-center gap-2 py-[10px] border-b border-[0.5px] border-ink/10">
+      <div className="flex items-center gap-2 py-[10px] border-b-[0.5px] border-ink/10">
         <div
           className={`w-[2.5px] self-stretch rounded-[2px] shrink-0 ${recipe ? 'bg-bordeaux' : 'bg-stone'}`}
         />

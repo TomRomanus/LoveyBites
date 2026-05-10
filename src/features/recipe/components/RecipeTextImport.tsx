@@ -42,7 +42,7 @@ const RecipeTextImport = ({ onExtracted }: Props) => {
           onChange={(e) => setText(e.target.value)}
           placeholder={'Bijv: 200g bloem, 2 eieren, 100ml melk…\n\nMeng de bloem met de eieren…'}
           disabled={loading}
-          rows={6}
+          style={{ minHeight: '180px' }}
           className={`w-full bg-cream border-[0.5px] border-ink/14 rounded-[12px] px-[14px] py-[13px] font-sans text-[15px] text-ink outline-none resize-none leading-[1.5] box-border ${loading ? 'opacity-50' : 'opacity-100'}`}
         />
       </div>
