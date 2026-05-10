@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
-import RecipeBenodigdheden from '../RecipeBenodigdheden'
+import RecipeEquipment from '../RecipeEquipment'
 
-function setup(props: Partial<React.ComponentProps<typeof RecipeBenodigdheden>> = {}) {
-  const defaults = { benodigdheden: ['Grote kom', 'Garde'], deel: 'I' }
-  return render(<RecipeBenodigdheden {...defaults} {...props} />)
+function setup(props: Partial<React.ComponentProps<typeof RecipeEquipment>> = {}) {
+  const defaults = { equipment: ['Grote kom', 'Garde'], deel: 'I' }
+  return render(<RecipeEquipment {...defaults} {...props} />)
 }
 
-describe('RecipeBenodigdheden', () => {
+describe('RecipeEquipment', () => {
   describe('headings', () => {
     it('renders the "Benodigdheden" heading', () => {
       setup()

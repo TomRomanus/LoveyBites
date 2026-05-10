@@ -5,7 +5,7 @@ import { ensureIngredientIds } from '@/features/recipe/utils/ingredientUtils'
 import RecipeNodeEditor from '@/features/recipe/components/editor/RecipeNodeEditor'
 import RecipeSourceEditor from '@/features/recipe/components/RecipeSourceEditor'
 import RecipeNotesEditor from '@/features/recipe/components/RecipeNotesEditor'
-import RecipeBenodigdhedenEditor from '@/features/recipe/components/RecipeBenodigdhedenEditor'
+import RecipeEquipmentEditor from '@/features/recipe/components/RecipeEquipmentEditor'
 import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
 import FormField from '@/features/recipe/components/form/FormField'
 import TagsEditor from '@/features/recipe/components/form/TagsEditor'
@@ -81,8 +81,8 @@ const RecipeForm = (props: Props) => {
           name="benodigdheden"
           control={control}
           render={({ field }) => (
-            <RecipeBenodigdhedenEditor
-              benodigdheden={field.value ?? []}
+            <RecipeEquipmentEditor
+              equipment={field.value ?? []}
               onChange={field.onChange}
             />
           )}

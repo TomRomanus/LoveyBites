@@ -1,16 +1,16 @@
-type RecipeBenodigdhedenProps = {
-  benodigdheden: string[]
+type RecipeEquipmentProps = {
+  equipment: string[]
   deel: string
 }
 
-const RecipeBenodigdheden = ({ benodigdheden, deel }: RecipeBenodigdhedenProps) => (
+const RecipeEquipment = ({ equipment, deel }: RecipeEquipmentProps) => (
   <div className="px-[22px] pt-7">
     <div className="lb-eyebrow">DEEL {deel}</div>
     <h2 className="mt-1 mb-4 text-[24px] font-serif italic font-medium tracking-[-0.02em] leading-[1.05]">
       Benodigdheden
     </h2>
     <div className="flex flex-col gap-[6px]">
-      {benodigdheden.map((item, i) => (
+      {equipment.map((item, i) => (
         <div key={i} className="flex items-center gap-[10px]">
           <div
             className="w-[3px] h-[3px] rounded-full shrink-0"
@@ -23,4 +23,4 @@ const RecipeBenodigdheden = ({ benodigdheden, deel }: RecipeBenodigdhedenProps) 
   </div>
 )
 
-export default RecipeBenodigdheden
+export default RecipeEquipment

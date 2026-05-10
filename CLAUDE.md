@@ -11,6 +11,7 @@
 ### Food/Recipe Naming Conventions
 - Use food/cooking domain language for variables, components, and files: `Recipe`, `Ingredient`, `MealPlan`, `CookMode`, `Serving`, `Portion` — not generic names like `Item`, `Entry`, or `Card`.
 - Component names should read naturally in the food domain: `RecipeCard`, `IngredientList`, `MealCalendar`, `CookingStep`.
+- **All code identifiers must be English** — no Dutch in component names, function names, type names, prop names, or variable names. Dutch is only allowed in UI strings (user-visible text). Data model field names that map directly to existing Firestore documents are exempt to avoid breaking stored data.
 
 ### General
 - No unnecessary abstractions. Don't create helpers, hooks, or utilities until there are at least 3 real use cases.

@@ -1,15 +1,15 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
-import RecipeBenodigdhedenEditor from '../RecipeBenodigdhedenEditor'
+import RecipeEquipmentEditor from '../RecipeEquipmentEditor'
 
-function setup(overrides: Partial<React.ComponentProps<typeof RecipeBenodigdhedenEditor>> = {}) {
+function setup(overrides: Partial<React.ComponentProps<typeof RecipeEquipmentEditor>> = {}) {
   const onChange = vi.fn()
-  const props = { benodigdheden: [], onChange, ...overrides }
-  return { ...render(<RecipeBenodigdhedenEditor {...props} />), onChange }
+  const props = { equipment: [], onChange, ...overrides }
+  return { ...render(<RecipeEquipmentEditor {...props} />), onChange }
 }
 
-describe('RecipeBenodigdhedenEditor', () => {
+describe('RecipeEquipmentEditor', () => {
   beforeEach(() => vi.clearAllMocks())
 
   describe('empty state', () => {
@@ -27,29 +27,29 @@ describe('RecipeBenodigdhedenEditor', () => {
     })
 
     it('appends to existing items', async () => {
-      const { onChange } = setup({ benodigdheden: ['Grote kom'] })
+      const { onChange } = setup({ equipment: ['Grote kom'] })
       await userEvent.click(screen.getByRole('button', { name: /benodigdheid toevoegen/i }))
       expect(onChange).toHaveBeenCalledWith(['Grote kom', ''])
     })
   })
 
   describe('existing items', () => {
-    const benodigdheden = ['Grote kom', 'Garde']
+    const equipment = ['Grote kom', 'Garde']
 
     it('renders an input for each item', () => {
-      setup({ benodigdheden })
+      setup({ equipment })
       expect(screen.getByDisplayValue('Grote kom')).toBeInTheDocument()
       expect(screen.getByDisplayValue('Garde')).toBeInTheDocument()
     })
 
     it('text change calls onChange with updated item', () => {
-      const { onChange } = setup({ benodigdheden })
+      const { onChange } = setup({ equipment })
       fireEvent.change(screen.getAllByRole('textbox')[0], { target: { value: 'Kleine kom' } })
       expect(onChange).toHaveBeenCalledWith(['Kleine kom', 'Garde'])
     })
 
     it('X button removes that item', async () => {
-      const { onChange } = setup({ benodigdheden })
+      const { onChange } = setup({ equipment })
       const removeBtns = screen.getAllByRole('button', { name: /verwijder benodigdheid/i })
       await userEvent.click(removeBtns[0])
       expect(onChange).toHaveBeenCalledWith(['Garde'])

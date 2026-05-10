@@ -24,7 +24,7 @@ import RecipeIngredients from '@/features/recipe/components/detail/RecipeIngredi
 import RecipeSteps from '@/features/recipe/components/detail/RecipeSteps'
 import RecipeSources from '@/features/recipe/components/detail/RecipeSources'
 import RecipeNotes from '@/features/recipe/components/detail/RecipeNotes'
-import RecipeBenodigdheden from '@/features/recipe/components/detail/RecipeBenodigdheden'
+import RecipeEquipment from '@/features/recipe/components/detail/RecipeEquipment'
 import RecipeActionsSheet from '@/features/recipe/components/detail/RecipeActionsSheet'
 import DeleteConfirmDialog from '@/features/recipe/components/detail/DeleteConfirmDialog'
 import CalendarFab from '@/features/recipe/components/detail/CalendarFab'
@@ -132,20 +132,20 @@ const RecipeDetailPage = () => {
       {(() => {
         const toRoman = (n: number) => ['I', 'II', 'III', 'IV', 'V'][n - 1]
         let d = 0
-        const hasBenodigdheden = (recipe.benodigdheden ?? []).length > 0
+        const hasEquipment = (recipe.benodigdheden ?? []).length > 0
         const hasIngredients = ingredientSections.some((s) => s.items.length > 0)
         const hasSteps = stepSections.length > 0
         const hasNotes = (recipe.notes ?? []).length > 0
         const hasSources = (recipe.sources ?? []).length > 0
-        const benodigdhedenDeel = hasBenodigdheden ? toRoman(++d) : ''
-        const ingredientenDeel = hasIngredients ? toRoman(++d) : ''
-        const instructiesDeel = hasSteps ? toRoman(++d) : ''
-        const notitiesDeel = hasNotes ? toRoman(++d) : ''
-        const bronnenDeel = hasSources ? toRoman(++d) : ''
+        const equipmentDeel = hasEquipment ? toRoman(++d) : ''
+        const ingredientsDeel = hasIngredients ? toRoman(++d) : ''
+        const instructionsDeel = hasSteps ? toRoman(++d) : ''
+        const notesDeel = hasNotes ? toRoman(++d) : ''
+        const sourcesDeel = hasSources ? toRoman(++d) : ''
         return (
           <>
-            {hasBenodigdheden && (
-              <RecipeBenodigdheden benodigdheden={recipe.benodigdheden!} deel={benodigdhedenDeel} />
+            {hasEquipment && (
+              <RecipeEquipment equipment={recipe.benodigdheden!} deel={equipmentDeel} />
             )}
             {hasIngredients && (
               <RecipeIngredients
@@ -156,14 +156,14 @@ const RecipeDetailPage = () => {
                 onPortionChange={handlePortionChange}
                 checked={checked}
                 onToggle={toggleCheck}
-                deel={ingredientenDeel}
+                deel={ingredientsDeel}
               />
             )}
             {hasSteps && (
-              <RecipeSteps steps={stepSections} ingredientMap={ingredientMap} deel={instructiesDeel} />
+              <RecipeSteps steps={stepSections} ingredientMap={ingredientMap} deel={instructionsDeel} />
             )}
-            {hasNotes && <RecipeNotes notes={recipe.notes!} deel={notitiesDeel} />}
-            {hasSources && <RecipeSources sources={recipe.sources ?? []} deel={bronnenDeel} />}
+            {hasNotes && <RecipeNotes notes={recipe.notes!} deel={notesDeel} />}
+            {hasSources && <RecipeSources sources={recipe.sources ?? []} deel={sourcesDeel} />}
           </>
         )
       })()}

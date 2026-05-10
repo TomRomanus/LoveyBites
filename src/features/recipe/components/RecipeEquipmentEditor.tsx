@@ -2,17 +2,17 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, Plus } from 'lucide-react'
 
 type Props = {
-  benodigdheden: string[]
+  equipment: string[]
   onChange: (items: string[]) => void
 }
 
-const RecipeBenodigdhedenEditor = ({ benodigdheden, onChange }: Props) => {
-  const add = () => onChange([...benodigdheden, ''])
+const RecipeEquipmentEditor = ({ equipment, onChange }: Props) => {
+  const add = () => onChange([...equipment, ''])
 
-  const remove = (index: number) => onChange(benodigdheden.filter((_, i) => i !== index))
+  const remove = (index: number) => onChange(equipment.filter((_, i) => i !== index))
 
   const update = (index: number, value: string) =>
-    onChange(benodigdheden.map((item, i) => (i === index ? value : item)))
+    onChange(equipment.map((item, i) => (i === index ? value : item)))
 
   const dashedBtnCls =
     'flex items-center gap-2 px-3 py-[9px] border border-dashed border-stone-2 rounded-[9px] text-stone text-[12px] bg-none cursor-pointer min-h-[38px] font-sans w-full'
@@ -20,7 +20,7 @@ const RecipeBenodigdhedenEditor = ({ benodigdheden, onChange }: Props) => {
   return (
     <div className="flex flex-col gap-2">
       <AnimatePresence mode="popLayout" initial={false}>
-        {benodigdheden.map((item, i) => (
+        {equipment.map((item, i) => (
           <motion.div
             key={i}
             initial={{ opacity: 0, y: -6 }}
@@ -61,4 +61,4 @@ const RecipeBenodigdhedenEditor = ({ benodigdheden, onChange }: Props) => {
   )
 }
 
-export default RecipeBenodigdhedenEditor
+export default RecipeEquipmentEditor
