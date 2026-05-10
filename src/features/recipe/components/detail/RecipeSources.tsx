@@ -2,11 +2,12 @@ import { Link } from 'lucide-react'
 
 type RecipeSourcesProps = {
   sources: { url: string; label?: string }[]
+  deel?: string
 }
 
-const RecipeSources = ({ sources }: RecipeSourcesProps) => (
+const RecipeSources = ({ sources, deel = 'III' }: RecipeSourcesProps) => (
   <div className="px-[22px] pt-7">
-    <div className="lb-eyebrow">DEEL III</div>
+    <div className="lb-eyebrow">DEEL {deel}</div>
     <h2 className="mt-1 mb-4 text-[24px] font-serif italic font-medium tracking-[-0.02em] leading-[1.05]">
       Bronnen
     </h2>

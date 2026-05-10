@@ -23,6 +23,7 @@ import RecipeMetaSection from '@/features/recipe/components/detail/RecipeMetaSec
 import RecipeIngredients from '@/features/recipe/components/detail/RecipeIngredients'
 import RecipeSteps from '@/features/recipe/components/detail/RecipeSteps'
 import RecipeSources from '@/features/recipe/components/detail/RecipeSources'
+import RecipeNotes from '@/features/recipe/components/detail/RecipeNotes'
 import RecipeActionsSheet from '@/features/recipe/components/detail/RecipeActionsSheet'
 import DeleteConfirmDialog from '@/features/recipe/components/detail/DeleteConfirmDialog'
 import CalendarFab from '@/features/recipe/components/detail/CalendarFab'
@@ -143,7 +144,16 @@ const RecipeDetailPage = () => {
         <RecipeSteps steps={stepSections} ingredientMap={ingredientMap} />
       )}
 
-      {(recipe.sources ?? []).length > 0 && <RecipeSources sources={recipe.sources ?? []} />}
+      {(recipe.notes ?? []).length > 0 && (
+        <RecipeNotes notes={recipe.notes!} deel="III" />
+      )}
+
+      {(recipe.sources ?? []).length > 0 && (
+        <RecipeSources
+          sources={recipe.sources ?? []}
+          deel={(recipe.notes ?? []).length > 0 ? 'IV' : 'III'}
+        />
+      )}
 
       <div className="pb-[100px]" />
 

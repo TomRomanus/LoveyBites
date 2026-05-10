@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect } from 'vitest'
 import RecipeSources from '../RecipeSources'
+import React from 'react'
 
 function setup(sources: React.ComponentProps<typeof RecipeSources>['sources'] = []) {
   return render(<RecipeSources sources={sources} />)
@@ -13,9 +14,14 @@ describe('RecipeSources', () => {
       expect(screen.getByRole('heading', { name: 'Bronnen' })).toBeInTheDocument()
     })
 
-    it('renders the DEEL III eyebrow label', () => {
+    it('renders the DEEL III eyebrow label by default', () => {
       setup([{ url: 'https://example.com' }])
       expect(screen.getByText('DEEL III')).toBeInTheDocument()
+    })
+
+    it('renders DEEL IV when deel prop is "IV"', () => {
+      render(<RecipeSources sources={[{ url: 'https://example.com' }]} deel="IV" />)
+      expect(screen.getByText('DEEL IV')).toBeInTheDocument()
     })
   })
 

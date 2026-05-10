@@ -22,6 +22,11 @@ export type Source = {
   url: string
 }
 
+export type RecipeNote = {
+  label: string
+  text: string
+}
+
 export type Recipe = {
   id: string
   title: string
@@ -29,6 +34,7 @@ export type Recipe = {
   ingredients: IngredientNode[]
   steps: IngredientNode[]
   sources?: Source[]
+  notes?: RecipeNote[]
   tags: string[]
   imageUrl: string
   portions?: number
@@ -64,6 +70,8 @@ export const ingredientNodeSchema: z.ZodType<IngredientNode> = z.lazy(() =>
 
 const sourceSchema = z.object({ label: z.string(), url: z.string() })
 
+const recipeNoteSchema = z.object({ label: z.string(), text: z.string() })
+
 export const recipeSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -71,6 +79,7 @@ export const recipeSchema = z.object({
   ingredients: z.array(ingredientNodeSchema),
   steps: z.array(ingredientNodeSchema),
   sources: z.array(sourceSchema).optional(),
+  notes: z.array(recipeNoteSchema).optional(),
   tags: z.array(z.string()),
   imageUrl: z.string(),
   portions: z.number().optional(),
@@ -89,6 +98,7 @@ export const recipeInputSchema = z.object({
   ingredients: z.array(ingredientNodeSchema),
   steps: z.array(ingredientNodeSchema),
   sources: z.array(sourceSchema).optional(),
+  notes: z.array(recipeNoteSchema).optional(),
   tags: z.array(z.string()),
   imageUrl: z.string(),
   createdBy: z.string(),
