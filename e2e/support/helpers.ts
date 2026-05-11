@@ -4,6 +4,24 @@ import { getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { getAuth } from 'firebase-admin/auth'
 import { TEST_RECIPES } from './global-setup'
 
+export async function seedRecipe(recipe: Record<string, unknown> & { id: string }) {
+  process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8181'
+  const app = initializeApp({ projectId: 'demo-loveybites' }, 'seed-recipe-' + Date.now())
+  const db = getFirestore(app)
+  const { id, ...data } = recipe
+  const now = Timestamp.now()
+  await db.collection('recipes').doc(id).set({ ...data, createdAt: now, updatedAt: now })
+  await deleteApp(app)
+}
+
+export async function deleteRecipe(id: string) {
+  process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8181'
+  const app = initializeApp({ projectId: 'demo-loveybites' }, 'delete-recipe-' + Date.now())
+  const db = getFirestore(app)
+  await db.collection('recipes').doc(id).delete()
+  await deleteApp(app)
+}
+
 export async function waitForData(page: Page, detachTimeout = 20_000) {
   await page
     .locator('.lb-skeleton')

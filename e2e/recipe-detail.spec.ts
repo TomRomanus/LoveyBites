@@ -1,5 +1,12 @@
 import { test, expect, Page } from '@playwright/test'
-import { reseedRecipes, waitForData, locateCloseButton, resetMealPlan } from './support/helpers'
+import {
+  reseedRecipes,
+  waitForData,
+  locateCloseButton,
+  resetMealPlan,
+  seedRecipe,
+  deleteRecipe,
+} from './support/helpers'
 
 async function gotoDetail(page: Page, id = 'test-pasta-001') {
   await page.goto(`/recipe/${id}`)
@@ -210,5 +217,76 @@ test.describe('Recipe detail — calendar modal day selection', () => {
     await expect(page.locator('[data-testid="day-saved-check"]').first()).toBeVisible({
       timeout: 10_000,
     })
+  })
+})
+
+// ── Step ingredient refs ───────────────────────────────────────────────────────
+// A recipe where each step has ingredientRefs + ingredientAmounts.
+// portions: 2 so the default display (selectedPortions = 2) uses ratio 1 — no scaling.
+
+const REFS_RECIPE = {
+  id: 'test-refs-001',
+  title: 'Pasta met stap-refs',
+  description: 'Testrecept.',
+  tags: [],
+  ingredients: [
+    { kind: 'leaf', text: '200 g pasta', id: 'pasta' },
+    { kind: 'leaf', text: '100 ml saus', id: 'saus' },
+  ],
+  steps: [
+    {
+      kind: 'leaf',
+      id: 'step1',
+      text: 'Kook de pasta',
+      ingredientRefs: ['pasta'],
+      ingredientAmounts: { pasta: '200' },
+    },
+    {
+      kind: 'leaf',
+      id: 'step2',
+      text: 'Verwarm de saus',
+      ingredientRefs: ['saus'],
+      ingredientAmounts: { saus: '100' },
+    },
+  ],
+  portions: 2,
+  portionsLabel: 'pers',
+  rating: 3,
+  benodigdheden: [],
+  notes: [],
+  sources: [],
+  imageUrl: '',
+  createdBy: 'test-user-001',
+}
+
+test.describe('Recipe detail — step ingredient refs', () => {
+  test.beforeAll(async () => {
+    await seedRecipe(REFS_RECIPE)
+  })
+
+  test.afterAll(async () => {
+    await deleteRecipe(REFS_RECIPE.id)
+  })
+
+  test('detail page shows formatted ingredient refs above each step', async ({ page }) => {
+    await page.goto(`/recipe/${REFS_RECIPE.id}`)
+    await waitForData(page, 20_000)
+    // RecipeSteps renders formatStepIngredient(text, amount) above the step text.
+    // At ratio 1: formatStepIngredient('200 g pasta', '200') = '200 g pasta'
+    await expect(page.getByText('200 g pasta').first()).toBeVisible()
+    await expect(page.getByText('Kook de pasta')).toBeVisible()
+    await expect(page.getByText('100 ml saus').first()).toBeVisible()
+    await expect(page.getByText('Verwarm de saus')).toBeVisible()
+  })
+
+  test('cook mode step view shows the step-specific ingredient from Firestore', async ({
+    page,
+  }) => {
+    await page.goto(`/recipe/${REFS_RECIPE.id}`)
+    await waitForData(page, 20_000)
+    await page.click('text=Start kookmodus')
+    await expect(page.getByText('Kook de pasta').first()).toBeVisible()
+    // CookingStepsPanel renders currentIngredients joined with ' · ' above the step text
+    await expect(page.getByText('200 g pasta').first()).toBeVisible()
   })
 })
