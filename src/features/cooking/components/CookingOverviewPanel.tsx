@@ -4,8 +4,6 @@ import type { FlatStep } from '@/features/cooking/types/cooking'
 import { formatStepIngredient } from '@/features/recipe/utils/ingredientUtils'
 import BordeauxBar from '@/shared/components/BordeauxBar'
 
-const SECTION_HEADER_COLOR = '#b8394e'
-
 type CookingOverviewPanelProps = {
   steps: FlatStep[]
   currentIndex: number
@@ -83,7 +81,7 @@ const CookingOverviewPanel = ({
             >
               <div
                 className="font-serif italic text-[22px] font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px] text-right"
-                style={{ color: isActive ? SECTION_HEADER_COLOR : 'rgba(248,244,237,0.5)' }}
+                style={{ color: isActive ? 'var(--bordeaux)' : 'rgba(248,244,237,0.5)' }}
               >
                 {s.num}
               </div>
