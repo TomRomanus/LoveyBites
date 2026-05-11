@@ -1,4 +1,5 @@
 import { ChevronLeft, MoreHorizontal } from 'lucide-react'
+import IconButton from '@/shared/components/IconButton'
 
 type RecipeHeroProps = {
   title: string
@@ -12,20 +13,20 @@ const RecipeHero = ({ title, onBack, onActionsOpen }: RecipeHeroProps) => (
     style={{ '--block-bg': 'var(--bordeaux)' } as React.CSSProperties}
   >
     <div className="flex items-center justify-between">
-      <button
+      <IconButton
         data-testid="recipe-back-btn"
         onClick={onBack}
-        className="w-10 h-10 rounded-[20px] bg-transparent border-[0.5px] border-[rgba(255,250,240,0.45)] text-cream flex items-center justify-center cursor-pointer"
+        className="bg-transparent border-[0.5px] border-[rgba(255,250,240,0.45)] text-cream"
       >
         <ChevronLeft size={16} />
-      </button>
-      <button
+      </IconButton>
+      <IconButton
         data-testid="recipe-actions-btn"
         onClick={onActionsOpen}
-        className="w-10 h-10 rounded-[20px] bg-transparent border-[0.5px] border-[rgba(255,250,240,0.45)] text-cream flex items-center justify-center cursor-pointer"
+        className="bg-transparent border-[0.5px] border-[rgba(255,250,240,0.45)] text-cream"
       >
         <MoreHorizontal size={16} />
-      </button>
+      </IconButton>
     </div>
     <div className="mt-[46px]">
       <div className="lb-color-block-corner mb-2">RECEPT</div>

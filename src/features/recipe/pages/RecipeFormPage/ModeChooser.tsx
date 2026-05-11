@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Link as LinkIcon, AlignLeft, Image, Pencil, X, ChevronRight } from 'lucide-react'
+import IconButton from '@/shared/components/IconButton'
 
 type Mode = 'url' | 'text' | 'photo' | 'manual'
 
@@ -43,8 +44,6 @@ const listItem = {
   },
 }
 
-const circleBtnCls =
-  'w-10 h-10 rounded-[20px] bg-transparent border-[0.5px] border-ink/14 text-ink flex items-center justify-center cursor-pointer shrink-0'
 const monoTitleCls = 'font-mono text-[11px] tracking-[0.12em] uppercase text-stone font-medium'
 const headerCls =
   'sticky top-0 bg-[rgba(248,244,237,0.92)] backdrop-blur-[10px] z-10 px-5 pt-6 pb-[14px] flex items-center justify-between border-b-[0.5px] border-ink/14'
@@ -57,9 +56,13 @@ type ModeChooserProps = {
 const ModeChooser = ({ onSelect, onClose }: ModeChooserProps) => (
   <>
     <div className={headerCls}>
-      <button data-testid="form-close-btn" onClick={onClose} className={circleBtnCls}>
+      <IconButton
+        data-testid="form-close-btn"
+        onClick={onClose}
+        className="bg-transparent border-[0.5px] border-ink/14 text-ink shrink-0"
+      >
         <X size={13} strokeWidth={2.2} />
-      </button>
+      </IconButton>
       <div className={monoTitleCls}>Nieuw recept</div>
       <div className="w-10" />
     </div>

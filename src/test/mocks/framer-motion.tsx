@@ -34,7 +34,20 @@ const el = (tag: string) => {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const motion = new Proxy({} as any, { get: (_: any, tag: string) => el(tag) })
+function motionFactory(Component: React.ComponentType<any>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const Wrapped = forwardRef<unknown, any>(({ children, ...rest }, ref) => {
+    const filtered = Object.fromEntries(Object.entries(rest).filter(([k]) => !MOTION_PROPS.has(k)))
+    return createElement(Component, { ...filtered, ref }, children)
+  })
+  Wrapped.displayName = `motion(${Component.displayName ?? Component.name ?? 'Component'})`
+  return Wrapped
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const motion = new Proxy(motionFactory as any, {
+  get: (_: any, tag: string) => el(tag),
+})
 
 const AnimatePresence = forwardRef<unknown, { children?: ReactNode }>(({ children }, _ref) => children ?? null)
 

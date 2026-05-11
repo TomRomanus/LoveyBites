@@ -3,6 +3,9 @@ import { ShoppingBag } from 'lucide-react'
 import { titleVariants } from '@/features/calendar/utils/calendarAnimations'
 import { NL_MONTHS, NL_MONTHS_SHORT } from '@/shared/constants/locale'
 import { toISO } from '@/features/calendar/utils/dateUtils'
+import IconButton from '@/shared/components/IconButton'
+
+const MotionIconButton = motion(IconButton)
 
 type CalendarHeaderProps = {
   view: 'week' | 'month'
@@ -80,14 +83,14 @@ const CalendarHeader = ({ view, anchor, navDir, onShoppingOpen }: CalendarHeader
             )}
           </h1>
         </div>
-        <motion.button
+        <MotionIconButton
           data-testid="shopping-list-btn"
           onClick={onShoppingOpen}
           whileTap={{ scale: 0.88 }}
-          className="w-10 h-10 rounded-full border-0 bg-paper shadow-[0_1px_2px_rgba(31,29,26,0.04),0_0_0_0.5px_var(--line)] text-bordeaux inline-flex items-center justify-center cursor-pointer shrink-0"
+          className="border-0 bg-paper shadow-[0_1px_2px_rgba(31,29,26,0.04),0_0_0_0.5px_var(--line)] text-bordeaux shrink-0"
         >
           <ShoppingBag size={15} strokeWidth={1.8} />
-        </motion.button>
+        </MotionIconButton>
       </div>
     </div>
   )
