@@ -45,7 +45,7 @@ const CookingIngredientsPanel = ({
               <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux-mid">
                 {node.title}
               </div>
-              <BordeauxBar className="w-[22px] opacity-60 mb-2" />
+              <BordeauxBar className="w-[22px] opacity-60 mb-2" color="var(--bordeaux-mid)" />
             </div>
           ) : null,
           ...node.children

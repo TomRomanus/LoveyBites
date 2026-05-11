@@ -83,7 +83,7 @@ const CookingStepsPanel = ({
                 <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux-mid">
                   {current.sectionTitle}
                 </div>
-                <BordeauxBar className="w-[22px] opacity-60 mb-[10px]" />
+                <BordeauxBar className="w-[22px] opacity-60 mb-[10px]" color="var(--bordeaux-mid)" />
               </>
             )}
             {currentIngredients.length > 0 && (
