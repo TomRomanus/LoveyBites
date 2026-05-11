@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useRecipeDetailUI } from './useRecipeDetailUI'
 import { createPortal } from 'react-dom'
 import { AnimatePresence } from 'framer-motion'
@@ -37,6 +37,12 @@ const RecipeDetailPage = () => {
   const { checked, toggle: toggleCheck } = useCheckedSet()
   const [portions, setPortions] = useState(2)
   const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
+
+  useEffect(() => {
+    if (recipe?.portionsLabel === 'stuks') {
+      setPortions(recipe.portions ?? 1)
+    }
+  }, [recipe?.id])
 
   const handlePortionChange = (v: number) => {
     setPortionDir(v > portions ? 'up' : 'down')

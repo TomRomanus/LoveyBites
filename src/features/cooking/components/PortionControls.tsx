@@ -2,6 +2,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Minus, Plus } from 'lucide-react'
 import type { Recipe } from '@/features/recipe/types/recipe'
 
+const slideVariants = {
+  enter: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? 10 : d === 'down' ? -10 : 0, opacity: 0 }),
+  center: { y: 0, opacity: 1 },
+  exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -10 : d === 'down' ? 10 : 0, opacity: 0 }),
+}
+
 type PortionControlsProps = {
   recipe: Recipe
   selectedPortions: number
@@ -9,18 +15,14 @@ type PortionControlsProps = {
   onPortionsChange: (p: number) => void
 }
 
-const portionVariants = {
-  enter: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? 10 : d === 'down' ? -10 : 0, opacity: 0 }),
-  center: { y: 0, opacity: 1 },
-  exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -10 : d === 'down' ? 10 : 0, opacity: 0 }),
-}
-
 const PortionControls = ({
   recipe,
   selectedPortions,
   portionDir,
   onPortionsChange,
-}: PortionControlsProps) => (
+}: PortionControlsProps) => {
+  const displayLabel = recipe.portionsLabel === 'stuks' && selectedPortions === 1 ? 'stuk' : (recipe.portionsLabel || 'pers')
+  return (
   <div className="flex items-center justify-between mb-[14px]">
     <span className="font-mono text-[12px] tracking-[0.08em] uppercase text-paper/[0.65]">
       porties
@@ -28,7 +30,8 @@ const PortionControls = ({
     <div className="flex items-center rounded-[16px] p-[3px] bg-paper/10">
       <button
         onClick={() => onPortionsChange(Math.max(1, selectedPortions - 1))}
-        className="w-[30px] h-[30px] rounded-[13px] border-0 text-paper flex items-center justify-center cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.2)] bg-paper/[0.15]"
+        disabled={selectedPortions === 1}
+        className="w-[30px] h-[30px] rounded-[13px] border-0 text-paper flex items-center justify-center cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.2)] bg-paper/[0.15] disabled:opacity-30 disabled:cursor-not-allowed"
       >
         <Minus size={14} strokeWidth={2.4} />
       </button>
@@ -38,7 +41,7 @@ const PortionControls = ({
             <motion.span
               key={selectedPortions}
               custom={portionDir}
-              variants={portionVariants}
+              variants={slideVariants}
               initial="enter"
               animate="center"
               exit="exit"
@@ -49,7 +52,22 @@ const PortionControls = ({
             </motion.span>
           </AnimatePresence>
         </div>
-        <span>{recipe.portionsLabel || 'pers'}</span>
+        <div className="overflow-hidden relative">
+          <AnimatePresence mode="popLayout" custom={portionDir}>
+            <motion.span
+              key={displayLabel}
+              custom={portionDir}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+              className="block"
+            >
+              {displayLabel}
+            </motion.span>
+          </AnimatePresence>
+        </div>
       </div>
       <button
         onClick={() => onPortionsChange(selectedPortions + 1)}
@@ -59,6 +77,7 @@ const PortionControls = ({
       </button>
     </div>
   </div>
-)
+  )
+}
 
 export default PortionControls
