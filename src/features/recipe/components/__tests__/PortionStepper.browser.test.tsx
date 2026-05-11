@@ -26,8 +26,14 @@ describe('PortionStepper', () => {
   })
 
   it('shows the label', () => {
-    setup({ label: 'stuks' })
+    setup({ label: 'stuks', value: 2 })
     expect(screen.getByText('stuks')).toBeInTheDocument()
+  })
+
+  it('shows "stuk" (singular) when label is "stuks" and value is 1', () => {
+    setup({ label: 'stuks', value: 1 })
+    expect(screen.getByText('stuk')).toBeInTheDocument()
+    expect(screen.queryByText('stuks')).not.toBeInTheDocument()
   })
 
   it('calls onChange with value + 1 when the plus button is clicked', async () => {
@@ -46,11 +52,15 @@ describe('PortionStepper', () => {
     expect(onChange).toHaveBeenCalledWith(2)
   })
 
-  it('does not go below 1 when minus is clicked at the minimum', async () => {
-    const onChange = vi.fn()
-    const { container } = setup({ value: 1, onChange })
+  it('minus button is disabled when value is 1', () => {
+    const { container } = setup({ value: 1 })
     const [minusBtn] = container.querySelectorAll('button')
-    await userEvent.click(minusBtn)
-    expect(onChange).toHaveBeenCalledWith(1)
+    expect(minusBtn).toBeDisabled()
+  })
+
+  it('minus button is enabled when value is above 1', () => {
+    const { container } = setup({ value: 2 })
+    const [minusBtn] = container.querySelectorAll('button')
+    expect(minusBtn).not.toBeDisabled()
   })
 })

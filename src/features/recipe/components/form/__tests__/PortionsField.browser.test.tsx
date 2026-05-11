@@ -35,9 +35,15 @@ describe('PortionsField', () => {
       expect(screen.getAllByText('pers').length).toBeGreaterThan(0)
     })
 
-    it('shows "stuks" when label is "stuks"', () => {
-      setup({ label: 'stuks' })
+    it('shows "stuks" when label is "stuks" and value is above 1', () => {
+      setup({ label: 'stuks', value: 4 })
       expect(screen.getAllByText('stuks').length).toBeGreaterThan(0)
+    })
+
+    it('shows "stuk" (singular) in the stepper when label is "stuks" and value is 1', () => {
+      setup({ label: 'stuks', value: 1 })
+      // toggle buttons still show 'stuks', but the stepper display shows 'stuk'
+      expect(screen.getByText('stuk')).toBeInTheDocument()
     })
 
     it('shows "PORTIES" text', () => {
@@ -67,13 +73,18 @@ describe('PortionsField', () => {
       expect(onChange).toHaveBeenCalledWith(3)
     })
 
-    it('does not go below 1', async () => {
-      const onChange = vi.fn()
-      const { container } = setup({ value: 1, onChange })
+    it('is disabled when value is 1', () => {
+      const { container } = setup({ value: 1 })
       const buttons = container.querySelectorAll('button')
       const minusBtn = buttons[buttons.length - 2]
-      await userEvent.click(minusBtn)
-      expect(onChange).toHaveBeenCalledWith(1)
+      expect(minusBtn).toBeDisabled()
+    })
+
+    it('is enabled when value is above 1', () => {
+      const { container } = setup({ value: 2 })
+      const buttons = container.querySelectorAll('button')
+      const minusBtn = buttons[buttons.length - 2]
+      expect(minusBtn).not.toBeDisabled()
     })
   })
 

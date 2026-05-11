@@ -49,9 +49,15 @@ describe('PortionControls', () => {
       expect(screen.getByText('pers')).toBeInTheDocument()
     })
 
-    it('shows "stuks" when the recipe portionsLabel is "stuks"', () => {
-      setup({ recipe: { ...BASE_RECIPE, portionsLabel: 'stuks' } })
+    it('shows "stuks" when portionsLabel is "stuks" and selectedPortions is above 1', () => {
+      setup({ recipe: { ...BASE_RECIPE, portionsLabel: 'stuks' }, selectedPortions: 2 })
       expect(screen.getByText('stuks')).toBeInTheDocument()
+    })
+
+    it('shows "stuk" (singular) when portionsLabel is "stuks" and selectedPortions is 1', () => {
+      setup({ recipe: { ...BASE_RECIPE, portionsLabel: 'stuks' }, selectedPortions: 1 })
+      expect(screen.getByText('stuk')).toBeInTheDocument()
+      expect(screen.queryByText('stuks')).not.toBeInTheDocument()
     })
   })
 
@@ -82,12 +88,16 @@ describe('PortionControls', () => {
       expect(onPortionsChange).toHaveBeenCalledWith(2)
     })
 
-    it('does not go below 1 when at the minimum', async () => {
-      const onPortionsChange = vi.fn()
-      const { container } = setup({ selectedPortions: 1, onPortionsChange })
+    it('is disabled when selectedPortions is 1', () => {
+      const { container } = setup({ selectedPortions: 1 })
       const [minusBtn] = container.querySelectorAll('button')
-      await userEvent.click(minusBtn)
-      expect(onPortionsChange).toHaveBeenCalledWith(1)
+      expect(minusBtn).toBeDisabled()
+    })
+
+    it('is enabled when selectedPortions is above 1', () => {
+      const { container } = setup({ selectedPortions: 2 })
+      const [minusBtn] = container.querySelectorAll('button')
+      expect(minusBtn).not.toBeDisabled()
     })
   })
 })
