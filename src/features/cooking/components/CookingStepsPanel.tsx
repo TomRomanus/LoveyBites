@@ -80,7 +80,7 @@ const CookingStepsPanel = ({
           <div className="px-[22px]">
             {current.sectionTitle && (
               <>
-                <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux">
+                <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux-mid">
                   {current.sectionTitle}
                 </div>
                 <BordeauxBar className="w-[22px] opacity-60 mb-[10px]" />

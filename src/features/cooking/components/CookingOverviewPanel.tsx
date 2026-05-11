@@ -69,7 +69,7 @@ const CookingOverviewPanel = ({
           <div key={i} data-active={isActive}>
             {s.showSection && s.sectionTitle && (
               <div className={i > 0 ? 'mt-4' : ''}>
-                <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux">
+                <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux-mid">
                   {s.sectionTitle}
                 </div>
                 <BordeauxBar className="w-[22px] opacity-60 mb-2" />
@@ -81,7 +81,7 @@ const CookingOverviewPanel = ({
             >
               <div
                 className="font-serif italic text-[22px] font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px] text-right"
-                style={{ color: isActive ? 'var(--bordeaux)' : 'rgba(248,244,237,0.5)' }}
+                style={{ color: isActive ? 'var(--bordeaux-mid)' : 'rgba(248,244,237,0.5)' }}
               >
                 {s.num}
               </div>

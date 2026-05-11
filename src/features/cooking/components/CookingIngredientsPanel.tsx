@@ -42,7 +42,7 @@ const CookingIngredientsPanel = ({
         return [
           node.title ? (
             <div key={`h${ni}`} className={ni > 0 ? 'mt-4' : ''}>
-              <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux">
+              <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux-mid">
                 {node.title}
               </div>
               <BordeauxBar className="w-[22px] opacity-60 mb-2" />

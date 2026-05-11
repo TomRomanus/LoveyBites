@@ -7,6 +7,7 @@ export default {
       colors: {
         bordeaux: {
           DEFAULT: '#6b1f2a',
+          mid: '#b8394e',
           dark: '#4d1620',
           soft: '#f3dee0',
           tint: '#fbeef0',
