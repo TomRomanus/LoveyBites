@@ -25,16 +25,22 @@ export const flattenIngredientSections = (
   return sections.length ? sections : [{ section: '', items: [] }]
 }
 
-/** Flatten a tree of step nodes into `{ phase, text, ingredientRefs, ingredientAmounts }[]` for display. */
-export const flattenSteps = (
-  nodes: IngredientNode[],
-): { phase: string; text: string; ingredientRefs?: string[]; ingredientAmounts?: Record<string, string> }[] => {
-  const steps: { phase: string; text: string; ingredientRefs?: string[]; ingredientAmounts?: Record<string, string> }[] = []
+export type FlattenedStep = {
+  phase: string
+  text: string
+  ingredientRefs?: string[]
+  ingredientAmounts?: Record<string, string>
+  comment?: string
+}
+
+/** Flatten a tree of step nodes into `FlattenedStep[]` for display. */
+export const flattenSteps = (nodes: IngredientNode[]): FlattenedStep[] => {
+  const steps: FlattenedStep[] = []
 
   const traverse = (ns: IngredientNode[], phase: string) => {
     for (const n of ns) {
       if (n.kind === 'leaf') {
-        steps.push({ phase, text: n.text, ingredientRefs: n.ingredientRefs, ingredientAmounts: n.ingredientAmounts })
+        steps.push({ phase, text: n.text, ingredientRefs: n.ingredientRefs, ingredientAmounts: n.ingredientAmounts, comment: n.comment })
       } else {
         traverse(n.children, n.title || phase)
       }

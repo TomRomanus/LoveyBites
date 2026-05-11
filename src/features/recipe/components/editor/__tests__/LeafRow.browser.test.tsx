@@ -86,6 +86,72 @@ describe('LeafRow', () => {
   })
 })
 
+describe('LeafRow — comment field (steps)', () => {
+  const stepNode: IngredientNode & { kind: 'leaf' } = {
+    kind: 'leaf', id: 'step-c', text: 'Bak de ui glazig',
+  }
+
+  function setupStep(overrides: Partial<Props> = {}) {
+    const defaults: Props = {
+      node: stepNode,
+      path: [0],
+      isOnly: true,
+      isLast: true,
+      allNodes: [stepNode],
+      labels,
+      onChange: vi.fn(),
+      ordered: true,
+      itemIndex: 0,
+    }
+    const props = { ...defaults, ...overrides }
+    return { ...render(<LeafRow {...props} />), onChange: props.onChange }
+  }
+
+  it('renders a comment textarea for ordered (step) rows', () => {
+    setupStep()
+    expect(screen.getAllByRole('textbox')).toHaveLength(2)
+  })
+
+  it('does not render a comment textarea for non-ordered (ingredient) rows', () => {
+    setup()
+    expect(screen.getAllByRole('textbox')).toHaveLength(1)
+  })
+
+  it('populates comment textarea with node.comment', () => {
+    const nodeWithComment: IngredientNode & { kind: 'leaf' } = {
+      ...stepNode, comment: 'Let op de textuur',
+    }
+    setupStep({ node: nodeWithComment, allNodes: [nodeWithComment] })
+    const textboxes = screen.getAllByRole('textbox')
+    expect(textboxes[1]).toHaveValue('Let op de textuur')
+  })
+
+  it('calls onChange with updated comment when typing in the comment textarea', async () => {
+    const onChange = vi.fn()
+    setupStep({ onChange })
+    const commentBox = screen.getAllByRole('textbox')[1]
+    await userEvent.type(commentBox, 'n')
+    const updatedNodes: IngredientNode[] = onChange.mock.calls.at(-1)[0]
+    const leaf = updatedNodes[0]
+    if (leaf.kind !== 'leaf') throw new Error('Expected leaf')
+    expect(leaf.comment).toBe('n')
+  })
+
+  it('removes comment from node when comment textarea is cleared', async () => {
+    const nodeWithComment: IngredientNode & { kind: 'leaf' } = {
+      ...stepNode, comment: 'oud',
+    }
+    const onChange = vi.fn()
+    setupStep({ node: nodeWithComment, allNodes: [nodeWithComment], onChange })
+    const commentBox = screen.getAllByRole('textbox')[1]
+    await userEvent.clear(commentBox)
+    const updatedNodes: IngredientNode[] = onChange.mock.calls.at(-1)[0]
+    const leaf = updatedNodes[0]
+    if (leaf.kind !== 'leaf') throw new Error('Expected leaf')
+    expect(leaf.comment).toBeUndefined()
+  })
+})
+
 // ---------------------------------------------------------------------------
 // LeafRow — ordered (steps) mode with ingredient refs
 // ---------------------------------------------------------------------------

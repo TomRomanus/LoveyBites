@@ -80,6 +80,20 @@ describe('RecipeSteps', () => {
     })
   })
 
+  describe('comments', () => {
+    it('renders comment text when a step has a comment', () => {
+      setup({
+        steps: [{ text: 'Bak de ui.', comment: 'Gebruik een brede pan' }],
+      })
+      expect(screen.getByText('Gebruik een brede pan')).toBeInTheDocument()
+    })
+
+    it('does not render comment markup when a step has no comment', () => {
+      const { container } = setup()
+      expect(container.querySelector('[data-comment]')).toBeNull()
+    })
+  })
+
   describe('ingredient refs', () => {
     it('renders ingredient ref labels resolved from the ingredientMap', () => {
       setup({

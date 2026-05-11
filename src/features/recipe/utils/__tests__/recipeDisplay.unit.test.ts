@@ -162,4 +162,18 @@ describe('flattenSteps', () => {
     const result = flattenSteps(nodes)
     expect(result[0].ingredientRefs).toBeUndefined()
   })
+
+  it('preserves comment on a leaf node', () => {
+    const nodes: IngredientNode[] = [
+      { kind: 'leaf', text: 'Bak de ui', comment: 'Gebruik een brede pan' },
+    ]
+    const result = flattenSteps(nodes)
+    expect(result[0].comment).toBe('Gebruik een brede pan')
+  })
+
+  it('leaves comment as undefined when not present', () => {
+    const nodes: IngredientNode[] = [{ kind: 'leaf', text: 'Kook de pasta' }]
+    const result = flattenSteps(nodes)
+    expect(result[0].comment).toBeUndefined()
+  })
 })

@@ -233,6 +233,17 @@ const LeafRow = ({
               )}
               placeholder={labels.leafPlaceholder}
             />
+            <AutoGrowTextarea
+              value={node.comment ?? ''}
+              onChange={(e) => {
+                const { comment: _c, ...base } = node
+                const updated = e.target.value ? { ...base, comment: e.target.value } : base
+                onChange(replaceAt(allNodes, path, updated))
+              }}
+              rows={1}
+              className={cn(leafInputCls, 'flex-none w-full box-border leading-[1.5] py-0 pr-1 pl-0 text-[13px] text-stone italic placeholder:not-italic')}
+              placeholder="Opmerking toevoegen..."
+            />
           </div>
         ) : (
           <AutoGrowTextarea
