@@ -1,6 +1,6 @@
 import PortionStepper from '@/features/recipe/components/PortionStepper'
 import IngredientRow from '@/shared/components/IngredientRow'
-import BordeauxBar from '@/shared/components/BordeauxBar'
+import GroupLabel from '@/shared/components/GroupLabel'
 
 type RecipeIngredientsProps = {
   sections: { section: string | null; items: string[] }[]
@@ -42,12 +42,9 @@ const RecipeIngredients = ({
     {sections.map((sec, si) => (
       <div key={si} className="mb-4">
         {sec.section && (
-          <>
-            <div className="font-serif italic text-[14px] text-bordeaux mb-[3px] font-medium">
-              {sec.section}
-            </div>
-            <BordeauxBar className="w-[22px] opacity-55 mb-2" />
-          </>
+          <div className="mb-2">
+            <GroupLabel>{sec.section}</GroupLabel>
+          </div>
         )}
         <div className="flex flex-col gap-0.5">
           {sec.items.map((item, ii) => {

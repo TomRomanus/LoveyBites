@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import type { FlatStep } from '@/features/cooking/types/cooking'
 import { formatStepIngredient } from '@/features/recipe/utils/ingredientUtils'
-import BordeauxBar from '@/shared/components/BordeauxBar'
+import GroupLabel from '@/shared/components/GroupLabel'
 
 type CookingOverviewPanelProps = {
   steps: FlatStep[]
@@ -68,11 +68,8 @@ const CookingOverviewPanel = ({
         return (
           <div key={i} data-active={isActive}>
             {s.showSection && s.sectionTitle && (
-              <div className={i > 0 ? 'mt-4' : ''}>
-                <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux-mid">
-                  {s.sectionTitle}
-                </div>
-                <BordeauxBar className="w-[22px] opacity-60 mb-2" color="var(--bordeaux-mid)" />
+              <div className={`mb-2${i > 0 ? ' mt-4' : ''}`}>
+                <GroupLabel theme="dark">{s.sectionTitle}</GroupLabel>
               </div>
             )}
             <button

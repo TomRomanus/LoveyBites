@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import type { FlatStep } from '@/features/cooking/types/cooking'
-import BordeauxBar from '@/shared/components/BordeauxBar'
+import GroupLabel from '@/shared/components/GroupLabel'
 
 type CookingStepsPanelProps = {
   steps: FlatStep[]
@@ -79,12 +79,9 @@ const CookingStepsPanel = ({
           {/* Current step */}
           <div className="px-[22px]">
             {current.sectionTitle && (
-              <>
-                <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux-mid">
-                  {current.sectionTitle}
-                </div>
-                <BordeauxBar className="w-[22px] opacity-60 mb-[10px]" color="var(--bordeaux-mid)" />
-              </>
+              <div className="mb-[10px]">
+                <GroupLabel theme="dark">{current.sectionTitle}</GroupLabel>
+              </div>
             )}
             {currentIngredients.length > 0 && (
               <div className="font-mono text-[15px] tracking-[0.09em] uppercase mb-[10px] text-[rgba(243,222,224,0.9)]">

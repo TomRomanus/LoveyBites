@@ -1,6 +1,6 @@
 import { formatStepIngredient } from '@/features/recipe/utils/ingredientUtils'
-import BordeauxBar from '@/shared/components/BordeauxBar'
 import SectionHeader from '@/shared/components/SectionHeader'
+import GroupLabel from '@/shared/components/GroupLabel'
 
 type RecipeStepsProps = {
   steps: { phase?: string; text: string; ingredientRefs?: string[]; ingredientAmounts?: Record<string, string> }[]
@@ -16,14 +16,9 @@ const RecipeSteps = ({ steps, ingredientMap, deel = 'II' }: RecipeStepsProps) =>
       return (
         <div key={i}>
           {showPhase && step.phase && (
-            <>
-              <div
-                className={`font-serif italic text-[14px] text-bordeaux mb-[3px] font-medium ${i > 0 ? 'mt-5' : 'mt-0'}`}
-              >
-                {step.phase}
-              </div>
-              <BordeauxBar className="w-[22px] opacity-55 mb-2" />
-            </>
+            <div className={`mb-2${i > 0 ? ' mt-5' : ''}`}>
+              <GroupLabel>{step.phase}</GroupLabel>
+            </div>
           )}
           <div className="flex gap-[20px] py-2 border-b-[0.5px] border-ink/14">
             <div className="font-serif italic text-[22px] text-bordeaux font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px] text-right">

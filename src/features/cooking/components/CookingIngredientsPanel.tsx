@@ -3,7 +3,7 @@ import type { Recipe } from '@/features/recipe/types/recipe'
 import type { TreeNode } from '@/features/cooking/types/cooking'
 import PortionControls from '@/features/cooking/components/PortionControls'
 import IngredientRow from '@/shared/components/IngredientRow'
-import BordeauxBar from '@/shared/components/BordeauxBar'
+import GroupLabel from '@/shared/components/GroupLabel'
 
 type CookingIngredientsPanelProps = {
   recipe: Recipe
@@ -41,11 +41,8 @@ const CookingIngredientsPanel = ({
       if (node.kind === 'group') {
         return [
           node.title ? (
-            <div key={`h${ni}`} className={ni > 0 ? 'mt-4' : ''}>
-              <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux-mid">
-                {node.title}
-              </div>
-              <BordeauxBar className="w-[22px] opacity-60 mb-2" color="var(--bordeaux-mid)" />
+            <div key={`h${ni}`} className={`mb-2${ni > 0 ? ' mt-4' : ''}`}>
+              <GroupLabel theme="dark">{node.title}</GroupLabel>
             </div>
           ) : null,
           ...node.children
