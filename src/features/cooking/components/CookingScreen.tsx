@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EASE_STANDARD } from '@/shared/constants/animations'
-import { collectIngredientMap } from '@/features/recipe/utils/ingredientUtils'
+import { collectIngredientMap, formatStepIngredient } from '@/features/recipe/utils/ingredientUtils'
 import type { CookingScreenProps, CookTab } from '@/features/cooking/types/cooking'
 import { flattenCookSteps } from '@/features/cooking/utils/cookSteps'
+import { scaleStepAmounts } from '@/features/recipe/utils/scaleIngredient'
 import useBodyScrollLock from '@/shared/hooks/useBodyScrollLock'
 import CookingHeader from '@/features/cooking/components/CookingHeader'
 import CookingTabs from '@/features/cooking/components/CookingTabs'
@@ -21,8 +22,12 @@ const CookingScreen = ({
   onToggle,
   onClose,
 }: CookingScreenProps) => {
-  const ingredientMap = collectIngredientMap(scaledIngredients)
-  const steps = flattenCookSteps(recipe.steps)
+  const ingredientMap = useMemo(() => collectIngredientMap(scaledIngredients), [scaledIngredients])
+  const ratio = selectedPortions / (recipe.portions ?? 4)
+  const steps = useMemo(
+    () => flattenCookSteps(scaleStepAmounts(recipe.steps, ratio)),
+    [recipe.steps, ratio],
+  )
   const total = steps.length
 
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -53,7 +58,11 @@ const CookingScreen = ({
   }
 
   const currentIngredients = (current.ingredientRefs ?? [])
-    .map((id) => ingredientMap.get(id))
+    .map((id) => {
+      const text = ingredientMap.get(id)
+      if (!text) return undefined
+      return formatStepIngredient(text, current.ingredientAmounts?.[id] ?? '')
+    })
     .filter((t): t is string => t !== undefined)
 
   return (

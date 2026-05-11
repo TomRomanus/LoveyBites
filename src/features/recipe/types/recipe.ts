@@ -6,6 +6,7 @@ type IngredientLeaf = {
   text: string
   id?: string
   ingredientRefs?: string[]
+  ingredientAmounts?: Record<string, string>
 }
 
 type IngredientGroup = {
@@ -55,6 +56,7 @@ const ingredientLeafSchema = z.object({
   text: z.string(),
   id: z.string().optional(),
   ingredientRefs: z.array(z.string()).optional(),
+  ingredientAmounts: z.record(z.string()).optional(),
 })
 
 export const ingredientNodeSchema: z.ZodType<IngredientNode> = z.lazy(() =>

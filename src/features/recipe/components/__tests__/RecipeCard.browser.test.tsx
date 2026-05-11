@@ -26,11 +26,7 @@ const BASE_RECIPE: Recipe = {
 type Props = React.ComponentProps<typeof RecipeCard>
 
 function setup(overrides: Partial<Props> = {}) {
-  const defaults: Props = {
-    recipe: BASE_RECIPE,
-    variant: 'default',
-  }
-  const props = { ...defaults, ...overrides }
+  const props = { recipe: BASE_RECIPE, ...overrides }
   return render(
     <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <RecipeCard {...props} />
@@ -38,7 +34,7 @@ function setup(overrides: Partial<Props> = {}) {
   )
 }
 
-describe('RecipeCard — default variant', () => {
+describe('RecipeCard', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('shows the recipe title', () => {
@@ -67,35 +63,15 @@ describe('RecipeCard — default variant', () => {
     setup()
     expect(screen.queryByRole('button', { name: /kalender/i })).not.toBeInTheDocument()
   })
-})
-
-describe('RecipeCard — feature variant', () => {
-  beforeEach(() => vi.clearAllMocks())
-
-  it('shows "UITGELICHT" label', () => {
-    setup({ variant: 'feature' })
-    expect(screen.getByText('UITGELICHT')).toBeInTheDocument()
-  })
-
-  it('shows the recipe title', () => {
-    setup({ variant: 'feature' })
-    expect(screen.getAllByText('Pasta Bolognese').length).toBeGreaterThanOrEqual(1)
-  })
-
-  it('shows all recipe tags', () => {
-    setup({ variant: 'feature' })
-    expect(screen.getByText('italiaans')).toBeInTheDocument()
-    expect(screen.getByText('pasta')).toBeInTheDocument()
-  })
 
   it('renders a calendar button when onAddToCalendar is provided', () => {
-    setup({ variant: 'feature', onAddToCalendar: vi.fn() })
+    setup({ onAddToCalendar: vi.fn() })
     expect(screen.getByRole('button', { name: /kalender/i })).toBeInTheDocument()
   })
 
   it('calls onAddToCalendar with the recipe when the calendar button is clicked', async () => {
     const onAddToCalendar = vi.fn()
-    setup({ variant: 'feature', onAddToCalendar })
+    setup({ onAddToCalendar })
     await userEvent.click(screen.getByRole('button', { name: /kalender/i }))
     expect(onAddToCalendar).toHaveBeenCalledWith(BASE_RECIPE)
   })

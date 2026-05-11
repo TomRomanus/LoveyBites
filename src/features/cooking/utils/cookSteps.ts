@@ -12,6 +12,7 @@ export const flattenCookSteps = (
         text: node.text,
         sectionTitle,
         ingredientRefs: node.ingredientRefs,
+        ingredientAmounts: node.ingredientAmounts,
         globalIndex: counter.n++,
       })
     } else {

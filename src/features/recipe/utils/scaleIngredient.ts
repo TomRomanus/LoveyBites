@@ -1,13 +1,5 @@
 import type { IngredientNode } from '@/features/recipe/types/recipe'
-
-const FRACTIONS: Array<{ value: number; symbol: string }> = [
-  { value: 1 / 2, symbol: '½' },
-  { value: 1 / 4, symbol: '¼' },
-  { value: 3 / 4, symbol: '¾' },
-  { value: 1 / 3, symbol: '⅓' },
-  { value: 2 / 3, symbol: '⅔' },
-  { value: 1 / 8, symbol: '⅛' },
-]
+import { COOKING_FRACTIONS, VOLUME_UNIT, formatAmount } from '@/features/recipe/utils/ingredientUtils'
 
 const parseFraction = (s: string): number => {
   const normalized = s.replace(',', '.')
@@ -18,24 +10,19 @@ const parseFraction = (s: string): number => {
   return parseFloat(normalized)
 }
 
-const VOLUME_UNIT =
-  /^(cups?|c\.|tbsp?\.?|tbs\.?|tablespoons?|tsp\.?|teaspoons?|kop(?:jes?|pen)?|el|tl|eetlepels?|theelepels?)\b/i
-
 const formatNumber = (n: number, useFraction = false): string => {
   const rounded = Math.round(n * 1e6) / 1e6
   if (Number.isInteger(rounded)) return String(rounded)
-
   const whole = Math.floor(rounded)
   const frac = rounded - whole
-
   if (useFraction) {
-    for (const { value, symbol } of FRACTIONS) {
-      if (Math.abs(frac - value) < 0.01) {
-        return whole === 0 ? symbol : `${whole} ${symbol}`
+    for (const [num, den] of COOKING_FRACTIONS) {
+      if (Math.abs(frac - num / den) < 0.01) {
+        const str = `${num}/${den}`
+        return whole === 0 ? str : `${whole} ${str}`
       }
     }
   }
-
   const oneDecimal = rounded.toFixed(1)
   if (oneDecimal.endsWith('.0')) return String(Math.round(rounded))
   return oneDecimal.replace('.', ',')
@@ -50,8 +37,7 @@ export const scaleIngredientText = (text: string, ratio: number): string => {
   if (!match) return text
   const scaled = parseFraction(match[1]) * ratio
   const rest = text.slice(match[0].length)
-  const useFraction = VOLUME_UNIT.test(rest.trimStart())
-  return formatNumber(scaled, useFraction) + rest
+  return formatNumber(scaled, VOLUME_UNIT.test(rest.trimStart())) + rest
 }
 
 export const scaleIngredients = (nodes: IngredientNode[], ratio: number): IngredientNode[] =>
@@ -60,3 +46,20 @@ export const scaleIngredients = (nodes: IngredientNode[], ratio: number): Ingred
       ? { ...node, text: scaleIngredientText(node.text, ratio) }
       : { ...node, children: scaleIngredients(node.children, ratio) },
   )
+
+/** Scale the ingredientAmounts values in a step tree by the given ratio. */
+export const scaleStepAmounts = (nodes: IngredientNode[], ratio: number): IngredientNode[] => {
+  if (ratio === 1) return nodes
+  return nodes.map((node) => {
+    if (node.kind === 'leaf') {
+      if (!node.ingredientAmounts) return node
+      const scaledAmounts: Record<string, string> = {}
+      for (const [id, amt] of Object.entries(node.ingredientAmounts)) {
+        const num = parseFraction(amt.trim())
+        scaledAmounts[id] = isNaN(num) ? amt : formatAmount(num * ratio)
+      }
+      return { ...node, ingredientAmounts: scaledAmounts }
+    }
+    return { ...node, children: scaleStepAmounts(node.children, ratio) }
+  })
+}

@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import type { FlatStep } from '@/features/cooking/types/cooking'
+import { formatStepIngredient } from '@/features/recipe/utils/ingredientUtils'
 
 const SECTION_HEADER_COLOR = '#b8394e'
 
@@ -25,7 +26,11 @@ const enrichSteps = (steps: FlatStep[], ingredientMap: Map<string, string>): Enr
     const showSection = s.sectionTitle !== prevSection
     if (showSection) prevSection = s.sectionTitle ?? ''
     const stepIngredients = (s.ingredientRefs ?? [])
-      .map((id) => ingredientMap.get(id))
+      .map((id) => {
+        const text = ingredientMap.get(id)
+        if (!text) return undefined
+        return formatStepIngredient(text, s.ingredientAmounts?.[id] ?? '')
+      })
       .filter((t): t is string => t !== undefined)
     return { ...s, num, showSection, stepIngredients }
   })

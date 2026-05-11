@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import { replaceAt, removeAt } from '@/features/recipe/components/editor/nodeTree'
+import { parseIngredientText, parseAmount, formatAmount, formatStepIngredient, collectUsedAmounts, normalizeStepAmount, VOLUME_UNIT } from '@/features/recipe/utils/ingredientUtils'
 import { GripHandle } from '@/features/recipe/components/editor/GripHandle'
 import IngredientPickerSheet from '@/features/recipe/components/editor/IngredientPickerSheet'
 import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
@@ -60,18 +61,82 @@ const LeafRow = ({
   const [pickerOpen, setPickerOpen] = useState(false)
   const selectedIds = new Set(node.ingredientRefs ?? [])
   const selectedIngredients = ingredientOptions?.filter((opt) => selectedIds.has(opt.id)) ?? []
+  const amounts = node.ingredientAmounts ?? {}
+
+  const usedElsewhere = ordered
+    ? collectUsedAmounts(allNodes, node.id ?? '', ingredientOptions ?? [])
+    : {}
+
+  // Return the remaining available amount for an ingredient as a display string
+  const remainingDefault = (id: string, text: string): string => {
+    const { amount, maxLabel } = parseIngredientText(text)
+    const used = usedElsewhere[id] ?? 0
+    if (used === 0) return amount
+    const maxNum = parseAmount(amount)
+    if (isNaN(maxNum)) return amount
+    const rem = Math.max(0, maxNum - used)
+    const unit = maxLabel.slice(amount.length).trim().toLowerCase()
+    const useFractions = amount.includes('/') || VOLUME_UNIT.test(unit)
+    return useFractions ? formatAmount(rem) : rem % 1 === 0 ? String(rem) : parseFloat(rem.toFixed(6)).toString()
+  }
+
+  // Ingredients fully consumed by other steps — visible but not selectable in this step
+  const fullyAssignedIds = new Set<string>()
+  for (const opt of ingredientOptions ?? []) {
+    if (selectedIds.has(opt.id)) continue
+    const maxNum = parseAmount(parseIngredientText(opt.text).amount)
+    if (!isNaN(maxNum) && maxNum > 0 && (usedElsewhere[opt.id] ?? 0) >= maxNum) {
+      fullyAssignedIds.add(opt.id)
+    }
+  }
+
+  // Remaining amounts to prefill/placeholder the amounts tab inputs
+  const remainingAmounts: Record<string, string> = {}
+  for (const opt of ingredientOptions ?? []) {
+    remainingAmounts[opt.id] = remainingDefault(opt.id, opt.text)
+  }
 
   const toggleIngredient = (id: string) => {
     const cur = node.ingredientRefs ?? []
-    const newRefs = selectedIds.has(id) ? cur.filter((r) => r !== id) : [...cur, id]
-    const { ingredientRefs: _ingredientRefs, ...nodeWithoutRefs } = node
+    const isRemoving = selectedIds.has(id)
+    const newRefs = isRemoving ? cur.filter((r) => r !== id) : [...cur, id]
+    const newAmounts = { ...amounts }
+    if (isRemoving) {
+      delete newAmounts[id]
+    } else {
+      const fullText = ingredientOptions?.find((o) => o.id === id)?.text ?? ''
+      newAmounts[id] = remainingDefault(id, fullText)
+    }
+    const { ingredientRefs: _ir, ingredientAmounts: _ia, ...base } = node
     onChange(
-      replaceAt(
-        allNodes,
-        path,
-        newRefs.length > 0 ? { ...nodeWithoutRefs, ingredientRefs: newRefs } : nodeWithoutRefs,
-      ),
+      replaceAt(allNodes, path, {
+        ...base,
+        ...(newRefs.length > 0 ? { ingredientRefs: newRefs } : {}),
+        ...(Object.keys(newAmounts).length > 0 ? { ingredientAmounts: newAmounts } : {}),
+      }),
     )
+  }
+
+  const changeAmount = (id: string, amount: string) => {
+    const newAmounts = { ...amounts, [id]: amount }
+    const { ingredientAmounts: _ia, ...base } = node
+    onChange(replaceAt(allNodes, path, { ...base, ingredientAmounts: newAmounts }))
+  }
+
+  const handlePickerClose = () => {
+    const normalized: Record<string, string> = {}
+    let anyChange = false
+    for (const [id, amt] of Object.entries(amounts)) {
+      const fullText = ingredientOptions?.find((o) => o.id === id)?.text ?? ''
+      const norm = normalizeStepAmount(amt, fullText)
+      normalized[id] = norm
+      if (norm !== amt) anyChange = true
+    }
+    if (anyChange) {
+      const { ingredientAmounts: _ia, ...base } = node
+      onChange(replaceAt(allNodes, path, { ...base, ingredientAmounts: { ...amounts, ...normalized } }))
+    }
+    setPickerOpen(false)
   }
 
   const refsPanel = ordered && (
@@ -93,7 +158,7 @@ const LeafRow = ({
           {selectedIngredients.map((o, i) => (
             <span key={o.id}>
               {i > 0 ? ' · ' : ''}
-              {o.text}
+              {formatStepIngredient(o.text, amounts[o.id] ?? '')}
             </span>
           ))}
         </button>
@@ -101,9 +166,13 @@ const LeafRow = ({
       <IngredientPickerSheet
         visible={pickerOpen}
         selectedIds={selectedIds}
+        disabledIds={fullyAssignedIds}
         options={ingredientOptions ?? []}
+        amounts={amounts}
+        remainingAmounts={remainingAmounts}
         onToggle={toggleIngredient}
-        onClose={() => setPickerOpen(false)}
+        onAmountChange={changeAmount}
+        onClose={handlePickerClose}
       />
     </div>
   )

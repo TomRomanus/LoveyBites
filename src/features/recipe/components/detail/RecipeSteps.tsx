@@ -1,5 +1,7 @@
+import { formatStepIngredient } from '@/features/recipe/utils/ingredientUtils'
+
 type RecipeStepsProps = {
-  steps: { phase?: string; text: string; ingredientRefs?: string[] }[]
+  steps: { phase?: string; text: string; ingredientRefs?: string[]; ingredientAmounts?: Record<string, string> }[]
   ingredientMap: Map<string, string>
   deel?: string
 }
@@ -34,7 +36,10 @@ const RecipeSteps = ({ steps, ingredientMap, deel = 'II' }: RecipeStepsProps) =>
             <div className="flex-1">
               {step.ingredientRefs && step.ingredientRefs.length > 0 && (
                 <div className="font-mono text-[10px] tracking-[0.08em] uppercase text-bordeaux/55 mb-[5px]">
-                  {step.ingredientRefs.map((id) => ingredientMap.get(id) ?? id).join(' · ')}
+                  {step.ingredientRefs.map((id) => {
+                    const text = ingredientMap.get(id) ?? id
+                    return formatStepIngredient(text, step.ingredientAmounts?.[id] ?? '')
+                  }).join(' · ')}
                 </div>
               )}
               <div className="text-[15px] text-ink leading-[1.55]">{step.text}</div>

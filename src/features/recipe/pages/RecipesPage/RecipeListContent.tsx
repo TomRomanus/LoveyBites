@@ -25,7 +25,6 @@ const RecipeListContent = ({ recipes, activeTags, onAddToCalendar }: RecipeListC
         >
           <RecipeCard
             recipe={r}
-            variant="default"
             onAddToCalendar={onAddToCalendar}
             highlightTags={activeTags.length > 0 ? activeTags : undefined}
           />

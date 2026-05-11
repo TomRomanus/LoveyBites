@@ -18,6 +18,14 @@
 - No comments explaining what the code does — names should do that. Comments only for non-obvious WHY.
 - No dead code, unused imports, or backwards-compatibility shims.
 
+### Code Quality Checks
+After any non-trivial change, verify:
+- **No duplicate logic**: before adding a parsing, formatting, or domain utility, check if an existing one covers it — consolidate rather than duplicate.
+- **No duplicate data**: if two constants represent the same domain knowledge (unit lists, fraction tables, error colors), there should be one export that both import.
+- **`useMemo` for derived data**: expensive computations inside components that derive from props or state should be wrapped in `useMemo`.
+- **Module-level constants**: values that do not depend on props, state, or render context belong outside the component function.
+- **Pure logic out of components**: complex pure computations with no UI concerns inside components should be extracted as utility functions.
+
 ## Project Structure
 
 ```

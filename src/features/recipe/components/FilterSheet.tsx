@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Check } from 'lucide-react'
 import Sheet from '@/shared/components/Sheet'
 import SearchInput from '@/shared/components/SearchInput'
 
@@ -38,31 +36,15 @@ const FilterSheet = ({ visible, activeTags, allTags, onChange, onClose }: Filter
         {filtered.map((t) => {
           const isActive = activeTags.includes(t)
           return (
-            <motion.button
+            <button
               key={t}
               type="button"
-              className="lb-tag cursor-pointer gap-1"
+              className="lb-tag cursor-pointer"
               data-active={isActive ? 'true' : 'false'}
               onClick={() => toggle(t)}
-              layout
-              transition={{ layout: { type: 'spring', stiffness: 400, damping: 32 } }}
             >
-              <AnimatePresence mode="popLayout">
-                {isActive && (
-                  <motion.span
-                    key="check"
-                    initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0, opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 420, damping: 25 }}
-                    className="inline-flex"
-                  >
-                    <Check size={14} strokeWidth={2.5} />
-                  </motion.span>
-                )}
-              </AnimatePresence>
               {t}
-            </motion.button>
+            </button>
           )
         })}
         {filtered.length === 0 && (

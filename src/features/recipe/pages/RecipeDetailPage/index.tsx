@@ -8,7 +8,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { deleteRecipe, updateRecipe } from '@/features/recipe/api/recipes'
 import { recipeKeys } from '@/features/recipe/api/queryKeys'
 import useRecipeLoad from '@/features/recipe/hooks/useRecipeLoad'
-import { scaleIngredients } from '@/features/recipe/utils/scaleIngredient'
+import { scaleIngredients, scaleStepAmounts } from '@/features/recipe/utils/scaleIngredient'
 import CookingScreen from '@/features/cooking/components/CookingScreen'
 import { collectIngredientMap } from '@/features/recipe/utils/ingredientUtils'
 import AddToCalendarModal from '@/features/calendar/components/AddToCalendarModal'
@@ -69,7 +69,10 @@ const RecipeDetailPage = () => {
     () => flattenIngredientSections(scaledIngredients),
     [scaledIngredients],
   )
-  const stepSections = useMemo(() => flattenSteps(recipe?.steps ?? []), [recipe?.steps])
+  const stepSections = useMemo(
+    () => flattenSteps(scaleStepAmounts(recipe?.steps ?? [], ratio)),
+    [recipe?.steps, ratio],
+  )
   const ingredientMap = useMemo(() => collectIngredientMap(scaledIngredients), [scaledIngredients])
 
   const handleRating = async (rating: number) => {
