@@ -1,5 +1,6 @@
 import { formatStepIngredient } from '@/features/recipe/utils/ingredientUtils'
 import BordeauxBar from '@/shared/components/BordeauxBar'
+import SectionHeader from '@/shared/components/SectionHeader'
 
 type RecipeStepsProps = {
   steps: { phase?: string; text: string; ingredientRefs?: string[]; ingredientAmounts?: Record<string, string> }[]
@@ -9,10 +10,7 @@ type RecipeStepsProps = {
 
 const RecipeSteps = ({ steps, ingredientMap, deel = 'II' }: RecipeStepsProps) => (
   <div className="px-[22px] pt-7">
-    <div className="lb-eyebrow">DEEL {deel}</div>
-    <h2 className="mt-1 mb-4 text-[24px] font-serif italic font-medium tracking-[-0.02em] leading-[1.05]">
-      Instructies
-    </h2>
+    <SectionHeader eyebrow={`DEEL ${deel}`} title="Instructies" />
     {steps.map((step, i) => {
       const showPhase = step.phase !== (steps[i - 1]?.phase ?? '')
       return (

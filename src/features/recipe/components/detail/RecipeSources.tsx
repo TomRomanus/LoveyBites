@@ -1,4 +1,5 @@
 import { Link } from 'lucide-react'
+import SectionHeader from '@/shared/components/SectionHeader'
 
 type RecipeSourcesProps = {
   sources: { url: string; label?: string }[]
@@ -7,10 +8,7 @@ type RecipeSourcesProps = {
 
 const RecipeSources = ({ sources, deel = 'III' }: RecipeSourcesProps) => (
   <div className="px-[22px] pt-7">
-    <div className="lb-eyebrow">DEEL {deel}</div>
-    <h2 className="mt-1 mb-4 text-[24px] font-serif italic font-medium tracking-[-0.02em] leading-[1.05]">
-      Bronnen
-    </h2>
+    <SectionHeader eyebrow={`DEEL ${deel}`} title="Bronnen" />
     <div>
       {sources.map((s, i) => (
         <a
