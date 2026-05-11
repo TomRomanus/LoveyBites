@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Sheet from '@/shared/components/Sheet'
 import AnimatedTabBar from '@/shared/components/AnimatedTabBar'
+import TagChip from '@/shared/components/TagChip'
 import { parseIngredientText, parseAmount } from '@/features/recipe/utils/ingredientUtils'
 
 type Tab = 'ingredients' | 'amounts'
@@ -116,17 +117,14 @@ const IngredientPickerSheet = ({
                   options.map((opt) => {
                     const isDisabled = disabledIds?.has(opt.id) ?? false
                     return (
-                      <motion.button
+                      <TagChip
                         key={opt.id}
-                        type="button"
-                        className={`lb-tag ${isDisabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
-                        data-active={selectedIds.has(opt.id) ? 'true' : 'false'}
-                        onClick={isDisabled ? undefined : () => onToggle(opt.id)}
+                        label={opt.text}
+                        active={selectedIds.has(opt.id)}
+                        disabled={isDisabled}
                         layout
-                        transition={{ layout: { type: 'spring', stiffness: 400, damping: 32 } }}
-                      >
-                        {opt.text}
-                      </motion.button>
+                        onClick={() => onToggle(opt.id)}
+                      />
                     )
                   })
                 ) : (

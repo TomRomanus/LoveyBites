@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Sheet from '@/shared/components/Sheet'
 import SearchInput from '@/shared/components/SearchInput'
+import TagChip from '@/shared/components/TagChip'
 
 type FilterSheetProps = {
   visible: boolean
@@ -36,15 +37,7 @@ const FilterSheet = ({ visible, activeTags, allTags, onChange, onClose }: Filter
         {filtered.map((t) => {
           const isActive = activeTags.includes(t)
           return (
-            <button
-              key={t}
-              type="button"
-              className="lb-tag cursor-pointer"
-              data-active={isActive ? 'true' : 'false'}
-              onClick={() => toggle(t)}
-            >
-              {t}
-            </button>
+            <TagChip key={t} label={t} active={isActive} onClick={() => toggle(t)} />
           )
         })}
         {filtered.length === 0 && (
