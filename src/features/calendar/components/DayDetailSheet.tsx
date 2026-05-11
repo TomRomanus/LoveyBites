@@ -5,6 +5,7 @@ import type { MealPlanEntry } from '@/features/calendar/types/calendar'
 import type { Recipe } from '@/features/recipe/types/recipe'
 import { NL_DAYS_LONG, NL_MONTHS } from '@/shared/constants/locale'
 import Sheet from '@/shared/components/Sheet'
+import SheetHeader from '@/shared/components/SheetHeader'
 import DayEntryRow from '@/features/calendar/components/DayEntryRow'
 
 type DayDetailSheetProps = {
@@ -28,12 +29,9 @@ const DayDetailSheet = ({
 }: DayDetailSheetProps) => {
   return (
     <Sheet visible={visible} onClose={onClose}>
-      <div className="pt-3 px-[22px]">
-        <div className="lb-eyebrow">{NL_DAYS_LONG[date.getDay()].toUpperCase()}</div>
-        <h3 className="lb-display mt-1 text-[26px]">
-          {NL_MONTHS[date.getMonth()]} <b>{date.getDate()}</b>
-        </h3>
-      </div>
+      <SheetHeader eyebrow={NL_DAYS_LONG[date.getDay()].toUpperCase()}>
+        {NL_MONTHS[date.getMonth()]} <b>{date.getDate()}</b>
+      </SheetHeader>
       <div className="py-4 px-[22px] overflow-auto flex-1 min-h-0">
         <AnimatePresence initial={false}>
           {entries.length === 0 && (

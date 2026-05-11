@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { EASE_OUT } from '@/shared/constants/animations'
 import { NL_DAYS_LONG, NL_MONTHS_SHORT } from '@/shared/constants/locale'
 import Sheet from '@/shared/components/Sheet'
+import SheetHeader from '@/shared/components/SheetHeader'
 import AnimatedTabBar from '@/shared/components/AnimatedTabBar'
 import useAddMeal from './useAddMeal'
 import RecipeTabContent from './RecipeTabContent'
@@ -38,15 +39,12 @@ const AddMealSheet = (props: AddMealSheetProps) => {
 
   return (
     <Sheet visible={visible} onClose={onClose} height="78%">
-      <div className="pt-3 px-[22px]">
-        <div className="lb-eyebrow">
-          {NL_DAYS_LONG[dateObj.getDay()]}, {NL_MONTHS_SHORT[dateObj.getMonth()]}{' '}
-          {dateObj.getDate()}
-        </div>
-        <h3 className="lb-display mt-1 mb-[14px] text-[24px]">
-          Maaltijd <b>toevoegen</b>
-        </h3>
-      </div>
+      <SheetHeader
+        eyebrow={`${NL_DAYS_LONG[dateObj.getDay()]}, ${NL_MONTHS_SHORT[dateObj.getMonth()]} ${dateObj.getDate()}`}
+        titleClassName="text-[24px] mb-[14px]"
+      >
+        Maaltijd <b>toevoegen</b>
+      </SheetHeader>
       <div className="px-[22px] pb-3">
         <AnimatedTabBar
           layoutId="meal-sheet-tabs"

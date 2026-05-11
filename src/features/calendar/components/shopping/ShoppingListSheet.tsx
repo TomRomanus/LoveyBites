@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { EASE_OUT } from '@/shared/constants/animations'
 import DatePickerInput from '@/features/calendar/components/DatePickerInput'
 import Sheet from '@/shared/components/Sheet'
+import SheetHeader from '@/shared/components/SheetHeader'
 import useShoppingList from '@/features/calendar/hooks/useShoppingList'
 import useCheckedSet from '@/shared/hooks/useCheckedSet'
 import ShoppingSection from '@/features/calendar/components/shopping/ShoppingSection'
@@ -49,12 +50,9 @@ const ShoppingListSheet = ({
 
   return (
     <Sheet visible={visible} onClose={onClose} height="88%">
-      <div className="pt-3 px-[22px]">
-        <div className="lb-eyebrow">BOODSCHAPPENLIJST</div>
-        <h3 className="lb-display mt-1 text-[26px]">
-          Wat we <b>nodig hebben</b>
-        </h3>
-      </div>
+      <SheetHeader eyebrow="BOODSCHAPPENLIJST">
+        Wat we <b>nodig hebben</b>
+      </SheetHeader>
       <div className="py-[14px] px-[22px] pb-4 flex gap-[10px] items-end">
         <DatePickerInput label="VAN" value={from} onChange={handleFromChange} />
         <div className="text-stone-2 text-[14px] mb-[14px] shrink-0">→</div>
