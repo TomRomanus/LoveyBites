@@ -25,7 +25,7 @@ const collectIngredientOptions = (nodes: IngredientNode[]): Array<{ id: string; 
   return options
 }
 
-export const emptyInput = (): RecipeInput => ({
+const emptyInput = (): RecipeInput => ({
   title: '',
   description: '',
   portions: 4,
@@ -53,7 +53,7 @@ export const emptyInput = (): RecipeInput => ({
   createdBy: 'us',
 })
 
-export const buildInitial = (initial?: Partial<RecipeInput>): RecipeInput => {
+const buildInitial = (initial?: Partial<RecipeInput>): RecipeInput => {
   const base = { ...emptyInput(), ...initial }
   return {
     ...base,

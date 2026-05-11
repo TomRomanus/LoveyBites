@@ -18,7 +18,7 @@ export const startOfWeek = (d: Date): Date => dfStartOfWeek(d, { weekStartsOn: 1
 
 export const startOfMonth = (d: Date): Date => dfStartOfMonth(d)
 
-export const endOfMonth = (d: Date): Date => dfEndOfMonth(d)
+const endOfMonth = (d: Date): Date => dfEndOfMonth(d)
 
 export const isSameDay = (a: Date, b: Date): boolean => dfIsSameDay(a, b)
 

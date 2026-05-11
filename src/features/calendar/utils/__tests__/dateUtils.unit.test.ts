@@ -4,7 +4,6 @@ import {
   addDays,
   startOfWeek,
   startOfMonth,
-  endOfMonth,
   isSameDay,
   weekDays,
   calendarGrid,
@@ -103,23 +102,6 @@ describe('dateUtils', () => {
     it('returns the correct first for February', () => {
       const result = startOfMonth(new Date('2026-02-14T00:00:00.000Z'))
       expect(toISO(result)).toBe('2026-02-01')
-    })
-  })
-
-  describe('endOfMonth', () => {
-    it('returns the last day of May', () => {
-      const result = endOfMonth(new Date('2026-05-11T00:00:00.000Z'))
-      expect(toISO(result)).toBe('2026-05-31')
-    })
-
-    it('returns the last day of February (non-leap year)', () => {
-      const result = endOfMonth(new Date('2026-02-11T00:00:00.000Z'))
-      expect(toISO(result)).toBe('2026-02-28')
-    })
-
-    it('returns the last day of April', () => {
-      const result = endOfMonth(new Date('2026-04-01T00:00:00.000Z'))
-      expect(toISO(result)).toBe('2026-04-30')
     })
   })
 

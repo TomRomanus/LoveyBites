@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
 
-export type LoginMode = 'signin' | 'signup'
+type LoginMode = 'signin' | 'signup'
 
 export interface UseLoginFormReturn {
   mode: LoginMode

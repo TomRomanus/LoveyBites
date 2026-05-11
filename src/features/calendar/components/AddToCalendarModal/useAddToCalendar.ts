@@ -15,7 +15,7 @@ type UseAddToCalendarProps = {
   recipe: Pick<Recipe, 'id' | 'title'>
 }
 
-export type UseAddToCalendarReturn = {
+type UseAddToCalendarReturn = {
   today: Date
   weekStart: Date
   weekDir: 'next' | 'prev'

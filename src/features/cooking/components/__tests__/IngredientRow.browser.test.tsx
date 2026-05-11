@@ -1,10 +1,12 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
-import IngredientRow, { type IngredientRowProps } from '../IngredientRow'
+import IngredientRow from '../IngredientRow'
 
-function setup(overrides: Partial<IngredientRowProps> = {}) {
-  const defaults: IngredientRowProps = {
+type Props = React.ComponentProps<typeof IngredientRow>
+
+function setup(overrides: Partial<Props> = {}) {
+  const defaults: Props = {
     text: '200g spaghetti',
     isChecked: false,
     itemKey: 'key-0',

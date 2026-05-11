@@ -7,7 +7,7 @@ const ingredientTextVariants = {
   exit: (d: 'up' | 'down' | null) => ({ y: d === 'up' ? -8 : d === 'down' ? 8 : 0, opacity: 0 }),
 }
 
-export type IngredientRowProps = {
+type IngredientRowProps = {
   text: string
   isChecked: boolean
   itemKey: string

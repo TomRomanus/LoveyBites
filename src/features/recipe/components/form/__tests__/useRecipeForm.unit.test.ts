@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
-import { emptyInput, buildInitial, useRecipeForm } from '../useRecipeForm'
+import { useRecipeForm } from '../useRecipeForm'
 import * as ingredientUtils from '@/features/recipe/utils/ingredientUtils'
 import type { RecipeInput } from '@/features/recipe/types/recipe'
 
@@ -44,83 +44,6 @@ vi.mock('react-hook-form', () => ({
 vi.mock('@hookform/resolvers/zod', () => ({
   zodResolver: vi.fn(() => async (data: unknown) => ({ values: data, errors: {} })),
 }))
-
-describe('emptyInput', () => {
-  it('returns portionsLabel as "pers"', () => {
-    expect(emptyInput().portionsLabel).toBe('pers')
-  })
-
-  it('returns createdBy as "us"', () => {
-    expect(emptyInput().createdBy).toBe('us')
-  })
-
-  it('returns portions as 4', () => {
-    expect(emptyInput().portions).toBe(4)
-  })
-
-  it('returns an empty title', () => {
-    expect(emptyInput().title).toBe('')
-  })
-
-  it('returns a single leaf ingredient node', () => {
-    const { ingredients } = emptyInput()
-    expect(ingredients).toHaveLength(1)
-    expect(ingredients[0].kind).toBe('leaf')
-  })
-
-  it('returns two step groups (Voorbereiding and Bereiding)', () => {
-    const { steps } = emptyInput()
-    expect(steps).toHaveLength(2)
-    expect(steps[0]).toMatchObject({ kind: 'group', title: 'Voorbereiding' })
-    expect(steps[1]).toMatchObject({ kind: 'group', title: 'Bereiding' })
-  })
-
-  it('returns empty sources, tags, notes and benodigdheden', () => {
-    const { sources, tags, notes, benodigdheden } = emptyInput()
-    expect(sources).toEqual([])
-    expect(tags).toEqual([])
-    expect(notes).toEqual([])
-    expect(benodigdheden).toEqual([])
-  })
-})
-
-describe('buildInitial', () => {
-  beforeEach(() => vi.clearAllMocks())
-
-  it('falls back to emptyInput defaults when called with undefined', () => {
-    const result = buildInitial(undefined)
-    expect(result.portionsLabel).toBe('pers')
-    expect(result.createdBy).toBe('us')
-    expect(result.portions).toBe(4)
-  })
-
-  it('merges provided title with defaults', () => {
-    const result = buildInitial({ title: 'Stamppot' })
-    expect(result.title).toBe('Stamppot')
-    expect(result.portionsLabel).toBe('pers')
-  })
-
-  it('calls ensureIngredientIds on ingredients', () => {
-    buildInitial({ title: 'Test' })
-    expect(ingredientUtils.ensureIngredientIds).toHaveBeenCalledWith(
-      expect.arrayContaining([expect.objectContaining({ kind: 'leaf' })]),
-    )
-  })
-
-  it('calls ensureIngredientIds on steps', () => {
-    buildInitial(undefined)
-    expect(ingredientUtils.ensureIngredientIds).toHaveBeenCalledTimes(2)
-  })
-
-  it('preserves provided ingredients over defaults', () => {
-    const customIngredients = [{ kind: 'leaf' as const, text: 'ui', id: 'abc' }]
-    const result = buildInitial({ title: 'Test', ingredients: customIngredients })
-    expect(result.ingredients[0].kind).toBe('leaf')
-    if (result.ingredients[0].kind === 'leaf') {
-      expect(result.ingredients[0].text).toBe('ui')
-    }
-  })
-})
 
 describe('useRecipeForm', () => {
   beforeEach(() => {
