@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import type { Recipe } from '@/features/recipe/types/recipe'
 import type { TreeNode } from '@/features/cooking/types/cooking'
@@ -23,63 +24,70 @@ const CookingIngredientsPanel = ({
   checked,
   onPortionsChange,
   onToggle,
-}: CookingIngredientsPanelProps) => (
-  <motion.div
-    initial={{ y: 24, opacity: 0 }}
-    animate={{ y: 0, opacity: 1 }}
-    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-    className="py-3 px-6"
-  >
-    <PortionControls
-      recipe={recipe}
-      selectedPortions={selectedPortions}
-      portionDir={portionDir}
-      onPortionsChange={onPortionsChange}
-    />
+}: CookingIngredientsPanelProps) => {
+  const rows = useMemo(
+    () =>
+      scaledIngredients.flatMap((node, ni) => {
+        if (node.kind === 'group') {
+          return [
+            node.title ? (
+              <div key={`h${ni}`} className={`mb-2${ni > 0 ? ' mt-4' : ''}`}>
+                <GroupLabel theme="dark">{node.title}</GroupLabel>
+              </div>
+            ) : null,
+            ...node.children
+              .filter((c) => c.kind === 'leaf')
+              .map((c, ci) => {
+                const k = `${ni}-${ci}`
+                return (
+                  <IngredientRow
+                    key={k}
+                    text={c.text}
+                    isChecked={checked.has(k)}
+                    portionKey={selectedPortions}
+                    portionDir={portionDir}
+                    theme="dark"
+                    onToggle={() => onToggle(k)}
+                  />
+                )
+              }),
+          ].filter(Boolean)
+        }
+        if (node.kind === 'leaf') {
+          const k = `root-${ni}`
+          return [
+            <IngredientRow
+              key={k}
+              text={node.text}
+              isChecked={checked.has(k)}
+              portionKey={selectedPortions}
+              portionDir={portionDir}
+              theme="dark"
+              onToggle={() => onToggle(k)}
+            />,
+          ]
+        }
+        return []
+      }),
+    [scaledIngredients, checked, selectedPortions, portionDir, onToggle],
+  )
 
-    {scaledIngredients.flatMap((node, ni) => {
-      if (node.kind === 'group') {
-        return [
-          node.title ? (
-            <div key={`h${ni}`} className={`mb-2${ni > 0 ? ' mt-4' : ''}`}>
-              <GroupLabel theme="dark">{node.title}</GroupLabel>
-            </div>
-          ) : null,
-          ...node.children
-            .filter((c) => c.kind === 'leaf')
-            .map((c, ci) => {
-              const k = `${ni}-${ci}`
-              return (
-                <IngredientRow
-                  key={k}
-                  text={c.text}
-                  isChecked={checked.has(k)}
-                  portionKey={selectedPortions}
-                  portionDir={portionDir}
-                  theme="dark"
-                  onToggle={() => onToggle(k)}
-                />
-              )
-            }),
-        ].filter(Boolean)
-      }
-      if (node.kind === 'leaf') {
-        const k = `root-${ni}`
-        return [
-          <IngredientRow
-            key={k}
-            text={node.text}
-            isChecked={checked.has(k)}
-            portionKey={selectedPortions}
-            portionDir={portionDir}
-            theme="dark"
-            onToggle={() => onToggle(k)}
-          />,
-        ]
-      }
-      return []
-    })}
-  </motion.div>
-)
+  return (
+    <motion.div
+      initial={{ y: 24, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+      className="py-3 px-6"
+    >
+      <PortionControls
+        recipe={recipe}
+        selectedPortions={selectedPortions}
+        portionDir={portionDir}
+        onPortionsChange={onPortionsChange}
+      />
+      {rows}
+    </motion.div>
+  )
+}
 
 export default CookingIngredientsPanel

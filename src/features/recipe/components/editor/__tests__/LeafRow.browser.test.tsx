@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import LeafRow from '../LeafRow'
-import type { EditorLabels } from '../LeafRow'
+import type { EditorLabels, LeafEdgeFlags } from '../LeafRow'
 import type { IngredientNode } from '@/features/recipe/types/recipe'
 
 vi.mock('@/shared/components/Sheet', () => ({
@@ -20,19 +20,27 @@ const labels: EditorLabels = {
   addGroup: 'sectie',
 }
 
+const defaultFlags: LeafEdgeFlags = {
+  isOnly: true,
+  isLast: true,
+  ordered: false,
+  reordering: false,
+  shouldFocus: false,
+}
+
 type Props = React.ComponentProps<typeof LeafRow>
 
-function setup(overrides: Partial<Props> = {}) {
-  const defaults: Props = {
+function setup(overrides: Partial<Omit<Props, 'flags'>> & { flags?: Partial<LeafEdgeFlags> } = {}) {
+  const { flags: flagOverrides, ...rest } = overrides
+  const props: Props = {
     node,
     path: [0],
-    isOnly: true,
-    isLast: true,
+    flags: { ...defaultFlags, ...flagOverrides },
     allNodes,
     labels,
     onChange: vi.fn(),
+    ...rest,
   }
-  const props = { ...defaults, ...overrides }
   return { ...render(<LeafRow {...props} />), onChange: props.onChange }
 }
 
@@ -50,12 +58,12 @@ describe('LeafRow', () => {
   })
 
   it('does not render X button when isOnly is true', () => {
-    setup({ isOnly: true })
+    setup({ flags: { isOnly: true } })
     expect(screen.queryByRole('button', { name: 'Verwijderen' })).not.toBeInTheDocument()
   })
 
   it('renders X button when isOnly is false', () => {
-    setup({ isOnly: false })
+    setup({ flags: { isOnly: false } })
     expect(screen.getByRole('button', { name: 'Verwijderen' })).toBeInTheDocument()
   })
 
@@ -70,18 +78,18 @@ describe('LeafRow', () => {
 
   it('calls onChange when X button is clicked', async () => {
     const onChange = vi.fn()
-    setup({ isOnly: false, onChange })
+    setup({ flags: { isOnly: false }, onChange })
     await userEvent.click(screen.getByRole('button', { name: 'Verwijderen' }))
     expect(onChange).toHaveBeenCalledTimes(1)
   })
 
   it('shows step number when ordered is true', () => {
-    setup({ ordered: true, itemIndex: 0 })
+    setup({ flags: { ordered: true }, itemIndex: 0 })
     expect(screen.getByText('1')).toBeInTheDocument()
   })
 
   it('does not show step number when ordered is false', () => {
-    setup({ ordered: false })
+    setup({ flags: { ordered: false } })
     expect(screen.queryByText('1')).not.toBeInTheDocument()
   })
 })
@@ -102,19 +110,26 @@ describe('LeafRow — ingredient refs panel', () => {
     { id: 'ing2', text: '3 eieren' },
   ]
 
-  function setupStep(overrides: Partial<Props> = {}) {
-    const defaults: Props = {
+  const stepFlags: LeafEdgeFlags = {
+    isOnly: true,
+    isLast: true,
+    ordered: true,
+    reordering: false,
+    shouldFocus: false,
+  }
+
+  function setupStep(overrides: Partial<Omit<Props, 'flags'>> & { flags?: Partial<LeafEdgeFlags> } = {}) {
+    const { flags: flagOverrides, ...rest } = overrides
+    const props: Props = {
       node: stepNode,
       path: [0],
-      isOnly: true,
-      isLast: true,
+      flags: { ...stepFlags, ...flagOverrides },
       allNodes: [stepNode],
       labels,
       onChange: vi.fn(),
-      ordered: true,
       ingredientOptions,
+      ...rest,
     }
-    const props = { ...defaults, ...overrides }
     return { ...render(<LeafRow {...props} />), onChange: props.onChange }
   }
 
@@ -170,6 +185,14 @@ describe('LeafRow — ingredient refs panel', () => {
 describe('LeafRow — cross-step remaining amounts', () => {
   const singleIngredient = [{ id: 'ing1', text: '200 g bloem' }]
 
+  const crossStepFlags: LeafEdgeFlags = {
+    isOnly: false,
+    isLast: true,
+    ordered: true,
+    reordering: false,
+    shouldFocus: false,
+  }
+
   function setupCrossStep(
     currentNode: IngredientNode & { kind: 'leaf' },
     otherNode: IngredientNode & { kind: 'leaf' },
@@ -177,12 +200,10 @@ describe('LeafRow — cross-step remaining amounts', () => {
     const props: Props = {
       node: currentNode,
       path: [1],
-      isOnly: false,
-      isLast: true,
+      flags: crossStepFlags,
       allNodes: [otherNode, currentNode],
       labels,
       onChange: vi.fn(),
-      ordered: true,
       ingredientOptions: singleIngredient,
     }
     return render(<LeafRow {...props} />)

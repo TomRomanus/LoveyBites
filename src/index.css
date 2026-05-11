@@ -687,3 +687,71 @@ textarea.lb-input {
 .lb-chip-slide-in {
   animation: lb-chip-slide-in 200ms ease both;
 }
+
+/* ─── View Transitions ─────────────────────────────────────────────────────── */
+
+@keyframes vt-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes vt-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes vt-slide-from-right {
+  from { transform: translateX(32px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes vt-slide-to-left {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(-32px); opacity: 0; }
+}
+@keyframes vt-slide-from-left {
+  from { transform: translateX(-32px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes vt-slide-to-right {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(32px); opacity: 0; }
+}
+
+/* Default cross-fade timing */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+/* Page enter/exit classes used by <ViewTransition> */
+::view-transition-new(.page-fade-in) {
+  animation: vt-fade-in 220ms cubic-bezier(0.2, 0, 0.2, 1) both;
+}
+::view-transition-old(.page-fade-out) {
+  animation: vt-fade-out 220ms cubic-bezier(0.2, 0, 0.2, 1) both;
+}
+::view-transition-new(.page-enter-forward) {
+  animation: vt-slide-from-right 220ms cubic-bezier(0.2, 0, 0.2, 1) both;
+}
+::view-transition-old(.page-exit-forward) {
+  animation: vt-slide-to-left 220ms cubic-bezier(0.2, 0, 0.2, 1) both;
+}
+::view-transition-new(.page-enter-back) {
+  animation: vt-slide-from-left 220ms cubic-bezier(0.2, 0, 0.2, 1) both;
+}
+::view-transition-old(.page-exit-back) {
+  animation: vt-slide-to-right 220ms cubic-bezier(0.2, 0, 0.2, 1) both;
+}
+
+/* Shared element morph */
+::view-transition-group(.recipe-card-morph) {
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
+}
+
+/* Reduced motion — always include this */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

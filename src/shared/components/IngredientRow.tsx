@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import IngredientCheckbox from '@/shared/components/IngredientCheckbox'
 
@@ -88,4 +89,4 @@ const IngredientRow = ({
   )
 }
 
-export default IngredientRow
+export default memo(IngredientRow)

@@ -9,7 +9,7 @@ import {
 import { GripHandle } from '@/features/recipe/components/editor/GripHandle'
 import SortableItem from '@/features/recipe/components/editor/SortableItem'
 import LeafRow from '@/features/recipe/components/editor/LeafRow'
-import type { EditorLabels, IngredientOption } from '@/features/recipe/components/editor/LeafRow'
+import type { EditorLabels, IngredientOption, LeafEdgeFlags } from '@/features/recipe/components/editor/LeafRow'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import type { IngredientNode } from '@/features/recipe/types/recipe'
 import BordeauxBar from '@/shared/components/BordeauxBar'
@@ -108,17 +108,19 @@ const GroupRow = ({
                     <LeafRow
                       node={child}
                       path={[...path, i]}
-                      isOnly={node.children.length === 1}
-                      isLast={i === node.children.length - 1}
+                      flags={{
+                        isOnly: node.children.length === 1,
+                        isLast: i === node.children.length - 1,
+                        ordered: ordered ?? false,
+                        reordering: reordering ?? false,
+                        shouldFocus: child.id === focusId,
+                      } satisfies LeafEdgeFlags}
                       allNodes={allNodes}
                       labels={labels}
                       onChange={onChange}
                       ingredientOptions={ingredientOptions}
-                      ordered={ordered}
                       itemIndex={idx}
                       leafIndexMap={leafIndexMap}
-                      reordering={reordering}
-                      shouldFocus={child.id === focusId}
                     />
                   </SortableItem>
                 </motion.div>

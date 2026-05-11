@@ -1,3 +1,10 @@
+export const NL_RECIPE_IMPORT_MODES = {
+  url: 'Vanuit URL',
+  text: 'Vanuit tekst',
+  photo: 'Vanuit foto',
+  manual: 'Zelf invullen',
+} as const
+
 // Monday-first labels for calendar grid column headers
 export const NL_DAYS_GRID = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'] as const
 

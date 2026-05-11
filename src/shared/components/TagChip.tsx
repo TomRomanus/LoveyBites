@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 
 type TagChipProps = {
@@ -21,4 +22,4 @@ const TagChip = ({ label, active, disabled = false, layout = false, onClick }: T
   </motion.button>
 )
 
-export default TagChip
+export default memo(TagChip)

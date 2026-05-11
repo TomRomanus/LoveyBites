@@ -6,6 +6,7 @@ import Sheet from '@/shared/components/Sheet'
 import { useAddToCalendar } from './useAddToCalendar'
 import { WeekHeader } from './WeekHeader'
 import { DayCell } from './DayCell'
+import type { DaySaveState } from './DayCell'
 
 type Props = {
   recipe: Pick<Recipe, 'id' | 'title'>
@@ -81,7 +82,11 @@ const AddToCalendarModal = ({ recipe, onClose }: Props) => {
               {days.map((day) => {
                 const iso = toISO(day)
                 const dayEntries = entriesForDay(day)
-                const hasThisRecipe = dayEntries.some((e) => e.recipeId === recipe.id)
+                const saveState: DaySaveState = {
+                  hasThisRecipe: dayEntries.some((e) => e.recipeId === recipe.id),
+                  isSaving: saving === iso,
+                  isRecentlySaved: recentlySaved.has(iso),
+                }
 
                 return (
                   <DayCell
@@ -90,9 +95,7 @@ const AddToCalendarModal = ({ recipe, onClose }: Props) => {
                     today={today}
                     dayEntries={dayEntries}
                     recipeMap={recipeMap}
-                    hasThisRecipe={hasThisRecipe}
-                    isSaving={saving === iso}
-                    isRecentlySaved={recentlySaved.has(iso)}
+                    saveState={saveState}
                     onClick={() => handleDayClick(day)}
                   />
                 )

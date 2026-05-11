@@ -4,7 +4,7 @@ import { getRecipes } from '@/features/recipe/api/recipes'
 import { recipeKeys } from '@/features/recipe/api/queryKeys'
 import { createMealPlanEntry } from '@/features/calendar/api/mealPlan'
 import { useAuth } from '@/features/auth/contexts/AuthContext'
-import { extractLeafTexts } from '@/features/recipe/utils/ingredientUtils'
+import { filterRecipesBySearch } from '@/features/recipe/utils/recipeFilterUtils'
 
 type UseAddMealProps = {
   date: string
@@ -30,13 +30,7 @@ const useAddMeal = ({ date, existingRecipeIds, onClose, onSaved }: UseAddMealPro
 
   const filtered = useMemo(() => {
     const available = recipes.filter((r) => !existingRecipeIds.includes(r.id))
-    if (!search.trim()) return available
-    const q = search.toLowerCase()
-    return available.filter((r) => {
-      if (r.title.toLowerCase().includes(q)) return true
-      if (r.description?.toLowerCase().includes(q)) return true
-      return extractLeafTexts(r.ingredients).some((t) => t.toLowerCase().includes(q))
-    })
+    return filterRecipesBySearch(available, search)
   }, [recipes, existingRecipeIds, search])
 
   const handleTabChange = (v: string) => {
