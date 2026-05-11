@@ -39,7 +39,7 @@ const IngredientRow = ({
         : 'text-paper'
       : isChecked
       ? 'text-stone opacity-50'
-      : 'text-ink'
+      : 'text-ink opacity-100'
 
   const strikethrough = (
     <motion.span
