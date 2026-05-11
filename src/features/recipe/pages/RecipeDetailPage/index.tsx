@@ -69,11 +69,11 @@ const RecipeDetailPage = () => {
     () => flattenIngredientSections(scaledIngredients),
     [scaledIngredients],
   )
-  const stepSections = useMemo(
-    () => flattenSteps(scaleStepAmounts(recipe?.steps ?? [], ratio)),
-    [recipe?.steps, ratio],
-  )
   const ingredientMap = useMemo(() => collectIngredientMap(scaledIngredients), [scaledIngredients])
+  const stepSections = useMemo(
+    () => flattenSteps(scaleStepAmounts(recipe?.steps ?? [], ratio, ingredientMap)),
+    [recipe?.steps, ratio, ingredientMap],
+  )
 
   const handleRating = async (rating: number) => {
     if (!id || !recipe) return

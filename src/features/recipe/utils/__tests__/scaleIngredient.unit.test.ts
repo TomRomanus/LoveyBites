@@ -168,4 +168,26 @@ describe('scaleStepAmounts', () => {
     if (leaf.kind !== 'leaf') throw new Error('Expected leaf')
     expect(leaf.ingredientAmounts?.['ing1']).toBe('100')
   })
+
+  it('formats weight-unit step amounts as decimals when ingredient map is provided', () => {
+    const nodes: IngredientNode[] = [
+      { kind: 'leaf', id: 's1', text: '', ingredientAmounts: { ing1: '5' } },
+    ]
+    const ingredientMap = new Map([['ing1', '5g bloem']])
+    const result = scaleStepAmounts(nodes, 0.5, ingredientMap)
+    const leaf = result[0]
+    if (leaf.kind !== 'leaf') throw new Error('Expected leaf')
+    expect(leaf.ingredientAmounts?.['ing1']).toBe('2,5')
+  })
+
+  it('formats volume-unit step amounts as fractions when ingredient map is provided', () => {
+    const nodes: IngredientNode[] = [
+      { kind: 'leaf', id: 's1', text: '', ingredientAmounts: { ing1: '1' } },
+    ]
+    const ingredientMap = new Map([['ing1', '1 el olie']])
+    const result = scaleStepAmounts(nodes, 0.5, ingredientMap)
+    const leaf = result[0]
+    if (leaf.kind !== 'leaf') throw new Error('Expected leaf')
+    expect(leaf.ingredientAmounts?.['ing1']).toBe('1/2')
+  })
 })

@@ -25,8 +25,8 @@ const CookingScreen = ({
   const ingredientMap = useMemo(() => collectIngredientMap(scaledIngredients), [scaledIngredients])
   const ratio = selectedPortions / (recipe.portions ?? 4)
   const steps = useMemo(
-    () => flattenCookSteps(scaleStepAmounts(recipe.steps, ratio)),
-    [recipe.steps, ratio],
+    () => flattenCookSteps(scaleStepAmounts(recipe.steps, ratio, ingredientMap)),
+    [recipe.steps, ratio, ingredientMap],
   )
   const total = steps.length
 

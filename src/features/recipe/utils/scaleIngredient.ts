@@ -1,5 +1,5 @@
 import type { IngredientNode } from '@/features/recipe/types/recipe'
-import { COOKING_FRACTIONS, VOLUME_UNIT, formatAmount } from '@/features/recipe/utils/ingredientUtils'
+import { COOKING_FRACTIONS, VOLUME_UNIT } from '@/features/recipe/utils/ingredientUtils'
 
 const parseFraction = (s: string): number => {
   const normalized = s.replace(',', '.')
@@ -48,7 +48,11 @@ export const scaleIngredients = (nodes: IngredientNode[], ratio: number): Ingred
   )
 
 /** Scale the ingredientAmounts values in a step tree by the given ratio. */
-export const scaleStepAmounts = (nodes: IngredientNode[], ratio: number): IngredientNode[] => {
+export const scaleStepAmounts = (
+  nodes: IngredientNode[],
+  ratio: number,
+  ingredientMap?: Map<string, string>,
+): IngredientNode[] => {
   if (ratio === 1) return nodes
   return nodes.map((node) => {
     if (node.kind === 'leaf') {
@@ -56,10 +60,17 @@ export const scaleStepAmounts = (nodes: IngredientNode[], ratio: number): Ingred
       const scaledAmounts: Record<string, string> = {}
       for (const [id, amt] of Object.entries(node.ingredientAmounts)) {
         const num = parseFraction(amt.trim())
-        scaledAmounts[id] = isNaN(num) ? amt : formatAmount(num * ratio)
+        if (isNaN(num)) {
+          scaledAmounts[id] = amt
+          continue
+        }
+        const ingredientText = ingredientMap?.get(id) ?? ''
+        const match = ingredientText.match(LEADING_NUMBER)
+        const unitRest = match ? ingredientText.slice(match[0].length).trimStart() : ''
+        scaledAmounts[id] = formatNumber(num * ratio, VOLUME_UNIT.test(unitRest))
       }
       return { ...node, ingredientAmounts: scaledAmounts }
     }
-    return { ...node, children: scaleStepAmounts(node.children, ratio) }
+    return { ...node, children: scaleStepAmounts(node.children, ratio, ingredientMap) }
   })
 }
