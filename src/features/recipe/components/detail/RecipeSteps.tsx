@@ -1,4 +1,5 @@
 import { formatStepIngredient } from '@/features/recipe/utils/ingredientUtils'
+import BordeauxBar from '@/shared/components/BordeauxBar'
 
 type RecipeStepsProps = {
   steps: { phase?: string; text: string; ingredientRefs?: string[]; ingredientAmounts?: Record<string, string> }[]
@@ -23,10 +24,7 @@ const RecipeSteps = ({ steps, ingredientMap, deel = 'II' }: RecipeStepsProps) =>
               >
                 {step.phase}
               </div>
-              <div
-                className="w-[22px] rounded-[1px] opacity-55 mb-2"
-                style={{ height: 1.5, background: 'var(--bordeaux)' }}
-              />
+              <BordeauxBar className="w-[22px] opacity-55 mb-2" />
             </>
           )}
           <div className="flex gap-[20px] py-2 border-b-[0.5px] border-ink/14">

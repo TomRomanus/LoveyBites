@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Calendar } from 'lucide-react'
 import type { Recipe } from '@/features/recipe/types/recipe'
 import { StarRating } from '@/features/recipe/components/StarRating'
+import BordeauxBar from '@/shared/components/BordeauxBar'
 
 type Props = {
   recipe: Recipe
@@ -21,10 +22,7 @@ const RecipeCard = ({ recipe, onAddToCalendar, highlightTags }: Props) => (
       <h3 className="m-0 font-serif italic text-[18px] font-medium leading-[1.15] tracking-[-0.015em] text-ink">
         {recipe.title}
       </h3>
-      <div
-        className="w-6 rounded-[1px] opacity-60 my-1"
-        style={{ height: 1.5, background: 'var(--bordeaux)' }}
-      />
+      <BordeauxBar className="w-6 opacity-60 my-1" />
       {recipe.description && (
         <p className="m-0 text-[12px] text-stone leading-[1.4] line-clamp-2">
           {recipe.description}

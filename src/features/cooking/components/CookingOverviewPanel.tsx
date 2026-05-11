@@ -2,6 +2,7 @@ import { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import type { FlatStep } from '@/features/cooking/types/cooking'
 import { formatStepIngredient } from '@/features/recipe/utils/ingredientUtils'
+import BordeauxBar from '@/shared/components/BordeauxBar'
 
 const SECTION_HEADER_COLOR = '#b8394e'
 
@@ -70,10 +71,10 @@ const CookingOverviewPanel = ({
           <div key={i} data-active={isActive}>
             {s.showSection && s.sectionTitle && (
               <div className={i > 0 ? 'mt-4' : ''}>
-                <div className="font-serif italic text-[14px] font-medium mb-[3px] text-[#b8394e]">
+                <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux">
                   {s.sectionTitle}
                 </div>
-                <div className="w-[22px] h-[1.5px] rounded-[1px] opacity-60 mb-2 bg-[#b8394e]" />
+                <BordeauxBar className="w-[22px] opacity-60 mb-2" />
               </div>
             )}
             <button

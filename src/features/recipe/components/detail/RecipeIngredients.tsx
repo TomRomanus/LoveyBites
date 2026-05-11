@@ -1,5 +1,6 @@
 import PortionStepper from '@/features/recipe/components/PortionStepper'
 import IngredientItem from './IngredientItem'
+import BordeauxBar from '@/shared/components/BordeauxBar'
 
 type RecipeIngredientsProps = {
   sections: { section: string | null; items: string[] }[]
@@ -45,10 +46,7 @@ const RecipeIngredients = ({
             <div className="font-serif italic text-[14px] text-bordeaux mb-[3px] font-medium">
               {sec.section}
             </div>
-            <div
-              className="w-[22px] rounded-[1px] opacity-55 mb-2"
-              style={{ height: 1.5, background: 'var(--bordeaux)' }}
-            />
+            <BordeauxBar className="w-[22px] opacity-55 mb-2" />
           </>
         )}
         <div className="flex flex-col gap-0.5">

@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronRight, Check } from 'lucide-react'
 import type { Recipe } from '@/features/recipe/types/recipe'
+import BordeauxBar from '@/shared/components/BordeauxBar'
 
 type MealRecipeRowProps = {
   recipe: Recipe
@@ -34,7 +35,7 @@ const MealRecipeRow = ({ recipe: r, selectedId, saving, onSelect, index }: MealR
           <div className="m-0 font-serif italic text-[18px] font-medium leading-[1.15] tracking-[-0.015em] text-ink">
             {r.title}
           </div>
-          <div className="w-6 h-[1.5px] bg-bordeaux rounded-[1px] opacity-60 my-1" />
+          <BordeauxBar className="w-6 opacity-60 my-1" />
           {r.tags.length > 0 && (
             <div className="font-mono text-[9px] uppercase tracking-[0.08em]">
               {r.tags.map((t, i) => (

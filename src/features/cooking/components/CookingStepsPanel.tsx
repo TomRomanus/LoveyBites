@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import type { FlatStep } from '@/features/cooking/types/cooking'
+import BordeauxBar from '@/shared/components/BordeauxBar'
 
 type CookingStepsPanelProps = {
   steps: FlatStep[]
@@ -79,10 +80,10 @@ const CookingStepsPanel = ({
           <div className="px-[22px]">
             {current.sectionTitle && (
               <>
-                <div className="font-serif italic text-[14px] font-medium mb-[3px] text-[#b8394e]">
+                <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux">
                   {current.sectionTitle}
                 </div>
-                <div className="w-[22px] h-[1.5px] rounded-[1px] opacity-60 mb-[10px] bg-[#b8394e]" />
+                <BordeauxBar className="w-[22px] opacity-60 mb-[10px]" />
               </>
             )}
             {currentIngredients.length > 0 && (

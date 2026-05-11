@@ -3,6 +3,7 @@ import type { Recipe } from '@/features/recipe/types/recipe'
 import type { TreeNode } from '@/features/cooking/types/cooking'
 import PortionControls from '@/features/cooking/components/PortionControls'
 import IngredientRow from '@/features/cooking/components/IngredientRow'
+import BordeauxBar from '@/shared/components/BordeauxBar'
 
 type CookingIngredientsPanelProps = {
   recipe: Recipe
@@ -41,10 +42,10 @@ const CookingIngredientsPanel = ({
         return [
           node.title ? (
             <div key={`h${ni}`} className={ni > 0 ? 'mt-4' : ''}>
-              <div className="font-serif italic text-[14px] font-medium mb-[3px] text-[#b8394e]">
+              <div className="font-serif italic text-[14px] font-medium mb-[3px] text-bordeaux">
                 {node.title}
               </div>
-              <div className="w-[22px] h-[1.5px] rounded-[1px] opacity-60 mb-2 bg-[#b8394e]" />
+              <BordeauxBar className="w-[22px] opacity-60 mb-2" />
             </div>
           ) : null,
           ...node.children

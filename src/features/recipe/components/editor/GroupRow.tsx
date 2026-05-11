@@ -12,6 +12,7 @@ import LeafRow from '@/features/recipe/components/editor/LeafRow'
 import type { EditorLabels, IngredientOption } from '@/features/recipe/components/editor/LeafRow'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import type { IngredientNode } from '@/features/recipe/types/recipe'
+import BordeauxBar from '@/shared/components/BordeauxBar'
 
 const xBtnCls =
   'bg-none border-0 text-stone-2 p-1.5 cursor-pointer shrink-0 flex items-center justify-center opacity-80'
@@ -89,10 +90,7 @@ const GroupRow = ({
           </button>
         </div>
 
-        <div
-          className="w-[22px] opacity-55 rounded-[1px] mb-1.5"
-          style={{ height: 1.5, background: 'var(--bordeaux)' }}
-        />
+        <BordeauxBar className="w-[22px] opacity-55 mb-1.5" />
 
         <SortableContext items={childIds} strategy={verticalListSortingStrategy}>
           <AnimatePresence mode="popLayout" initial={false}>
