@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { EASE_OUT } from '@/shared/constants/animations'
-import ShoppingIngredientRow from '@/features/calendar/components/shopping/ShoppingIngredientRow'
+import IngredientRow from '@/shared/components/IngredientRow'
 
 type ShoppingSectionProps = {
   label: string
@@ -55,9 +55,10 @@ const ShoppingSection = ({
                 },
               }}
             >
-              <ShoppingIngredientRow
+              <IngredientRow
                 text={x}
-                checked={checkedKeys.has(key)}
+                isChecked={checkedKeys.has(key)}
+                noBorder
                 onToggle={() => onToggle(key)}
               />
             </motion.div>

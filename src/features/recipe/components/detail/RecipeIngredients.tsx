@@ -1,5 +1,5 @@
 import PortionStepper from '@/features/recipe/components/PortionStepper'
-import IngredientItem from './IngredientItem'
+import IngredientRow from '@/shared/components/IngredientRow'
 import BordeauxBar from '@/shared/components/BordeauxBar'
 
 type RecipeIngredientsProps = {
@@ -53,14 +53,13 @@ const RecipeIngredients = ({
           {sec.items.map((item, ii) => {
             const key = `${si}-${ii}`
             return (
-              <IngredientItem
+              <IngredientRow
                 key={ii}
-                item={item}
-                itemKey={key}
-                portions={portions}
+                text={item}
+                isChecked={checked.has(key)}
+                portionKey={portions}
                 portionDir={portionDir}
-                checked={checked.has(key)}
-                onToggle={onToggle}
+                onToggle={() => onToggle(key)}
               />
             )
           })}

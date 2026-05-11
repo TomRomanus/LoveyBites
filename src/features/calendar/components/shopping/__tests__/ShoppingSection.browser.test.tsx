@@ -62,16 +62,16 @@ describe('ShoppingSection', () => {
 
   it('ingredient row is checked when key is in checkedKeys', () => {
     setup({ checkedKeys: new Set(['0-0']) })
-    // The checked state reduces opacity to 0.5 on the flex-1 span
+    // The checked state applies opacity-50 class on the flex-1 span
     const firstBtn = screen.getAllByRole('button')[0]
     const styledSpan = firstBtn.querySelector('span.flex-1')
-    expect(styledSpan).toHaveStyle({ opacity: '0.5' })
+    expect(styledSpan?.className).toContain('opacity-50')
   })
 
   it('ingredient row is unchecked when key is not in checkedKeys', () => {
     setup({ checkedKeys: new Set() })
     const firstBtn = screen.getAllByRole('button')[0]
     const styledSpan = firstBtn.querySelector('span.flex-1')
-    expect(styledSpan).toHaveStyle({ opacity: '1' })
+    expect(styledSpan?.className).not.toContain('opacity-50')
   })
 })

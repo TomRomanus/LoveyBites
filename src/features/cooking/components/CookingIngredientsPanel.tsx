@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import type { Recipe } from '@/features/recipe/types/recipe'
 import type { TreeNode } from '@/features/cooking/types/cooking'
 import PortionControls from '@/features/cooking/components/PortionControls'
-import IngredientRow from '@/features/cooking/components/IngredientRow'
+import IngredientRow from '@/shared/components/IngredientRow'
 import BordeauxBar from '@/shared/components/BordeauxBar'
 
 type CookingIngredientsPanelProps = {
@@ -55,12 +55,12 @@ const CookingIngredientsPanel = ({
               return (
                 <IngredientRow
                   key={k}
-                  itemKey={k}
                   text={c.text}
                   isChecked={checked.has(k)}
-                  selectedPortions={selectedPortions}
+                  portionKey={selectedPortions}
                   portionDir={portionDir}
-                  onToggle={onToggle}
+                  theme="dark"
+                  onToggle={() => onToggle(k)}
                 />
               )
             }),
@@ -71,12 +71,12 @@ const CookingIngredientsPanel = ({
         return [
           <IngredientRow
             key={k}
-            itemKey={k}
             text={node.text}
             isChecked={checked.has(k)}
-            selectedPortions={selectedPortions}
+            portionKey={selectedPortions}
             portionDir={portionDir}
-            onToggle={onToggle}
+            theme="dark"
+            onToggle={() => onToggle(k)}
           />,
         ]
       }
