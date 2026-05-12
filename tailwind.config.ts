@@ -31,6 +31,8 @@ export default {
         honey: {
           400: '#f5b731',
           500: '#e8a025',
+          700: '#9a6c2a',
+          800: '#7a5421',
         },
       },
       fontFamily: {

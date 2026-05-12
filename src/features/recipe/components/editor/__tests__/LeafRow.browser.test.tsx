@@ -107,17 +107,28 @@ describe('LeafRow — comment field (steps)', () => {
     return { ...render(<LeafRow {...props} />), onChange: props.onChange }
   }
 
-  it('renders a comment textarea for ordered (step) rows', () => {
+  it('shows comment trigger button for ordered (step) rows', () => {
     setupStep()
-    expect(screen.getAllByRole('textbox')).toHaveLength(2)
+    expect(screen.getByRole('button', { name: 'Opmerking toevoegen' })).toBeInTheDocument()
   })
 
-  it('does not render a comment textarea for non-ordered (ingredient) rows', () => {
+  it('does not show comment trigger button for non-ordered (ingredient) rows', () => {
     setup()
+    expect(screen.queryByRole('button', { name: 'Opmerking toevoegen' })).not.toBeInTheDocument()
+  })
+
+  it('does not render comment textarea until trigger is clicked', () => {
+    setupStep()
     expect(screen.getAllByRole('textbox')).toHaveLength(1)
   })
 
-  it('populates comment textarea with node.comment', () => {
+  it('shows comment textarea after clicking the trigger button', async () => {
+    setupStep()
+    await userEvent.click(screen.getByRole('button', { name: 'Opmerking toevoegen' }))
+    expect(screen.getAllByRole('textbox')).toHaveLength(2)
+  })
+
+  it('opens comment box on mount when node already has a comment', () => {
     const nodeWithComment: IngredientNode & { kind: 'leaf' } = {
       ...stepNode, comment: 'Let op de textuur',
     }
@@ -129,6 +140,7 @@ describe('LeafRow — comment field (steps)', () => {
   it('calls onChange with updated comment when typing in the comment textarea', async () => {
     const onChange = vi.fn()
     setupStep({ onChange })
+    await userEvent.click(screen.getByRole('button', { name: 'Opmerking toevoegen' }))
     const commentBox = screen.getAllByRole('textbox')[1]
     await userEvent.type(commentBox, 'n')
     const updatedNodes: IngredientNode[] = onChange.mock.calls.at(-1)[0]
@@ -137,14 +149,14 @@ describe('LeafRow — comment field (steps)', () => {
     expect(leaf.comment).toBe('n')
   })
 
-  it('removes comment from node when comment textarea is cleared', async () => {
+  it('clears comment from node and closes box when dismiss button is clicked', async () => {
     const nodeWithComment: IngredientNode & { kind: 'leaf' } = {
       ...stepNode, comment: 'oud',
     }
     const onChange = vi.fn()
     setupStep({ node: nodeWithComment, allNodes: [nodeWithComment], onChange })
-    const commentBox = screen.getAllByRole('textbox')[1]
-    await userEvent.clear(commentBox)
+    await userEvent.click(screen.getByRole('button', { name: 'Opmerking verwijderen' }))
+    expect(screen.getAllByRole('textbox')).toHaveLength(1)
     const updatedNodes: IngredientNode[] = onChange.mock.calls.at(-1)[0]
     const leaf = updatedNodes[0]
     if (leaf.kind !== 'leaf') throw new Error('Expected leaf')

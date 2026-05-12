@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { X } from 'lucide-react'
+import { X, MessageCircleHeart } from 'lucide-react'
 import { replaceAt, removeAt } from '@/features/recipe/components/editor/nodeTree'
 import { parseIngredientText, parseAmount, formatAmount, formatStepIngredient, collectUsedAmounts, normalizeStepAmount, VOLUME_UNIT } from '@/features/recipe/utils/ingredientUtils'
 import { GripHandle } from '@/features/recipe/components/editor/GripHandle'
 import IngredientPickerSheet from '@/features/recipe/components/editor/IngredientPickerSheet'
 import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
+import StepCommentBox from '@/features/recipe/components/editor/StepCommentBox'
 import type { IngredientNode } from '@/features/recipe/types/recipe'
 import { cn } from '@/lib/utils'
 
@@ -59,6 +60,7 @@ const LeafRow = ({
   shouldFocus,
 }: LeafRowProps) => {
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [commentOpen, setCommentOpen] = useState(!!node.comment)
   const selectedIds = new Set(node.ingredientRefs ?? [])
   const selectedIngredients = ingredientOptions?.filter((opt) => selectedIds.has(opt.id)) ?? []
   const amounts = node.ingredientAmounts ?? {}
@@ -179,7 +181,7 @@ const LeafRow = ({
 
   return (
     <div className={isLast ? '' : 'border-b-[0.5px] border-ink/14'}>
-      <div className={`flex items-start ${ordered ? 'gap-2 py-2' : 'gap-[3px]'}`}>
+      <div className={`flex items-start ${ordered ? `gap-2 pt-2 ${commentOpen ? 'pb-0' : 'pb-2'}` : 'gap-[3px]'}`}>
         {ordered ? (
           // Steps: grip slides in alongside the number — animate width so layout shifts smoothly
           <motion.div
@@ -212,9 +214,22 @@ const LeafRow = ({
         )}
 
         {ordered && (
-          <span className="font-serif italic text-[22px] text-bordeaux font-medium w-[22px] shrink-0 leading-[1.1] pt-[1px] text-right">
-            {(leafIndexMap?.get(node.id ?? '') ?? itemIndex ?? 0) + 1}
-          </span>
+          <div className="flex flex-col shrink-0 gap-[8px] mt-[-3px] w-[22px]">
+            <span className="font-serif italic text-[22px] text-bordeaux font-medium leading-[1.1] text-right block">
+              {(leafIndexMap?.get(node.id ?? '') ?? itemIndex ?? 0) + 1}
+            </span>
+            <button
+              type="button"
+              aria-label="Opmerking toevoegen"
+              onClick={() => setCommentOpen((o) => !o)}
+              className={cn(
+                'border-0 bg-transparent p-0 cursor-pointer flex items-center justify-end w-full',
+                commentOpen ? 'text-honey-700/75' : 'text-stone-2',
+              )}
+            >
+              <MessageCircleHeart size={16} strokeWidth={1.5} />
+            </button>
+          </div>
         )}
 
         {ordered ? (
@@ -232,17 +247,6 @@ const LeafRow = ({
                 'flex-none w-full box-border leading-[1.5] py-0 pr-1 pl-0',
               )}
               placeholder={labels.leafPlaceholder}
-            />
-            <AutoGrowTextarea
-              value={node.comment ?? ''}
-              onChange={(e) => {
-                const { comment: _c, ...base } = node
-                const updated = e.target.value ? { ...base, comment: e.target.value } : base
-                onChange(replaceAt(allNodes, path, updated))
-              }}
-              rows={1}
-              className={cn(leafInputCls, 'flex-none w-full box-border leading-[1.5] py-0 pr-1 pl-0 text-[13px] text-stone italic placeholder:not-italic')}
-              placeholder="Opmerking toevoegen..."
             />
           </div>
         ) : (
@@ -267,6 +271,17 @@ const LeafRow = ({
           </button>
         )}
       </div>
+
+      {ordered && (
+        <StepCommentBox
+          open={commentOpen}
+          node={node}
+          allNodes={allNodes}
+          path={path}
+          onChange={onChange}
+          onDismiss={() => setCommentOpen(false)}
+        />
+      )}
     </div>
   )
 }
