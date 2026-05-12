@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   toISO,
   addDays,
@@ -15,7 +16,8 @@ const useCalendarView = () => {
     return d
   }, [])
 
-  const [view, setView] = useState<ViewMode>('week')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const view: ViewMode = searchParams.get('view') === 'month' ? 'month' : 'week'
   const [anchor, setAnchor] = useState<Date>(() => startOfWeek(today))
   const [navDir, setNavDir] = useState(0)
 
@@ -52,7 +54,7 @@ const useCalendarView = () => {
 
   const switchView = (v: ViewMode) => {
     setNavDir(v === 'month' ? 2 : -2)
-    setView(v)
+    setSearchParams(v === 'week' ? {} : { view: v }, { replace: true })
     setAnchor(v === 'week' ? startOfWeek(today) : startOfMonth(today))
   }
 

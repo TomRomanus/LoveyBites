@@ -26,7 +26,7 @@ const TodayMenuCard = ({ recipe }: TodayMenuCardProps) => (
             {recipe.description}
           </p>
         )}
-        <div className="mt-2">
+        <div className={recipe.description ? 'mt-2' : undefined}>
           <StarRating value={recipe.rating ?? 0} />
         </div>
       </div>

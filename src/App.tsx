@@ -1,4 +1,5 @@
-import { useLayoutEffect, ViewTransition } from 'react'
+import { useLayoutEffect } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from '@/features/auth/contexts/AuthContext'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
@@ -9,6 +10,7 @@ import RecipesPage from '@/features/recipe/pages/RecipesPage'
 import RecipeDetailPage from '@/features/recipe/pages/RecipeDetailPage'
 import RecipeFormPage from '@/features/recipe/pages/RecipeFormPage'
 import CalendarPage from '@/features/calendar/pages/CalendarPage'
+import { EASE_STANDARD } from '@/shared/constants/animations'
 
 const NAV_ROUTES = ['/', '/calendar']
 
@@ -32,63 +34,58 @@ const AppShell = () => {
 
   return (
     <div className="max-w-[480px] mx-auto min-h-[100dvh] relative">
-      <ViewTransition
-        enter={{
-          'nav-forward': 'page-enter-forward',
-          'nav-back': 'page-enter-back',
-          default: 'page-fade-in',
-        }}
-        exit={{
-          'nav-forward': 'page-exit-forward',
-          'nav-back': 'page-exit-back',
-          default: 'page-fade-out',
-        }}
-        default="none"
-      >
-        <Routes location={location}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <RecipesPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/recipe/:id"
-            element={
-              <ProtectedRoute>
-                <RecipeDetailPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/new"
-            element={
-              <ProtectedRoute>
-                <RecipeFormPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/edit/:id"
-            element={
-              <ProtectedRoute>
-                <RecipeFormPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/calendar"
-            element={
-              <ProtectedRoute>
-                <CalendarPage />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </ViewTransition>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={location.pathname}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0, transition: { duration: location.pathname.startsWith('/recipe/') ? 0.10 : 0.16, ease: EASE_STANDARD } }}
+          exit={{ opacity: 0, y: -10, transition: { duration: 0.10, ease: EASE_STANDARD } }}
+        >
+          <Routes location={location}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <RecipesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/recipe/:id"
+              element={
+                <ProtectedRoute>
+                  <RecipeDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/new"
+              element={
+                <ProtectedRoute>
+                  <RecipeFormPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <RecipeFormPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/calendar"
+              element={
+                <ProtectedRoute>
+                  <CalendarPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </motion.div>
+      </AnimatePresence>
       {showNav && <BottomNav />}
     </div>
   )

@@ -1,4 +1,3 @@
-import { ViewTransition } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Calendar } from 'lucide-react'
@@ -20,11 +19,9 @@ const RecipeCard = ({ recipe, onAddToCalendar, highlightTags }: Props) => (
     className="py-[10px] border-b-[0.5px] border-ink/14 relative"
   >
     <Link to={`/recipe/${recipe.id}`} className="no-underline text-inherit block">
-      <ViewTransition name={`recipe-title-${recipe.id}`} share="recipe-card-morph">
-        <h3 className="m-0 font-serif italic text-[18px] font-medium leading-[1.15] tracking-[-0.015em] text-ink">
-          {recipe.title}
-        </h3>
-      </ViewTransition>
+      <h3 className="m-0 font-serif italic text-[18px] font-medium leading-[1.15] tracking-[-0.015em] text-ink">
+        {recipe.title}
+      </h3>
       <BordeauxBar className="w-6 opacity-60 my-1" />
       {recipe.description && (
         <p className="m-0 text-[12px] text-stone leading-[1.4] line-clamp-2">

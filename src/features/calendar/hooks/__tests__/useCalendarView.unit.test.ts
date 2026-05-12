@@ -1,5 +1,7 @@
 import { renderHook, act } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { MemoryRouter } from 'react-router-dom'
+import { createElement } from 'react'
 import useCalendarView from '@/features/calendar/hooks/useCalendarView'
 import {
   toISO,
@@ -11,6 +13,11 @@ import {
 
 // Pin to a Monday so startOfWeek(today) === today and dates are deterministic
 const MONDAY = new Date('2026-05-11T00:00:00.000Z')
+
+const wrapper = ({ children }: { children: React.ReactNode }) =>
+  createElement(MemoryRouter, { future: { v7_startTransition: true, v7_relativeSplatPath: true } }, children)
+
+const renderCalendarView = () => renderHook(() => useCalendarView(), { wrapper })
 
 describe('useCalendarView', () => {
   beforeEach(() => {
@@ -24,23 +31,23 @@ describe('useCalendarView', () => {
 
   describe('initial state', () => {
     it('starts with view="week"', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       expect(result.current.view).toBe('week')
     })
 
     it('starts with anchor = startOfWeek(today)', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       const expected = toISO(startOfWeek(MONDAY))
       expect(toISO(result.current.anchor)).toBe(expected)
     })
 
     it('starts with navDir = 0', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       expect(result.current.navDir).toBe(0)
     })
 
     it('exposes today as the current date with time zeroed', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       const t = result.current.today
       expect(t.getHours()).toBe(0)
       expect(t.getMinutes()).toBe(0)
@@ -51,13 +58,13 @@ describe('useCalendarView', () => {
 
   describe('visibleStartISO / visibleEndISO in week view', () => {
     it('visibleStartISO equals anchor ISO in week view', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       const expected = toISO(startOfWeek(MONDAY))
       expect(result.current.visibleStartISO).toBe(expected)
     })
 
     it('visibleEndISO equals anchor + 6 days in week view', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       const expected = toISO(addDays(startOfWeek(MONDAY), 6))
       expect(result.current.visibleEndISO).toBe(expected)
     })
@@ -65,7 +72,7 @@ describe('useCalendarView', () => {
 
   describe('visibleStartISO / visibleEndISO in month view', () => {
     it('visibleStartISO equals grid[0] in month view', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       const ms = startOfMonth(MONDAY)
       const grid = calendarGrid(ms)
@@ -73,7 +80,7 @@ describe('useCalendarView', () => {
     })
 
     it('visibleEndISO equals grid[last] in month view', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       const ms = startOfMonth(MONDAY)
       const grid = calendarGrid(ms)
@@ -83,30 +90,30 @@ describe('useCalendarView', () => {
 
   describe('isCurrentPeriod', () => {
     it('is true when showing current week', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       expect(result.current.isCurrentPeriod).toBe(true)
     })
 
     it('is false after movePeriod(1) in week view', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.movePeriod(1))
       expect(result.current.isCurrentPeriod).toBe(false)
     })
 
     it('is false after movePeriod(-1) in week view', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.movePeriod(-1))
       expect(result.current.isCurrentPeriod).toBe(false)
     })
 
     it('is true when showing current month', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       expect(result.current.isCurrentPeriod).toBe(true)
     })
 
     it('is false after movePeriod(1) in month view', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       act(() => result.current.movePeriod(1))
       expect(result.current.isCurrentPeriod).toBe(false)
@@ -115,7 +122,7 @@ describe('useCalendarView', () => {
 
   describe('movePeriod', () => {
     it('advances anchor by 7 days in week view', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       const initialAnchor = result.current.anchor
       act(() => result.current.movePeriod(1))
       const diff = result.current.anchor.getTime() - initialAnchor.getTime()
@@ -123,7 +130,7 @@ describe('useCalendarView', () => {
     })
 
     it('moves anchor back 7 days with movePeriod(-1) in week view', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       const initialAnchor = result.current.anchor
       act(() => result.current.movePeriod(-1))
       const diff = initialAnchor.getTime() - result.current.anchor.getTime()
@@ -131,7 +138,7 @@ describe('useCalendarView', () => {
     })
 
     it('advances anchor by 1 month in month view', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       const initialMonth = result.current.anchor.getMonth()
       act(() => result.current.movePeriod(1))
@@ -140,7 +147,7 @@ describe('useCalendarView', () => {
     })
 
     it('goes back 1 month with movePeriod(-1) in month view', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       const initialMonth = result.current.anchor.getMonth()
       act(() => result.current.movePeriod(-1))
@@ -150,13 +157,13 @@ describe('useCalendarView', () => {
     })
 
     it('sets navDir to 1 when moving forward', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.movePeriod(1))
       expect(result.current.navDir).toBe(1)
     })
 
     it('sets navDir to -1 when moving backward', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.movePeriod(-1))
       expect(result.current.navDir).toBe(-1)
     })
@@ -164,14 +171,14 @@ describe('useCalendarView', () => {
 
   describe('goToToday', () => {
     it('resets anchor to startOfWeek(today) in week view after navigating away', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.movePeriod(1))
       act(() => result.current.goToToday())
       expect(toISO(result.current.anchor)).toBe(toISO(startOfWeek(MONDAY)))
     })
 
     it('resets anchor to startOfMonth(today) in month view after navigating away', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       act(() => result.current.movePeriod(1))
       act(() => result.current.goToToday())
@@ -181,39 +188,39 @@ describe('useCalendarView', () => {
 
   describe('switchView', () => {
     it('sets view to "month"', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       expect(result.current.view).toBe('month')
     })
 
     it('sets navDir to 2 when switching to month', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       expect(result.current.navDir).toBe(2)
     })
 
     it('sets anchor to startOfMonth(today) when switching to month', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       expect(toISO(result.current.anchor)).toBe(toISO(startOfMonth(MONDAY)))
     })
 
     it('sets view to "week" when switching back', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       act(() => result.current.switchView('week'))
       expect(result.current.view).toBe('week')
     })
 
     it('sets navDir to -2 when switching to week', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       act(() => result.current.switchView('week'))
       expect(result.current.navDir).toBe(-2)
     })
 
     it('sets anchor to startOfWeek(today) when switching to week', () => {
-      const { result } = renderHook(() => useCalendarView())
+      const { result } = renderCalendarView()
       act(() => result.current.switchView('month'))
       act(() => result.current.switchView('week'))
       expect(toISO(result.current.anchor)).toBe(toISO(startOfWeek(MONDAY)))

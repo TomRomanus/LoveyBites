@@ -1,15 +1,13 @@
-import { ViewTransition } from 'react'
 import { ChevronLeft, MoreHorizontal } from 'lucide-react'
 import IconButton from '@/shared/components/IconButton'
 
 type RecipeHeroProps = {
-  recipeId: string
   title: string
   onBack: () => void
   onActionsOpen: () => void
 }
 
-const RecipeHero = ({ recipeId, title, onBack, onActionsOpen }: RecipeHeroProps) => (
+const RecipeHero = ({ title, onBack, onActionsOpen }: RecipeHeroProps) => (
   <div
     className="lb-color-block min-h-[185px] px-[22px] py-6 rounded-none justify-start"
     style={{ '--block-bg': 'var(--bordeaux)' } as React.CSSProperties}
@@ -32,11 +30,9 @@ const RecipeHero = ({ recipeId, title, onBack, onActionsOpen }: RecipeHeroProps)
     </div>
     <div className="mt-[46px]">
       <div className="lb-color-block-corner mb-2">RECEPT</div>
-      <ViewTransition name={`recipe-title-${recipeId}`} share="recipe-card-morph">
-        <div className="lb-color-block-title text-[34px] leading-[1.0] tracking-[-0.025em]">
-          {title}
-        </div>
-      </ViewTransition>
+      <div className="lb-color-block-title text-[34px] leading-[1.0] tracking-[-0.025em]">
+        {title}
+      </div>
     </div>
   </div>
 )
