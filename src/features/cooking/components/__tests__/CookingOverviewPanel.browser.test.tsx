@@ -98,4 +98,19 @@ describe('CookingOverviewPanel', () => {
       expect(onGoTo).toHaveBeenCalledWith(2)
     })
   })
+
+  describe('comment', () => {
+    it('renders the comment for a step that has one', () => {
+      const steps: FlatStep[] = [
+        { text: 'Kook de pasta', comment: 'Let op het kookpunt', globalIndex: 0 },
+      ]
+      setup({ steps })
+      expect(screen.getByText('Let op het kookpunt')).toBeInTheDocument()
+    })
+
+    it('does not render a comment when a step has none', () => {
+      setup()
+      expect(screen.queryByText(/Let op/)).not.toBeInTheDocument()
+    })
+  })
 })

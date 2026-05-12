@@ -1,9 +1,9 @@
 import { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { MessageCircleHeart } from 'lucide-react'
 import type { FlatStep } from '@/features/cooking/types/cooking'
 import { formatStepIngredient } from '@/features/recipe/utils/ingredientUtils'
 import GroupLabel from '@/shared/components/GroupLabel'
+import StepComment from '@/shared/components/StepComment'
 
 type CookingOverviewPanelProps = {
   steps: FlatStep[]
@@ -90,14 +90,7 @@ const CookingOverviewPanel = ({
                   </div>
                 )}
                 <div className="text-[15px] text-paper leading-[1.55]">{s.text}</div>
-                {s.comment && (
-                  <div className="mt-2 flex gap-[7px] items-start">
-                    <MessageCircleHeart size={16} className="shrink-0 mt-[8px] text-honey-700/75" strokeWidth={1.5} />
-                    <div className="flex-1 rounded-md px-[10px] py-[6px] bg-honey-700/15 text-[13px] leading-[1.5] text-paper/75">
-                      {s.comment}
-                    </div>
-                  </div>
-                )}
+                {s.comment && <StepComment comment={s.comment} theme="dark" className="mt-2" />}
               </div>
             </button>
           </div>

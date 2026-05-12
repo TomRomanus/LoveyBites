@@ -103,4 +103,18 @@ describe('flattenCookSteps', () => {
     const nodes: TreeNode[] = [{ kind: 'group', title: 'Lege sectie', children: [] }]
     expect(flattenCookSteps(nodes)).toEqual([])
   })
+
+  it('preserves comment on leaf nodes', () => {
+    const nodes: TreeNode[] = [
+      { kind: 'leaf', text: 'Kook de pasta', comment: 'Let op het kookpunt' },
+    ]
+    const result = flattenCookSteps(nodes)
+    expect(result[0].comment).toBe('Let op het kookpunt')
+  })
+
+  it('leaves without comment have undefined comment', () => {
+    const nodes: TreeNode[] = [{ kind: 'leaf', text: 'Kook de pasta' }]
+    const result = flattenCookSteps(nodes)
+    expect(result[0].comment).toBeUndefined()
+  })
 })

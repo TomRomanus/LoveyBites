@@ -107,4 +107,19 @@ describe('CookingStepsPanel', () => {
       expect(onGoTo).toHaveBeenCalledWith(1)
     })
   })
+
+  describe('comment', () => {
+    it('renders the comment when the current step has one', () => {
+      const steps: FlatStep[] = [
+        { text: 'Kook de pasta', comment: 'Let op het kookpunt', globalIndex: 0 },
+      ]
+      setup({ steps, currentIndex: 0 })
+      expect(screen.getByText('Let op het kookpunt')).toBeInTheDocument()
+    })
+
+    it('does not render a comment when the current step has none', () => {
+      setup({ currentIndex: 0 })
+      expect(screen.queryByText(/Let op/)).not.toBeInTheDocument()
+    })
+  })
 })
