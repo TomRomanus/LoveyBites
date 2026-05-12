@@ -11,9 +11,11 @@ function setup(overrides: Partial<Props> = {}) {
     total: 3,
     stepDir: null,
     onGoTo: vi.fn(),
+    hasComment: false,
+    onCommentOpen: vi.fn(),
   }
   const props = { ...defaults, ...overrides }
-  return { ...render(<CookingStepBottomControls {...props} />), onGoTo: props.onGoTo }
+  return { ...render(<CookingStepBottomControls {...props} />), onGoTo: props.onGoTo, onCommentOpen: props.onCommentOpen }
 }
 
 describe('CookingStepBottomControls', () => {
@@ -108,6 +110,30 @@ describe('CookingStepBottomControls', () => {
       const buttons = container.querySelectorAll('button')
       await userEvent.click(buttons[1])
       expect(onGoTo).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('comment button', () => {
+    it('renders the comment button', () => {
+      setup()
+      expect(screen.getByRole('button', { name: /opmerking/i })).toBeInTheDocument()
+    })
+
+    it('calls onCommentOpen when the comment button is clicked', async () => {
+      const onCommentOpen = vi.fn()
+      setup({ onCommentOpen })
+      await userEvent.click(screen.getByRole('button', { name: /opmerking/i }))
+      expect(onCommentOpen).toHaveBeenCalledOnce()
+    })
+
+    it('sets data-has-comment to true when hasComment is true', () => {
+      setup({ hasComment: true })
+      expect(screen.getByRole('button', { name: /opmerking/i })).toHaveAttribute('data-has-comment', 'true')
+    })
+
+    it('sets data-has-comment to false when hasComment is false', () => {
+      setup({ hasComment: false })
+      expect(screen.getByRole('button', { name: /opmerking/i })).toHaveAttribute('data-has-comment', 'false')
     })
   })
 })

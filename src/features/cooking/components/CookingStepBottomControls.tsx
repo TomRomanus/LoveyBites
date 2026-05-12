@@ -1,11 +1,13 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { ChevronLeft, ArrowRight } from 'lucide-react'
+import { ChevronLeft, ArrowRight, MessageCircleHeart } from 'lucide-react'
 
 type CookingStepBottomControlsProps = {
   currentIndex: number
   total: number
   stepDir: 'next' | 'prev' | null
   onGoTo: (index: number) => void
+  hasComment: boolean
+  onCommentOpen: () => void
 }
 
 const CookingStepBottomControls = ({
@@ -13,6 +15,8 @@ const CookingStepBottomControls = ({
   total,
   stepDir,
   onGoTo,
+  hasComment,
+  onCommentOpen,
 }: CookingStepBottomControlsProps) => (
   <motion.div
     key="bottom-controls"
@@ -142,6 +146,19 @@ const CookingStepBottomControls = ({
             </motion.span>
           )}
         </AnimatePresence>
+      </button>
+      <button
+        onClick={onCommentOpen}
+        aria-label="Opmerking"
+        data-has-comment={hasComment}
+        className="w-[52px] h-[52px] rounded-[26px] bg-transparent flex items-center justify-center cursor-pointer"
+        style={{
+          border: `0.5px solid ${hasComment ? 'rgba(154,108,42,0.65)' : 'rgba(154,108,42,0.30)'}`,
+          color: hasComment ? 'rgba(154,108,42,0.90)' : 'rgba(154,108,42,0.40)',
+          background: hasComment ? 'rgba(154,108,42,0.18)' : 'rgba(154,108,42,0.07)',
+        }}
+      >
+        <MessageCircleHeart size={20} strokeWidth={1.5} />
       </button>
     </div>
   </motion.div>
