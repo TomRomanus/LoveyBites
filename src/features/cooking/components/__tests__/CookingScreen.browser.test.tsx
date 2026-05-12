@@ -37,6 +37,7 @@ function setup(overrides: Partial<Props> = {}) {
     checked: new Set<string>(),
     onToggle: vi.fn(),
     onClose: vi.fn(),
+    onUpdateStepComment: vi.fn(),
   }
   const props = { ...defaults, ...overrides }
   return { ...render(<CookingScreen {...props} />), onClose: props.onClose }

@@ -21,4 +21,5 @@ export type CookingScreenProps = {
   checked: Set<string>
   onToggle: (path: string) => void
   onClose: () => void
+  onUpdateStepComment: (globalIndex: number, comment: string | undefined) => void
 }

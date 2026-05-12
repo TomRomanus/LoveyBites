@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { Play } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { deleteRecipe, updateRecipe } from '@/features/recipe/api/recipes'
+import { updateStepComment } from '@/features/cooking/utils/cookSteps'
 import { recipeKeys } from '@/features/recipe/api/queryKeys'
 import useRecipeLoad from '@/features/recipe/hooks/useRecipeLoad'
 import { scaleIngredients, scaleStepAmounts } from '@/features/recipe/utils/scaleIngredient'
@@ -86,6 +87,13 @@ const RecipeDetailPage = () => {
     await updateRecipe(id, { rating })
     queryClient.setQueryData(recipeKeys.detail(id), { ...recipe, rating })
     setRatingTick((t) => t + 1)
+  }
+
+  const handleUpdateStepComment = async (globalIndex: number, comment: string | undefined) => {
+    if (!id || !recipe) return
+    const newSteps = updateStepComment(recipe.steps, globalIndex, comment)
+    await updateRecipe(id, { steps: newSteps })
+    queryClient.setQueryData(recipeKeys.detail(id), { ...recipe, steps: newSteps })
   }
 
   const handleDelete = async () => {
@@ -218,6 +226,7 @@ const RecipeDetailPage = () => {
               checked={checked}
               onToggle={toggleCheck}
               onClose={() => setCookMode(false)}
+              onUpdateStepComment={handleUpdateStepComment}
             />
           )}
         </AnimatePresence>,

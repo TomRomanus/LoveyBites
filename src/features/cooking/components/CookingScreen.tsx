@@ -12,6 +12,7 @@ import CookingStepsPanel from '@/features/cooking/components/CookingStepsPanel'
 import CookingStepBottomControls from '@/features/cooking/components/CookingStepBottomControls'
 import CookingIngredientsPanel from '@/features/cooking/components/CookingIngredientsPanel'
 import CookingOverviewPanel from '@/features/cooking/components/CookingOverviewPanel'
+import CookingCommentSheet from '@/features/cooking/components/CookingCommentSheet'
 
 const CookingScreen = ({
   recipe,
@@ -21,6 +22,7 @@ const CookingScreen = ({
   checked,
   onToggle,
   onClose,
+  onUpdateStepComment,
 }: CookingScreenProps) => {
   const ingredientMap = useMemo(() => collectIngredientMap(scaledIngredients), [scaledIngredients])
   const ratio = selectedPortions / (recipe.portions ?? 4)
@@ -34,6 +36,7 @@ const CookingScreen = ({
   const [stepDir, setStepDir] = useState<'next' | 'prev' | null>(null)
   const [tab, setTab] = useState<CookTab>('step')
   const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
+  const [commentSheetOpen, setCommentSheetOpen] = useState(false)
 
   const handlePortionsChange = (p: number) => {
     setPortionDir(p > selectedPortions ? 'up' : 'down')
@@ -64,6 +67,16 @@ const CookingScreen = ({
       return formatStepIngredient(text, current.ingredientAmounts?.[id] ?? '')
     })
     .filter((t): t is string => t !== undefined)
+
+  const handleCommentSave = (text: string) => {
+    onUpdateStepComment(current.globalIndex, text || undefined)
+    setCommentSheetOpen(false)
+  }
+
+  const handleCommentDelete = () => {
+    onUpdateStepComment(current.globalIndex, undefined)
+    setCommentSheetOpen(false)
+  }
 
   return (
     <motion.div
@@ -132,9 +145,20 @@ const CookingScreen = ({
             total={total}
             stepDir={stepDir}
             onGoTo={goTo}
+            hasComment={!!current.comment}
+            onCommentOpen={() => setCommentSheetOpen(true)}
           />
         )}
       </AnimatePresence>
+
+      <CookingCommentSheet
+        open={commentSheetOpen}
+        stepNumber={currentIndex + 1}
+        comment={current.comment}
+        onSave={handleCommentSave}
+        onDelete={handleCommentDelete}
+        onClose={() => setCommentSheetOpen(false)}
+      />
     </motion.div>
   )
 }
