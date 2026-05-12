@@ -99,19 +99,26 @@ describe('LeafRow — comment field (steps)', () => {
     kind: 'leaf', id: 'step-c', text: 'Bak de ui glazig',
   }
 
-  function setupStep(overrides: Partial<Props> = {}) {
-    const defaults: Props = {
+  const stepFlags: LeafEdgeFlags = {
+    isOnly: true,
+    isLast: true,
+    ordered: true,
+    reordering: false,
+    shouldFocus: false,
+  }
+
+  function setupStep(overrides: Partial<Omit<Props, 'flags'>> & { flags?: Partial<LeafEdgeFlags> } = {}) {
+    const { flags: flagOverrides, ...rest } = overrides
+    const props: Props = {
       node: stepNode,
       path: [0],
-      isOnly: true,
-      isLast: true,
+      flags: { ...stepFlags, ...flagOverrides },
       allNodes: [stepNode],
       labels,
       onChange: vi.fn(),
-      ordered: true,
       itemIndex: 0,
+      ...rest,
     }
-    const props = { ...defaults, ...overrides }
     return { ...render(<LeafRow {...props} />), onChange: props.onChange }
   }
 
