@@ -220,6 +220,66 @@ test.describe('Recipe detail — calendar modal day selection', () => {
   })
 })
 
+// ── Cook mode — step comment ──────────────────────────────────────────────────
+
+const COMMENT_RECIPE = {
+  id: 'test-comment-001',
+  title: 'Commentaar test',
+  description: '',
+  tags: [],
+  ingredients: [],
+  steps: [
+    { kind: 'leaf', text: 'Kook de pasta zacht', id: 'step-c1' },
+    { kind: 'leaf', text: 'Maak de saus warm', id: 'step-c2' },
+  ],
+  portions: 2,
+  portionsLabel: 'pers',
+  rating: 0,
+  benodigdheden: [],
+  notes: [],
+  sources: [],
+  imageUrl: '',
+  createdBy: 'test-user-001',
+}
+
+test.describe('Recipe detail — cook mode step comment', () => {
+  test.beforeAll(async () => {
+    await seedRecipe(COMMENT_RECIPE)
+  })
+
+  test.afterAll(async () => {
+    await deleteRecipe(COMMENT_RECIPE.id)
+  })
+
+  test('saving a step comment in cook mode persists it to the recipe detail', async ({ page }) => {
+    await page.goto(`/recipe/${COMMENT_RECIPE.id}`)
+    await waitForData(page, 20_000)
+
+    // Enter cook mode
+    await page.click('text=Start kookmodus')
+    await expect(page.getByText('Kook de pasta zacht').first()).toBeVisible()
+
+    // Open the comment sheet for the first step
+    await page.getByRole('button', { name: 'Opmerking' }).click()
+    await expect(page.getByRole('textbox')).toBeVisible()
+
+    // Type and save via backdrop
+    await page.getByRole('textbox').fill('Lekker zacht koken!')
+    await page.locator('[data-testid="comment-backdrop"]').click()
+
+    // Close cook mode
+    await locateCloseButton(page).click()
+
+    // Comment should now appear in the recipe detail step section
+    await expect(page.getByText('Lekker zacht koken!')).toBeVisible()
+
+    // Reload to verify Firestore persistence
+    await page.reload()
+    await waitForData(page, 20_000)
+    await expect(page.getByText('Lekker zacht koken!')).toBeVisible()
+  })
+})
+
 // ── Step ingredient refs ───────────────────────────────────────────────────────
 // A recipe where each step has ingredientRefs + ingredientAmounts.
 // portions: 2 so the default display (selectedPortions = 2) uses ratio 1 — no scaling.

@@ -5,6 +5,7 @@ import type { IngredientNode } from '@/features/recipe/types/recipe'
 
 type Props = {
   open: boolean
+  autoFocus?: boolean
   node: IngredientNode & { kind: 'leaf' }
   allNodes: IngredientNode[]
   path: number[]
@@ -12,7 +13,7 @@ type Props = {
   onDismiss: () => void
 }
 
-const StepCommentBox = ({ open, node, allNodes, path, onChange, onDismiss }: Props) => (
+const StepCommentBox = ({ open, autoFocus = false, node, allNodes, path, onChange, onDismiss }: Props) => (
   <AnimatePresence initial={false}>
     {open && (
       <motion.div
@@ -32,7 +33,11 @@ const StepCommentBox = ({ open, node, allNodes, path, onChange, onDismiss }: Pro
                 onChange(replaceAt(allNodes, path, updated))
               }}
               rows={1}
-              autoFocus
+              autoFocus={autoFocus}
+              onFocus={(e) => {
+                const len = e.target.value.length
+                e.target.setSelectionRange(len, len)
+              }}
               className="flex-1 bg-transparent border-0 outline-none resize-none font-sans text-[13px] text-ink-2 leading-[1.5] placeholder:text-honey-700/40"
               placeholder="Opmerking..."
             />

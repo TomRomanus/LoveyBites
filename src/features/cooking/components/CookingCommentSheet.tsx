@@ -48,10 +48,10 @@ const CookingCommentSheet = ({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-            className="absolute bottom-0 left-0 right-0 z-20 bg-ink rounded-t-[20px] border-t-[0.5px] border-paper/10 px-[18px] pb-6"
+            className="absolute bottom-0 left-0 right-0 z-20 bg-ink rounded-t-[20px] border-t-[0.5px] border-paper/10 px-[18px] pb-10"
           >
             <div className="w-9 h-1 rounded-full bg-paper/[0.18] mx-auto mt-[10px] mb-3" />
-            <div className="font-mono text-[9px] tracking-[0.14em] uppercase text-paper/50 mb-[10px]">
+            <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-paper/50 mb-[10px]">
               Stap {stepNumber}
             </div>
             <div className="flex items-start bg-honey-700/15 rounded-md px-[14px] py-[6px]">
@@ -60,6 +60,10 @@ const CookingCommentSheet = ({
                 onChange={(e) => setValue(e.target.value)}
                 rows={1}
                 autoFocus
+                onFocus={(e) => {
+                  const len = e.target.value.length
+                  e.target.setSelectionRange(len, len)
+                }}
                 className="flex-1 bg-transparent border-0 outline-none resize-none font-sans text-[13px] text-paper/75 leading-[1.5] placeholder:text-honey-700/40"
                 placeholder="Opmerking..."
               />

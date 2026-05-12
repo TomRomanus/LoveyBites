@@ -59,6 +59,7 @@ const LeafRow = ({
   const { isOnly, isLast, ordered, reordering, shouldFocus } = flags
   const [pickerOpen, setPickerOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(!!node.comment)
+  const [commentAutoFocus, setCommentAutoFocus] = useState(false)
   const selectedIds = new Set(node.ingredientRefs ?? [])
   const selectedIngredients = ingredientOptions?.filter((opt) => selectedIds.has(opt.id)) ?? []
   const amounts = node.ingredientAmounts ?? {}
@@ -158,7 +159,11 @@ const LeafRow = ({
             <button
               type="button"
               aria-label="Opmerking toevoegen"
-              onClick={() => setCommentOpen((o) => !o)}
+              onClick={() => {
+                const opening = !commentOpen
+                setCommentAutoFocus(opening)
+                setCommentOpen(opening)
+              }}
               className={cn(
                 'border-0 bg-transparent p-0 cursor-pointer flex items-center justify-end w-full',
                 commentOpen ? 'text-honey-700/75' : 'text-stone-2/50',
@@ -217,6 +222,7 @@ const LeafRow = ({
       {ordered && (
         <StepCommentBox
           open={commentOpen}
+          autoFocus={commentAutoFocus}
           node={node}
           allNodes={allNodes}
           path={path}

@@ -1,7 +1,44 @@
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { FlatStep } from '@/features/cooking/types/cooking'
 import GroupLabel from '@/shared/components/GroupLabel'
 import StepComment from '@/shared/components/StepComment'
+
+// Animates comment slot height using CSS grid-template-rows (real layout change,
+// not a transform) so justify-center repositions the block smoothly each frame.
+function CommentSlot({ comment }: { comment: string | undefined }) {
+  const [displayed, setDisplayed] = useState(comment)
+
+  useEffect(() => {
+    if (comment !== undefined) setDisplayed(comment)
+  }, [comment])
+
+  const visible = comment !== undefined
+
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateRows: visible ? '1fr' : '0fr',
+        marginTop: visible ? 12 : 0,
+        transition: [
+          'grid-template-rows 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
+          'margin-top 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
+        ].join(', '),
+      }}
+    >
+      <div
+        style={{
+          overflow: 'hidden',
+          opacity: visible ? 1 : 0,
+          transition: 'opacity 0.18s ease',
+        }}
+      >
+        {displayed && <StepComment comment={displayed} theme="dark" />}
+      </div>
+    </div>
+  )
+}
 
 type CookingStepsPanelProps = {
   steps: FlatStep[]
@@ -92,7 +129,7 @@ const CookingStepsPanel = ({
             <div className="font-serif font-medium text-[28px] tracking-[-0.02em] leading-[1.25] text-paper">
               {current.text}
             </div>
-            {current.comment && <StepComment comment={current.comment} theme="dark" className="mt-3" />}
+            <CommentSlot comment={current.comment} />
           </div>
 
           {/* Next step */}

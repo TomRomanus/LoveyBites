@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import CookingScreen from '../CookingScreen'
@@ -140,6 +140,43 @@ describe('CookingScreen', () => {
       await userEvent.click(screen.getByText('Maak de saus').closest('button')!)
       // Back on step tab: bottom controls are visible again
       expect(screen.getByText('Volgende stap')).toBeInTheDocument()
+    })
+  })
+
+  describe('comment sheet', () => {
+    it('opens the comment sheet when the comment button is clicked', async () => {
+      setup()
+      await userEvent.click(screen.getByRole('button', { name: 'Opmerking' }))
+      expect(screen.getByTestId('comment-backdrop')).toBeInTheDocument()
+    })
+
+    it('calls onUpdateStepComment with the typed text when the sheet backdrop is clicked', async () => {
+      const onUpdateStepComment = vi.fn()
+      setup({ onUpdateStepComment })
+      await userEvent.click(screen.getByRole('button', { name: 'Opmerking' }))
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Mijn notitie' } })
+      await userEvent.click(screen.getByTestId('comment-backdrop'))
+      expect(onUpdateStepComment).toHaveBeenCalledWith(0, 'Mijn notitie')
+    })
+
+    it('calls onUpdateStepComment with undefined when the ✕ is clicked', async () => {
+      const recipeWithComment: Recipe = {
+        ...BASE_RECIPE,
+        steps: [{ kind: 'leaf', text: 'Kook de pasta', comment: 'Oude notitie' }],
+      }
+      const onUpdateStepComment = vi.fn()
+      setup({ recipe: recipeWithComment, onUpdateStepComment })
+      await userEvent.click(screen.getByRole('button', { name: 'Opmerking' }))
+      await userEvent.click(screen.getByRole('button', { name: /verwijderen/i }))
+      expect(onUpdateStepComment).toHaveBeenCalledWith(0, undefined)
+    })
+
+    it('calls onUpdateStepComment with undefined when the backdrop is clicked on an empty sheet', async () => {
+      const onUpdateStepComment = vi.fn()
+      setup({ onUpdateStepComment })
+      await userEvent.click(screen.getByRole('button', { name: 'Opmerking' }))
+      await userEvent.click(screen.getByTestId('comment-backdrop'))
+      expect(onUpdateStepComment).toHaveBeenCalledWith(0, undefined)
     })
   })
 
