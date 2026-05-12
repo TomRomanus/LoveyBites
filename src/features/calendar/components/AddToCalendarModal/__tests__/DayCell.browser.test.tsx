@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { DayCell } from '../DayCell'
+import type { DaySaveState } from '../DayCell'
 import type { MealPlanEntry } from '@/features/calendar/types/calendar'
 
 const TODAY = new Date('2026-05-11T00:00:00.000Z')
@@ -10,15 +11,15 @@ function makeEntry(overrides: Partial<MealPlanEntry> = {}): MealPlanEntry {
   return { id: 'e1', date: '2026-05-11', createdAt: null, createdBy: 'u1', ...overrides }
 }
 
+const defaultSaveState: DaySaveState = { hasThisRecipe: false, isSaving: false, isRecentlySaved: false }
+
 function setup(props: Partial<React.ComponentProps<typeof DayCell>> = {}) {
   const defaults = {
     day: TODAY,
     today: TODAY,
     dayEntries: [],
     recipeMap: new Map<string, { title: string }>(),
-    hasThisRecipe: false,
-    isSaving: false,
-    isRecentlySaved: false,
+    saveState: defaultSaveState,
     onClick: vi.fn(),
   }
   const merged = { ...defaults, ...props }
@@ -44,24 +45,24 @@ describe('DayCell', () => {
     })
 
     it('is disabled while saving', () => {
-      setup({ isSaving: true })
+      setup({ saveState: { ...defaultSaveState, isSaving: true } })
       expect(screen.getByRole('button')).toBeDisabled()
     })
 
     it('is not disabled when not saving', () => {
-      setup({ isSaving: false })
+      setup({ saveState: { ...defaultSaveState, isSaving: false } })
       expect(screen.getByRole('button')).not.toBeDisabled()
     })
   })
 
   describe('saved checkmark', () => {
     it('shows the day-saved-check indicator when isRecentlySaved is true', () => {
-      setup({ isRecentlySaved: true })
+      setup({ saveState: { ...defaultSaveState, isRecentlySaved: true } })
       expect(screen.getByTestId('day-saved-check')).toBeInTheDocument()
     })
 
     it('does not show the day-saved-check indicator when isRecentlySaved is false', () => {
-      setup({ isRecentlySaved: false })
+      setup({ saveState: { ...defaultSaveState, isRecentlySaved: false } })
       expect(screen.queryByTestId('day-saved-check')).not.toBeInTheDocument()
     })
   })

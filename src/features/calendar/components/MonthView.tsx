@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EASE_OUT, EASE_SUBTLE } from '@/shared/constants/animations'
 import type { MealPlanEntry } from '@/features/calendar/types/calendar'
@@ -24,7 +25,15 @@ const MonthView = ({
 }: MonthViewProps) => {
   const monthStart = startOfMonth(anchor)
   const days = calendarGrid(monthStart)
-  const entriesForDay = (day: Date) => entries.filter((e) => e.date === toISO(day))
+  const entriesByDay = useMemo(() => {
+    const map = new Map<string, MealPlanEntry[]>()
+    for (const e of entries) {
+      const existing = map.get(e.date)
+      if (existing) existing.push(e)
+      else map.set(e.date, [e])
+    }
+    return map
+  }, [entries])
 
   return (
     <div className="py-4 px-[10px] pb-20">
@@ -40,7 +49,7 @@ const MonthView = ({
       </div>
       <div className="grid grid-cols-7 gap-1">
         {days.map((day) => {
-          const dayEntries = entriesForDay(day)
+          const dayEntries = entriesByDay.get(toISO(day)) ?? []
           const isToday = isSameDay(day, today)
           const inMonth = day.getMonth() === monthStart.getMonth()
           const isSelected = selectedDay ? isSameDay(day, selectedDay) : false

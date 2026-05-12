@@ -1,30 +1,34 @@
+import { memo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check } from 'lucide-react'
 import { EASE_SUBTLE } from '@/shared/constants/animations'
 import { toISO, isSameDay } from '@/features/calendar/utils/dateUtils'
 import type { MealPlanEntry } from '@/features/calendar/types/calendar'
 
+export type DaySaveState = {
+  hasThisRecipe: boolean
+  isSaving: boolean
+  isRecentlySaved: boolean
+}
+
 type DayCellProps = {
   day: Date
   today: Date
   dayEntries: MealPlanEntry[]
   recipeMap: Map<string, { title: string }>
-  hasThisRecipe: boolean
-  isSaving: boolean
-  isRecentlySaved: boolean
+  saveState: DaySaveState
   onClick: () => void
 }
 
-export function DayCell({
+function DayCellInner({
   day,
   today,
   dayEntries,
   recipeMap,
-  hasThisRecipe,
-  isSaving,
-  isRecentlySaved,
+  saveState,
   onClick,
 }: DayCellProps) {
+  const { hasThisRecipe, isSaving, isRecentlySaved } = saveState
   const iso = toISO(day)
   const isToday = isSameDay(day, today)
 
@@ -105,3 +109,5 @@ export function DayCell({
     </motion.button>
   )
 }
+
+export const DayCell = memo(DayCellInner)

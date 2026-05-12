@@ -1,7 +1,5 @@
-import { useLayoutEffect } from 'react'
+import { useLayoutEffect, ViewTransition } from 'react'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
-import { EASE_STANDARD } from '@/shared/constants/animations'
 import { AuthProvider, useAuth } from '@/features/auth/contexts/AuthContext'
 import ProtectedRoute from '@/features/auth/components/ProtectedRoute'
 import BottomNav from '@/shared/components/BottomNav'
@@ -34,59 +32,55 @@ const AppShell = () => {
 
   return (
     <div className="max-w-[480px] mx-auto min-h-[100dvh] relative">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={location.pathname}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.22, ease: EASE_STANDARD }}
-        >
-          <Routes location={location}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <RecipesPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/recipe/:id"
-              element={
-                <ProtectedRoute>
-                  <RecipeDetailPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/new"
-              element={
-                <ProtectedRoute>
-                  <RecipeFormPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <RecipeFormPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/calendar"
-              element={
-                <ProtectedRoute>
-                  <CalendarPage />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </motion.div>
-      </AnimatePresence>
+      <ViewTransition
+        enter={{ 'nav-forward': 'page-enter-forward', 'nav-back': 'page-enter-back', default: 'page-fade-in' }}
+        exit={{ 'nav-forward': 'page-exit-forward', 'nav-back': 'page-exit-back', default: 'page-fade-out' }}
+        default="none"
+      >
+        <Routes location={location}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <RecipesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/recipe/:id"
+            element={
+              <ProtectedRoute>
+                <RecipeDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/new"
+            element={
+              <ProtectedRoute>
+                <RecipeFormPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/edit/:id"
+            element={
+              <ProtectedRoute>
+                <RecipeFormPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <ProtectedRoute>
+                <CalendarPage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </ViewTransition>
       {showNav && <BottomNav />}
     </div>
   )
@@ -94,7 +88,7 @@ const AppShell = () => {
 
 const App = () => (
   <AuthProvider>
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AppShell />
     </BrowserRouter>
   </AuthProvider>

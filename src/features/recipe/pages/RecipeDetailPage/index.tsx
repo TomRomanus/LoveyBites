@@ -114,6 +114,7 @@ const RecipeDetailPage = () => {
   return (
     <div className="min-h-[100dvh] relative bg-paper">
       <RecipeHero
+        recipeId={recipe.id}
         title={recipe.title}
         onBack={() => navigate(-1)}
         onActionsOpen={() => setShowActions(true)}

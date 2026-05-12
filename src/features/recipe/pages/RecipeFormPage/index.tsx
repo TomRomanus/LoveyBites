@@ -8,6 +8,7 @@ import RecipeUrlImport from '@/features/recipe/components/RecipeUrlImport'
 import RecipeTextImport from '@/features/recipe/components/RecipeTextImport'
 import RecipePhotoImport from '@/features/recipe/components/RecipePhotoImport'
 import { createRecipe, updateRecipe, getRecipes } from '@/features/recipe/api/recipes'
+import { extractUniqueTags } from '@/features/recipe/utils/recipeFilterUtils'
 import { recipeKeys } from '@/features/recipe/api/queryKeys'
 import useRecipeLoad from '@/features/recipe/hooks/useRecipeLoad'
 import type { RecipeInput } from '@/features/recipe/types/recipe'
@@ -15,18 +16,12 @@ import RecipeFormSkeleton from '@/features/recipe/pages/RecipeFormPage/RecipeFor
 import ModeChooser from '@/features/recipe/pages/RecipeFormPage/ModeChooser'
 import RecipeFormHeader from '@/features/recipe/pages/RecipeFormPage/RecipeFormHeader'
 import { slideVariants, slideTransition } from '@/features/recipe/utils/recipeAnimations'
+import { NL_RECIPE_IMPORT_MODES } from '@/shared/constants/locale'
 
 type Mode = 'url' | 'text' | 'photo' | 'manual'
 
 const isImportMode = (m: Mode | null): m is 'url' | 'text' | 'photo' =>
   m === 'url' || m === 'text' || m === 'photo'
-
-const MODES_LABELS: Record<Mode, string> = {
-  url: 'Vanuit URL',
-  text: 'Vanuit tekst',
-  photo: 'Vanuit foto',
-  manual: 'Zelf invullen',
-}
 
 const RecipeFormPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -47,10 +42,7 @@ const RecipeFormPage = () => {
     queryFn: getRecipes,
   })
 
-  const existingTags = useMemo(
-    () => [...new Set(allRecipes.flatMap((r) => r.tags))].sort((a, b) => a.localeCompare(b)),
-    [allRecipes],
-  )
+  const existingTags = useMemo(() => extractUniqueTags(allRecipes), [allRecipes])
 
   const formInitial = isEdit ? (fetchedRecipe ?? undefined) : importedData
 
@@ -122,7 +114,7 @@ const RecipeFormPage = () => {
               isEdit={false}
               mode={mode}
               saving={false}
-              title={mode ? MODES_LABELS[mode] : ''}
+              title={mode ? NL_RECIPE_IMPORT_MODES[mode] : ''}
               onBack={handleBack}
             />
             <motion.div

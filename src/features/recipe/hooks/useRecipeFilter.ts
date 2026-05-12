@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { Recipe } from '@/features/recipe/types/recipe'
-import { extractLeafTexts } from '@/features/recipe/utils/ingredientUtils'
+import { filterRecipesBySearch } from '@/features/recipe/utils/recipeFilterUtils'
 
 export type SortOption = 'newest' | 'name-asc' | 'name-desc' | 'rating-desc' | 'rating-asc'
 
@@ -22,18 +22,12 @@ const useRecipeFilter = (recipes: Recipe[]) => {
     [recipes],
   )
 
-  const filtered = useMemo(
-    () =>
-      recipes.filter((recipe) => {
-        if (activeTags.length && !activeTags.every((t) => recipe.tags.includes(t))) return false
-        if (!searchQuery.trim()) return true
-        const q = searchQuery.toLowerCase()
-        if (recipe.title.toLowerCase().includes(q)) return true
-        if (recipe.description?.toLowerCase().includes(q)) return true
-        return extractLeafTexts(recipe.ingredients).some((t) => t.toLowerCase().includes(q))
-      }),
-    [recipes, searchQuery, activeTags],
-  )
+  const filtered = useMemo(() => {
+    const tagFiltered = activeTags.length
+      ? recipes.filter((r) => activeTags.every((t) => r.tags.includes(t)))
+      : recipes
+    return filterRecipesBySearch(tagFiltered, searchQuery)
+  }, [recipes, searchQuery, activeTags])
 
   const sorted = useMemo(
     () =>

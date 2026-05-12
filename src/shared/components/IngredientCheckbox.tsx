@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { motion } from 'framer-motion'
 import { EASE_OVERSHOOT, EASE_IN_OUT } from '@/shared/constants/animations'
 
@@ -36,4 +37,4 @@ const IngredientCheckbox = ({ checked, theme = 'light' }: IngredientCheckboxProp
   </motion.span>
 )
 
-export default IngredientCheckbox
+export default memo(IngredientCheckbox)
