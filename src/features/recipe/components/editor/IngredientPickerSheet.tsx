@@ -42,7 +42,6 @@ const IngredientPickerSheet = ({
 
   const selectedOptions = options.filter((o) => selectedIds.has(o.id))
 
-  // IDs where the entered value is non-empty but not a valid number/fraction
   const invalidFormatIds = new Set(
     selectedOptions
       .filter((opt) => {
@@ -52,7 +51,6 @@ const IngredientPickerSheet = ({
       .map((opt) => opt.id),
   )
 
-  // IDs where the entered amount exceeds the available remaining amount
   const overLimitIds = new Set(
     selectedOptions
       .filter((opt) => {
@@ -86,7 +84,6 @@ const IngredientPickerSheet = ({
 
   return (
     <Sheet visible={visible} onClose={onClose}>
-      {/* Tab bar */}
       <div className="px-5 pt-5">
         <AnimatedTabBar
           layoutId="picker-tabs"
@@ -98,7 +95,6 @@ const IngredientPickerSheet = ({
         />
       </div>
 
-      {/* Tab content */}
       <div className="overflow-hidden">
         <AnimatePresence mode="popLayout" custom={direction}>
           {activeTab === 'ingredients' ? (

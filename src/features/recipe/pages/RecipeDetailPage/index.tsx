@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useRecipeDetailUI } from './useRecipeDetailUI'
 import { createPortal } from 'react-dom'
 import { AnimatePresence } from 'framer-motion'
@@ -30,6 +30,8 @@ import RecipeActionsSheet from '@/features/recipe/components/detail/RecipeAction
 import DeleteConfirmDialog from '@/features/recipe/components/detail/DeleteConfirmDialog'
 import CalendarFab from '@/features/recipe/components/detail/CalendarFab'
 
+const toRoman = (n: number) => ['I', 'II', 'III', 'IV', 'V'][n - 1]
+
 const RecipeDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -38,14 +40,13 @@ const RecipeDetailPage = () => {
   const { checked, toggle: toggleCheck } = useCheckedSet()
   const [portions, setPortions] = useState(2)
   const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
-  const [portionsInitializedId, setPortionsInitializedId] = useState<string | undefined>(undefined)
 
-  if (recipe && recipe.id !== portionsInitializedId) {
-    setPortionsInitializedId(recipe.id)
-    if (recipe.portionsLabel === 'stuks') {
+  useEffect(() => {
+    if (recipe?.portionsLabel === 'stuks') {
       setPortions(recipe.portions ?? 1)
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recipe?.id])
 
   const handlePortionChange = (v: number) => {
     setPortionDir(v > portions ? 'up' : 'down')
@@ -83,6 +84,27 @@ const RecipeDetailPage = () => {
     () => flattenSteps(scaleStepAmounts(recipe?.steps ?? [], ratio, ingredientMap)),
     [recipe?.steps, ratio, ingredientMap],
   )
+
+  const sectionDeels = useMemo(() => {
+    let d = 0
+    const hasEquipment = (recipe?.equipment ?? []).length > 0
+    const hasIngredients = ingredientSections.some((s) => s.items.length > 0)
+    const hasSteps = stepSections.length > 0
+    const hasNotes = (recipe?.notes ?? []).length > 0
+    const hasSources = (recipe?.sources ?? []).length > 0
+    return {
+      hasEquipment,
+      hasIngredients,
+      hasSteps,
+      hasNotes,
+      hasSources,
+      equipment: hasEquipment ? toRoman(++d) : '',
+      ingredients: hasIngredients ? toRoman(++d) : '',
+      instructions: hasSteps ? toRoman(++d) : '',
+      notes: hasNotes ? toRoman(++d) : '',
+      sources: hasSources ? toRoman(++d) : '',
+    }
+  }, [recipe, ingredientSections, stepSections])
 
   const handleRating = async (rating: number) => {
     if (!id || !recipe) return
@@ -138,7 +160,6 @@ const RecipeDetailPage = () => {
         onRating={handleRating}
       />
 
-      {/* Cook mode CTA */}
       <div className="px-[22px] pt-5">
         <button
           onClick={() => setCookMode(true)}
@@ -149,48 +170,32 @@ const RecipeDetailPage = () => {
         </button>
       </div>
 
-      {(() => {
-        const toRoman = (n: number) => ['I', 'II', 'III', 'IV', 'V'][n - 1]
-        let d = 0
-        const hasEquipment = (recipe.benodigdheden ?? []).length > 0
-        const hasIngredients = ingredientSections.some((s) => s.items.length > 0)
-        const hasSteps = stepSections.length > 0
-        const hasNotes = (recipe.notes ?? []).length > 0
-        const hasSources = (recipe.sources ?? []).length > 0
-        const equipmentDeel = hasEquipment ? toRoman(++d) : ''
-        const ingredientsDeel = hasIngredients ? toRoman(++d) : ''
-        const instructionsDeel = hasSteps ? toRoman(++d) : ''
-        const notesDeel = hasNotes ? toRoman(++d) : ''
-        const sourcesDeel = hasSources ? toRoman(++d) : ''
-        return (
-          <>
-            {hasEquipment && (
-              <RecipeEquipment equipment={recipe.benodigdheden!} deel={equipmentDeel} />
-            )}
-            {hasIngredients && (
-              <RecipeIngredients
-                sections={ingredientSections}
-                portions={portions}
-                portionDir={portionDir}
-                portionsLabel={recipe.portionsLabel}
-                onPortionChange={handlePortionChange}
-                checked={checked}
-                onToggle={toggleCheck}
-                deel={ingredientsDeel}
-              />
-            )}
-            {hasSteps && (
-              <RecipeSteps
-                steps={stepSections}
-                ingredientMap={ingredientMap}
-                deel={instructionsDeel}
-              />
-            )}
-            {hasNotes && <RecipeNotes notes={recipe.notes!} deel={notesDeel} />}
-            {hasSources && <RecipeSources sources={recipe.sources ?? []} deel={sourcesDeel} />}
-          </>
-        )
-      })()}
+      {sectionDeels.hasEquipment && (
+        <RecipeEquipment equipment={recipe.equipment!} deel={sectionDeels.equipment} />
+      )}
+      {sectionDeels.hasIngredients && (
+        <RecipeIngredients
+          sections={ingredientSections}
+          portions={portions}
+          portionDir={portionDir}
+          portionsLabel={recipe.portionsLabel}
+          onPortionChange={handlePortionChange}
+          checked={checked}
+          onToggle={toggleCheck}
+          deel={sectionDeels.ingredients}
+        />
+      )}
+      {sectionDeels.hasSteps && (
+        <RecipeSteps
+          steps={stepSections}
+          ingredientMap={ingredientMap}
+          deel={sectionDeels.instructions}
+        />
+      )}
+      {sectionDeels.hasNotes && <RecipeNotes notes={recipe.notes!} deel={sectionDeels.notes} />}
+      {sectionDeels.hasSources && (
+        <RecipeSources sources={recipe.sources ?? []} deel={sectionDeels.sources} />
+      )}
 
       <div className="pb-[100px]" />
 

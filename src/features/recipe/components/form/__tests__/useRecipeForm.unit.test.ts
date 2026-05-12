@@ -114,7 +114,7 @@ describe('useRecipeForm', () => {
     expect(onSavingChange).toHaveBeenCalledWith(true)
   })
 
-  it('filters out empty benodigdheden strings before calling onSubmit', async () => {
+  it('filters out empty equipment strings before calling onSubmit', async () => {
     const onSubmitFn = vi.fn().mockResolvedValue(undefined)
     renderHook(() => useRecipeForm({ onSubmit: onSubmitFn }))
 
@@ -127,12 +127,12 @@ describe('useRecipeForm', () => {
         tags: [],
         imageUrl: '',
         createdBy: 'us',
-        benodigdheden: ['Grote kom', '', '  ', 'Garde'],
+        equipment: ['Grote kom', '', '  ', 'Garde'],
       })
     })
 
     expect(onSubmitFn).toHaveBeenCalledWith(
-      expect.objectContaining({ benodigdheden: ['Grote kom', 'Garde'] }),
+      expect.objectContaining({ equipment: ['Grote kom', 'Garde'] }),
     )
   })
 

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { X, Image, Loader } from 'lucide-react'
 import type { RecipeInput } from '@/features/recipe/types/recipe'
 import { importRecipeFromImage } from '@/features/recipe/api/importRecipe'
+import ErrorBanner from '@/shared/components/ErrorBanner'
 
 type Props = {
   onExtracted: (data: Partial<RecipeInput>) => void
@@ -94,11 +95,7 @@ const RecipePhotoImport = ({ onExtracted }: Props) => {
         Maak een foto van een receptenboek of geschreven recept
       </p>
 
-      {error && (
-        <div className="bg-bordeaux-tint text-bordeaux px-[14px] py-[10px] rounded-[0_12px_12px_0] text-[13px] font-medium border-l-[3px] border-bordeaux">
-          {error}
-        </div>
-      )}
+      {error && <ErrorBanner message={error} />}
 
       <button
         type="submit"

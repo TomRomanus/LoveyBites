@@ -47,7 +47,7 @@ const emptyInput = (): RecipeInput => ({
   ],
   sources: [],
   notes: [],
-  benodigdheden: [],
+  equipment: [],
   tags: [],
   imageUrl: '',
   createdBy: 'us',
@@ -97,7 +97,7 @@ export const useRecipeForm = ({
       steps: pruneEmpty(data.steps),
       sources: (data.sources ?? []).filter((s) => s.url.trim()),
       notes: (data.notes ?? []).filter((n) => n.text.trim()),
-      benodigdheden: (data.benodigdheden ?? []).filter((b) => b.trim()),
+      equipment: (data.equipment ?? []).filter((b) => b.trim()),
     }
     onSavingChange?.(true)
     try {

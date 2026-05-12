@@ -29,8 +29,10 @@ export const getRecipe = async (id: string): Promise<Recipe | null> => {
 }
 
 export const createRecipe = async (data: RecipeInput): Promise<string> => {
+  const { equipment, ...rest } = data
   const ref = await addDoc(recipesCol, {
-    ...data,
+    ...rest,
+    benodigdheden: equipment,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
@@ -38,8 +40,10 @@ export const createRecipe = async (data: RecipeInput): Promise<string> => {
 }
 
 export const updateRecipe = async (id: string, data: Partial<RecipeInput>): Promise<void> => {
+  const { equipment, ...rest } = data
   await updateDoc(doc(db, 'recipes', id), {
-    ...data,
+    ...rest,
+    ...(equipment !== undefined ? { benodigdheden: equipment } : {}),
     updatedAt: serverTimestamp(),
   })
 }

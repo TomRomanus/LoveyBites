@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
@@ -16,6 +17,18 @@ import DashedAddButton from '@/features/recipe/components/editor/DashedAddButton
 import { newLeaf } from '@/features/recipe/components/editor/nodeTree'
 import { findNode } from '@/features/recipe/components/editor/dndTree'
 import { useNodeEditor } from '@/features/recipe/components/editor/useNodeEditor'
+
+function NodeWrapper({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.1 } }}
+    >
+      <SortableItem id={id}>{children}</SortableItem>
+    </motion.div>
+  )
+}
 
 const defaultLabels: EditorLabels = {
   leafPlaceholder: 'bijv. 360ml karnemelk',
@@ -93,62 +106,48 @@ const RecipeNodeEditor = ({
               if (node.kind === 'leaf') {
                 const idx = rootLeafCounter++
                 return (
-                  <motion.div
-                    key={node.id ?? i}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, transition: { duration: 0.1 } }}
-                  >
-                    <SortableItem id={node.id!}>
-                      <LeafRow
-                        node={node}
-                        path={[i]}
-                        flags={
-                          {
-                            isOnly: nodes.length === 1,
-                            isLast: i === nodes.length - 1,
-                            ordered: ordered ?? false,
-                            reordering: reordering ?? false,
-                            shouldFocus: node.id === focusId,
-                          } satisfies LeafEdgeFlags
-                        }
-                        allNodes={nodes}
-                        labels={labels}
-                        onChange={onChange}
-                        ingredientOptions={ingredientOptions}
-                        itemIndex={idx}
-                        leafIndexMap={leafIndexMap}
-                      />
-                    </SortableItem>
-                  </motion.div>
-                )
-              }
-
-              return (
-                <motion.div
-                  key={node.id ?? i}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, transition: { duration: 0.1 } }}
-                >
-                  <SortableItem id={node.id!}>
-                    <GroupRow
+                  <NodeWrapper key={node.id ?? i} id={node.id!}>
+                    <LeafRow
                       node={node}
                       path={[i]}
-                      isOnly={nodes.length === 1}
+                      flags={
+                        {
+                          isOnly: nodes.length === 1,
+                          isLast: i === nodes.length - 1,
+                          ordered: ordered ?? false,
+                          reordering: reordering ?? false,
+                          shouldFocus: node.id === focusId,
+                        } satisfies LeafEdgeFlags
+                      }
                       allNodes={nodes}
                       labels={labels}
                       onChange={onChange}
                       ingredientOptions={ingredientOptions}
-                      ordered={ordered}
+                      itemIndex={idx}
                       leafIndexMap={leafIndexMap}
-                      reordering={reordering}
-                      focusId={focusId}
-                      shouldFocusTitle={node.id === focusId}
-                      onRequestFocus={setFocusId}
                     />
-                  </SortableItem>
-                </motion.div>
+                  </NodeWrapper>
+                )
+              }
+
+              return (
+                <NodeWrapper key={node.id ?? i} id={node.id!}>
+                  <GroupRow
+                    node={node}
+                    path={[i]}
+                    isOnly={nodes.length === 1}
+                    allNodes={nodes}
+                    labels={labels}
+                    onChange={onChange}
+                    ingredientOptions={ingredientOptions}
+                    ordered={ordered}
+                    leafIndexMap={leafIndexMap}
+                    reordering={reordering}
+                    focusId={focusId}
+                    shouldFocusTitle={node.id === focusId}
+                    onRequestFocus={setFocusId}
+                  />
+                </NodeWrapper>
               )
             })}
           </AnimatePresence>

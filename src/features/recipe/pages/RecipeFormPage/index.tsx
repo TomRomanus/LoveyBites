@@ -84,7 +84,6 @@ const RecipeFormPage = () => {
   return (
     <div className="lb-paper min-h-[100dvh] overflow-hidden">
       <AnimatePresence mode="wait" custom={direction}>
-        {/* ── Chooser ── */}
         {!isEdit && mode === null && (
           <motion.div
             key="chooser"
@@ -99,7 +98,6 @@ const RecipeFormPage = () => {
           </motion.div>
         )}
 
-        {/* ── Import flows ── */}
         {!isEdit && isImportMode(mode) && !extracted && (
           <motion.div
             key={`import-${mode}`}
@@ -130,7 +128,6 @@ const RecipeFormPage = () => {
           </motion.div>
         )}
 
-        {/* ── Form ── */}
         {(isEdit || mode === 'manual' || extracted) && (
           <motion.div
             key="form"

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EASE_OUT } from '@/shared/constants/animations'
 import { Calendar, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react'
-import { toISO, startOfMonth, isSameDay, calendarGrid } from '@/features/calendar/utils/dateUtils'
+import { toISO, startOfMonth, isSameDay, calendarGrid, formatDisplayDate } from '@/features/calendar/utils/dateUtils'
 import { NL_DAYS_GRID, NL_MONTHS } from '@/shared/constants/locale'
 import { titleVariants, pageVariants } from '@/features/calendar/utils/calendarAnimations'
 
@@ -56,9 +56,7 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
     })
   }
 
-  const displayDate = selected
-    ? `${String(selected.getDate()).padStart(2, '0')}-${String(selected.getMonth() + 1).padStart(2, '0')}-${selected.getFullYear()}`
-    : 'Kies datum'
+  const displayDate = selected ? formatDisplayDate(selected) : 'Kies datum'
 
   return (
     <div ref={ref} className="relative flex-1">
@@ -100,7 +98,6 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
             className="absolute top-[calc(100%+8px)] z-[400] bg-[var(--cream-card)] rounded-[18px] shadow-[0_10px_40px_rgba(31,29,26,0.16),0_0_0_0.5px_rgba(31,29,26,0.08)] p-[14px_12px_12px] w-[248px]"
             style={openLeft ? { right: 0 } : { left: 0 }}
           >
-            {/* Month navigation */}
             <div className="flex items-center mb-[10px] gap-1">
               <button
                 data-testid="date-picker-prev-month"
@@ -134,7 +131,6 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
               </button>
             </div>
 
-            {/* Day headers */}
             <div className="grid grid-cols-7 gap-[2px] mb-1">
               {NL_DAYS_GRID.map((d) => (
                 <div
@@ -146,7 +142,6 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
               ))}
             </div>
 
-            {/* Calendar days */}
             <div className="relative overflow-hidden">
               <AnimatePresence mode="popLayout" custom={monthDir} initial={false}>
                 <motion.div
@@ -162,6 +157,13 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
                     const isSelected = selected ? isSameDay(day, selected) : false
                     const isToday = isSameDay(day, today)
                     const inMonth = day.getMonth() === monthStart.getMonth()
+                    const textColor = isSelected
+                      ? 'text-cream'
+                      : isToday
+                        ? 'text-bordeaux'
+                        : inMonth
+                          ? 'text-ink'
+                          : 'text-stone-2'
                     return (
                       <motion.button
                         key={toISO(day)}
@@ -170,7 +172,7 @@ const DatePickerInput = ({ label, value, onChange, openLeft }: DatePickerInputPr
                           setOpen(false)
                         }}
                         whileTap={{ scale: 0.84 }}
-                        className={`h-[30px] border-0 font-sans text-[12.5px] cursor-pointer relative ${isSelected ? 'bg-bordeaux rounded-full' : 'bg-transparent rounded-[8px]'} ${isSelected ? 'text-cream' : isToday ? 'text-bordeaux' : inMonth ? 'text-ink' : 'text-stone-2'} ${isSelected || isToday ? 'font-semibold' : 'font-normal'}`}
+                        className={`h-[30px] border-0 font-sans text-[12.5px] cursor-pointer relative ${isSelected ? 'bg-bordeaux rounded-full' : 'bg-transparent rounded-[8px]'} ${textColor} ${isSelected || isToday ? 'font-semibold' : 'font-normal'}`}
                         style={{ opacity: inMonth ? 1 : 0.28 }}
                       >
                         {day.getDate()}

@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Plus } from 'lucide-react'
 import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
+import { xBtnCls } from '@/features/recipe/components/editor/LeafRow'
 
 type Props = {
   equipment: string[]
@@ -47,7 +48,7 @@ const RecipeEquipmentEditor = ({ equipment, onChange }: Props) => {
               <button
                 type="button"
                 onClick={() => remove(i)}
-                className="bg-none border-0 text-stone-2 p-1.5 cursor-pointer shrink-0 flex items-center justify-center opacity-80 mt-[7px]"
+                className={`${xBtnCls} mt-[7px]`}
                 aria-label="Verwijder benodigdheid"
               >
                 <X size={11} strokeWidth={2.2} />

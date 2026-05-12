@@ -2,18 +2,12 @@ import { useMemo, useState } from 'react'
 import { X, MessageCircleHeart } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { replaceAt, removeAt } from '@/features/recipe/components/editor/nodeTree'
-import {
-  parseIngredientText,
-  parseAmount,
-  formatAmount,
-  collectUsedAmounts,
-  normalizeStepAmount,
-  VOLUME_UNIT,
-} from '@/features/recipe/utils/ingredientUtils'
+import { normalizeStepAmount } from '@/features/recipe/utils/ingredientUtils'
 import IngredientGripToggle from '@/features/recipe/components/editor/IngredientGripToggle'
 import IngredientPickerSection from '@/features/recipe/components/editor/IngredientPickerSection'
 import IngredientInputField from '@/features/recipe/components/editor/IngredientInputField'
 import StepCommentBox from '@/features/recipe/components/editor/StepCommentBox'
+import { useLeafAmounts } from '@/features/recipe/components/editor/useLeafAmounts'
 import type { IngredientNode } from '@/features/recipe/types/recipe'
 
 export type EditorLabels = {
@@ -29,7 +23,7 @@ export type IngredientOption = {
   text: string
 }
 
-const xBtnCls =
+export const xBtnCls =
   'bg-none border-0 text-stone-2 p-1.5 cursor-pointer shrink-0 flex items-center justify-center opacity-80'
 
 export type LeafEdgeFlags = {
@@ -71,48 +65,13 @@ const LeafRow = ({
   const selectedIngredients = ingredientOptions?.filter((opt) => selectedIds.has(opt.id)) ?? []
   const amounts = node.ingredientAmounts ?? {}
 
-  const usedElsewhere = useMemo(
-    () => (ordered ? collectUsedAmounts(allNodes, node.id ?? '', ingredientOptions ?? []) : {}),
-    [ordered, allNodes, node.id, ingredientOptions],
+  const { remainingDefault, fullyAssignedIds, remainingAmounts } = useLeafAmounts(
+    node,
+    allNodes,
+    ingredientOptions,
+    ordered,
+    selectedIds,
   )
-
-  const remainingDefault = useMemo(() => {
-    return (id: string, text: string): string => {
-      const { amount, maxLabel } = parseIngredientText(text)
-      const used = usedElsewhere[id] ?? 0
-      if (used === 0) return amount
-      const maxNum = parseAmount(amount)
-      if (isNaN(maxNum)) return amount
-      const rem = Math.max(0, maxNum - used)
-      const unit = maxLabel.slice(amount.length).trim().toLowerCase()
-      const useFractions = amount.includes('/') || VOLUME_UNIT.test(unit)
-      return useFractions
-        ? formatAmount(rem)
-        : rem % 1 === 0
-          ? String(rem)
-          : parseFloat(rem.toFixed(6)).toString()
-    }
-  }, [usedElsewhere])
-
-  const fullyAssignedIds = useMemo(() => {
-    const ids = new Set<string>()
-    for (const opt of ingredientOptions ?? []) {
-      if (selectedIds.has(opt.id)) continue
-      const maxNum = parseAmount(parseIngredientText(opt.text).amount)
-      if (!isNaN(maxNum) && maxNum > 0 && (usedElsewhere[opt.id] ?? 0) >= maxNum) {
-        ids.add(opt.id)
-      }
-    }
-    return ids
-  }, [ingredientOptions, selectedIds, usedElsewhere])
-
-  const remainingAmounts = useMemo(() => {
-    const result: Record<string, string> = {}
-    for (const opt of ingredientOptions ?? []) {
-      result[opt.id] = remainingDefault(opt.id, opt.text)
-    }
-    return result
-  }, [ingredientOptions, remainingDefault])
 
   const toggleIngredient = (id: string) => {
     const cur = node.ingredientRefs ?? []

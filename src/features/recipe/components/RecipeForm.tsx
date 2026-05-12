@@ -12,6 +12,7 @@ import TagsEditor from '@/features/recipe/components/form/TagsEditor'
 import PortionsField from '@/features/recipe/components/form/PortionsField'
 import ReorderFab from '@/features/recipe/components/form/ReorderFab'
 import { useRecipeForm } from '@/features/recipe/components/form/useRecipeForm'
+import ErrorBanner from '@/shared/components/ErrorBanner'
 
 type Props = {
   initial?: Partial<RecipeInput>
@@ -78,7 +79,7 @@ const RecipeForm = (props: Props) => {
       <div className="border-[0.5px] border-ink/14 rounded-[13px] p-4">
         <div className="lb-eyebrow mb-3">BENODIGDHEDEN</div>
         <Controller
-          name="benodigdheden"
+          name="equipment"
           control={control}
           render={({ field }) => (
             <RecipeEquipmentEditor equipment={field.value ?? []} onChange={field.onChange} />
@@ -158,11 +159,7 @@ const RecipeForm = (props: Props) => {
         </FormField>
       </div>
 
-      {errorMessage && (
-        <div className="bg-bordeaux-tint text-bordeaux py-2.5 px-3.5 rounded-[0_12px_12px_0] text-[13px] font-medium border-l-[3px] border-l-bordeaux">
-          {errorMessage}
-        </div>
-      )}
+      {errorMessage && <ErrorBanner message={errorMessage} />}
 
       <ReorderFab active={isReordering} onToggle={() => setIsReordering((r) => !r)} />
     </form>

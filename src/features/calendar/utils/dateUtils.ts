@@ -31,6 +31,8 @@ export const calendarGrid = (monthStart: Date): Date[] => {
   return eachDayOfInterval({ start: gridStart, end: gridEnd })
 }
 
+export const formatDisplayDate = (d: Date): string => format(d, 'dd-MM-yyyy')
+
 export const formatEntryDate = (iso: string): string => {
   const d = parseISO(iso)
   const day = format(d, 'EEE', { locale: nl }).toUpperCase()

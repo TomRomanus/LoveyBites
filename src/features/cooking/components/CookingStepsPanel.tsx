@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { FlatStep } from '@/features/cooking/types/cooking'
 import GroupLabel from '@/shared/components/GroupLabel'
@@ -7,13 +7,8 @@ import StepComment from '@/shared/components/StepComment'
 // Animates comment slot height using CSS grid-template-rows (real layout change,
 // not a transform) so justify-center repositions the block smoothly each frame.
 function CommentSlot({ comment }: { comment: string | undefined }) {
-  const [displayed, setDisplayed] = useState(comment)
-  const [prevComment, setPrevComment] = useState(comment)
-
-  if (comment !== prevComment) {
-    setPrevComment(comment)
-    if (comment !== undefined) setDisplayed(comment)
-  }
+  const lastComment = useRef(comment)
+  if (comment !== undefined) lastComment.current = comment
 
   const visible = comment !== undefined
 
@@ -36,9 +31,58 @@ function CommentSlot({ comment }: { comment: string | undefined }) {
           transition: 'opacity 0.18s ease',
         }}
       >
-        {displayed && <StepComment comment={displayed} theme="dark" />}
+        {lastComment.current && <StepComment comment={lastComment.current} theme="dark" />}
       </div>
     </div>
+  )
+}
+
+type AdjacentStepProps = {
+  step: FlatStep
+  label: string
+  position: 'prev' | 'next'
+  onClick: () => void
+}
+
+function AdjacentStep({ step, label, position, onClick }: AdjacentStepProps) {
+  const separator = (
+    <div
+      className={`h-[0.5px] mx-[22px] bg-paper/10 ${position === 'prev' ? 'mb-6' : 'my-6'}`}
+    />
+  )
+  const button = (
+    <button
+      onClick={onClick}
+      className={`block w-full px-[22px] bg-transparent border-0 cursor-pointer text-left opacity-30 ${position === 'prev' ? 'mb-6' : ''}`}
+    >
+      <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-paper mb-[6px]">
+        {label}
+      </div>
+      <div
+        className="font-serif italic text-[18px] leading-[1.35] text-paper"
+        style={
+          {
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          } as React.CSSProperties
+        }
+      >
+        {step.text}
+      </div>
+    </button>
+  )
+  return position === 'prev' ? (
+    <>
+      {button}
+      {separator}
+    </>
+  ) : (
+    <>
+      {separator}
+      {button}
+    </>
   )
 }
 
@@ -88,35 +132,15 @@ const CookingStepsPanel = ({
           exit="exit"
           transition={{ type: 'spring', stiffness: 400, damping: 38, mass: 0.8 }}
         >
-          {/* Prev step */}
           {steps[currentIndex - 1] && (
-            <>
-              <button
-                onClick={() => onGoTo(currentIndex - 1)}
-                className="block w-full px-[22px] bg-transparent border-0 cursor-pointer text-left opacity-30 mb-6"
-              >
-                <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-paper mb-[6px]">
-                  ← Vorige
-                </div>
-                <div
-                  className="font-serif italic text-[18px] leading-[1.35] text-paper"
-                  style={
-                    {
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    } as React.CSSProperties
-                  }
-                >
-                  {steps[currentIndex - 1].text}
-                </div>
-              </button>
-              <div className="h-[0.5px] mx-[22px] mb-6 bg-paper/10" />
-            </>
+            <AdjacentStep
+              step={steps[currentIndex - 1]}
+              label="← Vorige"
+              position="prev"
+              onClick={() => onGoTo(currentIndex - 1)}
+            />
           )}
 
-          {/* Current step */}
           <div className="px-[22px]">
             {current.sectionTitle && (
               <div className="mb-[10px]">
@@ -134,37 +158,17 @@ const CookingStepsPanel = ({
             <CommentSlot comment={current.comment} />
           </div>
 
-          {/* Next step */}
           {steps[currentIndex + 1] && (
-            <>
-              <div className="h-[0.5px] mx-[22px] my-6 bg-paper/10" />
-              <button
-                onClick={() => onGoTo(currentIndex + 1)}
-                className="block w-full px-[22px] bg-transparent border-0 cursor-pointer text-left opacity-30"
-              >
-                <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-paper mb-[6px]">
-                  Volgende →
-                </div>
-                <div
-                  className="font-serif italic text-[18px] leading-[1.35] text-paper"
-                  style={
-                    {
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    } as React.CSSProperties
-                  }
-                >
-                  {steps[currentIndex + 1].text}
-                </div>
-              </button>
-            </>
+            <AdjacentStep
+              step={steps[currentIndex + 1]}
+              label="Volgende →"
+              position="next"
+              onClick={() => onGoTo(currentIndex + 1)}
+            />
           )}
         </motion.div>
       </AnimatePresence>
 
-      {/* Gradient fades */}
       <div className="absolute top-0 left-0 right-0 h-12 pointer-events-none bg-gradient-to-b from-ink to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none bg-gradient-to-t from-ink to-transparent" />
     </motion.div>

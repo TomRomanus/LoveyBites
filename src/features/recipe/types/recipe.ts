@@ -35,7 +35,7 @@ export type Recipe = {
   description: string
   ingredients: IngredientNode[]
   steps: IngredientNode[]
-  benodigdheden?: string[]
+  equipment?: string[]
   sources?: Source[]
   notes?: RecipeNote[]
   tags: string[]
@@ -77,24 +77,26 @@ const sourceSchema = z.object({ label: z.string(), url: z.string() })
 
 const recipeNoteSchema = z.object({ label: z.string(), text: z.string() })
 
-export const recipeSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  description: z.string(),
-  ingredients: z.array(ingredientNodeSchema),
-  steps: z.array(ingredientNodeSchema),
-  benodigdheden: z.array(z.string()).optional(),
-  sources: z.array(sourceSchema).optional(),
-  notes: z.array(recipeNoteSchema).optional(),
-  tags: z.array(z.string()),
-  imageUrl: z.string(),
-  portions: z.number().optional(),
-  portionsLabel: z.enum(['pers', 'stuks']).optional(),
-  rating: z.number().optional(),
-  createdAt: z.unknown(),
-  updatedAt: z.unknown(),
-  createdBy: z.string(),
-})
+export const recipeSchema = z
+  .object({
+    id: z.string(),
+    title: z.string(),
+    description: z.string(),
+    ingredients: z.array(ingredientNodeSchema),
+    steps: z.array(ingredientNodeSchema),
+    benodigdheden: z.array(z.string()).optional(),
+    sources: z.array(sourceSchema).optional(),
+    notes: z.array(recipeNoteSchema).optional(),
+    tags: z.array(z.string()),
+    imageUrl: z.string(),
+    portions: z.number().optional(),
+    portionsLabel: z.enum(['pers', 'stuks']).optional(),
+    rating: z.number().optional(),
+    createdAt: z.unknown(),
+    updatedAt: z.unknown(),
+    createdBy: z.string(),
+  })
+  .transform(({ benodigdheden, ...rest }) => ({ ...rest, equipment: benodigdheden }))
 
 export const recipeInputSchema = z.object({
   title: z.string().min(1, 'Titel is verplicht'),
@@ -103,7 +105,7 @@ export const recipeInputSchema = z.object({
   portionsLabel: z.enum(['pers', 'stuks']).optional(),
   ingredients: z.array(ingredientNodeSchema),
   steps: z.array(ingredientNodeSchema),
-  benodigdheden: z.array(z.string()).optional(),
+  equipment: z.array(z.string()).optional(),
   sources: z.array(sourceSchema).optional(),
   notes: z.array(recipeNoteSchema).optional(),
   tags: z.array(z.string()),

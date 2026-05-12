@@ -22,3 +22,5 @@ export const emptyStateVariants: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.2, ease: EASE_OUT } },
   exit: { opacity: 0, transition: { duration: 0.15 } },
 }
+
+export const SPRING_UI = { type: 'spring', stiffness: 420, damping: 32 } as const

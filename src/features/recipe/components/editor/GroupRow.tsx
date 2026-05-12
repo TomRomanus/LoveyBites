@@ -14,12 +14,10 @@ import type {
   IngredientOption,
   LeafEdgeFlags,
 } from '@/features/recipe/components/editor/LeafRow'
+import { xBtnCls } from '@/features/recipe/components/editor/LeafRow'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import type { IngredientNode } from '@/features/recipe/types/recipe'
 import BordeauxBar from '@/shared/components/BordeauxBar'
-
-const xBtnCls =
-  'bg-none border-0 text-stone-2 p-1.5 cursor-pointer shrink-0 flex items-center justify-center opacity-80'
 
 type GroupRowProps = {
   node: IngredientNode & { kind: 'group' }
@@ -56,7 +54,6 @@ const GroupRow = ({
   const childIds = node.children.map((c) => c.id!)
 
   return (
-    // Handle sits OUTSIDE (to the left of) the vertical bordeaux bar
     <div className="flex items-start my-3 mb-1">
       <motion.div
         animate={{ width: reordering ? 30 : 0, opacity: reordering ? 1 : 0 }}
