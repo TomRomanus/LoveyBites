@@ -38,8 +38,8 @@ const AppShell = () => {
         <motion.div
           key={location.pathname}
           initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0, transition: { duration: location.pathname.startsWith('/recipe/') ? 0.10 : 0.16, ease: EASE_STANDARD } }}
-          exit={{ opacity: 0, y: -10, transition: { duration: 0.10, ease: EASE_STANDARD } }}
+          animate={{ opacity: 1, y: 0, transition: { duration: location.pathname.startsWith('/recipe/') ? 0.22 : 0.16, ease: EASE_STANDARD } }}
+          exit={{ opacity: 0, y: -10, transition: { duration: location.pathname.startsWith('/recipe/') ? 0.22 : 0.10, ease: EASE_STANDARD } }}
         >
           <Routes location={location}>
             <Route path="/login" element={<LoginPage />} />
