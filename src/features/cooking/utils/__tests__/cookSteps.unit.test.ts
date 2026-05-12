@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { flattenCookSteps } from '../cookSteps'
+import { flattenCookSteps, updateStepComment } from '../cookSteps'
 import type { TreeNode } from '@/features/cooking/types/cooking'
 
 describe('flattenCookSteps', () => {
@@ -116,5 +116,61 @@ describe('flattenCookSteps', () => {
     const nodes: TreeNode[] = [{ kind: 'leaf', text: 'Kook de pasta' }]
     const result = flattenCookSteps(nodes)
     expect(result[0].comment).toBeUndefined()
+  })
+})
+
+describe('updateStepComment', () => {
+  it('sets a comment on the leaf at globalIndex 0', () => {
+    const nodes: TreeNode[] = [{ kind: 'leaf', text: 'Kook de pasta' }]
+    const result = updateStepComment(nodes, 0, 'Let op!')
+    expect((result[0] as { kind: 'leaf'; comment?: string }).comment).toBe('Let op!')
+  })
+
+  it('sets a comment on the correct leaf when there are multiple', () => {
+    const nodes: TreeNode[] = [
+      { kind: 'leaf', text: 'Stap 1' },
+      { kind: 'leaf', text: 'Stap 2' },
+    ]
+    const result = updateStepComment(nodes, 1, 'Notitie')
+    expect((result[0] as { kind: 'leaf'; comment?: string }).comment).toBeUndefined()
+    expect((result[1] as { kind: 'leaf'; comment?: string }).comment).toBe('Notitie')
+  })
+
+  it('clears a comment when undefined is passed', () => {
+    const nodes: TreeNode[] = [
+      { kind: 'leaf', text: 'Kook de pasta', comment: 'Oud bericht' },
+    ]
+    const result = updateStepComment(nodes, 0, undefined)
+    expect((result[0] as { kind: 'leaf'; comment?: string }).comment).toBeUndefined()
+    expect('comment' in result[0]).toBe(false)
+  })
+
+  it('does not modify other leaves when targeting one', () => {
+    const nodes: TreeNode[] = [
+      { kind: 'leaf', text: 'Stap 1', comment: 'Blijft' },
+      { kind: 'leaf', text: 'Stap 2' },
+    ]
+    const result = updateStepComment(nodes, 1, 'Nieuw')
+    expect((result[0] as { kind: 'leaf'; comment?: string }).comment).toBe('Blijft')
+  })
+
+  it('handles a leaf inside a nested group', () => {
+    const nodes: TreeNode[] = [
+      { kind: 'leaf', text: 'Stap 1' },
+      {
+        kind: 'group',
+        title: 'Sectie',
+        children: [{ kind: 'leaf', text: 'Stap 2' }],
+      },
+    ]
+    const result = updateStepComment(nodes, 1, 'In groep')
+    const group = result[1] as { kind: 'group'; children: TreeNode[] }
+    expect((group.children[0] as { kind: 'leaf'; comment?: string }).comment).toBe('In groep')
+  })
+
+  it('returns the same structure when globalIndex is out of range', () => {
+    const nodes: TreeNode[] = [{ kind: 'leaf', text: 'Alleen stap' }]
+    const result = updateStepComment(nodes, 99, 'Nergens')
+    expect((result[0] as { kind: 'leaf'; comment?: string }).comment).toBeUndefined()
   })
 })
