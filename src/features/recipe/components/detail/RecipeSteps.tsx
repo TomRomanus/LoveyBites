@@ -38,8 +38,8 @@ const RecipeSteps = ({ steps, ingredientMap, deel = 'II' }: RecipeStepsProps) =>
               <div className="text-[15px] text-ink leading-[1.55]">{step.text}</div>
               {step.comment && (
                 <div data-comment className="mt-2 flex gap-[7px] items-start">
-                  <MessageCircleHeart size={16} className="shrink-0 mt-[5px] text-honey-700/75" strokeWidth={1.5} />
-                  <div className="flex-1 rounded-md px-[10px] py-[7px] bg-honey-700/10 text-[13px] leading-[1.5] text-ink-2">
+                  <MessageCircleHeart size={16} className="shrink-0 mt-[8px] text-honey-700/75" strokeWidth={1.5} />
+                  <div className="flex-1 rounded-md px-[10px] py-[6px] bg-honey-700/10 text-[13px] leading-[1.5] text-ink-2">
                     {step.comment}
                   </div>
                 </div>

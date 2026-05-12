@@ -161,7 +161,7 @@ const LeafRow = ({
               onClick={() => setCommentOpen((o) => !o)}
               className={cn(
                 'border-0 bg-transparent p-0 cursor-pointer flex items-center justify-end w-full',
-                commentOpen ? 'text-honey-700/75' : 'text-stone-2',
+                commentOpen ? 'text-honey-700/75' : 'text-stone-2/50',
               )}
             >
               <MessageCircleHeart size={16} strokeWidth={1.5} />

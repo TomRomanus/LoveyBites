@@ -7,6 +7,7 @@ export type FlatStep = {
   sectionTitle?: string
   ingredientRefs?: string[]
   ingredientAmounts?: Record<string, string>
+  comment?: string
   globalIndex: number
 }
 

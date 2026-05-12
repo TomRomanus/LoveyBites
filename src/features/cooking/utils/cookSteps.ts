@@ -13,6 +13,7 @@ export const flattenCookSteps = (
         sectionTitle,
         ingredientRefs: node.ingredientRefs,
         ingredientAmounts: node.ingredientAmounts,
+        comment: node.comment,
         globalIndex: counter.n++,
       })
     } else {
