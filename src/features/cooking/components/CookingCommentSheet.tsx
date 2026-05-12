@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
 
@@ -20,10 +20,14 @@ const CookingCommentSheet = ({
   onClose,
 }: CookingCommentSheetProps) => {
   const [value, setValue] = useState(comment ?? '')
+  const [prevOpen, setPrevOpen] = useState(open)
+  const [prevComment, setPrevComment] = useState(comment)
 
-  useEffect(() => {
+  if (open !== prevOpen || comment !== prevComment) {
+    setPrevOpen(open)
+    setPrevComment(comment)
     if (open) setValue(comment ?? '')
-  }, [open, comment])
+  }
 
   return (
     <AnimatePresence>

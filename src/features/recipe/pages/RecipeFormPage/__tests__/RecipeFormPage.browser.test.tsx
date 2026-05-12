@@ -14,7 +14,10 @@ function makeQueryClient() {
 function setup() {
   return render(
     <QueryClientProvider client={makeQueryClient()}>
-      <MemoryRouter initialEntries={['/new']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <MemoryRouter
+        initialEntries={['/new']}
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
         <Routes>
           <Route path="/new" element={<RecipeFormPage />} />
           <Route path="/" element={<div>home</div>} />

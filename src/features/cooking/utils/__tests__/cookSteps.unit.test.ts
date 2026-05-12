@@ -137,9 +137,7 @@ describe('updateStepComment', () => {
   })
 
   it('clears a comment when undefined is passed', () => {
-    const nodes: TreeNode[] = [
-      { kind: 'leaf', text: 'Kook de pasta', comment: 'Oud bericht' },
-    ]
+    const nodes: TreeNode[] = [{ kind: 'leaf', text: 'Kook de pasta', comment: 'Oud bericht' }]
     const result = updateStepComment(nodes, 0, undefined)
     expect((result[0] as { kind: 'leaf'; comment?: string }).comment).toBeUndefined()
     expect('comment' in result[0]).toBe(false)

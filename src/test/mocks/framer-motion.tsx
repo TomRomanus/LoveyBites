@@ -46,10 +46,13 @@ function motionFactory(Component: React.ComponentType<any>) {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const motion = new Proxy(motionFactory as any, {
-  get: (_: any, tag: string) => el(tag),
+  get: (_: unknown, tag: string) => el(tag),
 })
 
-const AnimatePresence = forwardRef<unknown, { children?: ReactNode }>(({ children }, _ref) => children ?? null)
+const AnimatePresence = forwardRef<unknown, { children?: ReactNode }>(
+  ({ children }, _ref) => children ?? null,
+)
+AnimatePresence.displayName = 'AnimatePresence'
 
 const LayoutGroup = ({ children }: { children?: ReactNode }) => children ?? null
 

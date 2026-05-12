@@ -11,7 +11,11 @@ function makeEntry(overrides: Partial<MealPlanEntry> = {}): MealPlanEntry {
   return { id: 'e1', date: '2026-05-11', createdAt: null, createdBy: 'u1', ...overrides }
 }
 
-const defaultSaveState: DaySaveState = { hasThisRecipe: false, isSaving: false, isRecentlySaved: false }
+const defaultSaveState: DaySaveState = {
+  hasThisRecipe: false,
+  isSaving: false,
+  isRecentlySaved: false,
+}
 
 function setup(props: Partial<React.ComponentProps<typeof DayCell>> = {}) {
   const defaults = {

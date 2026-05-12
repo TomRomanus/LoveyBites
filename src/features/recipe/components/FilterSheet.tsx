@@ -36,9 +36,7 @@ const FilterSheet = ({ visible, activeTags, allTags, onChange, onClose }: Filter
       <div className="px-5 pt-4 pb-5 flex flex-wrap gap-2 overflow-y-auto overflow-x-hidden flex-1">
         {filtered.map((t) => {
           const isActive = activeTags.includes(t)
-          return (
-            <TagChip key={t} label={t} active={isActive} onClick={() => toggle(t)} />
-          )
+          return <TagChip key={t} label={t} active={isActive} onClick={() => toggle(t)} />
         })}
         {filtered.length === 0 && (
           <div className="text-[13px] text-stone">Geen tags voor &ldquo;{q}&rdquo;.</div>

@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import PortionStepper from '../PortionStepper'
 
-
 type Props = React.ComponentProps<typeof PortionStepper>
 
 function setup(overrides: Partial<Props> = {}) {

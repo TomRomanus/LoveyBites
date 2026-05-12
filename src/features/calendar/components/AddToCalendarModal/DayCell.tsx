@@ -20,14 +20,7 @@ type DayCellProps = {
   onClick: () => void
 }
 
-function DayCellInner({
-  day,
-  today,
-  dayEntries,
-  recipeMap,
-  saveState,
-  onClick,
-}: DayCellProps) {
+function DayCellInner({ day, today, dayEntries, recipeMap, saveState, onClick }: DayCellProps) {
   const { hasThisRecipe, isSaving, isRecentlySaved } = saveState
   const iso = toISO(day)
   const isToday = isSameDay(day, today)

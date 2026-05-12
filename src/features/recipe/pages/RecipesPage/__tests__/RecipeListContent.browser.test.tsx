@@ -5,7 +5,6 @@ import { MemoryRouter } from 'react-router-dom'
 import RecipeListContent from '../RecipeListContent'
 import type { Recipe } from '@/features/recipe/types/recipe'
 
-
 vi.mock('@/features/recipe/components/RecipeCard', () => ({
   default: ({ recipe, onAddToCalendar }: any) => (
     <div data-testid="recipe-card" data-id={recipe.id} onClick={() => onAddToCalendar?.(recipe)}>

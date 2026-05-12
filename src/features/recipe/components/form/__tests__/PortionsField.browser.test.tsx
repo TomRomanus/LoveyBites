@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import PortionsField from '../PortionsField'
 
-
 type Props = React.ComponentProps<typeof PortionsField>
 
 function setup(overrides: Partial<Props> = {}) {

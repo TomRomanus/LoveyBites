@@ -30,8 +30,8 @@ const IngredientRow = ({
   const borderCls = noBorder
     ? ''
     : theme === 'dark'
-    ? 'border-b-[0.5px] border-paper/[0.08]'
-    : 'border-b-[0.5px] border-ink/14'
+      ? 'border-b-[0.5px] border-paper/[0.08]'
+      : 'border-b-[0.5px] border-ink/14'
 
   const textCls =
     theme === 'dark'
@@ -39,8 +39,8 @@ const IngredientRow = ({
         ? 'text-paper/40'
         : 'text-paper'
       : isChecked
-      ? 'text-stone opacity-50'
-      : 'text-ink opacity-100'
+        ? 'text-stone opacity-50'
+        : 'text-ink opacity-100'
 
   const strikethrough = (
     <motion.span

@@ -9,7 +9,11 @@ type StepCommentProps = {
 
 const StepComment = ({ comment, theme = 'light', className }: StepCommentProps) => (
   <div data-comment className={cn('flex gap-[7px] items-start', className)}>
-    <MessageCircleHeart size={16} className="shrink-0 mt-[6px] text-honey-700/75" strokeWidth={1.5} />
+    <MessageCircleHeart
+      size={16}
+      className="shrink-0 mt-[6px] text-honey-700/75"
+      strokeWidth={1.5}
+    />
     <div
       className={cn(
         'flex-1 rounded-md px-[10px] py-[6px] text-[13px] leading-[1.5]',

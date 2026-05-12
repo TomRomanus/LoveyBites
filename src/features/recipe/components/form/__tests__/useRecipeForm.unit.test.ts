@@ -1,7 +1,6 @@
 import { renderHook, act } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { useRecipeForm } from '../useRecipeForm'
-import * as ingredientUtils from '@/features/recipe/utils/ingredientUtils'
 import type { RecipeInput } from '@/features/recipe/types/recipe'
 
 vi.mock('@/features/recipe/utils/ingredientUtils', () => ({

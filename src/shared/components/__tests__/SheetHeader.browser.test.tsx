@@ -10,11 +10,15 @@ describe('SheetHeader', () => {
 
   it('renders the title content as an h3', () => {
     render(<SheetHeader eyebrow="MAANDAG">Maaltijd toevoegen</SheetHeader>)
-    expect(screen.getByRole('heading', { level: 3, name: 'Maaltijd toevoegen' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { level: 3, name: 'Maaltijd toevoegen' }),
+    ).toBeInTheDocument()
   })
 
   it('applies lb-eyebrow class to the eyebrow element', () => {
-    const { container } = render(<SheetHeader eyebrow="BOODSCHAPPENLIJST">Wat we nodig hebben</SheetHeader>)
+    const { container } = render(
+      <SheetHeader eyebrow="BOODSCHAPPENLIJST">Wat we nodig hebben</SheetHeader>,
+    )
     expect(container.querySelector('.lb-eyebrow')).toHaveTextContent('BOODSCHAPPENLIJST')
   })
 

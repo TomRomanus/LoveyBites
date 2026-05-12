@@ -10,7 +10,10 @@ export async function seedRecipe(recipe: Record<string, unknown> & { id: string 
   const db = getFirestore(app)
   const { id, ...data } = recipe
   const now = Timestamp.now()
-  await db.collection('recipes').doc(id).set({ ...data, createdAt: now, updatedAt: now })
+  await db
+    .collection('recipes')
+    .doc(id)
+    .set({ ...data, createdAt: now, updatedAt: now })
   await deleteApp(app)
 }
 

@@ -13,7 +13,15 @@ type Props = {
   onDismiss: () => void
 }
 
-const StepCommentBox = ({ open, autoFocus = false, node, allNodes, path, onChange, onDismiss }: Props) => (
+const StepCommentBox = ({
+  open,
+  autoFocus = false,
+  node,
+  allNodes,
+  path,
+  onChange,
+  onDismiss,
+}: Props) => (
   <AnimatePresence initial={false}>
     {open && (
       <motion.div

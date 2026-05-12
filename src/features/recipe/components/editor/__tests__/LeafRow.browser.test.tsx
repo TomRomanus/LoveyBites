@@ -96,7 +96,9 @@ describe('LeafRow', () => {
 
 describe('LeafRow — comment field (steps)', () => {
   const stepNode: IngredientNode & { kind: 'leaf' } = {
-    kind: 'leaf', id: 'step-c', text: 'Bak de ui glazig',
+    kind: 'leaf',
+    id: 'step-c',
+    text: 'Bak de ui glazig',
   }
 
   const stepFlags: LeafEdgeFlags = {
@@ -107,7 +109,9 @@ describe('LeafRow — comment field (steps)', () => {
     shouldFocus: false,
   }
 
-  function setupStep(overrides: Partial<Omit<Props, 'flags'>> & { flags?: Partial<LeafEdgeFlags> } = {}) {
+  function setupStep(
+    overrides: Partial<Omit<Props, 'flags'>> & { flags?: Partial<LeafEdgeFlags> } = {},
+  ) {
     const { flags: flagOverrides, ...rest } = overrides
     const props: Props = {
       node: stepNode,
@@ -145,7 +149,8 @@ describe('LeafRow — comment field (steps)', () => {
 
   it('opens comment box on mount when node already has a comment', () => {
     const nodeWithComment: IngredientNode & { kind: 'leaf' } = {
-      ...stepNode, comment: 'Let op de textuur',
+      ...stepNode,
+      comment: 'Let op de textuur',
     }
     setupStep({ node: nodeWithComment, allNodes: [nodeWithComment] })
     const textboxes = screen.getAllByRole('textbox')
@@ -166,7 +171,8 @@ describe('LeafRow — comment field (steps)', () => {
 
   it('clears comment from node and closes box when dismiss button is clicked', async () => {
     const nodeWithComment: IngredientNode & { kind: 'leaf' } = {
-      ...stepNode, comment: 'oud',
+      ...stepNode,
+      comment: 'oud',
     }
     const onChange = vi.fn()
     setupStep({ node: nodeWithComment, allNodes: [nodeWithComment], onChange })
@@ -203,7 +209,9 @@ describe('LeafRow — ingredient refs panel', () => {
     shouldFocus: false,
   }
 
-  function setupStep(overrides: Partial<Omit<Props, 'flags'>> & { flags?: Partial<LeafEdgeFlags> } = {}) {
+  function setupStep(
+    overrides: Partial<Omit<Props, 'flags'>> & { flags?: Partial<LeafEdgeFlags> } = {},
+  ) {
     const { flags: flagOverrides, ...rest } = overrides
     const props: Props = {
       node: stepNode,

@@ -267,8 +267,9 @@ test.describe('Recipe detail — cook mode step comment', () => {
     await page.getByRole('textbox').fill('Lekker zacht koken!')
     await page.locator('[data-testid="comment-backdrop"]').click()
 
-    // Close cook mode
+    // Close cook mode and wait for the exit animation to finish
     await locateCloseButton(page).click()
+    await expect(page.locator('[data-testid="cooking-close-btn"]')).not.toBeAttached()
 
     // Comment should now appear in the recipe detail step section
     await expect(page.getByText('Lekker zacht koken!')).toBeVisible()

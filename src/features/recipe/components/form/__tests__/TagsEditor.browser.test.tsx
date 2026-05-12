@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import TagsEditor from '../TagsEditor'
 
-
 type Props = React.ComponentProps<typeof TagsEditor>
 
 function setup(overrides: Partial<Props> = {}) {

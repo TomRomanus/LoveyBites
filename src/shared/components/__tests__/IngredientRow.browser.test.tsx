@@ -12,7 +12,10 @@ function setup(overrides: Partial<Props> = {}) {
     onToggle: vi.fn(),
   }
   const props = { ...defaults, ...overrides }
-  return { ...render(<IngredientRow {...props} />), onToggle: props.onToggle as ReturnType<typeof vi.fn> }
+  return {
+    ...render(<IngredientRow {...props} />),
+    onToggle: props.onToggle as ReturnType<typeof vi.fn>,
+  }
 }
 
 describe('IngredientRow', () => {

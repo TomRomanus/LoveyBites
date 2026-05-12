@@ -33,8 +33,16 @@ const AppShell = () => {
   return (
     <div className="max-w-[480px] mx-auto min-h-[100dvh] relative">
       <ViewTransition
-        enter={{ 'nav-forward': 'page-enter-forward', 'nav-back': 'page-enter-back', default: 'page-fade-in' }}
-        exit={{ 'nav-forward': 'page-exit-forward', 'nav-back': 'page-exit-back', default: 'page-fade-out' }}
+        enter={{
+          'nav-forward': 'page-enter-forward',
+          'nav-back': 'page-enter-back',
+          default: 'page-fade-in',
+        }}
+        exit={{
+          'nav-forward': 'page-exit-forward',
+          'nav-back': 'page-exit-back',
+          default: 'page-fade-out',
+        }}
         default="none"
       >
         <Routes location={location}>

@@ -12,7 +12,7 @@ type PortionsFieldProps = {
 const PortionsField = ({ value, onChange, label, onLabelChange }: PortionsFieldProps) => {
   const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
   const [displayLabelDir, setDisplayLabelDir] = useState<'up' | 'down' | null>(null)
-  const displayLabel = (label || 'pers') === 'stuks' && value === 1 ? 'stuk' : (label || 'pers')
+  const displayLabel = (label || 'pers') === 'stuks' && value === 1 ? 'stuk' : label || 'pers'
 
   return (
     <div className="flex items-center justify-between gap-3">

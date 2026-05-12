@@ -40,7 +40,13 @@ export const flattenSteps = (nodes: IngredientNode[]): FlattenedStep[] => {
   const traverse = (ns: IngredientNode[], phase: string) => {
     for (const n of ns) {
       if (n.kind === 'leaf') {
-        steps.push({ phase, text: n.text, ingredientRefs: n.ingredientRefs, ingredientAmounts: n.ingredientAmounts, comment: n.comment })
+        steps.push({
+          phase,
+          text: n.text,
+          ingredientRefs: n.ingredientRefs,
+          ingredientAmounts: n.ingredientAmounts,
+          comment: n.comment,
+        })
       } else {
         traverse(n.children, n.title || phase)
       }

@@ -19,7 +19,7 @@ A shared recipe book and meal planner web app. Add, import, and organise recipes
 | `/`           | Recipes       | Browse, search, and filter all your recipes                                       |
 | `/recipe/:id` | Recipe Detail | View a recipe, scale portions, use cook mode, rate it, and add it to the calendar |
 | `/new`        | New Recipe    | Import a recipe via URL, pasted text, photo, or enter it manually                 |
-| `/edit/:id`   | Edit Recipe   | Edit an existing recipe                                                            |
+| `/edit/:id`   | Edit Recipe   | Edit an existing recipe                                                           |
 | `/calendar`   | Meal Planner  | Weekly calendar for planning meals                                                |
 
 ---
@@ -126,12 +126,12 @@ E2E tests require the Firebase CLI and Java 21 (for the emulators). The browser 
 
 A single workflow `.github/workflows/ci.yml` runs on every push to `main` and on pull requests:
 
-| Job       | Needs    | Result                                                                              |
-| --------- | -------- | ----------------------------------------------------------------------------------- |
-| `unit`    | —        | Runs unit tests                                                                     |
-| `browser` | `unit`   | Runs browser-mode component tests                                                   |
-| `e2e`     | `browser`| Runs Playwright E2E tests against Firebase emulators                                |
-| `deploy`  | `e2e`    | Builds and deploys — **live** channel on `main`, **preview** channel on pull requests |
+| Job       | Needs     | Result                                                                                |
+| --------- | --------- | ------------------------------------------------------------------------------------- |
+| `unit`    | —         | Runs unit tests                                                                       |
+| `browser` | `unit`    | Runs browser-mode component tests                                                     |
+| `e2e`     | `browser` | Runs Playwright E2E tests against Firebase emulators                                  |
+| `deploy`  | `e2e`     | Builds and deploys — **live** channel on `main`, **preview** channel on pull requests |
 
 ### Setting up secrets and variables
 
@@ -172,9 +172,9 @@ Add the following under the **Variables** tab (these are not sensitive):
 
 The app can extract structured recipe data from a URL, pasted text, or a photo using either **Anthropic Claude** or **OpenAI**.
 
-| Provider                   | Model                      | Set `VITE_AI_PROVIDER` to |
-| -------------------------- | -------------------------- | ------------------------- |
+| Provider                   | Model                       | Set `VITE_AI_PROVIDER` to |
+| -------------------------- | --------------------------- | ------------------------- |
 | Anthropic Claude (default) | `claude-haiku-4-5-20251001` | `anthropic`               |
-| OpenAI                     | `gpt-4o-mini`              | `openai`                  |
+| OpenAI                     | `gpt-4o-mini`               | `openai`                  |
 
 Set `VITE_AI_PROVIDER` and supply the corresponding API key (`VITE_ANTHROPIC_API_KEY` or `VITE_OPENAI_API_KEY`). You only need the key for the provider you intend to use.

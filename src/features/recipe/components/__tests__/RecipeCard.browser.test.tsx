@@ -5,7 +5,6 @@ import { MemoryRouter } from 'react-router-dom'
 import RecipeCard from '../RecipeCard'
 import type { Recipe } from '@/features/recipe/types/recipe'
 
-
 vi.mock('@/features/recipe/components/StarRating', () => ({
   StarRating: ({ value }: any) => <span data-testid="star-rating">{value}</span>,
 }))

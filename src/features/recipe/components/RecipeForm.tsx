@@ -81,10 +81,7 @@ const RecipeForm = (props: Props) => {
           name="benodigdheden"
           control={control}
           render={({ field }) => (
-            <RecipeEquipmentEditor
-              equipment={field.value ?? []}
-              onChange={field.onChange}
-            />
+            <RecipeEquipmentEditor equipment={field.value ?? []} onChange={field.onChange} />
           )}
         />
       </div>

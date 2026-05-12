@@ -156,9 +156,7 @@ describe('scaleStepAmounts', () => {
       {
         kind: 'group',
         title: 'Groep',
-        children: [
-          { kind: 'leaf', id: 's1', text: '', ingredientAmounts: { ing1: '50' } },
-        ],
+        children: [{ kind: 'leaf', id: 's1', text: '', ingredientAmounts: { ing1: '50' } }],
       },
     ]
     const result = scaleStepAmounts(nodes, 2)

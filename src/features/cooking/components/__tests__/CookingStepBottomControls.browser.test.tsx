@@ -15,7 +15,11 @@ function setup(overrides: Partial<Props> = {}) {
     onCommentOpen: vi.fn(),
   }
   const props = { ...defaults, ...overrides }
-  return { ...render(<CookingStepBottomControls {...props} />), onGoTo: props.onGoTo, onCommentOpen: props.onCommentOpen }
+  return {
+    ...render(<CookingStepBottomControls {...props} />),
+    onGoTo: props.onGoTo,
+    onCommentOpen: props.onCommentOpen,
+  }
 }
 
 describe('CookingStepBottomControls', () => {
@@ -128,12 +132,18 @@ describe('CookingStepBottomControls', () => {
 
     it('sets data-has-comment to true when hasComment is true', () => {
       setup({ hasComment: true })
-      expect(screen.getByRole('button', { name: /opmerking/i })).toHaveAttribute('data-has-comment', 'true')
+      expect(screen.getByRole('button', { name: /opmerking/i })).toHaveAttribute(
+        'data-has-comment',
+        'true',
+      )
     })
 
     it('sets data-has-comment to false when hasComment is false', () => {
       setup({ hasComment: false })
-      expect(screen.getByRole('button', { name: /opmerking/i })).toHaveAttribute('data-has-comment', 'false')
+      expect(screen.getByRole('button', { name: /opmerking/i })).toHaveAttribute(
+        'data-has-comment',
+        'false',
+      )
     })
   })
 })

@@ -2,7 +2,14 @@ import { useMemo, useState } from 'react'
 import { X, MessageCircleHeart } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { replaceAt, removeAt } from '@/features/recipe/components/editor/nodeTree'
-import { parseIngredientText, parseAmount, formatAmount, collectUsedAmounts, normalizeStepAmount, VOLUME_UNIT } from '@/features/recipe/utils/ingredientUtils'
+import {
+  parseIngredientText,
+  parseAmount,
+  formatAmount,
+  collectUsedAmounts,
+  normalizeStepAmount,
+  VOLUME_UNIT,
+} from '@/features/recipe/utils/ingredientUtils'
 import IngredientGripToggle from '@/features/recipe/components/editor/IngredientGripToggle'
 import IngredientPickerSection from '@/features/recipe/components/editor/IngredientPickerSection'
 import IngredientInputField from '@/features/recipe/components/editor/IngredientInputField'
@@ -60,7 +67,7 @@ const LeafRow = ({
   const [pickerOpen, setPickerOpen] = useState(false)
   const [commentOpen, setCommentOpen] = useState(!!node.comment)
   const [commentAutoFocus, setCommentAutoFocus] = useState(false)
-  const selectedIds = new Set(node.ingredientRefs ?? [])
+  const selectedIds = useMemo(() => new Set(node.ingredientRefs ?? []), [node.ingredientRefs])
   const selectedIngredients = ingredientOptions?.filter((opt) => selectedIds.has(opt.id)) ?? []
   const amounts = node.ingredientAmounts ?? {}
 
@@ -79,7 +86,11 @@ const LeafRow = ({
       const rem = Math.max(0, maxNum - used)
       const unit = maxLabel.slice(amount.length).trim().toLowerCase()
       const useFractions = amount.includes('/') || VOLUME_UNIT.test(unit)
-      return useFractions ? formatAmount(rem) : rem % 1 === 0 ? String(rem) : parseFloat(rem.toFixed(6)).toString()
+      return useFractions
+        ? formatAmount(rem)
+        : rem % 1 === 0
+          ? String(rem)
+          : parseFloat(rem.toFixed(6)).toString()
     }
   }, [usedElsewhere])
 
@@ -141,14 +152,18 @@ const LeafRow = ({
     }
     if (anyChange) {
       const { ingredientAmounts: _ia, ...base } = node
-      onChange(replaceAt(allNodes, path, { ...base, ingredientAmounts: { ...amounts, ...normalized } }))
+      onChange(
+        replaceAt(allNodes, path, { ...base, ingredientAmounts: { ...amounts, ...normalized } }),
+      )
     }
     setPickerOpen(false)
   }
 
   return (
     <div className={isLast ? '' : 'border-b-[0.5px] border-ink/14'}>
-      <div className={`flex items-start ${ordered ? `gap-2 pt-2 ${commentOpen ? 'pb-0' : 'pb-2'}` : 'gap-[3px]'}`}>
+      <div
+        className={`flex items-start ${ordered ? `gap-2 pt-2 ${commentOpen ? 'pb-0' : 'pb-2'}` : 'gap-[3px]'}`}
+      >
         <IngredientGripToggle ordered={ordered} reordering={reordering} />
 
         {ordered && (

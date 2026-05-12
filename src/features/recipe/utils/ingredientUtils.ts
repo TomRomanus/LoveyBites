@@ -5,7 +5,15 @@ export const VOLUME_UNIT =
   /^(cups?|c\.|tbsp?\.?|tbs\.?|tablespoons?|tsp\.?|teaspoons?|kop(?:jes?|pen)?|el|tl|eetlepels?|theelepels?)\b/i
 
 export const COOKING_FRACTIONS: [number, number][] = [
-  [1, 8], [1, 4], [1, 3], [3, 8], [1, 2], [5, 8], [2, 3], [3, 4], [7, 8],
+  [1, 8],
+  [1, 4],
+  [1, 3],
+  [3, 8],
+  [1, 2],
+  [5, 8],
+  [2, 3],
+  [3, 4],
+  [7, 8],
 ]
 
 /** Recursively collect all leaf text values from an ingredient/step tree. */
@@ -166,9 +174,28 @@ export const collectUsedAmounts = (
 }
 
 const KNOWN_UNITS = new Set([
-  'g', 'kg', 'ml', 'l', 'dl', 'cl',
-  'el', 'tl', 'eetlepel', 'theelepel',
-  'st', 'stuks', 'stuk',
-  'zakje', 'blikje', 'snufje', 'snuf', 'scheutje',
-  'tbsp', 'tsp', 'cup', 'cups', 'oz', 'lb',
+  'g',
+  'kg',
+  'ml',
+  'l',
+  'dl',
+  'cl',
+  'el',
+  'tl',
+  'eetlepel',
+  'theelepel',
+  'st',
+  'stuks',
+  'stuk',
+  'zakje',
+  'blikje',
+  'snufje',
+  'snuf',
+  'scheutje',
+  'tbsp',
+  'tsp',
+  'cup',
+  'cups',
+  'oz',
+  'lb',
 ])

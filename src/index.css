@@ -34,6 +34,10 @@
   --sans: 'Inter Tight', -apple-system, system-ui, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, monospace;
 
+  /* Component-level color tokens (set per-element, defaults here for IDE resolution) */
+  --block-bg: var(--bordeaux);
+  --block-fg: var(--cream-card);
+
   /* Radii */
   --r-sm: 6px;
   --r-md: 12px;
@@ -49,7 +53,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--sans);
+  font-family: var(--sans), sans-serif;
   color: var(--ink);
   background: var(--paper);
   -webkit-font-smoothing: antialiased;
@@ -93,7 +97,7 @@ textarea {
   border-bottom: 1px solid var(--block-bg, var(--bordeaux));
 }
 .lb-color-block-corner {
-  font-family: var(--mono);
+  font-family: var(--mono), monospace;
   font-size: 9px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -101,7 +105,7 @@ textarea {
   z-index: 1;
 }
 .lb-color-block-title {
-  font-family: var(--serif);
+  font-family: var(--serif), serif;
   font-style: italic;
   font-weight: 500;
   z-index: 1;
@@ -119,7 +123,7 @@ textarea {
   border-radius: 11px;
   background: var(--paper-2);
   color: var(--ink-2);
-  font-family: var(--sans);
+  font-family: var(--sans), sans-serif;
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -144,7 +148,7 @@ textarea {
   height: 40px;
   padding: 0 18px;
   border-radius: 20px;
-  font-family: var(--sans);
+  font-family: var(--sans), sans-serif;
   font-size: 15px;
   font-weight: 500;
   letter-spacing: -0.01em;
@@ -217,7 +221,7 @@ textarea {
   border-radius: 12px;
   background: var(--paper-2);
   color: var(--ink);
-  font-family: var(--sans);
+  font-family: var(--sans), sans-serif;
   font-size: 15px;
   outline: none;
   transition:
@@ -366,7 +370,7 @@ textarea.lb-input {
 
 /* Typography */
 .lb-eyebrow {
-  font-family: var(--mono);
+  font-family: var(--mono), monospace;
   font-size: 10px;
   font-weight: 500;
   letter-spacing: 0.14em;
@@ -374,7 +378,7 @@ textarea.lb-input {
   color: var(--stone);
 }
 .lb-display {
-  font-family: var(--serif);
+  font-family: var(--serif), serif;
   font-weight: 500;
   font-style: italic;
   letter-spacing: -0.02em;
@@ -383,13 +387,13 @@ textarea.lb-input {
 }
 .lb-display .anchor,
 .lb-display b {
-  font-family: var(--serif);
+  font-family: var(--serif), serif;
   font-style: italic;
   font-weight: 500;
   letter-spacing: -0.02em;
 }
 .lb-wordmark {
-  font-family: var(--serif);
+  font-family: var(--serif), serif;
   font-style: italic;
   font-weight: 600;
   letter-spacing: -0.025em;
@@ -399,18 +403,18 @@ textarea.lb-input {
   align-items: baseline;
 }
 .lb-wordmark .lovey {
-  font-family: var(--serif);
+  font-family: var(--serif), serif;
   font-style: italic;
   font-weight: 600;
 }
 .lb-wordmark .bites {
-  font-family: var(--serif);
+  font-family: var(--serif), serif;
   font-style: normal;
   font-weight: 600;
   letter-spacing: -0.025em;
 }
 .lb-mark {
-  font-family: var(--serif);
+  font-family: var(--serif), serif;
   font-style: italic;
   font-weight: 500;
   letter-spacing: -0.02em;
@@ -437,7 +441,7 @@ textarea.lb-input {
   background: var(--line);
 }
 .lb-divider-ornament span {
-  font-family: var(--serif);
+  font-family: var(--serif), serif;
   font-style: italic;
   font-size: 12px;
   letter-spacing: 0.02em;
@@ -691,28 +695,60 @@ textarea.lb-input {
 /* ─── View Transitions ─────────────────────────────────────────────────────── */
 
 @keyframes vt-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes vt-fade-out {
-  from { opacity: 1; }
-  to   { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 @keyframes vt-slide-from-right {
-  from { transform: translateX(32px); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
+  from {
+    transform: translateX(32px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 @keyframes vt-slide-to-left {
-  from { transform: translateX(0);    opacity: 1; }
-  to   { transform: translateX(-32px); opacity: 0; }
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-32px);
+    opacity: 0;
+  }
 }
 @keyframes vt-slide-from-left {
-  from { transform: translateX(-32px); opacity: 0; }
-  to   { transform: translateX(0);     opacity: 1; }
+  from {
+    transform: translateX(-32px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 @keyframes vt-slide-to-right {
-  from { transform: translateX(0);    opacity: 1; }
-  to   { transform: translateX(32px); opacity: 0; }
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(32px);
+    opacity: 0;
+  }
 }
 
 /* Default cross-fade timing */

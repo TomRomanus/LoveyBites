@@ -3,23 +3,28 @@
 ## Code Style
 
 ### React Principles
+
 - **Single responsibility**: Each component does one thing. If a component is fetching data, transforming it, AND rendering complex UI, split it.
 - **Small components**: Prefer many small, focused components over large monolithic ones. A component file that grows past ~150 lines is a sign to split.
 - **Composition over configuration**: Build features by composing small components, not by adding more props and conditionals to existing ones.
 - **If a bigger restructure is needed**: Do NOT silently refactor unrelated code. Flag it as a suggestion to the user and implement only what was asked.
 
 ### Food/Recipe Naming Conventions
+
 - Use food/cooking domain language for variables, components, and files: `Recipe`, `Ingredient`, `MealPlan`, `CookMode`, `Serving`, `Portion` — not generic names like `Item`, `Entry`, or `Card`.
 - Component names should read naturally in the food domain: `RecipeCard`, `IngredientList`, `MealCalendar`, `CookingStep`.
 - **All code identifiers must be English** — no Dutch in component names, function names, type names, prop names, or variable names. Dutch is only allowed in UI strings (user-visible text). Data model field names that map directly to existing Firestore documents are exempt to avoid breaking stored data.
 
 ### General
+
 - No unnecessary abstractions. Don't create helpers, hooks, or utilities until there are at least 3 real use cases.
 - No comments explaining what the code does — names should do that. Comments only for non-obvious WHY.
 - No dead code, unused imports, or backwards-compatibility shims.
 
 ### Code Quality Checks
+
 After any non-trivial change, verify:
+
 - **No duplicate logic**: before adding a parsing, formatting, or domain utility, check if an existing one covers it — consolidate rather than duplicate.
 - **No duplicate data**: if two constants represent the same domain knowledge (unit lists, fraction tables, error colors), there should be one export that both import.
 - **`useMemo` for derived data**: expensive computations inside components that derive from props or state should be wrapped in `useMemo`.
@@ -43,11 +48,11 @@ Keep feature-specific code inside its feature folder. Move to `shared/` only whe
 
 When the user says "add tests", evaluate which types the feature actually needs — do not add all types by default:
 
-| Test type | Tool | When to use |
-|-----------|------|-------------|
-| **Unit** | Vitest | Pure logic, utilities, hooks — functionality in isolation |
+| Test type   | Tool                  | When to use                                                            |
+| ----------- | --------------------- | ---------------------------------------------------------------------- |
+| **Unit**    | Vitest                | Pure logic, utilities, hooks — functionality in isolation              |
 | **Browser** | Vitest + browser mode | Component rendering, UI behavior, user interactions within a component |
-| **E2E** | Playwright | Full user flows, Firebase integration, multi-page interactions |
+| **E2E**     | Playwright            | Full user flows, Firebase integration, multi-page interactions         |
 
 - A simple utility function → unit test only.
 - A new UI component → browser test (rendering + interaction).
@@ -55,6 +60,7 @@ When the user says "add tests", evaluate which types the feature actually needs 
 - A feature may need multiple types — state the reasoning before writing tests.
 
 ## Tech Stack
+
 - React + TypeScript + Vite
 - Firebase (Firestore, Auth, Storage) with emulators for testing
 - Tailwind CSS

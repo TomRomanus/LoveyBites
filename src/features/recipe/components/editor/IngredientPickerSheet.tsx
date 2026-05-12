@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Sheet from '@/shared/components/Sheet'
 import AnimatedTabBar from '@/shared/components/AnimatedTabBar'
@@ -38,7 +38,7 @@ const IngredientPickerSheet = ({
   onClose,
 }: IngredientPickerSheetProps) => {
   const [activeTab, setActiveTab] = useState<Tab>('ingredients')
-  const directionRef = useRef(1)
+  const [direction, setDirection] = useState(1)
 
   const selectedOptions = options.filter((o) => selectedIds.has(o.id))
 
@@ -66,8 +66,7 @@ const IngredientPickerSheet = ({
   )
 
   const switchTab = (next: Tab) => {
-    directionRef.current =
-      TAB_ORDER.indexOf(next) > TAB_ORDER.indexOf(activeTab) ? 1 : -1
+    setDirection(TAB_ORDER.indexOf(next) > TAB_ORDER.indexOf(activeTab) ? 1 : -1)
     setActiveTab(next)
   }
 
@@ -101,11 +100,11 @@ const IngredientPickerSheet = ({
 
       {/* Tab content */}
       <div className="overflow-hidden">
-        <AnimatePresence mode="popLayout" custom={directionRef.current}>
+        <AnimatePresence mode="popLayout" custom={direction}>
           {activeTab === 'ingredients' ? (
             <motion.div
               key="ingredients"
-              custom={directionRef.current}
+              custom={direction}
               variants={variants}
               initial="enter"
               animate="center"
@@ -131,7 +130,10 @@ const IngredientPickerSheet = ({
                   <span className="text-[13px] text-stone">Voeg eerst ingrediënten toe</span>
                 )}
               </div>
-              <div className="px-5 pb-1 flex justify-end" style={{ visibility: selectedIds.size > 0 ? 'visible' : 'hidden' }}>
+              <div
+                className="px-5 pb-1 flex justify-end"
+                style={{ visibility: selectedIds.size > 0 ? 'visible' : 'hidden' }}
+              >
                 <button
                   type="button"
                   onClick={() =>
@@ -146,7 +148,7 @@ const IngredientPickerSheet = ({
           ) : (
             <motion.div
               key="amounts"
-              custom={directionRef.current}
+              custom={direction}
               variants={variants}
               initial="enter"
               animate="center"
@@ -172,7 +174,9 @@ const IngredientPickerSheet = ({
                       <div className="flex-1 min-w-0">
                         <div className="text-[13px] text-ink leading-snug">{name || opt.text}</div>
                         {maxLabel && (
-                          <div className="text-[11px] text-stone font-mono mt-[1px]">{maxLabel}</div>
+                          <div className="text-[11px] text-stone font-mono mt-[1px]">
+                            {maxLabel}
+                          </div>
                         )}
                         <AnimatePresence initial={false}>
                           {(isInvalid || isOver) && (

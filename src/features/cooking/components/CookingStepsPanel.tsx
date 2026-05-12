@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { FlatStep } from '@/features/cooking/types/cooking'
 import GroupLabel from '@/shared/components/GroupLabel'
@@ -8,10 +8,12 @@ import StepComment from '@/shared/components/StepComment'
 // not a transform) so justify-center repositions the block smoothly each frame.
 function CommentSlot({ comment }: { comment: string | undefined }) {
   const [displayed, setDisplayed] = useState(comment)
+  const [prevComment, setPrevComment] = useState(comment)
 
-  useEffect(() => {
+  if (comment !== prevComment) {
+    setPrevComment(comment)
     if (comment !== undefined) setDisplayed(comment)
-  }, [comment])
+  }
 
   const visible = comment !== undefined
 

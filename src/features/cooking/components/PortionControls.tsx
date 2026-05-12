@@ -21,62 +21,65 @@ const PortionControls = ({
   portionDir,
   onPortionsChange,
 }: PortionControlsProps) => {
-  const displayLabel = recipe.portionsLabel === 'stuks' && selectedPortions === 1 ? 'stuk' : (recipe.portionsLabel || 'pers')
+  const displayLabel =
+    recipe.portionsLabel === 'stuks' && selectedPortions === 1
+      ? 'stuk'
+      : recipe.portionsLabel || 'pers'
   return (
-  <div className="flex items-center justify-between mb-[14px]">
-    <span className="font-mono text-[12px] tracking-[0.08em] uppercase text-paper/[0.65]">
-      porties
-    </span>
-    <div className="flex items-center rounded-[16px] p-[3px] bg-paper/10">
-      <button
-        onClick={() => onPortionsChange(Math.max(1, selectedPortions - 1))}
-        disabled={selectedPortions === 1}
-        className="w-[30px] h-[30px] rounded-[13px] border-0 text-paper flex items-center justify-center cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.2)] bg-paper/[0.15] disabled:opacity-30 disabled:cursor-not-allowed"
-      >
-        <Minus size={14} strokeWidth={2.4} />
-      </button>
-      <div className="min-w-[72px] flex items-center justify-center gap-1 font-mono text-[12px] text-paper tracking-[0.08em] uppercase">
-        <div className="overflow-hidden relative">
-          <AnimatePresence mode="popLayout" custom={portionDir}>
-            <motion.span
-              key={selectedPortions}
-              custom={portionDir}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-              className="block"
-            >
-              {selectedPortions}
-            </motion.span>
-          </AnimatePresence>
+    <div className="flex items-center justify-between mb-[14px]">
+      <span className="font-mono text-[12px] tracking-[0.08em] uppercase text-paper/[0.65]">
+        porties
+      </span>
+      <div className="flex items-center rounded-[16px] p-[3px] bg-paper/10">
+        <button
+          onClick={() => onPortionsChange(Math.max(1, selectedPortions - 1))}
+          disabled={selectedPortions === 1}
+          className="w-[30px] h-[30px] rounded-[13px] border-0 text-paper flex items-center justify-center cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.2)] bg-paper/[0.15] disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          <Minus size={14} strokeWidth={2.4} />
+        </button>
+        <div className="min-w-[72px] flex items-center justify-center gap-1 font-mono text-[12px] text-paper tracking-[0.08em] uppercase">
+          <div className="overflow-hidden relative">
+            <AnimatePresence mode="popLayout" custom={portionDir}>
+              <motion.span
+                key={selectedPortions}
+                custom={portionDir}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                className="block"
+              >
+                {selectedPortions}
+              </motion.span>
+            </AnimatePresence>
+          </div>
+          <div className="overflow-hidden relative">
+            <AnimatePresence mode="popLayout" custom={portionDir}>
+              <motion.span
+                key={displayLabel}
+                custom={portionDir}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                className="block"
+              >
+                {displayLabel}
+              </motion.span>
+            </AnimatePresence>
+          </div>
         </div>
-        <div className="overflow-hidden relative">
-          <AnimatePresence mode="popLayout" custom={portionDir}>
-            <motion.span
-              key={displayLabel}
-              custom={portionDir}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-              className="block"
-            >
-              {displayLabel}
-            </motion.span>
-          </AnimatePresence>
-        </div>
+        <button
+          onClick={() => onPortionsChange(selectedPortions + 1)}
+          className="w-[30px] h-[30px] rounded-[13px] border-0 text-paper flex items-center justify-center cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.2)] bg-paper/[0.15]"
+        >
+          <Plus size={14} strokeWidth={2.4} />
+        </button>
       </div>
-      <button
-        onClick={() => onPortionsChange(selectedPortions + 1)}
-        className="w-[30px] h-[30px] rounded-[13px] border-0 text-paper flex items-center justify-center cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.2)] bg-paper/[0.15]"
-      >
-        <Plus size={14} strokeWidth={2.4} />
-      </button>
     </div>
-  </div>
   )
 }
 

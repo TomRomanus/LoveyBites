@@ -4,7 +4,11 @@ import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import type { IngredientNode } from '@/features/recipe/types/recipe'
 import LeafRow from '@/features/recipe/components/editor/LeafRow'
-import type { EditorLabels, IngredientOption, LeafEdgeFlags } from '@/features/recipe/components/editor/LeafRow'
+import type {
+  EditorLabels,
+  IngredientOption,
+  LeafEdgeFlags,
+} from '@/features/recipe/components/editor/LeafRow'
 import GroupRow from '@/features/recipe/components/editor/GroupRow'
 import SortableItem from '@/features/recipe/components/editor/SortableItem'
 import DragOverlayContent from '@/features/recipe/components/editor/DragOverlayContent'
@@ -99,13 +103,15 @@ const RecipeNodeEditor = ({
                       <LeafRow
                         node={node}
                         path={[i]}
-                        flags={{
-                          isOnly: nodes.length === 1,
-                          isLast: i === nodes.length - 1,
-                          ordered: ordered ?? false,
-                          reordering: reordering ?? false,
-                          shouldFocus: node.id === focusId,
-                        } satisfies LeafEdgeFlags}
+                        flags={
+                          {
+                            isOnly: nodes.length === 1,
+                            isLast: i === nodes.length - 1,
+                            ordered: ordered ?? false,
+                            reordering: reordering ?? false,
+                            shouldFocus: node.id === focusId,
+                          } satisfies LeafEdgeFlags
+                        }
                         allNodes={nodes}
                         labels={labels}
                         onChange={onChange}

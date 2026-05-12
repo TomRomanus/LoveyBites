@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useRecipeDetailUI } from './useRecipeDetailUI'
 import { createPortal } from 'react-dom'
 import { AnimatePresence } from 'framer-motion'
@@ -38,12 +38,14 @@ const RecipeDetailPage = () => {
   const { checked, toggle: toggleCheck } = useCheckedSet()
   const [portions, setPortions] = useState(2)
   const [portionDir, setPortionDir] = useState<'up' | 'down' | null>(null)
+  const [portionsInitializedId, setPortionsInitializedId] = useState<string | undefined>(undefined)
 
-  useEffect(() => {
-    if (recipe?.portionsLabel === 'stuks') {
+  if (recipe && recipe.id !== portionsInitializedId) {
+    setPortionsInitializedId(recipe.id)
+    if (recipe.portionsLabel === 'stuks') {
       setPortions(recipe.portions ?? 1)
     }
-  }, [recipe?.id])
+  }
 
   const handlePortionChange = (v: number) => {
     setPortionDir(v > portions ? 'up' : 'down')
@@ -178,7 +180,11 @@ const RecipeDetailPage = () => {
               />
             )}
             {hasSteps && (
-              <RecipeSteps steps={stepSections} ingredientMap={ingredientMap} deel={instructionsDeel} />
+              <RecipeSteps
+                steps={stepSections}
+                ingredientMap={ingredientMap}
+                deel={instructionsDeel}
+              />
             )}
             {hasNotes && <RecipeNotes notes={recipe.notes!} deel={notesDeel} />}
             {hasSources && <RecipeSources sources={recipe.sources ?? []} deel={sourcesDeel} />}

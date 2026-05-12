@@ -19,7 +19,10 @@ function setup(user: User | null = null) {
   })
 
   return render(
-    <MemoryRouter initialEntries={['/login']} future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <MemoryRouter
+      initialEntries={['/login']}
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<div>home page</div>} />

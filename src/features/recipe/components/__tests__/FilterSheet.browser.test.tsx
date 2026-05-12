@@ -3,7 +3,6 @@ import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import FilterSheet from '../FilterSheet'
 
-
 vi.mock('@/shared/components/Sheet', () => ({
   default: ({ visible, children }: any) => (visible ? <div>{children}</div> : null),
 }))

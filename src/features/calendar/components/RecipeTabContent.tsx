@@ -12,7 +12,7 @@ type RecipeTabContentProps = {
   onSelect: (id: string) => void
   selectedId: string | null
   saving: boolean
-  searchRef: RefObject<HTMLInputElement>
+  searchRef: RefObject<HTMLInputElement | null>
 }
 
 const RecipeTabContent = ({
