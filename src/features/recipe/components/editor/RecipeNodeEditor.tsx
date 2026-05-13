@@ -99,7 +99,7 @@ const RecipeNodeEditor = ({
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="flex flex-col">
+      <div className={`flex flex-col${reordering ? ' select-none' : ''}`}>
         <SortableContext items={rootIds} strategy={verticalListSortingStrategy}>
           <AnimatePresence mode="popLayout" initial={false}>
             {nodes.map((node, i) => {
