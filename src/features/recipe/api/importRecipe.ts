@@ -27,7 +27,7 @@ const callOpenAI = async (
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: import.meta.env.VITE_OPENAI_MODEL ?? 'gpt-4o-mini',
       messages: [{ role: 'system', content: systemPrompt }, ...messages],
       temperature: 0,
     }),
@@ -56,7 +56,7 @@ const callAnthropic = async (
       'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
+      model: import.meta.env.VITE_ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001',
       max_tokens: 4096,
       system: systemPrompt,
       messages,
