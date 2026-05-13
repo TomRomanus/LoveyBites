@@ -29,9 +29,17 @@ const AutoGrowTextarea = forwardRef<HTMLTextAreaElement, Props>(({ value, style,
   }, [value])
 
   // Re-run after paint on mount — handles elements added inside animated containers
-  // where scrollHeight may return 0 during the initial synchronous layout phase
+  // where scrollHeight may return 0 during the initial synchronous layout phase.
+  // Also re-runs after fonts load: web fonts (e.g. Inter Tight) may not be available
+  // on first paint, causing scrollHeight to be calculated with a wider system fallback;
+  // once the real font loads the text fits in fewer lines but height was already fixed.
   useEffect(() => {
-    if (ref.current) resize(ref.current)
+    const el = ref.current
+    if (!el) return
+    resize(el)
+    document.fonts.ready.then(() => {
+      if (el.isConnected) resize(el)
+    })
   }, [])
 
   return <textarea ref={mergedRef} value={value} style={{ overflow: 'hidden', ...style }} {...props} />
