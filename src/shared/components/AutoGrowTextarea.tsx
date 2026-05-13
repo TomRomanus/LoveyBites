@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { forwardRef, useEffect, useLayoutEffect, useRef } from 'react'
 
 type Props = React.TextareaHTMLAttributes<HTMLTextAreaElement>
 
@@ -15,8 +15,14 @@ const resize = (el: HTMLTextAreaElement) => {
   }
 }
 
-const AutoGrowTextarea = ({ value, style, ...props }: Props) => {
+const AutoGrowTextarea = forwardRef<HTMLTextAreaElement, Props>(({ value, style, ...props }, forwardedRef) => {
   const ref = useRef<HTMLTextAreaElement>(null)
+
+  const mergedRef = (el: HTMLTextAreaElement | null) => {
+    (ref as React.MutableRefObject<HTMLTextAreaElement | null>).current = el
+    if (typeof forwardedRef === 'function') forwardedRef(el)
+    else if (forwardedRef) forwardedRef.current = el
+  }
 
   useLayoutEffect(() => {
     if (ref.current) resize(ref.current)
@@ -28,7 +34,9 @@ const AutoGrowTextarea = ({ value, style, ...props }: Props) => {
     if (ref.current) resize(ref.current)
   }, [])
 
-  return <textarea ref={ref} value={value} style={{ overflow: 'hidden', ...style }} {...props} />
-}
+  return <textarea ref={mergedRef} value={value} style={{ overflow: 'hidden', ...style }} {...props} />
+})
+
+AutoGrowTextarea.displayName = 'AutoGrowTextarea'
 
 export default AutoGrowTextarea
