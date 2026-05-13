@@ -4,13 +4,17 @@ export const stripHtml = (html: string): string =>
   html
     .replace(/<script[\s\S]*?<\/script>/gi, '')
     .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<\/?(br|p|div|h[1-6]|li|tr|td|th|section|article|header|footer|ul|ol|blockquote)[^>]*>/gi, '\n')
     .replace(/<[^>]+>/g, ' ')
     .replaceAll('&nbsp;', ' ')
     .replaceAll('&amp;', '&')
     .replaceAll('&lt;', '<')
     .replaceAll('&gt;', '>')
     .replaceAll('&quot;', '"')
-    .replace(/\s{2,}/g, ' ')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n[ \t]+/g, '\n')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
     .trim()
 
 export const labelFromUrl = (url: string): string => {

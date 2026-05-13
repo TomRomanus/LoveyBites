@@ -57,7 +57,7 @@ const callAnthropic = async (
     },
     body: JSON.stringify({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 4096,
+      max_tokens: 8192,
       system: systemPrompt,
       messages,
     }),
@@ -74,51 +74,56 @@ The JSON must match this exact schema:
   "title": string,
   "description": string,
   "portions": number,
-  "ingredients": IngredientNode[],
-  "steps": IngredientNode[],
+  "ingredients": Node[],
+  "steps": StepNode[],
   "equipment": string[],
   "notes": [{ "label": string, "text": string }],
   "tags": string[],
   "sourceName": string
 }
 
-"description": a factual description of what the dish is — main ingredients, cooking method, origin if relevant. Keep it short: 1–3 sentences maximum. Every sentence must convey something factual about the dish. Do not add serving suggestions, use cases, or flourish ("can be served", "ideal for", "perfect with").
+"description": a factual description of what the dish is made up of, its main ingredients. Keep it short and to the point: 1–3 sentences maximum. Every sentence must convey something factual without flourishing words. Do not add serving suggestions, use cases, or flourish ("can be served", "ideal for", "perfect with").
 
 "sourceName": the human-readable name of the website when the input contains a URL (e.g. "dagelijksekost.vrt.be" → "Dagelijkse Kost", "allrecipes.com" → "AllRecipes", "15gram.nl" → "15 Gram"). Use your knowledge of popular websites; if unknown, make a best guess from the domain name. Set to empty string if the input is plain text or an image.
 
-IngredientNode (used in "ingredients") is either a single item or a named section:
-- single item: { "text": "ingredient text" }
-- named section: { "title": "section name", "children": IngredientNode[] }
+Node is either a single item or a section:
+- single item: { "text": "..." } — for ingredients, "text" is the full ingredient line including quantity and unit, with unit conversions applied per the rules below (e.g. "200 g pure chocolade (minimum 72%)", "4 eieren", "2 tbsp olijfolie", "zout naar smaak")
+- section: { "title": "section name", "children": [ ...Node single items... ] }
 
-StepNode (used in "steps") is either a single step or a named phase:
-- single step: { "text": "step text", "ingredientAmounts": { "<ingredient text>": "<amount>" }, "comment": "<tip or remark>" }
-- named phase: { "title": "phase name", "children": StepNode[] }
+StepNode is either a single item or a section:
+- single item: { "text": "...", "comment": "...", "ingredientAmounts": { ... } }
+- section: { "title": "section name", "children": [ ...StepNode single items... ] }
 
-Always include "ingredientAmounts" and "comment" on every single step node. Use {} when no ingredients apply to that step, and "" when there is no comment.
+If the source has no explicit ingredient list (e.g. plain written text with only instructions), derive one: scan all steps, collect every ingredient mentioned, deduplicate, and output a flat array of Node single items. Include the quantity and unit as stated in the steps; use "" for the quantity part if none is mentioned.
 
-For "ingredientAmounts": the key must be the exact ingredient text from the "ingredients" list. The value is the numeric amount only — no units (e.g. "2" not "2 tbsp", "100" not "100 ml"). The unit is already in the ingredient text. Use empty string when there is no quantity. Determine which ingredients belong to each step using these rules:
+When the source recipe has named sections (e.g. "De biscuit", "De chocolademousse", "Afwerking"), represent them as section nodes in both "ingredients" and "steps". Copy section names exactly from the source — do not invent them. If there are no named sections, use a flat list of single items.
+Example for steps: if the source has "De biscuit" followed by steps 1–11 and "De chocolademousse" followed by steps 12–21, the steps array must be:
+[
+  { "title": "De biscuit", "children": [ { "text": "...", ... }, ... ] },
+  { "title": "De chocolademousse", "children": [ { "text": "...", ... }, ... ] }
+]
+
+StepNode single items always include these additional fields:
+- "ingredientAmounts": { "<exact ingredient text from the ingredients list>": "<numeric amount, no units>" } — use {} if no ingredients apply to this step. The value is a number only (e.g. "2" not "2 tbsp", "100" not "100 ml"); the unit is already in the ingredient text. Use "" as the value when the ingredient has no quantity. Determine which ingredients belong to each step:
   1. Always add when the site explicitly lists ingredients before a step (e.g. Dagelijkse Kost comma-separated line before the step number).
-  2. Always add when the step states an explicit amount (e.g. "add 2 tbsp butter") — use just the number. If the step uses a fraction or relative wording (e.g. "use half"), calculate the number from the ingredient list total (e.g. half of 200 ml → "100").
-  3. Always add when an ingredient has no quantity in the ingredient list (e.g. "peper", "zout", "boter" with no amount) — add it to every step that mentions it, with empty string as the amount.
-  4. Always add when an ingredient is only used in a single step — use the numeric amount from the ingredient list, regardless of how the step describes it.
+  2. Always add when the step states an explicit amount — use just the number. If the step uses fraction wording (e.g. "use half"), calculate from the ingredient list total (e.g. half of 200 ml → "100").
+  3. Always add when an ingredient has no quantity in the ingredient list (e.g. "peper", "zout") — add to every step that mentions it with "" as the value.
+  4. Always add when an ingredient is only used in a single step — use the numeric amount from the ingredient list.
   5. Do not add when an ingredient is used across multiple steps and the per-step amount is unclear.
+- "comment": use "" when there is no tip or comments, mentioned in the step itself or around it (directly before or after). Example tip/note markers (case-insensitive, with or without trailing colon) include: "TIP", "NOTE", "OPMERKING", "LET OP" and their equivalents in other languages.
 
-For "comment": include any tip, note, or remark attached to a step. Recognise markers like "TIP", "NOTE", "OPMERKING", "LET OP" and include the text without the label. Omit if no remark is present.
-
-Only use groups when the source recipe itself has named sections or phases. Do not invent group names — copy them exactly from the source.
+Unit conversion rules (apply throughout full recipe):
+- Use English abbreviations for spoons: "tbsp" (not "el" or "EL"), "tsp" (not "tl" or "TL")
+- Convert dl and cl to ml (1 dl = 100 ml, 1 cl = 10 ml)
+- Convert imperial weight to metric: oz → g (1 oz ≈ 28 g), lb → g (1 lb ≈ 453 g)
+- Convert imperial volume to metric: fl oz → ml (1 fl oz ≈ 30 ml), pint → ml (1 pint ≈ 475 ml), quart → ml
+- Do NOT convert cups, tbsp, or tsp to metric
 
 "equipment": list of required kitchen tools or equipment, each starting with a capital letter (e.g. "Springvorm 24cm", "Staafmixer"). Use empty array if none mentioned.
 
 "notes": if the recipe includes storage or reheating information, add them here as separate entries with label "Bewaren" or "Opwarmen" respectively. Use empty array if neither is present.
 
 "tags": exactly 4 relevant tags in Dutch, lowercase. Describe what the dish is: cuisine, dish type, main ingredient, cooking method, or dietary property. Examples: "italiaans", "pasta", "vegetarisch", "snel", "gegrild", "soep", "vis", "frans". Do not use occasion or context tags like "diner", "feestelijk", "lunch", "voorgerecht".
-
-Unit conversion rules (apply when writing ingredient text):
-- Use English abbreviations for spoons: "tbsp" (not "el" or "EL"), "tsp" (not "tl" or "TL")
-- Convert dl and cl to ml (1 dl = 100 ml, 1 cl = 10 ml)
-- Convert imperial weight to metric: oz → g (1 oz ≈ 28 g), lb → g (1 lb ≈ 453 g)
-- Convert imperial volume to metric: fl oz → ml (1 fl oz ≈ 30 ml), pint → ml (1 pint ≈ 475 ml), quart → ml
-- Do NOT convert cups, tbsp, or tsp to metric
 
 If a field is not available, use an empty string, 0, or empty array as appropriate.`
 
