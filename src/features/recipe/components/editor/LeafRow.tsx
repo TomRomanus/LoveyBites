@@ -167,8 +167,19 @@ const LeafRow = ({
               value={node.text}
               ordered={true}
               autoFocus={shouldFocus}
+              reordering={reordering}
               placeholder={labels.leafPlaceholder}
               onChange={(text) => onChange(replaceAt(allNodes, path, { ...node, text }))}
+            />
+            <StepCommentBox
+              open={commentOpen}
+              autoFocus={commentAutoFocus}
+              reordering={reordering}
+              node={node}
+              allNodes={allNodes}
+              path={path}
+              onChange={onChange}
+              onDismiss={() => setCommentOpen(false)}
             />
           </div>
         ) : (
@@ -176,6 +187,7 @@ const LeafRow = ({
             value={node.text}
             ordered={false}
             autoFocus={shouldFocus}
+            reordering={reordering}
             placeholder={labels.leafPlaceholder}
             onChange={(text) => onChange(replaceAt(allNodes, path, { ...node, text }))}
           />
@@ -193,17 +205,6 @@ const LeafRow = ({
         )}
       </div>
 
-      {ordered && (
-        <StepCommentBox
-          open={commentOpen}
-          autoFocus={commentAutoFocus}
-          node={node}
-          allNodes={allNodes}
-          path={path}
-          onChange={onChange}
-          onDismiss={() => setCommentOpen(false)}
-        />
-      )}
     </div>
   )
 }

@@ -6,6 +6,7 @@ import type { IngredientNode } from '@/features/recipe/types/recipe'
 type Props = {
   open: boolean
   autoFocus?: boolean
+  reordering?: boolean
   node: IngredientNode & { kind: 'leaf' }
   allNodes: IngredientNode[]
   path: number[]
@@ -16,6 +17,7 @@ type Props = {
 const StepCommentBox = ({
   open,
   autoFocus = false,
+  reordering,
   node,
   allNodes,
   path,
@@ -31,10 +33,11 @@ const StepCommentBox = ({
         transition={{ duration: 0.2, ease: 'easeInOut' }}
         className="overflow-hidden"
       >
-        <div className="pl-[50px] pb-2">
+        <div className="pb-2">
           <div className="flex items-start rounded-md px-[14px] py-[6px] bg-honey-700/10">
             <AutoGrowTextarea
               value={node.comment ?? ''}
+              resizeKey={reordering}
               onChange={(e) => {
                 const { comment: _c, ...base } = node
                 const updated = e.target.value ? { ...base, comment: e.target.value } : base

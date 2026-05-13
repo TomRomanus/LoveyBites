@@ -1,6 +1,8 @@
 import { forwardRef, useEffect, useLayoutEffect, useRef } from 'react'
 
-type Props = React.TextareaHTMLAttributes<HTMLTextAreaElement>
+type Props = React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+  resizeKey?: unknown
+}
 
 const resize = (el: HTMLTextAreaElement) => {
   if (!el.value) {
@@ -15,7 +17,7 @@ const resize = (el: HTMLTextAreaElement) => {
   }
 }
 
-const AutoGrowTextarea = forwardRef<HTMLTextAreaElement, Props>(({ value, style, ...props }, forwardedRef) => {
+const AutoGrowTextarea = forwardRef<HTMLTextAreaElement, Props>(({ value, style, resizeKey, ...props }, forwardedRef) => {
   const ref = useRef<HTMLTextAreaElement>(null)
 
   const mergedRef = (el: HTMLTextAreaElement | null) => {
@@ -41,6 +43,22 @@ const AutoGrowTextarea = forwardRef<HTMLTextAreaElement, Props>(({ value, style,
       if (el.isConnected) resize(el)
     })
   }, [])
+
+  // When resizeKey changes (e.g. reordering toggle), poll resize on every animation frame
+  // for 400ms so height stays correct as the container animates to its new width.
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    let frame: number
+    const start = performance.now()
+    const poll = () => {
+      if (!el.isConnected) return
+      resize(el)
+      if (performance.now() - start < 400) frame = requestAnimationFrame(poll)
+    }
+    frame = requestAnimationFrame(poll)
+    return () => cancelAnimationFrame(frame)
+  }, [resizeKey])
 
   return <textarea ref={mergedRef} value={value} style={{ overflow: 'hidden', ...style }} {...props} />
 })
