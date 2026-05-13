@@ -14,7 +14,7 @@ const ReorderFab = ({ active, onToggle }: ReorderFabProps) => {
       onClick={onToggle}
       aria-label={active ? 'Klaar met sorteren' : 'Volgorde aanpassen'}
       className={cn(
-        'fixed flex items-center justify-center w-10 h-10 rounded-[20px] cursor-pointer z-[90]',
+        'fixed flex items-center justify-center w-12 h-12 rounded-[24px] cursor-pointer z-[90]',
         'transition-[background,border-color,box-shadow] duration-[180ms] ease-[ease]',
         'border-[0.5px]',
         active
@@ -24,9 +24,9 @@ const ReorderFab = ({ active, onToggle }: ReorderFabProps) => {
       style={{ bottom: 'max(28px, env(safe-area-inset-bottom))', right: 22 }}
     >
       {active ? (
-        <Check size={16} strokeWidth={2.5} className="text-bordeaux" />
+        <Check size={18} strokeWidth={2.5} className="text-bordeaux" />
       ) : (
-        <ArrowUpDown size={16} strokeWidth={2.1} className="text-stone" />
+        <ArrowUpDown size={18} strokeWidth={2.1} className="text-stone" />
       )}
     </button>,
     document.body,
