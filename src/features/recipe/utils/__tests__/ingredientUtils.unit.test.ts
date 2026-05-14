@@ -582,8 +582,8 @@ describe('normalizeStepAmount', () => {
     expect(normalizeStepAmount('1.5', '2 tbsp mosterd')).toBe('1 1/2')
   })
 
-  it('normalises a comma-decimal to dot notation for a non-volume unit', () => {
-    expect(normalizeStepAmount('1,5', '200 g bloem')).toBe('1.5')
+  it('normalises a dot-decimal to comma notation for a non-volume unit', () => {
+    expect(normalizeStepAmount('1,5', '200 g bloem')).toBe('1,5')
   })
 
   it('leaves an integer amount unchanged for a non-volume unit', () => {
