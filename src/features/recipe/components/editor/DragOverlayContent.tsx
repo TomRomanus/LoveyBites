@@ -24,14 +24,12 @@ const DragOverlayContent = ({ node, ordered, leafIndexMap }: DragOverlayContentP
 
   const num = ordered && node.id ? (leafIndexMap?.get(node.id) ?? 0) + 1 : null
   return (
-    <div className={`${overlayCls} ${ordered ? 'gap-[14px]' : 'gap-2'}`}>
+    <div className={overlayCls}>
       <GripVertical size={12} />
-      {ordered ? (
+      {ordered && (
         <span className="font-serif italic text-[22px] text-bordeaux font-medium w-[22px] shrink-0 leading-[1.1]">
           {num}
         </span>
-      ) : (
-        <span className="text-bordeaux font-serif text-[16px] pl-1">·</span>
       )}
       <span className="font-sans text-[14px] text-ink-2">{node.text || '…'}</span>
     </div>

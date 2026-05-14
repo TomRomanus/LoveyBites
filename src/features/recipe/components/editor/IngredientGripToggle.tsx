@@ -13,33 +13,40 @@ const IngredientGripToggle = ({ ordered, reordering }: IngredientGripToggleProps
       <motion.div
         animate={{ width: reordering ? 24 : 0, opacity: reordering ? 1 : 0 }}
         transition={{ type: 'spring', stiffness: 340, damping: 30 }}
-        className="overflow-hidden shrink-0 flex items-start"
+        className="overflow-hidden shrink-0 flex items-start mt-[-3px]"
       >
-        <GripHandle className="pt-[7px]" />
+        <GripHandle />
       </motion.div>
     )
   }
 
-  // Ingredients: dot ↔ grip crossfade in a fixed-size slot — no layout shift at all
-  // overflow-hidden + width animation (not opacity) ensures the hidden grip has zero
-  // pointer-event area, preventing scroll conflicts on mobile
+  // Ingredients: dot ↔ grip crossfade. Container width animates so the grip gets extra
+  // breathing room while the bullet stays tight against the text. pointer-events toggling
+  // (not width-to-0) prevents scroll conflicts on mobile.
   return (
-    <div className="relative shrink-0 pt-[13px]">
+    <motion.div
+      animate={{ width: reordering ? 32 : 16 }}
+      transition={{ duration: 0.18, ease: 'easeInOut' }}
+      className="relative shrink-0"
+    >
+      <div className="pt-[13px]">
+        <motion.span
+          animate={{ opacity: reordering ? 0 : 1 }}
+          transition={{ duration: 0.18, ease: 'easeInOut' }}
+          className="text-bordeaux text-[11px] flex items-center justify-end leading-none pointer-events-none"
+        >
+          •
+        </motion.span>
+      </div>
       <motion.div
-        animate={{ width: reordering ? 20 : 0, opacity: reordering ? 1 : 0 }}
+        animate={{ opacity: reordering ? 1 : 0 }}
         transition={{ duration: 0.18, ease: 'easeInOut' }}
-        className="absolute top-[14px] left-0 bottom-0 overflow-hidden flex"
+        style={{ pointerEvents: reordering ? 'auto' : 'none' }}
+        className="absolute top-[9px] inset-x-0 flex items-center justify-center"
       >
         <GripHandle />
       </motion.div>
-      <motion.span
-        animate={{ opacity: reordering ? 0 : 1 }}
-        transition={{ duration: 0.18, ease: 'easeInOut' }}
-        className="text-bordeaux text-[11px] flex items-center justify-center leading-none pointer-events-none"
-      >
-        •
-      </motion.span>
-    </div>
+    </motion.div>
   )
 }
 

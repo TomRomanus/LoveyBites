@@ -15,9 +15,9 @@ export const GripHandle = ({ className }: { className?: string }) => {
     <div
       {...listeners}
       {...attributes}
-      className={`flex items-center justify-center cursor-grab text-stone-2 px-1 touch-none shrink-0${className ? ` ${className}` : ''}`}
+      className={`flex items-center justify-center cursor-grab text-stone-2 px-1 touch-none select-none shrink-0${className ? ` ${className}` : ''}`}
     >
-      <GripVertical size={12} />
+      <GripVertical size={20} />
     </div>
   )
 }

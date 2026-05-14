@@ -10,6 +10,7 @@ type IngredientInputFieldProps = {
   autoFocus: boolean
   placeholder: string
   onChange: (value: string) => void
+  reordering?: boolean
 }
 
 const IngredientInputField = ({
@@ -18,12 +19,14 @@ const IngredientInputField = ({
   autoFocus,
   placeholder,
   onChange,
+  reordering,
 }: IngredientInputFieldProps) => (
   <AutoGrowTextarea
     value={value}
     onChange={(e) => onChange(e.target.value)}
     rows={1}
     autoFocus={autoFocus}
+    resizeKey={reordering}
     className={
       ordered
         ? cn(leafInputCls, 'flex-none w-full box-border leading-[1.5] py-0 pr-1 pl-0')

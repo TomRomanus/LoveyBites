@@ -41,6 +41,9 @@ const IngredientPickerSheet = ({
   const [direction, setDirection] = useState(1)
 
   const selectedOptions = options.filter((o) => selectedIds.has(o.id))
+  const quantifiedSelectedOptions = selectedOptions.filter(
+    (opt) => !isNaN(parseAmount(parseIngredientText(opt.text).amount)),
+  )
 
   const invalidFormatIds = new Set(
     selectedOptions
@@ -151,12 +154,12 @@ const IngredientPickerSheet = ({
               exit="exit"
               transition={{ type: 'spring', stiffness: 380, damping: 32, mass: 0.8 }}
             >
-              {selectedOptions.length === 0 ? (
+              {quantifiedSelectedOptions.length === 0 ? (
                 <div className="px-5 py-4">
                   <span className="text-[13px] text-stone">Selecteer eerst ingrediënten</span>
                 </div>
               ) : (
-                selectedOptions.map((opt) => {
+                quantifiedSelectedOptions.map((opt) => {
                   const { amount, maxLabel, name } = parseIngredientText(opt.text)
                   const isOver = overLimitIds.has(opt.id)
                   const isInvalid = invalidFormatIds.has(opt.id)

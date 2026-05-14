@@ -57,7 +57,7 @@ const callAnthropic = async (
     },
     body: JSON.stringify({
       model: import.meta.env.VITE_ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001',
-      max_tokens: 4096,
+      max_tokens: 8192,
       system: systemPrompt,
       messages,
     }),
@@ -67,53 +67,64 @@ const callAnthropic = async (
   return data.content[0].text
 }
 
-const URL_SYSTEM_PROMPT = `You are a recipe extraction assistant. Extract the recipe from the provided content and return ONLY a valid JSON object — no markdown, no explanation, just the JSON.
+const SYSTEM_PROMPT = `You are a recipe extraction assistant. Extract the recipe from the provided content and return ONLY a valid JSON object — no markdown, no explanation, just the JSON.
 
 The JSON must match this exact schema:
 {
   "title": string,
   "description": string,
   "portions": number,
-  "ingredients": IngredientNode[],
-  "steps": IngredientNode[],
+  "ingredients": Node[],
+  "steps": StepNode[],
+  "equipment": string[],
+  "notes": [{ "label": string, "text": string }],
   "tags": string[],
-  "imageUrl": string,
   "sourceName": string
 }
 
-"sourceName" should be the human-readable name of the website (e.g. "dagelijksekost.vrt.be" → "Dagelijkse Kost", "allrecipes.com" → "AllRecipes", "15gram.nl" → "15 Gram"). Use your knowledge of popular websites; if unknown, make a best guess from the domain name.
+"description": a factual description of what the dish is made up of, its main ingredients. Keep it short and to the point: 1–3 sentences maximum. Every sentence must convey something factual without flourishing words. Do not add serving suggestions, use cases, or flourish ("can be served", "ideal for", "perfect with").
 
-IngredientNode is either:
-- { "kind": "leaf", "text": "ingredient or step text" }
-- { "kind": "group", "title": "section name", "children": IngredientNode[] }
+"sourceName": the human-readable name of the website when the input contains a URL (e.g. "dagelijksekost.vrt.be" → "Dagelijkse Kost", "allrecipes.com" → "AllRecipes", "15gram.nl" → "15 Gram"). Use your knowledge of popular websites; if unknown, make a best guess from the domain name. Set to empty string if the input is plain text or an image.
 
-Use groups when the recipe has distinct sections (e.g. "Dough", "Filling", or "Preparation", "Cooking").
-For steps, use groups like "Voorbereiding" and "Bereiding" if the recipe has multiple phases.
-For tags, generate 3–6 relevant lowercase tags describing the dish (e.g. cuisine type, meal type, main ingredient, dietary properties, cooking method). Examples: "italiaans", "pasta", "vegetarisch", "snel", "diner", "gegrild".
-If a field is not available, use an empty string, 0, or empty array as appropriate.`
+Node is either a single item or a section:
+- single item: { "text": "..." } — for ingredients, "text" is the full ingredient line including quantity and unit, with unit conversions applied per the rules below (e.g. "200 g pure chocolade (minimum 72%)", "4 eieren", "2 tbsp olijfolie", "zout naar smaak")
+- section: { "title": "section name", "children": [ ...Node single items... ] }
 
-const IMAGE_SYSTEM_PROMPT = `You are a recipe extraction assistant. Extract the recipe from the provided image and return ONLY a valid JSON object — no markdown, no explanation, just the JSON.
+StepNode is either a single item or a section:
+- single item: { "text": "...", "comment": "...", "ingredientAmounts": { ... } }
+- section: { "title": "section name", "children": [ ...StepNode single items... ] }
 
-The JSON must match this exact schema:
-{
-  "title": string,
-  "description": string,
-  "portions": number,
-  "ingredients": IngredientNode[],
-  "steps": IngredientNode[],
-  "tags": string[],
-  "imageUrl": string,
-  "sourceName": string
-}
+If the source has no explicit ingredient list (e.g. plain written text with only instructions), derive one: scan all steps, collect every ingredient mentioned, deduplicate, and output a flat array of Node single items. Include the quantity and unit as stated in the steps; use "" for the quantity part if none is mentioned.
 
-IngredientNode is either:
-- { "kind": "leaf", "text": "ingredient or step text" }
-- { "kind": "group", "title": "section name", "children": IngredientNode[] }
+When the source recipe has named sections (e.g. "De biscuit", "De chocolademousse", "Afwerking"), represent them as section nodes in both "ingredients" and "steps". Copy section names exactly from the source — do not invent them. If there are no named sections, use a flat list of single items.
+Example for steps: if the source has "De biscuit" followed by steps 1–11 and "De chocolademousse" followed by steps 12–21, the steps array must be:
+[
+  { "title": "De biscuit", "children": [ { "text": "...", ... }, ... ] },
+  { "title": "De chocolademousse", "children": [ { "text": "...", ... }, ... ] }
+]
 
-Use groups when the recipe has distinct sections (e.g. "Dough", "Filling", or "Preparation", "Cooking").
-For steps, use groups like "Voorbereiding" and "Bereiding" if the recipe has multiple phases.
-For tags, generate 3–6 relevant lowercase tags describing the dish (e.g. cuisine type, meal type, main ingredient, dietary properties, cooking method). Examples: "italiaans", "pasta", "vegetarisch", "snel", "diner", "gegrild".
-Set "sourceName" and "imageUrl" to empty string.
+StepNode single items always include these additional fields:
+- "ingredientAmounts": { "<exact ingredient text from the ingredients list>": "<numeric amount, no units>" } — use {} if no ingredients apply to this step. The value is a number only (e.g. "2" not "2 tbsp", "100" not "100 ml"); the unit is already in the ingredient text. Use "" as the value when the ingredient has no quantity. Determine which ingredients belong to each step:
+  1. Always add when the site explicitly lists ingredients before a step (e.g. Dagelijkse Kost comma-separated line before the step number).
+  2. Always add when the step states an explicit amount — use just the number. If the step uses fraction wording (e.g. "use half"), calculate from the ingredient list total (e.g. half of 200 ml → "100").
+  3. Always add when an ingredient has no quantity in the ingredient list (e.g. "peper", "zout") — add to every step that mentions it with "" as the value.
+  4. Always add when an ingredient is only used in a single step — use the numeric amount from the ingredient list.
+  5. Do not add when an ingredient is used across multiple steps and the per-step amount is unclear.
+- "comment": use "" when there is no tip or comments, mentioned in the step itself or around it (directly before or after). Example tip/note markers (case-insensitive, with or without trailing colon) include: "TIP", "NOTE", "OPMERKING", "LET OP" and their equivalents in other languages.
+
+Unit conversion rules (apply throughout full recipe):
+- Use English abbreviations for spoons: "tbsp" (not "el" or "EL"), "tsp" (not "tl" or "TL")
+- Convert dl and cl to ml (1 dl = 100 ml, 1 cl = 10 ml)
+- Convert imperial weight to metric: oz → g (1 oz ≈ 28 g), lb → g (1 lb ≈ 453 g)
+- Convert imperial volume to metric: fl oz → ml (1 fl oz ≈ 30 ml), pint → ml (1 pint ≈ 475 ml), quart → ml
+- Do NOT convert cups, tbsp, or tsp to metric
+
+"equipment": list of required kitchen tools or equipment, each starting with a capital letter (e.g. "Springvorm 24cm", "Staafmixer"). Use empty array if none mentioned.
+
+"notes": if the recipe includes storage or reheating information, add them here as separate entries with label "Bewaren" or "Opwarmen" respectively. Use empty array if neither is present.
+
+"tags": exactly 4 relevant tags in Dutch, lowercase. Describe what the dish is: cuisine, dish type, main ingredient, cooking method, or dietary property. Examples: "italiaans", "pasta", "vegetarisch", "snel", "gegrild", "soep", "vis", "frans". Do not use occasion or context tags like "diner", "feestelijk", "lunch", "voorgerecht".
+
 If a field is not available, use an empty string, 0, or empty array as appropriate.`
 
 const callAI = async (content: string): Promise<string> => {
@@ -123,12 +134,12 @@ const callAI = async (content: string): Promise<string> => {
   if (provider === 'openai') {
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY
     if (!apiKey) throw new Error('VITE_OPENAI_API_KEY is not set in .env.local')
-    return callOpenAI(apiKey, URL_SYSTEM_PROMPT, [{ role: 'user', content: userMessage }])
+    return callOpenAI(apiKey, SYSTEM_PROMPT, [{ role: 'user', content: userMessage }])
   }
 
   const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
   if (!apiKey) throw new Error('VITE_ANTHROPIC_API_KEY is not set in .env.local')
-  return callAnthropic(apiKey, URL_SYSTEM_PROMPT, [{ role: 'user', content: userMessage }])
+  return callAnthropic(apiKey, SYSTEM_PROMPT, [{ role: 'user', content: userMessage }])
 }
 
 const callAIWithImage = async (base64: string, mediaType: string): Promise<string> => {
@@ -137,7 +148,7 @@ const callAIWithImage = async (base64: string, mediaType: string): Promise<strin
   if (provider === 'openai') {
     const apiKey = import.meta.env.VITE_OPENAI_API_KEY
     if (!apiKey) throw new Error('VITE_OPENAI_API_KEY is not set in .env.local')
-    return callOpenAI(apiKey, IMAGE_SYSTEM_PROMPT, [
+    return callOpenAI(apiKey, SYSTEM_PROMPT, [
       {
         role: 'user',
         content: [
@@ -150,7 +161,7 @@ const callAIWithImage = async (base64: string, mediaType: string): Promise<strin
 
   const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
   if (!apiKey) throw new Error('VITE_ANTHROPIC_API_KEY is not set in .env.local')
-  return callAnthropic(apiKey, IMAGE_SYSTEM_PROMPT, [
+  return callAnthropic(apiKey, SYSTEM_PROMPT, [
     {
       role: 'user',
       content: [

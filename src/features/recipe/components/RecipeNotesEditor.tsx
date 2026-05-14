@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Plus } from 'lucide-react'
 import type { RecipeNote } from '@/features/recipe/types/recipe'
+import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
 
 const SUGGESTIONS = ['Bewaren', 'Opwarmen']
 
@@ -66,11 +67,10 @@ const RecipeNotesEditor = ({ notes, onChange }: Props) => {
               placeholder="Onderwerp"
               className="w-full bg-transparent border-0 border-b-[0.5px] border-ink/14 outline-none text-[13px] text-bordeaux font-sans pr-7 pb-[6px]"
             />
-            <textarea
+            <AutoGrowTextarea
               value={note.text}
               onChange={(e) => update(i, 'text', e.target.value)}
               placeholder="Notitie"
-              rows={2}
               className="w-full bg-transparent border-0 outline-none text-[13px] font-sans text-ink-2 mt-[7px] resize-none leading-[1.45]"
             />
           </motion.div>

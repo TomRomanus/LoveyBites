@@ -1,9 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" fill="#f8f4ed"/>
-  <g transform="rotate(45, 32, 32) translate(33, 37) scale(0.72) translate(-32, -28.5)">
-    <path d="M32 52 C20 40 6 32 6 20 C6 11 13 5 20 5 C25 5 29 8 32 12 C35 8 39 5 44 5 C51 5 58 11 58 20 C58 32 44 40 32 52Z" fill="#6b1f2a"/>
-    <circle cx="56" cy="12" r="6" fill="#f8f4ed"/>
-    <circle cx="55" cy="18" r="6" fill="#f8f4ed"/>
-    <circle cx="57" cy="24" r="6" fill="#f8f4ed"/>
-  </g>
+  <defs>
+    <style>
+      .heart { fill: #6b1f2a; }
+      @media (prefers-color-scheme: dark) {
+        .heart { fill: #f8f4ed; }
+      }
+    </style>
+    <mask id="bite-mask">
+      <g transform="rotate(45, 32, 32) translate(38, 36) scale(1.2) translate(-32, -28.5)">
+        <path d="M32 52 C20 40 6 32 6 20 C6 11 13 5 20 5 C25 5 29 8 32 12 C35 8 39 5 44 5 C51 5 58 11 58 20 C58 32 44 40 32 52Z" fill="white"/>
+        <circle cx="56" cy="12" r="6" fill="black"/>
+        <circle cx="55" cy="18" r="6" fill="black"/>
+        <circle cx="57" cy="24" r="6" fill="black"/>
+      </g>
+    </mask>
+  </defs>
+  <rect width="64" height="64" class="heart" mask="url(#bite-mask)"/>
 </svg>

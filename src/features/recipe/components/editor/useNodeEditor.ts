@@ -25,7 +25,7 @@ export const useNodeEditor = ({ nodes, onChange, commonSections, ordered }: UseN
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+    useSensor(TouchSensor),
   )
 
   const handleDragStart = useCallback(({ active }: DragStartEvent) => {
