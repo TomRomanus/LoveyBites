@@ -4,7 +4,7 @@ import type { Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { RecipeInput, IngredientNode } from '@/features/recipe/types/recipe'
 import { recipeInputSchema } from '@/features/recipe/types/recipe'
-import { pruneEmpty, ensureIngredientIds } from '@/features/recipe/utils/ingredientUtils'
+import { pruneEmpty, pruneOrphanedRefs, ensureIngredientIds, collectIngredientMap } from '@/features/recipe/utils/ingredientUtils'
 
 type UseRecipeFormProps = {
   initial?: Partial<RecipeInput>
@@ -91,10 +91,12 @@ export const useRecipeForm = ({
 
   const onSubmit = handleSubmit(async (data) => {
     setError(undefined)
+    const cleanedIngredients = pruneEmpty(data.ingredients)
+    const validIngredientIds = new Set(collectIngredientMap(cleanedIngredients).keys())
     const cleaned: RecipeInput = {
       ...data,
-      ingredients: pruneEmpty(data.ingredients),
-      steps: pruneEmpty(data.steps),
+      ingredients: cleanedIngredients,
+      steps: pruneOrphanedRefs(pruneEmpty(data.steps), validIngredientIds),
       sources: (data.sources ?? []).filter((s) => s.url.trim()),
       notes: (data.notes ?? []).filter((n) => n.text.trim()),
       equipment: (data.equipment ?? []).filter((b) => b.trim()),

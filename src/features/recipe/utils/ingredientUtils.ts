@@ -37,6 +37,24 @@ export const pruneEmpty = (nodes: IngredientNode[]): IngredientNode[] =>
     .map((n) => (n.kind === 'leaf' ? n : { ...n, children: pruneEmpty(n.children) }))
     .filter((n) => (n.kind === 'leaf' ? n.text.trim() !== '' : n.children.length > 0))
 
+/** Strip ingredientRefs/ingredientAmounts that reference IDs not in validIds. */
+export const pruneOrphanedRefs = (nodes: IngredientNode[], validIds: Set<string>): IngredientNode[] =>
+  nodes.map((n) => {
+    if (n.kind === 'group') return { ...n, children: pruneOrphanedRefs(n.children, validIds) }
+    if (!n.ingredientRefs?.length) return n
+    const refs = n.ingredientRefs.filter((id) => validIds.has(id))
+    if (refs.length === n.ingredientRefs.length) return n
+    const amounts = refs.length > 0 && n.ingredientAmounts
+      ? Object.fromEntries(refs.map((id) => [id, n.ingredientAmounts![id]]))
+      : undefined
+    const { ingredientRefs: _r, ingredientAmounts: _a, ...base } = n
+    return {
+      ...base,
+      ...(refs.length > 0 ? { ingredientRefs: refs } : {}),
+      ...(amounts ? { ingredientAmounts: amounts } : {}),
+    }
+  })
+
 /** Parse a numeric amount string — integers, decimals, fractions "1/2", and mixed numbers "1 1/2". Returns NaN for anything else. */
 export const parseAmount = (value: string): number => {
   const s = value.trim().replace(',', '.')
