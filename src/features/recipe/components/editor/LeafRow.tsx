@@ -133,14 +133,14 @@ const LeafRow = ({
             <button
               type="button"
               aria-label="Opmerking toevoegen"
+              disabled={commentOpen}
               onClick={() => {
-                const opening = !commentOpen
-                setCommentAutoFocus(opening)
-                setCommentOpen(opening)
+                setCommentAutoFocus(true)
+                setCommentOpen(true)
               }}
               className={cn(
-                'border-0 bg-transparent p-0 cursor-pointer flex items-center justify-end w-full',
-                commentOpen ? 'text-honey-700/75' : 'text-stone-2/50',
+                'border-0 bg-transparent p-0 flex items-center justify-end w-full',
+                commentOpen ? 'text-honey-700/75 cursor-default' : 'text-stone-2/50 cursor-pointer',
               )}
             >
               <MessageCircleHeart size={16} strokeWidth={1.5} />
