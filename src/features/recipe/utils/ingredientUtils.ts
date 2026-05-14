@@ -139,7 +139,7 @@ export const normalizeStepAmount = (amt: string, ingredientText: string): string
   const { maxLabel, amount } = parseIngredientText(ingredientText)
   const unit = maxLabel.slice(amount.length).trim()
   if (VOLUME_UNIT.test(unit)) return formatAmount(num)
-  return parseFloat(num.toFixed(6)).toString()
+  return parseFloat(num.toFixed(6)).toString().replace('.', ',')
 }
 
 /** Build a map from ingredient leaf id → text for cook-mode ingredient refs. */
