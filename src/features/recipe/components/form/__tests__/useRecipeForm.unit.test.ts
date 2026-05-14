@@ -6,6 +6,7 @@ import type { RecipeInput } from '@/features/recipe/types/recipe'
 vi.mock('@/features/recipe/utils/ingredientUtils', () => ({
   ensureIngredientIds: vi.fn((nodes: unknown[]) => nodes),
   pruneEmpty: vi.fn((nodes: unknown[]) => nodes),
+  pruneOrphanedRefs: vi.fn((nodes: unknown[]) => nodes),
   extractLeafTexts: vi.fn(() => []),
   collectIngredientMap: vi.fn(() => new Map()),
 }))
