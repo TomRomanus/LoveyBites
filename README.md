@@ -107,6 +107,8 @@ Copy `.env.example` to `.env.local` and fill in each value.
 | `VITE_OPENAI_API_KEY`               | Secret   | Your [OpenAI API key](https://platform.openai.com/api-keys) (used when `VITE_AI_PROVIDER=openai`) |
 | `VITE_ENABLE_GOOGLE_LOGIN`          | Variable | `true` to show the Google sign-in button, `false` to hide it                                      |
 | `VITE_AI_PROVIDER`                  | Variable | `anthropic` (default) or `openai`                                                                 |
+| `VITE_ANTHROPIC_MODEL`              | Variable | The Anthropic model used when `VITE_AI_PROVIDER=anthropic` default: `claude-haiku-4-5-20251001`   |
+| `VITE_OPENAI_MODEL`                 | Variable | The OpenAI model used when `VITE_AI_PROVIDER=openai` default: `gpt-4o-mini`                       |
 
 ---
 

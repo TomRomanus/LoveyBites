@@ -122,7 +122,9 @@ jobs:
           VITE_ENABLE_GOOGLE_LOGIN: ${{ vars.VITE_ENABLE_GOOGLE_LOGIN }}
           VITE_AI_PROVIDER: ${{ vars.VITE_AI_PROVIDER }}
           VITE_ANTHROPIC_API_KEY: ${{ secrets.VITE_ANTHROPIC_API_KEY }}
+          VITE_ANTHROPIC_MODEL: ${{ vars.VITE_ANTHROPIC_MODEL }}
           VITE_OPENAI_API_KEY: ${{ secrets.VITE_OPENAI_API_KEY }}
+          VITE_OPENAI_MODEL: ${{ vars.VITE_OPENAI_MODEL }}
 
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
