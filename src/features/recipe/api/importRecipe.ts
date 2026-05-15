@@ -74,6 +74,7 @@ The JSON must match this exact schema:
   "title": string,
   "description": string,
   "portions": number,
+  "portionsLabel": "pers" | "stuks",
   "ingredients": Node[],
   "steps": StepNode[],
   "equipment": string[],
@@ -81,6 +82,8 @@ The JSON must match this exact schema:
   "tags": string[],
   "sourceName": string
 }
+
+"portionsLabel": use "stuks" when the recipe yields a countable quantity of individual items (e.g. "12 dumplings", "8 burgers", "24 cookies"). Use "pers" in all other cases (servings, people). Default to "pers" when unclear.
 
 "description": a factual description of what the dish is made up of, its main ingredients. Keep it short and to the point: 1–3 sentences maximum. Every sentence must convey something factual without flourishing words. Do not add serving suggestions, use cases, or flourish ("can be served", "ideal for", "perfect with").
 
@@ -121,7 +124,7 @@ Unit conversion rules (apply throughout full recipe):
 
 "equipment": list of required kitchen tools or equipment, each starting with a capital letter (e.g. "Springvorm 24cm", "Staafmixer"). Use empty array if none mentioned.
 
-"notes": if the recipe includes storage or reheating information, add them here as separate entries with label "Bewaren" or "Opwarmen" respectively. Use empty array if neither is present.
+"notes": if the recipe includes storage or reheating information, add them here as separate entries. Use the language of the recipe for the labels (e.g. "Bewaren"/"Opwarmen" for Dutch, "Storage"/"Reheating" for English, "Conserver"/"Réchauffer" for French). Use empty array if neither is present.
 
 "tags": exactly 4 relevant tags in Dutch, lowercase. Describe what the dish is: cuisine, dish type, main ingredient, cooking method, or dietary property. Examples: "italiaans", "pasta", "vegetarisch", "snel", "gegrild", "soep", "vis", "frans". Do not use occasion or context tags like "diner", "feestelijk", "lunch", "voorgerecht".
 

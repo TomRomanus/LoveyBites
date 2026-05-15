@@ -107,6 +107,7 @@ export const parseAIResponse = (
       title: String(parsed.title ?? ''),
       description: String(parsed.description ?? ''),
       portions: Number(parsed.portions) || 4,
+      portionsLabel: parsed.portionsLabel === 'stuks' ? 'stuks' : 'pers',
       ingredients,
       steps: buildStepNodes((parsed.steps as unknown[]) ?? [], textToId),
       equipment: ((parsed.equipment as unknown[]) ?? []).map(String),
