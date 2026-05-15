@@ -147,6 +147,22 @@ describe('LeafRow — comment field (steps)', () => {
     expect(screen.getAllByRole('textbox')).toHaveLength(2)
   })
 
+  it('comment trigger button is disabled when a comment is already open', async () => {
+    setupStep()
+    const trigger = screen.getByRole('button', { name: 'Opmerking toevoegen' })
+    await userEvent.click(trigger)
+    expect(trigger).toBeDisabled()
+  })
+
+  it('comment trigger button stays disabled when node already has a comment on mount', () => {
+    const nodeWithComment: IngredientNode & { kind: 'leaf' } = {
+      ...stepNode,
+      comment: 'Let op de textuur',
+    }
+    setupStep({ node: nodeWithComment, allNodes: [nodeWithComment] })
+    expect(screen.getByRole('button', { name: 'Opmerking toevoegen' })).toBeDisabled()
+  })
+
   it('opens comment box on mount when node already has a comment', () => {
     const nodeWithComment: IngredientNode & { kind: 'leaf' } = {
       ...stepNode,

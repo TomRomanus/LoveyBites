@@ -16,9 +16,9 @@ const RecipeCard = ({ recipe, onAddToCalendar, highlightTags }: Props) => (
     data-testid="recipe-list-item"
     whileTap={{ scale: 0.98 }}
     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-    className="py-[10px] border-b-[0.5px] border-ink/14 relative"
+    className="border-b-[0.5px] border-ink/14 relative"
   >
-    <Link to={`/recipe/${recipe.id}`} className="no-underline text-inherit block">
+    <Link to={`/recipe/${recipe.id}`} className="no-underline text-inherit block py-[10px] pr-9">
       <h3 className="m-0 font-serif italic text-[18px] font-medium leading-[1.15] tracking-[-0.015em] text-ink">
         {recipe.title}
       </h3>
@@ -44,16 +44,15 @@ const RecipeCard = ({ recipe, onAddToCalendar, highlightTags }: Props) => (
     </Link>
     {onAddToCalendar && (
       <button
+        type="button"
         onClick={() => onAddToCalendar(recipe)}
-        className="absolute top-2 right-2 w-8 h-8 rounded-[16px] bg-[rgba(255,250,240,0.2)] border-0 flex items-center justify-center text-cream"
+        className="absolute top-1.5 right-0 p-1.5 bg-transparent border-0 text-bordeaux/45 cursor-pointer"
         aria-label="Toevoegen aan kalender"
       >
-        <CalendarIcon />
+        <Calendar size={16} strokeWidth={1.5} />
       </button>
     )}
   </motion.div>
 )
 
 export default RecipeCard
-
-const CalendarIcon = () => <Calendar size={14} />

@@ -4,6 +4,7 @@ import {
   extractLeafTexts,
   ensureIngredientIds,
   pruneEmpty,
+  pruneOrphanedRefs,
   collectIngredientMap,
   parseAmount,
   formatAmount,
@@ -592,5 +593,94 @@ describe('normalizeStepAmount', () => {
 
   it('returns the original string unchanged when it is not a valid number', () => {
     expect(normalizeStepAmount('abc', '200 g bloem')).toBe('abc')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// pruneOrphanedRefs
+// ---------------------------------------------------------------------------
+
+describe('pruneOrphanedRefs', () => {
+  it('returns empty array for empty input', () => {
+    expect(pruneOrphanedRefs([], new Set())).toEqual([])
+  })
+
+  it('leaves a node without refs unchanged', () => {
+    const nodes: IngredientNode[] = [{ kind: 'leaf', id: 's1', text: 'Bak de ui' }]
+    expect(pruneOrphanedRefs(nodes, new Set(['ing1']))).toEqual(nodes)
+  })
+
+  it('leaves a node whose refs are all valid unchanged', () => {
+    const nodes: IngredientNode[] = [
+      {
+        kind: 'leaf',
+        id: 's1',
+        text: 'Bak de ui',
+        ingredientRefs: ['ing1', 'ing2'],
+        ingredientAmounts: { ing1: '1', ing2: '2' },
+      },
+    ]
+    const result = pruneOrphanedRefs(nodes, new Set(['ing1', 'ing2']))
+    expect(result).toEqual(nodes)
+  })
+
+  it('strips a ref that is no longer in validIds', () => {
+    const nodes: IngredientNode[] = [
+      {
+        kind: 'leaf',
+        id: 's1',
+        text: 'Bak de ui',
+        ingredientRefs: ['ing1', 'ing2'],
+        ingredientAmounts: { ing1: '1', ing2: '2' },
+      },
+    ]
+    const result = pruneOrphanedRefs(nodes, new Set(['ing1']))
+    const leaf = result[0]
+    if (leaf.kind !== 'leaf') throw new Error('expected leaf')
+    expect(leaf.ingredientRefs).toEqual(['ing1'])
+    expect(leaf.ingredientAmounts).toEqual({ ing1: '1' })
+  })
+
+  it('removes ingredientRefs and ingredientAmounts entirely when all refs are orphaned', () => {
+    const nodes: IngredientNode[] = [
+      {
+        kind: 'leaf',
+        id: 's1',
+        text: 'Bak de ui',
+        ingredientRefs: ['ing1'],
+        ingredientAmounts: { ing1: '1' },
+      },
+    ]
+    const result = pruneOrphanedRefs(nodes, new Set())
+    const leaf = result[0]
+    if (leaf.kind !== 'leaf') throw new Error('expected leaf')
+    expect(leaf.ingredientRefs).toBeUndefined()
+    expect(leaf.ingredientAmounts).toBeUndefined()
+  })
+
+  it('recurses into group children', () => {
+    const nodes: IngredientNode[] = [
+      {
+        kind: 'group',
+        id: 'g1',
+        title: 'Bereiding',
+        children: [
+          {
+            kind: 'leaf',
+            id: 's1',
+            text: 'Bak de ui',
+            ingredientRefs: ['ing1', 'ing2'],
+            ingredientAmounts: { ing1: '1', ing2: '2' },
+          },
+        ],
+      },
+    ]
+    const result = pruneOrphanedRefs(nodes, new Set(['ing1']))
+    const group = result[0]
+    if (group.kind !== 'group') throw new Error('expected group')
+    const leaf = group.children[0]
+    if (leaf.kind !== 'leaf') throw new Error('expected leaf')
+    expect(leaf.ingredientRefs).toEqual(['ing1'])
+    expect(leaf.ingredientAmounts).toEqual({ ing1: '1' })
   })
 })
