@@ -87,7 +87,7 @@ The JSON must match this exact schema:
 
 "portionsLabel": use "stuks" when the recipe yields a countable quantity of individual items (e.g. "12 dumplings", "8 burgers", "24 cookies"). Use "pers" in all other cases (servings, people). Default to "pers" when unclear.
 
-"description": a factual description of what the dish is made up of, its main ingredients. Keep it short and to the point: 1–3 sentences maximum. Every sentence must convey something factual without flourishing words. Do not add serving suggestions, use cases, or flourish ("can be served", "ideal for", "perfect with").
+"description": a factual description of what the dish is made up of. Write in the same language as the source recipe. Keep it short and to the point: 1–3 sentences maximum. Every sentence must convey something factual without flourishing words. Do not add serving suggestions, use cases, or flourish ("can be served", "ideal for", "perfect with").
 
 "sourceName": the human-readable name of the website when the input contains a URL (e.g. "dagelijksekost.vrt.be" → "Dagelijkse Kost", "allrecipes.com" → "AllRecipes", "15gram.nl" → "15 Gram"). Use your knowledge of popular websites; if unknown, make a best guess from the domain name. Set to empty string if the input is plain text or an image.
 
