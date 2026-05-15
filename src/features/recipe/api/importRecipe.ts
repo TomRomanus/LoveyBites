@@ -69,6 +69,8 @@ const callAnthropic = async (
 
 const SYSTEM_PROMPT = `You are a recipe extraction assistant. Extract the recipe from the provided content and return ONLY a valid JSON object — no markdown, no explanation, just the JSON.
 
+All text fields (title, description, ingredients, steps, equipment, notes) must be written in the language of the source recipe. The only exception is "tags", which must always be in Dutch.
+
 The JSON must match this exact schema:
 {
   "title": string,
