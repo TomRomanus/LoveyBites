@@ -74,9 +74,9 @@ function DayCellInner({ day, today, dayEntries, recipeMap, saveState, onClick }:
                 transition={{ duration: 0.15, ease: EASE_SUBTLE }}
                 className="overflow-hidden"
               >
-                <div className="flex items-center gap-[3px] px-[2px] pb-[2px]">
-                  <div className="w-[2.5px] h-[10px] rounded-[2px] shrink-0 bg-bordeaux" />
-                  <span className="font-serif italic font-medium text-[7px] overflow-hidden text-ellipsis whitespace-nowrap flex-1 min-w-0 text-bordeaux">
+                <div className="flex items-center gap-[2px] w-full pb-[2px]">
+                  <div className={`w-[2px] h-[10px] rounded-[2px] shrink-0 ${recipeData ? 'bg-bordeaux' : 'bg-stone'}`} />
+                  <span className={`font-serif italic font-medium text-[7px] text-left overflow-hidden text-ellipsis whitespace-nowrap flex-1 min-w-0 ${recipeData ? 'text-bordeaux' : 'text-stone'}`}>
                     {label}
                   </span>
                 </div>
