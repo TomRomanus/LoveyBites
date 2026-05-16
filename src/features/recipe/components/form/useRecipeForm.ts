@@ -53,12 +53,29 @@ const emptyInput = (): RecipeInput => ({
   createdBy: 'us',
 })
 
+// The editor only supports one level of groups. If a group contains nested groups,
+// drop the parent and pull the nested groups up to root level (recursively).
+const flattenNestedGroups = (nodes: IngredientNode[]): IngredientNode[] => {
+  const result: IngredientNode[] = []
+  for (const node of nodes) {
+    if (node.kind === 'leaf') {
+      result.push(node)
+    } else if (node.children.some((c) => c.kind === 'group')) {
+      result.push(...node.children.filter((c) => c.kind === 'leaf'))
+      result.push(...flattenNestedGroups(node.children.filter((c) => c.kind === 'group')))
+    } else {
+      result.push(node)
+    }
+  }
+  return result
+}
+
 const buildInitial = (initial?: Partial<RecipeInput>): RecipeInput => {
   const base = { ...emptyInput(), ...initial }
   return {
     ...base,
-    ingredients: ensureIngredientIds(base.ingredients),
-    steps: ensureIngredientIds(base.steps),
+    ingredients: ensureIngredientIds(flattenNestedGroups(base.ingredients)),
+    steps: ensureIngredientIds(flattenNestedGroups(base.steps)),
   }
 }
 
