@@ -459,6 +459,20 @@ describe('parseIngredientText', () => {
       name: 'water',
     })
   })
+
+  it('parses a mixed number amount with a known unit', () => {
+    const result = parseIngredientText('1 1/2 el olie')
+    expect(result.amount).toBe('1 1/2')
+    expect(result.maxLabel).toBe('1 1/2 el')
+    expect(result.name).toBe('olie')
+  })
+
+  it('parses a mixed number amount without a unit', () => {
+    const result = parseIngredientText('1 1/2 eieren')
+    expect(result.amount).toBe('1 1/2')
+    expect(result.maxLabel).toBe('1 1/2')
+    expect(result.name).toBe('eieren')
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -480,6 +494,11 @@ describe('formatStepIngredient', () => {
 
   it('works with a fraction step amount', () => {
     expect(formatStepIngredient('2 el olie', '1/2')).toBe('1/2 el olie')
+  })
+
+  it('substitutes correctly when ingredient text has a mixed number amount', () => {
+    // '1 1/2 el olie' → unit is ' el', name is 'olie'
+    expect(formatStepIngredient('1 1/2 el olie', '3/4')).toBe('3/4 el olie')
   })
 })
 
