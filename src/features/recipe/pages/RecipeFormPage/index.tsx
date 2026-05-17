@@ -35,7 +35,7 @@ const RecipeFormPage = () => {
   const [hasTitle, setHasTitle] = useState(false)
   const [direction, setDirection] = useState(1)
 
-  const { data: fetchedRecipe, isLoading: loading } = useRecipeLoad(id)
+  const { data: fetchedRecipe, isLoading: loading } = useRecipeLoad(id, { refetchOnWindowFocus: false })
 
   const { data: allRecipes = [] } = useQuery({
     queryKey: recipeKeys.list(),

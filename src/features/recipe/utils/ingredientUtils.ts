@@ -96,10 +96,10 @@ export const parseIngredientText = (
   text: string,
 ): { amount: string; maxLabel: string; name: string } => {
   const trimmed = text.trim()
-  const numMatch = trimmed.match(/^(\d+(?:[.,]\d+)?(?:\s*\/\s*\d+)?)\s*/)
+  const numMatch = trimmed.match(/^(\d+\s+\d+\/\d+|\d+(?:[.,]\d+)?(?:\s*\/\s*\d+)?)\s*/)
   if (!numMatch) return { amount: '', maxLabel: '', name: trimmed }
 
-  const amount = numMatch[1].replace(/\s/g, '')
+  const amount = numMatch[1]
   const rest = trimmed.slice(numMatch[0].length).trim()
   if (!rest) return { amount, maxLabel: amount, name: '' }
 

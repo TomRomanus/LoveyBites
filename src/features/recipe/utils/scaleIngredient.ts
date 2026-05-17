@@ -22,6 +22,16 @@ const formatNumber = (n: number, useFraction = false): string => {
         return whole === 0 ? str : `${whole} ${str}`
       }
     }
+    // No exact match — round to nearest cooking fraction
+    let bestNum = 0, bestDen = 1, bestDiff = frac
+    for (const [num, den] of COOKING_FRACTIONS) {
+      const diff = Math.abs(frac - num / den)
+      if (diff < bestDiff) { bestDiff = diff; bestNum = num; bestDen = den }
+    }
+    if (1 - frac < bestDiff) return String(whole + 1)
+    if (bestNum === 0) return String(whole)
+    const str = `${bestNum}/${bestDen}`
+    return whole === 0 ? str : `${whole} ${str}`
   }
   const oneDecimal = rounded.toFixed(1)
   if (oneDecimal.endsWith('.0')) return String(Math.round(rounded))
@@ -32,7 +42,6 @@ const LEADING_NUMBER = /^(\d+\s+\d+\/\d+|\d+\/\d+|\d+(?:[.,]\d+)?)/
 
 /** Scale a single ingredient text string by the given ratio. */
 export const scaleIngredientText = (text: string, ratio: number): string => {
-  if (ratio === 1) return text
   const match = text.match(LEADING_NUMBER)
   if (!match) return text
   const scaled = parseFraction(match[1]) * ratio
@@ -53,7 +62,6 @@ export const scaleStepAmounts = (
   ratio: number,
   ingredientMap?: Map<string, string>,
 ): IngredientNode[] => {
-  if (ratio === 1) return nodes
   return nodes.map((node) => {
     if (node.kind === 'leaf') {
       if (!node.ingredientAmounts) return node
@@ -67,7 +75,7 @@ export const scaleStepAmounts = (
         const ingredientText = ingredientMap?.get(id) ?? ''
         const match = ingredientText.match(LEADING_NUMBER)
         const unitRest = match ? ingredientText.slice(match[0].length).trimStart() : ''
-        scaledAmounts[id] = formatNumber(num * ratio, VOLUME_UNIT.test(unitRest))
+        scaledAmounts[id] = formatNumber(num * ratio, !unitRest || VOLUME_UNIT.test(unitRest))
       }
       return { ...node, ingredientAmounts: scaledAmounts }
     }
