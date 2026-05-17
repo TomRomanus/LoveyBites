@@ -70,9 +70,11 @@ const RecipeFormPage = () => {
       if (fetchedRecipe) {
         queryClient.setQueryData(recipeKeys.detail(id), { ...fetchedRecipe, ...data })
       }
+      queryClient.invalidateQueries({ queryKey: recipeKeys.list() })
       navigate(-1)
     } else {
       const newId = await createRecipe(data)
+      queryClient.invalidateQueries({ queryKey: recipeKeys.list() })
       navigate(`/recipe/${newId}`, { replace: true })
     }
   }
