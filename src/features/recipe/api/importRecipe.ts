@@ -191,7 +191,7 @@ export const importRecipeFromImage = async (file: File): Promise<Partial<RecipeI
   })
   const aiResponse = await callAIWithImage(base64, mediaType)
   const { recipe } = parseAIResponse(aiResponse)
-  recipe.sources = []
+  recipe.sources = [{ label: file.name, url: '' }]
   return recipe
 }
 
@@ -220,6 +220,7 @@ export const importRecipeFromUrl = async (url: string): Promise<Partial<RecipeIn
 
   const aiResponse = await callAI(content)
   const { recipe, sourceName } = parseAIResponse(aiResponse)
-  recipe.sources = [{ label: sourceName || labelFromUrl(url), url }]
+  const name = sourceName || labelFromUrl(url)
+  recipe.sources = [{ label: recipe.title ? `${name} - ${recipe.title}` : name, url }]
   return recipe
 }
