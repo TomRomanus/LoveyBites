@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Pause, Play, X } from 'lucide-react'
+import { Pause, Play, Plus, X } from 'lucide-react'
 import { useCookTimers } from '@/features/cooking/context/TimerContext'
 import { formatCookTime } from '@/features/cooking/utils/formatCookTime'
 
@@ -29,6 +29,20 @@ export function TimerSheet() {
     ].filter(Boolean).join(' ')
     startTimer(label, total)
     handleCancel()
+  }
+
+  const addHours = (n: number) => {
+    setNewHours(String((parseInt(newHours) || 0) + n))
+  }
+
+  const addMinutes = (n: number) => {
+    const total = (parseInt(newMinutes) || 0) + n
+    if (total >= 60) {
+      setNewHours(String((parseInt(newHours) || 0) + Math.floor(total / 60)))
+      setNewMinutes(String(total % 60))
+    } else {
+      setNewMinutes(String(total))
+    }
   }
 
   const handleCancel = () => {
@@ -133,7 +147,7 @@ export function TimerSheet() {
             <div className={`px-5 py-4 ${timers.length > 0 ? 'border-t-[0.5px] border-paper/[0.10]' : ''}`}>
               {addingTimer ? (
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-center gap-1 bg-paper/5 rounded-[14px] py-4 px-2">
+                  <div className="flex items-center justify-center gap-1 bg-paper/5 rounded-[14px] py-2 px-2">
                     <div className="flex flex-col items-center gap-1">
                       <input
                         type="number" min="0" max="23"
@@ -167,18 +181,34 @@ export function TimerSheet() {
                       <span className="font-mono text-[9px] tracking-[0.12em] uppercase text-paper/35">sec</span>
                     </div>
                   </div>
+                  <div className="flex gap-2">
+                    {[
+                      { label: '1 uur', action: () => addHours(1) },
+                      { label: '5 min', action: () => addMinutes(5) },
+                      { label: '1 min', action: () => addMinutes(1) },
+                    ].map(({ label, action }) => (
+                      <button
+                        key={label}
+                        onClick={action}
+                        className="flex-1 h-10 rounded-full border-[0.5px] border-paper/20 text-paper text-[15px] font-sans flex items-center justify-center gap-[5px]"
+                      >
+                        <Plus size={10} strokeWidth={2.5} className="block" />
+                        {label}
+                      </button>
+                    ))}
+                  </div>
                   <input
-                    className="bg-paper/[0.07] border-[0.5px] border-paper/20 rounded-[10px] px-3 py-[10px] text-paper text-[14px] font-sans placeholder:text-paper/30 outline-none"
+                    className="bg-paper/[0.07] border-[0.5px] border-paper/20 rounded-[10px] px-3 py-[10px] text-paper text-[15px] font-sans placeholder:text-paper/30 outline-none"
                     placeholder="Naam (optioneel)"
                     value={newLabel}
                     onChange={e => setNewLabel(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAdd()}
                   />
                   <div className="flex gap-2">
-                    <button onClick={handleCancel} className="flex-1 h-10 rounded-full border-[0.5px] border-paper/20 text-paper text-[13px] font-sans">
+                    <button onClick={handleCancel} className="flex-1 h-10 rounded-full border-[0.5px] border-paper/20 text-paper text-[15px] font-sans">
                       Annuleer
                     </button>
-                    <button onClick={handleAdd} className="flex-1 h-10 rounded-full bg-bordeaux text-paper text-[14px] font-semibold font-sans">
+                    <button onClick={handleAdd} className="flex-1 h-10 rounded-full bg-bordeaux text-paper text-[15px] font-semibold font-sans">
                       Start
                     </button>
                   </div>
