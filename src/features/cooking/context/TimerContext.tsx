@@ -100,9 +100,10 @@ export function TimerProvider({ children }: { children: ReactNode }) {
 
   const startTimer = useCallback((label: string, durationSecs: number): string => {
     const id = crypto.randomUUID()
+    const finished = durationSecs <= 0
     setTimers(prev => [
       ...prev,
-      { id, label, durationSecs, remainingSecs: durationSecs, status: 'running' },
+      { id, label, durationSecs, remainingSecs: finished ? 0 : durationSecs, status: finished ? 'finished' : 'running' },
     ])
     return id
   }, [])
