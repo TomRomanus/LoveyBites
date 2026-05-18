@@ -99,8 +99,8 @@ const CookingStepBottomControls = ({
         data-has-comment={hasComment}
         className="w-[52px] h-[52px] rounded-[26px] bg-transparent flex items-center justify-center cursor-pointer"
         style={{
-          border: '0.5px solid rgba(154,108,42,0.65)',
-          color: 'rgba(154,108,42,0.90)',
+          border: '0.5px solid rgba(232,160,37,0.30)',
+          color: 'rgba(232,160,37,0.85)',
         }}
       >
         <MessageCircleHeart size={20} strokeWidth={1.5} />

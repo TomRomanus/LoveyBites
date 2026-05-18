@@ -59,7 +59,7 @@ const CookingCommentSheet = ({
             <div className="font-mono text-[10px] tracking-[0.14em] uppercase text-paper/50 mb-[10px]">
               Stap {stepNumber}
             </div>
-            <div className="flex items-start bg-honey-700/15 rounded-md px-[14px] py-[6px]">
+            <div className="flex items-start bg-honey-500/10 rounded-md px-[14px] py-[6px]">
               <AutoGrowTextarea
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
@@ -69,7 +69,7 @@ const CookingCommentSheet = ({
                   const len = e.target.value.length
                   e.target.setSelectionRange(len, len)
                 }}
-                className="flex-1 bg-transparent border-0 outline-none resize-none font-sans text-[13px] text-paper/75 leading-[1.5] placeholder:text-honey-700/40"
+                className="flex-1 bg-transparent border-0 outline-none resize-none font-sans text-[13px] text-paper/75 leading-[1.5] placeholder:text-honey-500/40"
                 placeholder="Opmerking..."
               />
               <button
@@ -79,7 +79,7 @@ const CookingCommentSheet = ({
                   onDelete()
                   onClose()
                 }}
-                className="shrink-0 text-honey-700/45 hover:text-honey-700/80 cursor-pointer pl-[6px] self-start mt-[5px] border-0 bg-transparent"
+                className="shrink-0 text-honey-500/45 hover:text-honey-500/80 cursor-pointer pl-[6px] self-start mt-[5px] border-0 bg-transparent"
               >
                 <X size={12} />
               </button>

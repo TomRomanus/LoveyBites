@@ -1,4 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, it, expect } from 'vitest'
 import { TimerProvider, useCookTimers } from '@/features/cooking/context/TimerContext'
 import { TimerPill } from '../TimerPill'
 
@@ -18,24 +20,37 @@ describe('TimerPill', () => {
     expect(screen.queryByRole('button')).toBeNull()
   })
 
-  it('shows singular label for one timer', async () => {
+  it('renders the pill button when a timer is active', async () => {
     const getControls = setup()
     getControls().startTimer('pasta', 600)
-    expect(await screen.findByText('1 timer')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'Timers openen' })).toBeInTheDocument()
   })
 
-  it('shows plural label for multiple timers', async () => {
+  it('shows the countdown for the soonest running timer', async () => {
+    const getControls = setup()
+    getControls().startTimer('pasta', 600)
+    expect(await screen.findByText('10:00')).toBeInTheDocument()
+  })
+
+  it('shows the number of active timers', async () => {
     const getControls = setup()
     getControls().startTimer('pasta', 600)
     getControls().startTimer('saus', 300)
-    expect(await screen.findByText('2 timers')).toBeInTheDocument()
+    expect(await screen.findByText('2')).toBeInTheDocument()
   })
 
-  it('calls openSheet when clicked', async () => {
+  it('opens the timer sheet when clicked', async () => {
     const getControls = setup()
     getControls().startTimer('pasta', 600)
-    const btn = await screen.findByRole('button')
-    fireEvent.click(btn)
+    await userEvent.click(await screen.findByRole('button', { name: 'Timers openen' }))
     expect(getControls().sheetOpen).toBe(true)
+  })
+
+  it('hides when cook mode is active', async () => {
+    const getControls = setup()
+    getControls().startTimer('pasta', 600)
+    await screen.findByRole('button', { name: 'Timers openen' })
+    getControls().registerCookMode(true)
+    expect(screen.queryByRole('button', { name: 'Timers openen' })).toBeNull()
   })
 })
