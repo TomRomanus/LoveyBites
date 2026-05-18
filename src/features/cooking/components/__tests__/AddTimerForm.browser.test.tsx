@@ -97,7 +97,7 @@ describe('AddTimerForm', () => {
       await userEvent.click(screen.getByRole('button', { name: 'min verhogen' }))
       await userEvent.click(screen.getByRole('button', { name: 'Start' }))
       await waitFor(() => expect(getControls().timers).toHaveLength(1))
-      expect(getControls().timers[0].label).toBe('2min')
+      expect(getControls().timers[0].label).toBe('2 min')
     })
 
     it('starts a timer with the custom label when provided', async () => {

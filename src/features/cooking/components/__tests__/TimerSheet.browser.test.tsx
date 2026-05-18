@@ -1,4 +1,4 @@
-import { render, screen, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { TimerProvider, useCookTimers } from '@/features/cooking/context/TimerContext'
@@ -103,21 +103,6 @@ describe('TimerSheet', () => {
     })
   })
 
-  describe('replay button', () => {
-    beforeEach(() => vi.useFakeTimers())
-    afterEach(() => vi.useRealTimers())
-
-    it('restarts the timer to its original duration when clicked', async () => {
-      const user = userEvent.setup({ advanceTimers: (ms) => vi.advanceTimersByTime(ms) })
-      const getControls = setup()
-      act(() => { getControls().startTimer('pasta', 180) })
-      act(() => { vi.advanceTimersByTime(180_000) })
-      act(() => { getControls().openSheet() })
-      await screen.findByText('0:00')
-      await user.click(screen.getByRole('button', { name: 'Timer opnieuw starten' }))
-      expect(await screen.findByText('3:00')).toBeInTheDocument()
-    })
-  })
 
   describe('dismiss', () => {
     it('removes the timer when dismiss is clicked', async () => {

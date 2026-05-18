@@ -131,6 +131,17 @@ describe('TimerContext', () => {
     })
   })
 
+  it('replay restarts a finished timer to its original duration', () => {
+    const { result } = renderHook(() => useCookTimers(), { wrapper })
+    act(() => { result.current.startTimer('pasta', 180) })
+    const id = result.current.timers[0].id
+    act(() => { vi.advanceTimersByTime(180_000) })
+    expect(result.current.timers[0].status).toBe('finished')
+    act(() => { result.current.addTime(id, result.current.timers[0].durationSecs) })
+    expect(result.current.timers[0].remainingSecs).toBe(180)
+    expect(result.current.timers[0].status).toBe('running')
+  })
+
   describe('page visibility resync', () => {
     it('resyncs remainingSecs from endTime when tab becomes visible', () => {
       const { result } = renderHook(() => useCookTimers(), { wrapper })

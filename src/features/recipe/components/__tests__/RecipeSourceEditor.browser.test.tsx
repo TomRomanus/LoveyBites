@@ -84,7 +84,8 @@ describe('RecipeSourceEditor', () => {
     const file = new File(['img'], 'foto.jpg', { type: 'image/jpeg' })
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
     await userEvent.upload(fileInput, file)
-    expect(await screen.findByRole('button', { name: /uploaden…/i })).toBeDisabled()
+    const uploadingBtns = await screen.findAllByRole('button', { name: /uploaden…/i })
+    uploadingBtns.forEach(btn => expect(btn).toBeDisabled())
     await act(async () => {
       resolve!('https://cdn.example.com/img.jpg')
     })
