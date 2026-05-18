@@ -64,12 +64,12 @@ describe('CookingStepsPanel', () => {
   describe('previous step preview', () => {
     it('does not show the prev label on the first step', () => {
       setup({ currentIndex: 0 })
-      expect(screen.queryByText('← Vorige')).not.toBeInTheDocument()
+      expect(screen.queryByText('Vorige')).not.toBeInTheDocument()
     })
 
     it('shows the prev label when not on the first step', () => {
       setup({ currentIndex: 1 })
-      expect(screen.getByText('← Vorige')).toBeInTheDocument()
+      expect(screen.getByText('Vorige')).toBeInTheDocument()
     })
 
     it('shows the previous step text when not on the first step', () => {
@@ -80,7 +80,7 @@ describe('CookingStepsPanel', () => {
     it('calls onGoTo with currentIndex - 1 when the prev button is clicked', async () => {
       const onGoTo = vi.fn()
       setup({ currentIndex: 1, onGoTo })
-      await userEvent.click(screen.getByText('← Vorige').closest('button')!)
+      await userEvent.click(screen.getByRole('button', { name: /vorige/i }))
       expect(onGoTo).toHaveBeenCalledWith(0)
     })
   })
@@ -88,12 +88,12 @@ describe('CookingStepsPanel', () => {
   describe('next step preview', () => {
     it('does not show the next label on the last step', () => {
       setup({ currentIndex: 2 })
-      expect(screen.queryByText('Volgende →')).not.toBeInTheDocument()
+      expect(screen.queryByText('Volgende')).not.toBeInTheDocument()
     })
 
     it('shows the next label when not on the last step', () => {
       setup({ currentIndex: 0 })
-      expect(screen.getByText('Volgende →')).toBeInTheDocument()
+      expect(screen.getByText('Volgende')).toBeInTheDocument()
     })
 
     it('shows the next step text when not on the last step', () => {
@@ -104,7 +104,7 @@ describe('CookingStepsPanel', () => {
     it('calls onGoTo with currentIndex + 1 when the next button is clicked', async () => {
       const onGoTo = vi.fn()
       setup({ currentIndex: 0, onGoTo })
-      await userEvent.click(screen.getByText('Volgende →').closest('button')!)
+      await userEvent.click(screen.getByRole('button', { name: /volgende/i }))
       expect(onGoTo).toHaveBeenCalledWith(1)
     })
   })

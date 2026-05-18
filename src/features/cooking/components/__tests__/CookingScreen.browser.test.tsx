@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import CookingScreen from '../CookingScreen'
@@ -69,7 +69,8 @@ describe('CookingScreen', () => {
       const onClose = vi.fn()
       setup({ onClose })
       await userEvent.click(screen.getByTestId('cooking-close-btn'))
-      expect(onClose).toHaveBeenCalledOnce()
+      // handleClose fires onClose via setTimeout(onClose, 110) for the pill fly-back animation
+      await waitFor(() => expect(onClose).toHaveBeenCalledOnce())
     })
   })
 

@@ -44,9 +44,14 @@ function motionFactory(Component: React.ComponentType<any>) {
   return Wrapped
 }
 
+// Cache ensures the same component function is returned for each tag across renders.
+// Without this, motion.button returns a new function on every render, causing React
+// to unmount/remount the subtree and detaching event handlers before clicks fire.
+const elCache: Record<string, ReturnType<typeof el>> = {}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const motion = new Proxy(motionFactory as any, {
-  get: (_: unknown, tag: string) => el(tag),
+  get: (_: unknown, tag: string) => (elCache[tag] ??= el(tag)),
 })
 
 const AnimatePresence = forwardRef<unknown, { children?: ReactNode }>(
