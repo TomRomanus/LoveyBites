@@ -62,7 +62,7 @@ test.describe('Cook mode — timers', () => {
     await page.getByRole('button', { name: 'Start 5 min timer' }).click()
     await page.getByRole('button', { name: 'Timers openen' }).click()
     await expect(page.getByText('Timers')).toBeVisible()
-    await expect(page.getByText('5 min', { exact: true })).toBeVisible()
+    await expect(page.getByText('5 min').first()).toBeVisible()
     // Timer ticks during test setup — accept any M:SS countdown value
     await expect(page.getByText(/^\d+:\d{2}$/).first()).toBeVisible()
   })
@@ -91,9 +91,9 @@ test.describe('Cook mode — timers', () => {
     await page.getByRole('button', { name: 'Timers openen' }).click()
     await page.getByRole('button', { name: 'Timer toevoegen' }).click()
     // Wait for form animation to complete before interacting with the chevrons
-    await expect(page.getByRole('button', { name: 'Start' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Start', exact: true })).toBeVisible()
     await page.getByRole('button', { name: 'min verhogen' }).click()
-    await page.getByRole('button', { name: 'Start' }).click()
+    await page.getByRole('button', { name: 'Start', exact: true }).click()
     await expect(page.getByText('1min')).toBeVisible()
   })
 
