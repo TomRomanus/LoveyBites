@@ -21,7 +21,7 @@ const RecipeNotes = ({ notes, deel }: RecipeNotesProps) => (
             <div className="font-mono text-[9px] font-medium tracking-[0.14em] uppercase text-bordeaux mb-[2px]">
               {note.label}
             </div>
-            <div className="text-[13.5px] leading-[1.55] text-ink-2">{note.text}</div>
+            <div className="text-[13.5px] leading-[1.55] text-ink-2 whitespace-pre-wrap">{note.text}</div>
           </div>
         </div>
       ))}
