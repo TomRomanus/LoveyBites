@@ -2,13 +2,14 @@ import { useState, useMemo, useEffect } from 'react'
 import { useRecipeDetailUI } from './useRecipeDetailUI'
 import { createPortal } from 'react-dom'
 import { AnimatePresence } from 'framer-motion'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { Play } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { deleteRecipe, updateRecipe } from '@/features/recipe/api/recipes'
 import { updateStepComment } from '@/features/cooking/utils/cookSteps'
 import { recipeKeys } from '@/features/recipe/api/queryKeys'
 import useRecipeLoad from '@/features/recipe/hooks/useRecipeLoad'
+import { useCookTimers } from '@/features/cooking/context/TimerContext'
 import { scaleIngredients, scaleStepAmounts } from '@/features/recipe/utils/scaleIngredient'
 import CookingScreen from '@/features/cooking/components/CookingScreen'
 import { collectIngredientMap } from '@/features/recipe/utils/ingredientUtils'
@@ -69,6 +70,23 @@ const RecipeDetailPage = () => {
 
   useThemeColor(recipe ? (cookMode ? '#1f1d1a' : '#6b1f2a') : '')
   useWakeLock(!!recipe)
+
+  const location = useLocation()
+  const { registerCookModeReturn } = useCookTimers()
+
+  // Keep cook mode return registered even after navigating away, so the
+  // "Terug naar kookmodus" button in the timer sheet works from any page.
+  useEffect(() => {
+    registerCookModeReturn(() => navigate(`/recipe/${id}`, { state: { openCookMode: true } }))
+  }, [id, registerCookModeReturn, navigate])
+
+  // Auto-enter cook mode when navigated back here via the timer sheet button.
+  useEffect(() => {
+    if (location.state?.openCookMode) {
+      setCookMode(true)
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location.state?.openCookMode])
 
   const ratio = portions / (recipe?.portions ?? 4)
   const scaledIngredients = useMemo(

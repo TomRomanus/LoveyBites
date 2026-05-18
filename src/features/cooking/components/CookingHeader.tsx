@@ -13,7 +13,7 @@ const CookingHeader = ({ onClose, hidePill = false }: CookingHeaderProps) => {
       <IconButton
         data-testid="cooking-close-btn"
         onClick={onClose}
-        className="bg-transparent border-[0.5px] border-paper/[0.38] text-paper"
+        className="bg-transparent border-[0.5px] border-paper/20 text-paper"
       >
         <X size={16} />
       </IconButton>

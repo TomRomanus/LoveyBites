@@ -20,9 +20,14 @@ interface TimerContextValue {
   sheetOpen: boolean
   openSheet: () => void
   closeSheet: () => void
+  // cookModeReturn: set by the recipe detail page — re-enters cook mode from outside it.
   registerCookModeReturn: (fn: () => void) => void
   unregisterCookModeReturn: () => void
   cookModeReturn: (() => void) | null
+  // cookModeActive: true while CookingScreen is mounted.
+  cookModeActive: boolean
+  registerCookMode: () => void
+  unregisterCookMode: () => void
 }
 
 const TimerContext = createContext<TimerContextValue | null>(null)
@@ -52,6 +57,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [timers, setTimers] = useState<CookTimer[]>([])
   const [sheetOpen, setSheetOpen] = useState(false)
   const [cookModeReturn, setCookModeReturn] = useState<(() => void) | null>(null)
+  const [cookModeActive, setCookModeActive] = useState(false)
   const notifiedRef = useRef<Set<string>>(new Set())
 
   useEffect(() => {
@@ -129,12 +135,16 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     setCookModeReturn(null)
   }, [])
 
+  const registerCookMode = useCallback(() => setCookModeActive(true), [])
+  const unregisterCookMode = useCallback(() => setCookModeActive(false), [])
+
   return (
     <TimerContext.Provider
       value={{
         timers, startTimer, pauseTimer, resumeTimer, dismissTimer,
         sheetOpen, openSheet, closeSheet,
         registerCookModeReturn, unregisterCookModeReturn, cookModeReturn,
+        cookModeActive, registerCookMode, unregisterCookMode,
       }}
     >
       {children}

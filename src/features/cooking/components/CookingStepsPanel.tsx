@@ -106,8 +106,8 @@ function TimerStartButton({ active, displayTime, onStart }: TimerStartButtonProp
       transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       className={`flex items-center gap-2 self-start rounded-xl px-4 h-10 text-[13px] font-semibold font-sans transition-colors duration-300 ${
         active
-          ? 'bg-honey-400/5 border border-honey-400/10 text-honey-400/40 cursor-not-allowed'
-          : 'bg-honey-400/10 border border-honey-400/25 text-honey-400'
+          ? 'bg-honey-500/5 border border-honey-500/10 text-honey-500/40 cursor-not-allowed'
+          : 'bg-honey-500/10 border border-honey-500/25 text-honey-500'
       }`}
     >
       <AnimatePresence mode="wait" initial={false}>

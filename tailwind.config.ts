@@ -26,8 +26,8 @@ export default {
           2: '#c0b6a3',
         },
         cream: '#fffaf0',
-        rust: '#b8401f',
-        olive: '#6b6a3d',
+        terracotta: '#bf5530',
+
         honey: {
           400: '#f5b731',
           500: '#e8a025',

@@ -2,11 +2,11 @@ import { useCookTimers } from '@/features/cooking/context/TimerContext'
 import { TimerPillButton } from './TimerPillButton'
 
 export function TimerPill() {
-  const { timers, cookModeReturn } = useCookTimers()
+  const { timers, cookModeActive } = useCookTimers()
 
   // Hide when cook mode is active so the layoutId shared transition can animate the pill
   // from center-top to the cook mode header position (top-right).
-  if (timers.length === 0 || cookModeReturn !== null) return null
+  if (timers.length === 0 || cookModeActive) return null
 
   return (
     <div

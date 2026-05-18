@@ -46,13 +46,13 @@ const CookingScreen = ({
 
   useBodyScrollLock(true)
 
-  const { registerCookModeReturn, unregisterCookModeReturn, closeSheet } = useCookTimers()
+  const { registerCookMode, unregisterCookMode } = useCookTimers()
   // useLayoutEffect fires synchronously before paint, so TimerPill unmounts in the same
   // commit as CookingScreen mounts — framer-motion never sees two layoutId="timer-pill" elements.
   useLayoutEffect(() => {
-    registerCookModeReturn(closeSheet)
-    return () => unregisterCookModeReturn()
-  }, [registerCookModeReturn, unregisterCookModeReturn, closeSheet])
+    registerCookMode()
+    return () => unregisterCookMode()
+  }, [registerCookMode, unregisterCookMode])
 
   const [pillHidden, setPillHidden] = useState(false)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -62,9 +62,9 @@ const CookingScreen = ({
   // Hides the cook-mode pill and starts its fly-back before the screen exits.
   const handleClose = useCallback(() => {
     setPillHidden(true)
-    unregisterCookModeReturn()
+    unregisterCookMode()
     closeTimerRef.current = setTimeout(onClose, 110)
-  }, [unregisterCookModeReturn, onClose])
+  }, [unregisterCookMode, onClose])
 
   if (total === 0) return null
 
