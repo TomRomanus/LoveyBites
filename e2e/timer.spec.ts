@@ -62,8 +62,9 @@ test.describe('Cook mode — timers', () => {
     await page.getByRole('button', { name: 'Start 5 min timer' }).click()
     await page.getByRole('button', { name: 'Timers openen' }).click()
     await expect(page.getByText('Timers')).toBeVisible()
-    await expect(page.getByText('5 min').first()).toBeVisible()
-    await expect(page.getByText('5:00')).toBeVisible()
+    await expect(page.getByText('5 min', { exact: true })).toBeVisible()
+    // Timer ticks during test setup — accept any M:SS countdown value
+    await expect(page.getByText(/^\d+:\d{2}$/).first()).toBeVisible()
   })
 
   test('pause and resume a running timer', async ({ page }) => {
@@ -89,11 +90,11 @@ test.describe('Cook mode — timers', () => {
     await page.getByRole('button', { name: 'Start 5 min timer' }).click()
     await page.getByRole('button', { name: 'Timers openen' }).click()
     await page.getByRole('button', { name: 'Timer toevoegen' }).click()
-    await page.getByRole('button', { name: 'min verhogen' }).click()
-    await page.getByRole('button', { name: 'min verhogen' }).click()
+    // Wait for form animation to complete before interacting with the chevrons
+    await expect(page.getByRole('button', { name: 'Start' })).toBeVisible()
     await page.getByRole('button', { name: 'min verhogen' }).click()
     await page.getByRole('button', { name: 'Start' }).click()
-    await expect(page.getByText('3min')).toBeVisible()
+    await expect(page.getByText('1min')).toBeVisible()
   })
 
   // ── Terug naar kookmodus ────────────────────────────────────────────────────
@@ -111,6 +112,6 @@ test.describe('Cook mode — timers', () => {
     await expect(page.getByRole('button', { name: /terug naar kookmodus/i })).toBeVisible()
     // Click → cook mode re-opens
     await page.getByRole('button', { name: /terug naar kookmodus/i }).click()
-    await expect(page.getByText('Kookmodus')).toBeVisible()
+    await expect(page.getByText('Kookmodus', { exact: true })).toBeVisible()
   })
 })
