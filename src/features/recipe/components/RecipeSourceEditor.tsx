@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Plus, Upload } from 'lucide-react'
+import { X, Plus, Upload, Camera } from 'lucide-react'
 import type { Source } from '@/features/recipe/types/recipe'
 import { uploadSourceImage } from '@/features/recipe/api/imageStorage'
 
@@ -12,6 +12,7 @@ type Props = {
 const RecipeSourceEditor = ({ sources, onChange }: Props) => {
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const cameraInputRef = useRef<HTMLInputElement>(null)
   // Stable per-item keys managed in state so they are never read during render from a ref
   const [ids, setIds] = useState<string[]>(() => sources.map(() => crypto.randomUUID()))
 
@@ -105,10 +106,27 @@ const RecipeSourceEditor = ({ sources, onChange }: Props) => {
           <Upload size={11} strokeWidth={2.5} />
           {uploading ? 'uploaden…' : 'afbeelding uploaden'}
         </button>
+        <button
+          type="button"
+          onClick={() => cameraInputRef.current?.click()}
+          disabled={uploading}
+          className={`${dashedBtnCls} ${uploading ? 'text-stone-2 cursor-default' : 'text-stone cursor-pointer'}`}
+        >
+          <Camera size={11} strokeWidth={2.5} />
+          {uploading ? 'uploaden…' : 'foto maken'}
+        </button>
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <input
+          ref={cameraInputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
           className="hidden"
           onChange={handleFileChange}
         />
