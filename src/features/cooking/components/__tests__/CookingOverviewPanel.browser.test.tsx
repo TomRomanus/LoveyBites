@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import CookingOverviewPanel from '../CookingOverviewPanel'
 import type { FlatStep } from '@/features/cooking/types/cooking'
+import { TimerProvider, useCookTimers } from '@/features/cooking/context/TimerContext'
 
 const STEPS: FlatStep[] = [
   { text: 'Kook de pasta', globalIndex: 0 },
@@ -20,7 +21,7 @@ function setup(overrides: Partial<Props> = {}) {
     onGoTo: vi.fn(),
   }
   const props = { ...defaults, ...overrides }
-  return { ...render(<CookingOverviewPanel {...props} />), onGoTo: props.onGoTo }
+  return { ...render(<TimerProvider><CookingOverviewPanel {...props} /></TimerProvider>), onGoTo: props.onGoTo }
 }
 
 describe('CookingOverviewPanel', () => {
@@ -111,6 +112,64 @@ describe('CookingOverviewPanel', () => {
     it('does not render a comment when a step has none', () => {
       setup()
       expect(screen.queryByText(/Let op/)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('timer buttons', () => {
+    function timerSetup(stepText: string) {
+      let controls: ReturnType<typeof useCookTimers>
+      const steps: FlatStep[] = [{ text: stepText, globalIndex: 0 }]
+      function Harness() {
+        controls = useCookTimers()
+        return (
+          <CookingOverviewPanel
+            steps={steps}
+            currentIndex={0}
+            ingredientMap={new Map()}
+            onGoTo={vi.fn()}
+          />
+        )
+      }
+      render(<TimerProvider><Harness /></TimerProvider>)
+      return () => controls!
+    }
+
+    it('shows start-timer button when step text contains a time reference', () => {
+      timerSetup('Kook 10 minuten op laag vuur')
+      expect(screen.getByText('Start 10 min timer')).toBeInTheDocument()
+    })
+
+    it('does not show timer buttons when step has no time reference', () => {
+      setup()
+      expect(screen.queryByText(/timer/i)).toBeNull()
+    })
+
+    it('disables the button and shows active label after clicking', async () => {
+      timerSetup('Kook 10 minuten op laag vuur')
+      await userEvent.click(screen.getByText('Start 10 min timer').closest('button')!)
+      const btn = await screen.findByText('10 min timer actief')
+      expect(btn.closest('button')).toBeDisabled()
+    })
+
+    it('re-enables the button after the timer is dismissed', async () => {
+      const getControls = timerSetup('Kook 10 minuten op laag vuur')
+      await userEvent.click(screen.getByText('Start 10 min timer').closest('button')!)
+      await screen.findByText('10 min timer actief')
+      const { timers, dismissTimer } = getControls()
+      dismissTimer(timers[0].id)
+      expect(await screen.findByText('Start 10 min timer')).not.toBeDisabled()
+    })
+
+    it('does not call onGoTo when a timer button is clicked', async () => {
+      const onGoTo = vi.fn()
+      const steps: FlatStep[] = [{ text: 'Kook 10 minuten op laag vuur', globalIndex: 0 }]
+      render(
+        <TimerProvider>
+          <CookingOverviewPanel steps={steps} currentIndex={0} ingredientMap={new Map()} onGoTo={onGoTo} />
+        </TimerProvider>,
+      )
+      await userEvent.click(screen.getByText('Start 10 min timer').closest('button')!)
+      expect(onGoTo).not.toHaveBeenCalled()
     })
   })
 })

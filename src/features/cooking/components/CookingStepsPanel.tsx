@@ -1,11 +1,12 @@
 import { useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Check, Play, ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import type { FlatStep } from '@/features/cooking/types/cooking'
 import GroupLabel from '@/shared/components/GroupLabel'
 import StepComment from '@/shared/components/StepComment'
 import { detectTimers } from '@/features/cooking/utils/detectTimers'
 import { useCookTimers } from '@/features/cooking/context/TimerContext'
+import TimerStartButton from '@/features/cooking/components/TimerStartButton'
 
 // Animates comment slot height using CSS grid-template-rows (real layout change,
 // not a transform) so justify-center repositions the block smoothly each frame.
@@ -91,41 +92,6 @@ function AdjacentStep({ step, label, position, onClick }: AdjacentStepProps) {
   )
 }
 
-type TimerStartButtonProps = {
-  active: boolean
-  displayTime: string
-  onStart: () => void
-}
-
-function TimerStartButton({ active, displayTime, onStart }: TimerStartButtonProps) {
-  return (
-    <motion.button
-      onClick={() => !active && onStart()}
-      disabled={active}
-      whileTap={active ? undefined : { scale: 0.97, opacity: 0.8 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-      className={`flex items-center gap-2 self-start rounded-xl px-4 h-10 text-[13px] font-semibold font-sans transition-colors duration-300 ${
-        active
-          ? 'border border-honey-500/10 text-honey-500/40 cursor-not-allowed'
-          : 'border-[0.5px] border-honey-500/30 text-honey-500'
-      }`}
-    >
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.span
-          key={active ? 'active' : 'idle'}
-          className="flex items-center gap-2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-        >
-          {active ? <Check size={13} /> : <Play size={13} fill="currentColor" stroke="none" />}
-          <span>{active ? `${displayTime} timer actief` : `Start ${displayTime} timer`}</span>
-        </motion.span>
-      </AnimatePresence>
-    </motion.button>
-  )
-}
 
 const STEP_VARIANTS = {
   enter: (dir: 'next' | 'prev' | null) => ({

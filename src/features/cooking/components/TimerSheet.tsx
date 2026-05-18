@@ -66,7 +66,7 @@ export function TimerSheet() {
                     className={`flex items-center justify-between px-5 py-3 ${i > 0 ? 'border-t-[0.5px] border-paper/[0.10]' : ''}`}
                   >
                     <div>
-                      <div className="text-[13px] font-sans mb-[3px] text-paper">
+                      <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-bordeaux-soft/90 mb-[5px]">
                         {t.label}
                       </div>
                       <motion.div
