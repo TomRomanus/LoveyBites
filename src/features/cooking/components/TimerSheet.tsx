@@ -210,7 +210,7 @@ export function TimerSheet() {
                     {t.status === 'running' && (
                       <button
                         onClick={() => pauseTimer(t.id)}
-                        className="w-10 h-10 rounded-full bg-paper/[0.07] border border-paper/[0.08] flex items-center justify-center text-paper/60"
+                        className="w-10 h-10 rounded-full border-[0.5px] border-paper/20 flex items-center justify-center text-paper/70"
                       >
                         <Pause size={14} fill="currentColor" stroke="none" />
                       </button>
@@ -218,14 +218,14 @@ export function TimerSheet() {
                     {t.status === 'paused' && (
                       <button
                         onClick={() => resumeTimer(t.id)}
-                        className="w-10 h-10 rounded-full bg-honey-500/10 border border-honey-500/20 flex items-center justify-center text-honey-500"
+                        className="w-10 h-10 rounded-full border border-honey-500/20 flex items-center justify-center text-honey-500"
                       >
                         <Play size={14} fill="currentColor" stroke="none" />
                       </button>
                     )}
                     <button
                       onClick={() => dismissTimer(t.id)}
-                      className="w-10 h-10 rounded-full bg-terracotta/10 border border-terracotta/20 flex items-center justify-center text-terracotta"
+                      className="w-10 h-10 rounded-full border border-terracotta/20 flex items-center justify-center text-terracotta"
                     >
                       <X size={14} strokeWidth={2.5} />
                     </button>
@@ -330,7 +330,7 @@ export function TimerSheet() {
                     <button onClick={handleCancel} className="flex-1 h-10 rounded-full border-[0.5px] border-paper/20 text-paper text-[15px] font-sans">
                       Annuleer
                     </button>
-                    <button onClick={handleAdd} className="flex-1 h-10 rounded-full bg-bordeaux text-paper text-[15px] font-semibold font-sans">
+                    <button onClick={handleAdd} className="flex-1 h-10 rounded-full bg-bordeaux/35 border-[0.5px] border-bordeaux-mid/50 text-paper text-[15px] font-semibold font-sans">
                       Start
                     </button>
                   </motion.div>

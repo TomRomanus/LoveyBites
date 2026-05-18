@@ -47,8 +47,8 @@ export function TimerPillButton({ variant = 'dark' }: TimerPillButtonProps) {
       className={`relative flex items-center justify-center border-[0.5px] text-paper transition-colors duration-300 ${
         variant === 'light'
           ? pillExpanded
-            ? 'gap-2 h-10 px-4 bg-bordeaux border-bordeaux shadow-[0_4px_16px_rgba(107,31,42,0.35)]'
-            : 'w-10 h-10 bg-bordeaux border-bordeaux'
+            ? 'gap-2 h-10 px-4 bg-bordeaux border-paper/20 shadow-[0_4px_16px_rgba(107,31,42,0.35)]'
+            : 'w-10 h-10 bg-bordeaux border-paper/20'
           : pillExpanded
             ? 'gap-2 h-10 px-4 bg-bordeaux/35 border-bordeaux-mid/50'
             : 'w-10 h-10 bg-transparent border-paper/20'
@@ -78,10 +78,10 @@ export function TimerPillButton({ variant = 'dark' }: TimerPillButtonProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
           >
-            <span className="font-mono text-[13px] tabular-nums text-honey-500 leading-none">
+            <span className="font-mono text-[13px] font-bold tabular-nums text-honey-500 leading-none">
               {formatCookTime(soonest.remainingSecs)}
             </span>
-            <span className="text-paper/30 text-[13px] leading-none">·</span>
+            <span className="text-paper/30 text-[16px] leading-none">·</span>
           </motion.span>
         )}
       </AnimatePresence>
