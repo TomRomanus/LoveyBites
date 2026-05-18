@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useLayoutEffect, useCallback, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EASE_STANDARD } from '@/shared/constants/animations'
 import { collectIngredientMap, formatStepIngredient } from '@/features/recipe/utils/ingredientUtils'
@@ -47,10 +47,24 @@ const CookingScreen = ({
   useBodyScrollLock(true)
 
   const { registerCookModeReturn, unregisterCookModeReturn, closeSheet } = useCookTimers()
-  useEffect(() => {
+  // useLayoutEffect fires synchronously before paint, so TimerPill unmounts in the same
+  // commit as CookingScreen mounts — framer-motion never sees two layoutId="timer-pill" elements.
+  useLayoutEffect(() => {
     registerCookModeReturn(closeSheet)
     return () => unregisterCookModeReturn()
   }, [registerCookModeReturn, unregisterCookModeReturn, closeSheet])
+
+  const [pillHidden, setPillHidden] = useState(false)
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => () => { if (closeTimerRef.current) clearTimeout(closeTimerRef.current) }, [])
+
+  // Hides the cook-mode pill and starts its fly-back before the screen exits.
+  const handleClose = useCallback(() => {
+    setPillHidden(true)
+    unregisterCookModeReturn()
+    closeTimerRef.current = setTimeout(onClose, 110)
+  }, [unregisterCookModeReturn, onClose])
 
   if (total === 0) return null
 
@@ -94,7 +108,7 @@ const CookingScreen = ({
       transition={{ duration: 0.22, ease: EASE_STANDARD }}
       className="fixed inset-0 z-[100] h-[100dvh] bg-ink text-paper flex flex-col select-none"
     >
-      <CookingHeader onClose={onClose} />
+      <CookingHeader onClose={handleClose} hidePill={pillHidden} />
 
       <CookingTabs tab={tab} onTabChange={setTab} />
 

@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Timer } from 'lucide-react'
 import { useCookTimers } from '@/features/cooking/context/TimerContext'
 import { formatCookTime } from '@/features/cooking/utils/formatCookTime'
+import { EASE_OUT } from '@/shared/constants/animations'
+
+const LAYOUT_TRANSITION = { type: 'tween', duration: 0.52, ease: EASE_OUT } as const
 
 type TimerPillButtonProps = {
   variant?: 'dark' | 'light'
@@ -32,9 +35,10 @@ export function TimerPillButton({ variant = 'dark' }: TimerPillButtonProps) {
       onClick={openSheet}
       aria-label="Timers openen"
       layout
+      layoutId="timer-pill"
       animate={hasFinished ? { scale: [1, 1.08, 1] } : { scale: 1 }}
       transition={{
-        layout: { type: 'spring', stiffness: 360, damping: 34 },
+        layout: LAYOUT_TRANSITION,
         scale: hasFinished
           ? { duration: 0.7, repeat: Infinity, repeatDelay: 0.9, ease: 'easeInOut' }
           : { duration: 0 },
@@ -89,7 +93,7 @@ export function TimerPillButton({ variant = 'dark' }: TimerPillButtonProps) {
           ? { rotate: [0, -18, 18, -12, 12, -6, 6, 0] }
           : { rotate: 0 }}
         transition={{
-          layout: { type: 'spring', stiffness: 360, damping: 34 },
+          layout: LAYOUT_TRANSITION,
           rotate: hasFinished && !soonest
             ? { duration: 0.6, repeat: Infinity, repeatDelay: 1.4 }
             : { duration: 0 },

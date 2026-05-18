@@ -4,9 +4,10 @@ import { TimerPillButton } from './TimerPillButton'
 
 type CookingHeaderProps = {
   onClose: () => void
+  hidePill?: boolean
 }
 
-const CookingHeader = ({ onClose }: CookingHeaderProps) => {
+const CookingHeader = ({ onClose, hidePill = false }: CookingHeaderProps) => {
   return (
     <div className="relative flex items-center pt-6 px-5 pb-[14px] shrink-0">
       <IconButton
@@ -22,7 +23,7 @@ const CookingHeader = ({ onClose }: CookingHeaderProps) => {
       </div>
 
       <div className="ml-auto">
-        <TimerPillButton />
+        {!hidePill && <TimerPillButton />}
       </div>
     </div>
   )
