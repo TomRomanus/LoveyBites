@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import { X } from 'lucide-react'
 import { replaceAt } from '@/features/recipe/components/editor/nodeTree'
 import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
 import type { IngredientNode } from '@/features/recipe/types/recipe'
@@ -60,9 +61,9 @@ const StepCommentBox = ({
                 onChange(replaceAt(allNodes, path, base))
                 onDismiss()
               }}
-              className="shrink-0 text-[10px] leading-none text-honey-700/45 hover:text-honey-700/80 cursor-pointer pl-[6px] self-start mt-[5px] border-0 bg-transparent"
+              className="shrink-0 text-honey-700/45 hover:text-honey-700/80 cursor-pointer pl-[6px] self-center border-0 bg-transparent"
             >
-              ✕
+              <X size={12} />
             </button>
           </div>
         </div>

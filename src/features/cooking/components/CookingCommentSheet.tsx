@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { X } from 'lucide-react'
 import AutoGrowTextarea from '@/shared/components/AutoGrowTextarea'
 
 type CookingCommentSheetProps = {
@@ -78,9 +79,9 @@ const CookingCommentSheet = ({
                   onDelete()
                   onClose()
                 }}
-                className="shrink-0 text-[10px] leading-none text-honey-700/45 hover:text-honey-700/80 cursor-pointer pl-[6px] self-start mt-[5px] border-0 bg-transparent"
+                className="shrink-0 text-honey-700/45 hover:text-honey-700/80 cursor-pointer pl-[6px] self-start mt-[5px] border-0 bg-transparent"
               >
-                ✕
+                <X size={12} />
               </button>
             </div>
           </motion.div>

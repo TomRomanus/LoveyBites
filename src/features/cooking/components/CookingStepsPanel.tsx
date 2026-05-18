@@ -1,5 +1,6 @@
 import { useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Check, Play, ArrowLeft, ArrowRight } from 'lucide-react'
 import type { FlatStep } from '@/features/cooking/types/cooking'
 import GroupLabel from '@/shared/components/GroupLabel'
 import StepComment from '@/shared/components/StepComment'
@@ -57,8 +58,10 @@ function AdjacentStep({ step, label, position, onClick }: AdjacentStepProps) {
       onClick={onClick}
       className={`block w-full px-[22px] bg-transparent border-0 cursor-pointer text-left opacity-30 ${position === 'prev' ? 'mb-6' : ''}`}
     >
-      <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-paper mb-[6px]">
+      <div className="font-mono text-[9px] tracking-[0.12em] uppercase text-paper mb-[6px] flex items-center gap-1">
+        {position === 'prev' && <ArrowLeft size={10} strokeWidth={2} className="block -translate-y-px" />}
         {label}
+        {position === 'next' && <ArrowRight size={10} strokeWidth={2} className="block -translate-y-px" />}
       </div>
       <div
         className="font-serif italic text-[18px] leading-[1.35] text-paper"
@@ -116,7 +119,7 @@ function TimerStartButton({ active, displayTime, onStart }: TimerStartButtonProp
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
         >
-          <span>{active ? '✓' : '▶'}</span>
+          {active ? <Check size={13} /> : <Play size={13} fill="currentColor" stroke="none" />}
           <span>{active ? `${displayTime} timer actief` : `Start ${displayTime} timer`}</span>
         </motion.span>
       </AnimatePresence>
@@ -181,7 +184,7 @@ const CookingStepsPanel = ({
           {steps[currentIndex - 1] && (
             <AdjacentStep
               step={steps[currentIndex - 1]}
-              label="← Vorige"
+              label="Vorige"
               position="prev"
               onClick={() => onGoTo(currentIndex - 1)}
             />
@@ -223,7 +226,7 @@ const CookingStepsPanel = ({
           {steps[currentIndex + 1] && (
             <AdjacentStep
               step={steps[currentIndex + 1]}
-              label="Volgende →"
+              label="Volgende"
               position="next"
               onClick={() => onGoTo(currentIndex + 1)}
             />

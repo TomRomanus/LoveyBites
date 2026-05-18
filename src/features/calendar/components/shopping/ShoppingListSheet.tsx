@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { ArrowRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EASE_OUT } from '@/shared/constants/animations'
 import DatePickerInput from '@/features/calendar/components/DatePickerInput'
@@ -55,7 +56,7 @@ const ShoppingListSheet = ({
       </SheetHeader>
       <div className="py-[14px] px-[22px] pb-4 flex gap-[10px] items-end">
         <DatePickerInput label="VAN" value={from} onChange={handleFromChange} />
-        <div className="text-stone-2 text-[14px] mb-[14px] shrink-0">→</div>
+        <div className="text-stone-2 mb-[14px] shrink-0"><ArrowRight size={14} /></div>
         <DatePickerInput label="TOT" value={to} onChange={handleToChange} openLeft />
       </div>
       <div className="flex-1 min-h-0 overflow-auto py-[6px] px-[22px]">
