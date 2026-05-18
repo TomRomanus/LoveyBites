@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { Pause, Play, Plus, X } from 'lucide-react'
+import { Pause, Play, Plus, RotateCcw, X } from 'lucide-react'
 import { useCookTimers } from '@/features/cooking/context/TimerContext'
 import { formatCookTime } from '@/features/cooking/utils/formatCookTime'
 import { AddTimerForm } from './AddTimerForm'
@@ -114,7 +114,15 @@ export function TimerSheet() {
                           <Play size={14} fill="currentColor" stroke="none" />
                         </button>
                       )}
-                      {t.status === 'finished' && <div className="w-10" />}
+                      {t.status === 'finished' && (
+                        <button
+                          onClick={() => addTime(t.id, t.durationSecs)}
+                          aria-label="Timer opnieuw starten"
+                          className="w-10 h-10 rounded-full border border-honey-500/20 flex items-center justify-center text-honey-500"
+                        >
+                          <RotateCcw size={14} strokeWidth={2.5} />
+                        </button>
+                      )}
                       <button
                         onClick={() => dismissTimer(t.id)}
                         aria-label="Timer verwijderen"

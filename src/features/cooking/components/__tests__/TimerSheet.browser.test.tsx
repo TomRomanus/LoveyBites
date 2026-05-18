@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { TimerProvider, useCookTimers } from '@/features/cooking/context/TimerContext'
@@ -92,13 +92,30 @@ describe('TimerSheet', () => {
       expect(await screen.findByText('0:00')).toBeInTheDocument()
     })
 
-    it('does not show pause or resume for a finished timer', async () => {
+    it('shows replay button and no pause/resume for a finished timer', async () => {
       const getControls = setup()
       getControls().startTimer('ei', 0)
       getControls().openSheet()
       await screen.findByText('0:00')
+      expect(await screen.findByRole('button', { name: 'Timer opnieuw starten' })).toBeInTheDocument()
       expect(screen.queryByRole('button', { name: 'Timer pauzeren' })).toBeNull()
       expect(screen.queryByRole('button', { name: 'Timer hervatten' })).toBeNull()
+    })
+  })
+
+  describe('replay button', () => {
+    beforeEach(() => vi.useFakeTimers())
+    afterEach(() => vi.useRealTimers())
+
+    it('restarts the timer to its original duration when clicked', async () => {
+      const user = userEvent.setup({ advanceTimers: (ms) => vi.advanceTimersByTime(ms) })
+      const getControls = setup()
+      act(() => { getControls().startTimer('pasta', 180) })
+      act(() => { vi.advanceTimersByTime(180_000) })
+      act(() => { getControls().openSheet() })
+      await screen.findByText('0:00')
+      await user.click(screen.getByRole('button', { name: 'Timer opnieuw starten' }))
+      expect(await screen.findByText('3:00')).toBeInTheDocument()
     })
   })
 

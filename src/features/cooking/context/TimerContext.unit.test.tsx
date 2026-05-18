@@ -131,6 +131,26 @@ describe('TimerContext', () => {
     })
   })
 
+  describe('page visibility resync', () => {
+    it('resyncs remainingSecs from endTime when tab becomes visible', () => {
+      const { result } = renderHook(() => useCookTimers(), { wrapper })
+      act(() => { result.current.startTimer('pasta', 10) })
+      // Advance Date.now() without firing the interval (simulates background throttling)
+      vi.setSystemTime(new Date(Date.now() + 7000))
+      act(() => { document.dispatchEvent(new Event('visibilitychange')) })
+      expect(result.current.timers[0].remainingSecs).toBe(3)
+    })
+
+    it('marks timer as finished if endTime has already passed when tab becomes visible', () => {
+      const { result } = renderHook(() => useCookTimers(), { wrapper })
+      act(() => { result.current.startTimer('pasta', 5) })
+      vi.setSystemTime(new Date(Date.now() + 6000))
+      act(() => { document.dispatchEvent(new Event('visibilitychange')) })
+      expect(result.current.timers[0].status).toBe('finished')
+      expect(result.current.timers[0].remainingSecs).toBe(0)
+    })
+  })
+
   it('registerCookModeReturn stores the function', () => {
     const { result } = renderHook(() => useCookTimers(), { wrapper })
     const fn = vi.fn()
