@@ -88,6 +88,42 @@ function AdjacentStep({ step, label, position, onClick }: AdjacentStepProps) {
   )
 }
 
+type TimerStartButtonProps = {
+  active: boolean
+  displayTime: string
+  onStart: () => void
+}
+
+function TimerStartButton({ active, displayTime, onStart }: TimerStartButtonProps) {
+  return (
+    <motion.button
+      onClick={() => !active && onStart()}
+      disabled={active}
+      whileTap={active ? undefined : { scale: 0.97, opacity: 0.8 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      className={`flex items-center gap-2 self-start rounded-xl px-4 h-10 text-[13px] font-semibold font-sans transition-colors duration-300 ${
+        active
+          ? 'bg-honey-400/5 border border-honey-400/10 text-honey-400/40 cursor-not-allowed'
+          : 'bg-honey-400/10 border border-honey-400/25 text-honey-400'
+      }`}
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.span
+          key={active ? 'active' : 'idle'}
+          className="flex items-center gap-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+        >
+          <span>{active ? '✓' : '▶'}</span>
+          <span>{active ? `${displayTime} timer actief` : `Start ${displayTime} timer`}</span>
+        </motion.span>
+      </AnimatePresence>
+    </motion.button>
+  )
+}
+
 const STEP_VARIANTS = {
   enter: (dir: 'next' | 'prev' | null) => ({
     x: dir === 'next' ? 40 : dir === 'prev' ? -40 : 0,
@@ -172,19 +208,12 @@ const CookingStepsPanel = ({
                   const label = `Stap ${currentIndex + 1} · ${dt.displayTime}`
                   const active = activeTimerLabels.has(label)
                   return (
-                    <button
+                    <TimerStartButton
                       key={i}
-                      onClick={() => !active && startTimer(label, dt.durationSecs)}
-                      disabled={active}
-                      className={`flex items-center gap-2 self-start rounded-xl px-4 h-10 text-[13px] font-semibold font-sans transition-opacity ${
-                        active
-                          ? 'bg-honey-400/5 border border-honey-400/10 text-honey-400/40 cursor-not-allowed'
-                          : 'bg-honey-400/10 border border-honey-400/25 text-honey-400'
-                      }`}
-                    >
-                      <span>{active ? '✓' : '▶'}</span>
-                      <span>{active ? `${dt.displayTime} timer actief` : `Start ${dt.displayTime} timer`}</span>
-                    </button>
+                      active={active}
+                      displayTime={dt.displayTime}
+                      onStart={() => startTimer(label, dt.durationSecs)}
+                    />
                   )
                 })}
               </div>

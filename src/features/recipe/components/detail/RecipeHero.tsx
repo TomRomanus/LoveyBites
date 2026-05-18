@@ -9,8 +9,9 @@ type RecipeHeroProps = {
 
 const RecipeHero = ({ title, onBack, onActionsOpen }: RecipeHeroProps) => (
   <div
-    className="lb-color-block min-h-[185px] px-[22px] py-6 rounded-none justify-start"
-    style={{ '--block-bg': 'var(--bordeaux)' } as React.CSSProperties}
+    className="lb-color-block min-h-[185px] rounded-none justify-start"
+    // Inline padding overrides .lb-color-block { padding: 14px 16px } which wins the cascade over Tailwind utilities.
+    style={{ '--block-bg': 'var(--bordeaux)', paddingTop: '24px', paddingLeft: '22px', paddingRight: '22px' } as React.CSSProperties}
   >
     <div className="flex items-center justify-between">
       <IconButton
