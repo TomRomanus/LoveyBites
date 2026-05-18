@@ -176,7 +176,7 @@ const CookingStepsPanel = ({
                       key={i}
                       onClick={() => !active && startTimer(label, dt.durationSecs)}
                       disabled={active}
-                      className={`flex items-center gap-2 self-start rounded-xl px-3 h-10 text-[12px] font-semibold font-sans transition-opacity ${
+                      className={`flex items-center gap-2 self-start rounded-xl px-4 h-10 text-[13px] font-semibold font-sans transition-opacity ${
                         active
                           ? 'bg-honey-400/5 border border-honey-400/10 text-honey-400/40 cursor-not-allowed'
                           : 'bg-honey-400/10 border border-honey-400/25 text-honey-400'

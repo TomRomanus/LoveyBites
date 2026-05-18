@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import { motion } from 'framer-motion'
 import { X, Timer } from 'lucide-react'
 import IconButton from '@/shared/components/IconButton'
 import { useCookTimers } from '@/features/cooking/context/TimerContext'
@@ -19,7 +20,7 @@ const CookingHeader = ({ onClose }: CookingHeaderProps) => {
   }, [timers])
 
   return (
-    <div className="flex items-center py-5 px-5 pb-[14px] shrink-0">
+    <div className="relative flex items-center py-5 px-5 pb-[14px] shrink-0">
       <IconButton
         data-testid="cooking-close-btn"
         onClick={onClose}
@@ -28,40 +29,55 @@ const CookingHeader = ({ onClose }: CookingHeaderProps) => {
         <X size={16} />
       </IconButton>
 
-      <div className="flex-1 text-center font-mono text-[10px] tracking-[0.14em] uppercase text-paper/50">
+      <div className="absolute inset-x-0 text-center font-mono text-[10px] tracking-[0.14em] uppercase text-paper/50 pointer-events-none">
         Kookmodus
       </div>
 
-      {timers.length > 0 ? (
-        <button
+      <div className="ml-auto relative flex items-center justify-center">
+        {hasFinished && (
+          <motion.span
+            className="absolute inset-0 rounded-full border border-bordeaux-mid/60 pointer-events-none"
+            animate={{ scale: [1, 1.9], opacity: [0.7, 0] }}
+            transition={{ duration: 1.2, repeat: Infinity, ease: 'easeOut' }}
+          />
+        )}
+        <motion.button
           onClick={openSheet}
           aria-label="Timers openen"
-          className="flex items-center gap-[6px] bg-transparent border-0 p-0 cursor-pointer"
+          animate={hasFinished ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+          transition={hasFinished ? { duration: 0.7, repeat: Infinity, repeatDelay: 0.9, ease: 'easeInOut' } : undefined}
+          className={`flex items-center justify-center rounded-full border-[0.5px] text-paper ${
+            timers.length > 0
+              ? 'gap-2 h-10 px-4 bg-bordeaux/35 border-bordeaux-mid/50'
+              : 'w-10 h-10 bg-transparent border-paper/[0.38]'
+          }`}
         >
           {soonest && (
-            <span className="font-mono text-[11px] tabular-nums text-honey-400">
-              {formatCookTime(soonest.remainingSecs)}
-            </span>
+            <>
+              <span className="font-mono text-[13px] tabular-nums text-honey-400 leading-none">
+                {formatCookTime(soonest.remainingSecs)}
+              </span>
+              <span className="text-paper/30 text-[13px] leading-none">·</span>
+            </>
           )}
-          {hasFinished && !soonest && (
-            <span className="font-sans text-[11px] font-semibold text-rust">Klaar!</span>
-          )}
-          <div className="relative">
-            <div
-              className={`w-10 h-10 flex items-center justify-center rounded-full border-[0.5px] ${
-                hasFinished ? 'border-rust/60 text-rust' : 'border-paper/[0.38] text-paper'
-              }`}
-            >
-              <Timer size={16} />
-            </div>
-            <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-bordeaux-mid text-paper text-[9px] font-bold font-sans flex items-center justify-center leading-none pointer-events-none">
+          <motion.span
+            className="inline-flex items-center"
+            animate={hasFinished && !soonest
+              ? { rotate: [0, -18, 18, -12, 12, -6, 6, 0] }
+              : { rotate: 0 }}
+            transition={hasFinished && !soonest
+              ? { duration: 0.6, repeat: Infinity, repeatDelay: 1.4 }
+              : undefined}
+          >
+            <Timer size={16} />
+          </motion.span>
+          {timers.length > 0 && (
+            <span className="font-sans text-[13px] font-bold leading-none">
               {timers.length}
             </span>
-          </div>
-        </button>
-      ) : (
-        <div className="w-10" />
-      )}
+          )}
+        </motion.button>
+      </div>
     </div>
   )
 }

@@ -70,7 +70,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(id)
   }, [])
 
-  // Notification side-effect separated from state update to keep the updater pure.
+  // First notification fires immediately when a timer transitions to finished.
   useEffect(() => {
     timers
       .filter(t => t.status === 'finished' && !notifiedRef.current.has(t.id))
@@ -80,6 +80,17 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         navigator.vibrate?.([200, 100, 200, 100, 400])
       })
   }, [timers])
+
+  // Repeat notification every 4 s while any finished timer remains uncleared.
+  const finishedCount = timers.filter(t => t.status === 'finished').length
+  useEffect(() => {
+    if (finishedCount === 0) return
+    const id = setInterval(() => {
+      playFinishSound()
+      navigator.vibrate?.([200, 100, 200, 100, 400])
+    }, 4000)
+    return () => clearInterval(id)
+  }, [finishedCount])
 
   const startTimer = useCallback((label: string, durationSecs: number): string => {
     const id = crypto.randomUUID()
