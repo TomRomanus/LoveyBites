@@ -88,6 +88,18 @@ function AdjacentStep({ step, label, position, onClick }: AdjacentStepProps) {
   )
 }
 
+const STEP_VARIANTS = {
+  enter: (dir: 'next' | 'prev' | null) => ({
+    x: dir === 'next' ? 40 : dir === 'prev' ? -40 : 0,
+    opacity: 0,
+  }),
+  center: { x: 0, opacity: 1 },
+  exit: (dir: 'next' | 'prev' | null) => ({
+    x: dir === 'next' ? -40 : dir === 'prev' ? 40 : 0,
+    opacity: 0,
+  }),
+}
+
 type CookingStepsPanelProps = {
   steps: FlatStep[]
   currentIndex: number
@@ -104,8 +116,12 @@ const CookingStepsPanel = ({
   onGoTo,
 }: CookingStepsPanelProps) => {
   const current = steps[currentIndex]
-  const { startTimer } = useCookTimers()
+  const { startTimer, timers } = useCookTimers()
   const detectedTimers = useMemo(() => detectTimers(current.text), [current.text])
+  const activeTimerLabels = useMemo(
+    () => new Set(timers.filter(t => t.status !== 'finished').map(t => t.label)),
+    [timers],
+  )
 
   return (
     <motion.div
@@ -120,17 +136,7 @@ const CookingStepsPanel = ({
         <motion.div
           key={currentIndex}
           custom={stepDir}
-          variants={{
-            enter: (dir: 'next' | 'prev' | null) => ({
-              x: dir === 'next' ? 40 : dir === 'prev' ? -40 : 0,
-              opacity: 0,
-            }),
-            center: { x: 0, opacity: 1 },
-            exit: (dir: 'next' | 'prev' | null) => ({
-              x: dir === 'next' ? -40 : dir === 'prev' ? 40 : 0,
-              opacity: 0,
-            }),
-          }}
+          variants={STEP_VARIANTS}
           initial="enter"
           animate="center"
           exit="exit"
@@ -162,18 +168,25 @@ const CookingStepsPanel = ({
             <CommentSlot comment={current.comment} />
             {detectedTimers.length > 0 && (
               <div className="mt-4 flex flex-col gap-2">
-                {detectedTimers.map((dt, i) => (
-                  <button
-                    key={i}
-                    onClick={() =>
-                      startTimer(`Stap ${currentIndex + 1} · ${dt.displayTime}`, dt.durationSecs)
-                    }
-                    className="flex items-center gap-2 self-start bg-honey-400/10 border border-honey-400/25 text-honey-400 rounded-xl px-3 py-2 text-[12px] font-semibold font-sans"
-                  >
-                    <span>▶</span>
-                    <span>Start {dt.displayTime} timer</span>
-                  </button>
-                ))}
+                {detectedTimers.map((dt, i) => {
+                  const label = `Stap ${currentIndex + 1} · ${dt.displayTime}`
+                  const active = activeTimerLabels.has(label)
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => !active && startTimer(label, dt.durationSecs)}
+                      disabled={active}
+                      className={`flex items-center gap-2 self-start rounded-xl px-3 h-10 text-[12px] font-semibold font-sans transition-opacity ${
+                        active
+                          ? 'bg-honey-400/5 border border-honey-400/10 text-honey-400/40 cursor-not-allowed'
+                          : 'bg-honey-400/10 border border-honey-400/25 text-honey-400'
+                      }`}
+                    >
+                      <span>{active ? '✓' : '▶'}</span>
+                      <span>{active ? `${dt.displayTime} timer actief` : `Start ${dt.displayTime} timer`}</span>
+                    </button>
+                  )
+                })}
               </div>
             )}
           </div>

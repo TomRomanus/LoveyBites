@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import CookingStepsPanel from '../CookingStepsPanel'
 import type { FlatStep } from '@/features/cooking/types/cooking'
-import { TimerProvider } from '@/features/cooking/context/TimerContext'
+import { TimerProvider, useCookTimers } from '@/features/cooking/context/TimerContext'
 
 const STEPS: FlatStep[] = [
   { text: 'Kook de pasta', globalIndex: 0 },
@@ -106,6 +106,53 @@ describe('CookingStepsPanel', () => {
       setup({ currentIndex: 0, onGoTo })
       await userEvent.click(screen.getByText('Volgende →').closest('button')!)
       expect(onGoTo).toHaveBeenCalledWith(1)
+    })
+  })
+
+  describe('timer buttons', () => {
+    function timerSetup(stepText: string) {
+      let controls: ReturnType<typeof useCookTimers>
+      const steps: FlatStep[] = [{ text: stepText, globalIndex: 0 }]
+      function Harness() {
+        controls = useCookTimers()
+        return (
+          <CookingStepsPanel
+            steps={steps}
+            currentIndex={0}
+            stepDir={null}
+            currentIngredients={[]}
+            onGoTo={vi.fn()}
+          />
+        )
+      }
+      render(<TimerProvider><Harness /></TimerProvider>)
+      return () => controls!
+    }
+
+    it('shows start-timer button when step text contains a time reference', () => {
+      timerSetup('Kook 10 minuten op laag vuur')
+      expect(screen.getByText('Start 10 min timer')).toBeInTheDocument()
+    })
+
+    it('does not show timer buttons when step has no time reference', () => {
+      setup({ currentIndex: 0 }) // 'Kook de pasta' — no time
+      expect(screen.queryByText(/timer/i)).toBeNull()
+    })
+
+    it('disables the button and shows active label after clicking', async () => {
+      timerSetup('Kook 10 minuten op laag vuur')
+      await userEvent.click(screen.getByText('Start 10 min timer').closest('button')!)
+      const btn = await screen.findByText('10 min timer actief')
+      expect(btn.closest('button')).toBeDisabled()
+    })
+
+    it('re-enables the button after the timer is dismissed', async () => {
+      const getControls = timerSetup('Kook 10 minuten op laag vuur')
+      await userEvent.click(screen.getByText('Start 10 min timer').closest('button')!)
+      await screen.findByText('10 min timer actief')
+      const { timers, dismissTimer } = getControls()
+      dismissTimer(timers[0].id)
+      expect(await screen.findByText('Start 10 min timer')).not.toBeDisabled()
     })
   })
 
