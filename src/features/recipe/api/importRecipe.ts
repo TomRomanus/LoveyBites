@@ -1,6 +1,7 @@
 import type { RecipeInput } from '@/features/recipe/types/recipe'
 import { auth } from '@/lib/firebase'
 import { stripHtml, labelFromUrl, parseAIResponse } from '@/features/recipe/api/parseRecipeHtml'
+import { uploadSourceImage } from '@/features/recipe/api/imageStorage'
 
 const MAX_HTML_LENGTH = 60_000
 
@@ -193,7 +194,8 @@ export const importRecipeFromImage = async (file: File): Promise<Partial<RecipeI
   })
   const aiResponse = await callAIWithImage(base64, mediaType)
   const { recipe } = parseAIResponse(aiResponse)
-  recipe.sources = [{ label: file.name, url: '' }]
+  const url = await uploadSourceImage(file)
+  recipe.sources = [{ label: recipe.title, url }]
   return recipe
 }
 
