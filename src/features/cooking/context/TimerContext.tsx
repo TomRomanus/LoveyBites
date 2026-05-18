@@ -8,6 +8,8 @@ export interface CookTimer {
   label: string
   durationSecs: number
   remainingSecs: number
+  // Absolute timestamp (ms) when this timer will finish. null when paused or finished.
+  endTime: number | null
   status: 'running' | 'paused' | 'finished'
 }
 
@@ -54,6 +56,18 @@ function playFinishSound() {
   } catch {}
 }
 
+function scheduleAlarm(id: string, label: string, endTime: number) {
+  navigator.serviceWorker?.ready
+    .then(reg => reg.active?.postMessage({ type: 'SCHEDULE_ALARM', id, label, endTime }))
+    .catch(() => {})
+}
+
+function cancelAlarm(id: string) {
+  navigator.serviceWorker?.ready
+    .then(reg => reg.active?.postMessage({ type: 'CANCEL_ALARM', id }))
+    .catch(() => {})
+}
+
 export function TimerProvider({ children }: { children: ReactNode }) {
   const [timers, setTimers] = useState<CookTimer[]>([])
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -61,15 +75,16 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   const [cookModeActive, setCookModeActive] = useState(false)
   const notifiedRef = useRef<Set<string>>(new Set())
 
+  // Recomputes from endTime rather than decrementing — stays accurate after background throttling.
   useEffect(() => {
     const id = setInterval(() => {
       setTimers(prev => {
         if (!prev.some(t => t.status === 'running')) return prev
         return prev.map(t => {
-          if (t.status !== 'running') return t
-          const remaining = t.remainingSecs - 1
+          if (t.status !== 'running' || t.endTime === null) return t
+          const remaining = Math.max(0, Math.round((t.endTime - Date.now()) / 1000))
           return remaining <= 0
-            ? { ...t, remainingSecs: 0, status: 'finished' }
+            ? { ...t, remainingSecs: 0, endTime: null, status: 'finished' }
             : { ...t, remainingSecs: remaining }
         })
       })
@@ -77,18 +92,36 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     return () => clearInterval(id)
   }, [])
 
-  // First notification fires immediately when a timer transitions to finished.
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState !== 'visible') return
+      setTimers(prev => {
+        if (!prev.some(t => t.status === 'running')) return prev
+        const now = Date.now()
+        return prev.map(t => {
+          if (t.status !== 'running' || t.endTime === null) return t
+          const remaining = Math.max(0, Math.round((t.endTime - now) / 1000))
+          return remaining <= 0
+            ? { ...t, remainingSecs: 0, endTime: null, status: 'finished' }
+            : { ...t, remainingSecs: remaining }
+        })
+      })
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => document.removeEventListener('visibilitychange', handleVisibility)
+  }, [])
+
   useEffect(() => {
     timers
       .filter(t => t.status === 'finished' && !notifiedRef.current.has(t.id))
       .forEach(t => {
         notifiedRef.current.add(t.id)
+        cancelAlarm(t.id)
         playFinishSound()
         navigator.vibrate?.([200, 100, 200, 100, 400])
       })
   }, [timers])
 
-  // Repeat notification every 4 s while any finished timer remains uncleared.
   const finishedCount = timers.filter(t => t.status === 'finished').length
   useEffect(() => {
     if (finishedCount === 0) return
@@ -100,28 +133,49 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   }, [finishedCount])
 
   const startTimer = useCallback((label: string, durationSecs: number): string => {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {})
+    }
     const id = crypto.randomUUID()
-    const finished = durationSecs <= 0
+    if (durationSecs <= 0) {
+      setTimers(prev => [
+        ...prev,
+        { id, label, durationSecs, remainingSecs: 0, endTime: null, status: 'finished' },
+      ])
+      return id
+    }
+    const endTime = Date.now() + durationSecs * 1000
+    scheduleAlarm(id, label, endTime)
     setTimers(prev => [
       ...prev,
-      { id, label, durationSecs, remainingSecs: finished ? 0 : durationSecs, status: finished ? 'finished' : 'running' },
+      { id, label, durationSecs, remainingSecs: durationSecs, endTime, status: 'running' },
     ])
     return id
   }, [])
 
   const pauseTimer = useCallback((id: string) => {
+    cancelAlarm(id)
     setTimers(prev =>
-      prev.map(t => (t.id === id && t.status === 'running' ? { ...t, status: 'paused' } : t)),
+      prev.map(t => {
+        if (t.id !== id || t.status !== 'running' || t.endTime === null) return t
+        return { ...t, status: 'paused', endTime: null, remainingSecs: Math.max(0, Math.round((t.endTime - Date.now()) / 1000)) }
+      }),
     )
   }, [])
 
   const resumeTimer = useCallback((id: string) => {
     setTimers(prev =>
-      prev.map(t => (t.id === id && t.status === 'paused' ? { ...t, status: 'running' } : t)),
+      prev.map(t => {
+        if (t.id !== id || t.status !== 'paused') return t
+        const endTime = Date.now() + t.remainingSecs * 1000
+        scheduleAlarm(id, t.label, endTime)
+        return { ...t, status: 'running', endTime }
+      }),
     )
   }, [])
 
   const dismissTimer = useCallback((id: string) => {
+    cancelAlarm(id)
     notifiedRef.current.delete(id)
     setTimers(prev => prev.filter(t => t.id !== id))
   }, [])
@@ -131,8 +185,17 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     setTimers(prev =>
       prev.map(t => {
         if (t.id !== id) return t
-        if (t.status === 'finished') return { ...t, remainingSecs: secs, status: 'running' }
-        return { ...t, remainingSecs: t.remainingSecs + secs }
+        if (t.status === 'finished') {
+          const endTime = Date.now() + secs * 1000
+          scheduleAlarm(id, t.label, endTime)
+          return { ...t, remainingSecs: secs, endTime, status: 'running' }
+        }
+        if (t.status === 'paused') {
+          return { ...t, remainingSecs: t.remainingSecs + secs }
+        }
+        const endTime = t.endTime! + secs * 1000
+        scheduleAlarm(id, t.label, endTime)
+        return { ...t, endTime, remainingSecs: Math.round((endTime - Date.now()) / 1000) }
       }),
     )
   }, [])
