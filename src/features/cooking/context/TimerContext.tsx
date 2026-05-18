@@ -17,6 +17,7 @@ interface TimerContextValue {
   pauseTimer: (id: string) => void
   resumeTimer: (id: string) => void
   dismissTimer: (id: string) => void
+  addTime: (id: string, secs: number) => void
   sheetOpen: boolean
   openSheet: () => void
   closeSheet: () => void
@@ -125,6 +126,17 @@ export function TimerProvider({ children }: { children: ReactNode }) {
     setTimers(prev => prev.filter(t => t.id !== id))
   }, [])
 
+  const addTime = useCallback((id: string, secs: number) => {
+    notifiedRef.current.delete(id)
+    setTimers(prev =>
+      prev.map(t => {
+        if (t.id !== id) return t
+        if (t.status === 'finished') return { ...t, remainingSecs: secs, status: 'running' }
+        return { ...t, remainingSecs: t.remainingSecs + secs }
+      }),
+    )
+  }, [])
+
   const openSheet = useCallback(() => setSheetOpen(true), [])
   const closeSheet = useCallback(() => setSheetOpen(false), [])
 
@@ -142,7 +154,7 @@ export function TimerProvider({ children }: { children: ReactNode }) {
   return (
     <TimerContext.Provider
       value={{
-        timers, startTimer, pauseTimer, resumeTimer, dismissTimer,
+        timers, startTimer, pauseTimer, resumeTimer, dismissTimer, addTime,
         sheetOpen, openSheet, closeSheet,
         registerCookModeReturn, unregisterCookModeReturn, cookModeReturn,
         cookModeActive, registerCookMode, unregisterCookMode,

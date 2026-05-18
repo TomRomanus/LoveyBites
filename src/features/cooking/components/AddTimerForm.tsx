@@ -29,9 +29,9 @@ export function AddTimerForm() {
     const total = h * 3600 + m * 60 + s
     if (total < 1) return
     const label = newLabel.trim() || [
-      h > 0 ? `${h}u` : '',
-      m > 0 ? `${m}min` : '',
-      s > 0 ? `${s}s` : '',
+      h > 0 ? `${h} u` : '',
+      m > 0 ? `${m} min` : '',
+      s > 0 ? `${s} s` : '',
     ].filter(Boolean).join(' ')
     startTimer(label, total)
     handleCancel()

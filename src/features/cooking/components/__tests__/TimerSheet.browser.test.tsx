@@ -120,6 +120,40 @@ describe('TimerSheet', () => {
     })
   })
 
+  describe('+1 min button', () => {
+    it('shows the +1 min button for a running timer', async () => {
+      const getControls = setup()
+      getControls().startTimer('pasta', 600)
+      getControls().openSheet()
+      expect(await screen.findByRole('button', { name: 'Een minuut toevoegen' })).toBeInTheDocument()
+    })
+
+    it('shows the +1 min button for a finished timer', async () => {
+      const getControls = setup()
+      getControls().startTimer('pasta', 0)
+      getControls().openSheet()
+      expect(await screen.findByRole('button', { name: 'Een minuut toevoegen' })).toBeInTheDocument()
+    })
+
+    it('adds a minute to a running timer when clicked', async () => {
+      const getControls = setup()
+      getControls().startTimer('pasta', 60)
+      getControls().openSheet()
+      await screen.findByText('1:00')
+      await userEvent.click(await screen.findByRole('button', { name: 'Een minuut toevoegen' }))
+      expect(await screen.findByText('2:00')).toBeInTheDocument()
+    })
+
+    it('restarts a finished timer at 1:00 when clicked', async () => {
+      const getControls = setup()
+      getControls().startTimer('pasta', 0)
+      getControls().openSheet()
+      await screen.findByText('0:00')
+      await userEvent.click(await screen.findByRole('button', { name: 'Een minuut toevoegen' }))
+      expect(await screen.findByText('1:00')).toBeInTheDocument()
+    })
+  })
+
   describe('cook mode return', () => {
     it('shows Terug naar kookmodus button when cookModeReturn is registered and cook mode is not active', async () => {
       const getControls = setup()

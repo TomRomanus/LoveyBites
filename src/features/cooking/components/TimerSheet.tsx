@@ -1,12 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { Pause, Play, X } from 'lucide-react'
+import { Pause, Play, Plus, X } from 'lucide-react'
 import { useCookTimers } from '@/features/cooking/context/TimerContext'
 import { formatCookTime } from '@/features/cooking/utils/formatCookTime'
 import { AddTimerForm } from './AddTimerForm'
 
 export function TimerSheet() {
   const {
-    timers, pauseTimer, resumeTimer, dismissTimer,
+    timers, pauseTimer, resumeTimer, dismissTimer, addTime,
     sheetOpen, closeSheet, cookModeReturn, cookModeActive,
   } = useCookTimers()
 
@@ -88,6 +88,14 @@ export function TimerSheet() {
                     </div>
 
                     <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => addTime(t.id, 60)}
+                        aria-label="Een minuut toevoegen"
+                        className="h-10 px-3 rounded-xl border-[0.5px] border-honey-500/30 text-honey-500 font-mono font-semibold text-[11px] tracking-[0.08em] uppercase flex items-center gap-1"
+                      >
+                        <Plus size={11} strokeWidth={2.5} />
+                        1 min
+                      </button>
                       {t.status === 'running' && (
                         <button
                           onClick={() => pauseTimer(t.id)}
@@ -106,6 +114,7 @@ export function TimerSheet() {
                           <Play size={14} fill="currentColor" stroke="none" />
                         </button>
                       )}
+                      {t.status === 'finished' && <div className="w-10" />}
                       <button
                         onClick={() => dismissTimer(t.id)}
                         aria-label="Timer verwijderen"

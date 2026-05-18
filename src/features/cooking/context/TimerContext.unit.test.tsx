@@ -85,6 +85,52 @@ describe('TimerContext', () => {
     vibrateSpy.mockRestore()
   })
 
+  describe('addTime', () => {
+    it('adds seconds to a running timer', () => {
+      const { result } = renderHook(() => useCookTimers(), { wrapper })
+      act(() => { result.current.startTimer('pasta', 60) })
+      const id = result.current.timers[0].id
+      act(() => { result.current.addTime(id, 60) })
+      expect(result.current.timers[0].remainingSecs).toBe(120)
+      expect(result.current.timers[0].status).toBe('running')
+    })
+
+    it('adds seconds to a paused timer without resuming it', () => {
+      const { result } = renderHook(() => useCookTimers(), { wrapper })
+      act(() => { result.current.startTimer('pasta', 60) })
+      const id = result.current.timers[0].id
+      act(() => { result.current.pauseTimer(id) })
+      act(() => { result.current.addTime(id, 30) })
+      expect(result.current.timers[0].remainingSecs).toBe(90)
+      expect(result.current.timers[0].status).toBe('paused')
+    })
+
+    it('resets a finished timer to the given seconds and resumes it', () => {
+      const { result } = renderHook(() => useCookTimers(), { wrapper })
+      act(() => { result.current.startTimer('pasta', 0) })
+      const id = result.current.timers[0].id
+      act(() => { result.current.addTime(id, 60) })
+      expect(result.current.timers[0].remainingSecs).toBe(60)
+      expect(result.current.timers[0].status).toBe('running')
+    })
+
+    it('allows the finish notification to fire again after adding time to a finished timer', () => {
+      Object.defineProperty(navigator, 'vibrate', {
+        value: vi.fn(), configurable: true, writable: true,
+      })
+      const vibrateSpy = vi.spyOn(navigator, 'vibrate').mockReturnValue(true)
+      const { result } = renderHook(() => useCookTimers(), { wrapper })
+      act(() => { result.current.startTimer('pasta', 1) })
+      act(() => { vi.advanceTimersByTime(1000) })   // finishes — 1st notification
+      expect(vibrateSpy).toHaveBeenCalledTimes(1)
+      const id = result.current.timers[0].id
+      act(() => { result.current.addTime(id, 1) })  // restart with 1 s
+      act(() => { vi.advanceTimersByTime(1000) })   // finishes again — 2nd notification
+      expect(vibrateSpy).toHaveBeenCalledTimes(2)
+      vibrateSpy.mockRestore()
+    })
+  })
+
   it('registerCookModeReturn stores the function', () => {
     const { result } = renderHook(() => useCookTimers(), { wrapper })
     const fn = vi.fn()
