@@ -2,9 +2,10 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import CookingHeader from '../CookingHeader'
+import { TimerProvider } from '@/features/cooking/context/TimerContext'
 
 function setup(onClose = vi.fn()) {
-  return { ...render(<CookingHeader onClose={onClose} />), onClose }
+  return { ...render(<TimerProvider><CookingHeader onClose={onClose} /></TimerProvider>), onClose }
 }
 
 describe('CookingHeader', () => {

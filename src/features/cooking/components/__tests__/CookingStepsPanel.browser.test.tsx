@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import CookingStepsPanel from '../CookingStepsPanel'
 import type { FlatStep } from '@/features/cooking/types/cooking'
+import { TimerProvider } from '@/features/cooking/context/TimerContext'
 
 const STEPS: FlatStep[] = [
   { text: 'Kook de pasta', globalIndex: 0 },
@@ -21,7 +22,7 @@ function setup(overrides: Partial<Props> = {}) {
     onGoTo: vi.fn(),
   }
   const props = { ...defaults, ...overrides }
-  return { ...render(<CookingStepsPanel {...props} />), onGoTo: props.onGoTo }
+  return { ...render(<TimerProvider><CookingStepsPanel {...props} /></TimerProvider>), onGoTo: props.onGoTo }
 }
 
 describe('CookingStepsPanel', () => {

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EASE_STANDARD } from '@/shared/constants/animations'
 import { collectIngredientMap, formatStepIngredient } from '@/features/recipe/utils/ingredientUtils'
@@ -13,6 +13,7 @@ import CookingStepBottomControls from '@/features/cooking/components/CookingStep
 import CookingIngredientsPanel from '@/features/cooking/components/CookingIngredientsPanel'
 import CookingOverviewPanel from '@/features/cooking/components/CookingOverviewPanel'
 import CookingCommentSheet from '@/features/cooking/components/CookingCommentSheet'
+import { useCookTimers } from '@/features/cooking/context/TimerContext'
 
 const CookingScreen = ({
   recipe,
@@ -44,6 +45,12 @@ const CookingScreen = ({
   }
 
   useBodyScrollLock(true)
+
+  const { registerCookModeReturn, unregisterCookModeReturn, closeSheet } = useCookTimers()
+  useEffect(() => {
+    registerCookModeReturn(closeSheet)
+    return () => unregisterCookModeReturn()
+  }, [registerCookModeReturn, unregisterCookModeReturn, closeSheet])
 
   if (total === 0) return null
 

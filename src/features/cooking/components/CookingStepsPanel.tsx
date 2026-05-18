@@ -1,8 +1,10 @@
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { FlatStep } from '@/features/cooking/types/cooking'
 import GroupLabel from '@/shared/components/GroupLabel'
 import StepComment from '@/shared/components/StepComment'
+import { detectTimers } from '@/features/cooking/utils/detectTimers'
+import { useCookTimers } from '@/features/cooking/context/TimerContext'
 
 // Animates comment slot height using CSS grid-template-rows (real layout change,
 // not a transform) so justify-center repositions the block smoothly each frame.
@@ -102,6 +104,8 @@ const CookingStepsPanel = ({
   onGoTo,
 }: CookingStepsPanelProps) => {
   const current = steps[currentIndex]
+  const { startTimer } = useCookTimers()
+  const detectedTimers = useMemo(() => detectTimers(current.text), [current.text])
 
   return (
     <motion.div
@@ -156,6 +160,22 @@ const CookingStepsPanel = ({
               {current.text}
             </div>
             <CommentSlot comment={current.comment} />
+            {detectedTimers.length > 0 && (
+              <div className="mt-4 flex flex-col gap-2">
+                {detectedTimers.map((dt, i) => (
+                  <button
+                    key={i}
+                    onClick={() =>
+                      startTimer(`Stap ${currentIndex + 1} · ${dt.displayTime}`, dt.durationSecs)
+                    }
+                    className="flex items-center gap-2 self-start bg-honey-400/10 border border-honey-400/25 text-honey-400 rounded-xl px-3 py-2 text-[12px] font-semibold font-sans"
+                  >
+                    <span>▶</span>
+                    <span>Start {dt.displayTime} timer</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {steps[currentIndex + 1] && (

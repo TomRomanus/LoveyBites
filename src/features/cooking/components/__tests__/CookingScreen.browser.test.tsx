@@ -4,6 +4,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest'
 import CookingScreen from '../CookingScreen'
 import type { Recipe } from '@/features/recipe/types/recipe'
 import type { TreeNode } from '@/features/cooking/types/cooking'
+import { TimerProvider } from '@/features/cooking/context/TimerContext'
 
 const BASE_RECIPE: Recipe = {
   id: 'r1',
@@ -40,7 +41,7 @@ function setup(overrides: Partial<Props> = {}) {
     onUpdateStepComment: vi.fn(),
   }
   const props = { ...defaults, ...overrides }
-  return { ...render(<CookingScreen {...props} />), onClose: props.onClose }
+  return { ...render(<TimerProvider><CookingScreen {...props} /></TimerProvider>), onClose: props.onClose }
 }
 
 describe('CookingScreen', () => {

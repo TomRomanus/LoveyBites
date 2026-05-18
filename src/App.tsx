@@ -11,6 +11,9 @@ import RecipeDetailPage from '@/features/recipe/pages/RecipeDetailPage'
 import RecipeFormPage from '@/features/recipe/pages/RecipeFormPage'
 import CalendarPage from '@/features/calendar/pages/CalendarPage'
 import { EASE_STANDARD } from '@/shared/constants/animations'
+import { TimerProvider } from '@/features/cooking/context/TimerContext'
+import { TimerSheet } from '@/features/cooking/components/TimerSheet'
+import { TimerPill } from '@/features/cooking/components/TimerPill'
 
 const NAV_ROUTES = ['/', '/calendar']
 
@@ -92,11 +95,15 @@ const AppShell = () => {
 }
 
 const App = () => (
-  <AuthProvider>
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <AppShell />
-    </BrowserRouter>
-  </AuthProvider>
+  <TimerProvider>
+    <AuthProvider>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <AppShell />
+      </BrowserRouter>
+    </AuthProvider>
+    <TimerSheet />
+    <TimerPill />
+  </TimerProvider>
 )
 
 export default App
