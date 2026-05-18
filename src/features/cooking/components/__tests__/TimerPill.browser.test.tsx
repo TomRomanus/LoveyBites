@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, it, expect } from 'vitest'
 import { TimerProvider, useCookTimers } from '@/features/cooking/context/TimerContext'
@@ -43,14 +43,14 @@ describe('TimerPill', () => {
     const getControls = setup()
     getControls().startTimer('pasta', 600)
     await userEvent.click(await screen.findByRole('button', { name: 'Timers openen' }))
-    expect(getControls().sheetOpen).toBe(true)
+    await waitFor(() => expect(getControls().sheetOpen).toBe(true))
   })
 
   it('hides when cook mode is active', async () => {
     const getControls = setup()
     getControls().startTimer('pasta', 600)
     await screen.findByRole('button', { name: 'Timers openen' })
-    getControls().registerCookMode(true)
-    expect(screen.queryByRole('button', { name: 'Timers openen' })).toBeNull()
+    getControls().registerCookMode()
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Timers openen' })).toBeNull())
   })
 })

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { TimerProvider, useCookTimers } from '@/features/cooking/context/TimerContext'
@@ -44,7 +44,7 @@ describe('TimerSheet', () => {
       getControls().openSheet()
       await screen.findByText('Timers')
       await userEvent.click(document.querySelector('.bg-ink\\/50')!)
-      expect(screen.queryByText('Timers')).toBeNull()
+      await waitFor(() => expect(screen.queryByText('Timers')).toBeNull())
     })
   })
 
@@ -108,7 +108,7 @@ describe('TimerSheet', () => {
       getControls().startTimer('ei koken', 360)
       getControls().openSheet()
       await userEvent.click(await screen.findByRole('button', { name: 'Timer verwijderen' }))
-      expect(screen.queryByText('ei koken')).toBeNull()
+      await waitFor(() => expect(screen.queryByText('ei koken')).toBeNull())
     })
 
     it('shows empty state after all timers are dismissed', async () => {
