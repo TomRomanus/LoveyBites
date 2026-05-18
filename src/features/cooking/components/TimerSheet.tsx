@@ -12,19 +12,31 @@ export function TimerSheet() {
 
   const [addingTimer, setAddingTimer] = useState(false)
   const [newLabel, setNewLabel] = useState('')
+  const [newHours, setNewHours] = useState('')
   const [newMinutes, setNewMinutes] = useState('')
+  const [newSeconds, setNewSeconds] = useState('')
 
   const handleAdd = () => {
-    const mins = parseInt(newMinutes)
-    if (!newLabel.trim() || isNaN(mins) || mins < 1) return
-    startTimer(newLabel.trim(), mins * 60)
+    const h = parseInt(newHours) || 0
+    const m = parseInt(newMinutes) || 0
+    const s = parseInt(newSeconds) || 0
+    const total = h * 3600 + m * 60 + s
+    if (total < 1) return
+    const label = newLabel.trim() || [
+      h > 0 ? `${h}u` : '',
+      m > 0 ? `${m}min` : '',
+      s > 0 ? `${s}s` : '',
+    ].filter(Boolean).join(' ')
+    startTimer(label, total)
     handleCancel()
   }
 
   const handleCancel = () => {
     setAddingTimer(false)
     setNewLabel('')
+    setNewHours('')
     setNewMinutes('')
+    setNewSeconds('')
   }
 
   return (
@@ -120,30 +132,54 @@ export function TimerSheet() {
 
             <div className={`px-5 py-4 ${timers.length > 0 ? 'border-t-[0.5px] border-paper/[0.10]' : ''}`}>
               {addingTimer ? (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-center gap-1 bg-paper/5 rounded-[14px] py-4 px-2">
+                    <div className="flex flex-col items-center gap-1">
+                      <input
+                        type="number" min="0" max="23"
+                        className="w-14 bg-transparent border-none outline-none text-center font-mono text-[32px] font-bold text-paper placeholder:text-paper/25"
+                        placeholder="00"
+                        value={newHours}
+                        onChange={e => setNewHours(e.target.value)}
+                      />
+                      <span className="font-mono text-[9px] tracking-[0.12em] uppercase text-paper/35">uur</span>
+                    </div>
+                    <span className="font-mono text-[28px] font-bold text-paper/25 pb-4">:</span>
+                    <div className="flex flex-col items-center gap-1">
+                      <input
+                        type="number" min="0" max="59"
+                        className="w-14 bg-transparent border-none outline-none text-center font-mono text-[32px] font-bold text-paper placeholder:text-paper/25"
+                        placeholder="00"
+                        value={newMinutes}
+                        onChange={e => setNewMinutes(e.target.value)}
+                      />
+                      <span className="font-mono text-[9px] tracking-[0.12em] uppercase text-paper/35">min</span>
+                    </div>
+                    <span className="font-mono text-[28px] font-bold text-paper/25 pb-4">:</span>
+                    <div className="flex flex-col items-center gap-1">
+                      <input
+                        type="number" min="0" max="59"
+                        className="w-14 bg-transparent border-none outline-none text-center font-mono text-[32px] font-bold text-paper placeholder:text-paper/25"
+                        placeholder="00"
+                        value={newSeconds}
+                        onChange={e => setNewSeconds(e.target.value)}
+                      />
+                      <span className="font-mono text-[9px] tracking-[0.12em] uppercase text-paper/35">sec</span>
+                    </div>
+                  </div>
                   <input
-                    className="lb-input text-[14px]"
-                    placeholder="Naam (bijv. deeg rijzen)"
+                    className="bg-paper/[0.07] border-[0.5px] border-paper/20 rounded-[10px] px-3 py-[10px] text-paper text-[14px] font-sans placeholder:text-paper/30 outline-none"
+                    placeholder="Naam (optioneel)"
                     value={newLabel}
                     onChange={e => setNewLabel(e.target.value)}
-                    autoFocus
                     onKeyDown={e => e.key === 'Enter' && handleAdd()}
                   />
                   <div className="flex gap-2">
-                    <input
-                      className="lb-input text-[14px] w-28"
-                      placeholder="Minuten"
-                      type="number"
-                      min="1"
-                      value={newMinutes}
-                      onChange={e => setNewMinutes(e.target.value)}
-                      onKeyDown={e => e.key === 'Enter' && handleAdd()}
-                    />
-                    <button onClick={handleAdd} className="lb-btn lb-btn--primary flex-1">
-                      Start
-                    </button>
-                    <button onClick={handleCancel} className="h-10 px-4 rounded-full border-[0.5px] border-paper/20 text-paper text-[13px] font-sans">
+                    <button onClick={handleCancel} className="flex-1 h-10 rounded-full border-[0.5px] border-paper/20 text-paper text-[13px] font-sans">
                       Annuleer
+                    </button>
+                    <button onClick={handleAdd} className="flex-1 h-10 rounded-full bg-bordeaux text-paper text-[14px] font-semibold font-sans">
+                      Start
                     </button>
                   </div>
                 </div>
