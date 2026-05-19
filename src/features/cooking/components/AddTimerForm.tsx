@@ -119,8 +119,16 @@ export function AddTimerForm() {
     const permission = Notification.permission
     const reg = await navigator.serviceWorker?.ready
     const swState = reg?.active?.state ?? 'geen SW'
-    reg?.active?.postMessage({ type: 'VIBRATE_NOW', id: 'test', label: 'Test' })
-    setVibrateResult(`notificatie: ${permission} | SW: ${swState}`)
+    try {
+      await reg?.showNotification('Test timer', {
+        body: 'Je timer is klaar!',
+        icon: '/icons/icon-192.png',
+        vibrate: [400, 150, 400, 150, 400, 150, 600],
+      })
+      setVibrateResult(`notificatie: ${permission} | SW: ${swState} | OK`)
+    } catch (e) {
+      setVibrateResult(`notificatie: ${permission} | SW: ${swState} | FOUT: ${e}`)
+    }
   }, [])
 
   const handleCancel = () => {
