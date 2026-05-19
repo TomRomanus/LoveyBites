@@ -94,7 +94,7 @@ test.describe('Cook mode — timers', () => {
     await expect(page.getByRole('button', { name: 'Start', exact: true })).toBeVisible()
     await page.getByRole('button', { name: 'min verhogen' }).click()
     await page.getByRole('button', { name: 'Start', exact: true }).click()
-    await expect(page.getByText('1:00')).toBeVisible()
+    await expect(page.getByText('1:00').first()).toBeVisible()
   })
 
   // ── Terug naar kookmodus ────────────────────────────────────────────────────
