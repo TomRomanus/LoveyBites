@@ -34,6 +34,12 @@ describe('RecipePhotoImport', () => {
     expect(screen.getByRole('button', { name: 'Importeren' })).toBeDisabled()
   })
 
+  it('file input does not have a capture attribute so gallery selection is allowed', () => {
+    const { container } = render(<RecipePhotoImport onExtracted={vi.fn()} />)
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement
+    expect(input).not.toHaveAttribute('capture')
+  })
+
   it('shows a preview image and hides the upload button after selecting a file', async () => {
     const { container } = render(<RecipePhotoImport onExtracted={vi.fn()} />)
     const input = container.querySelector('input[type="file"]') as HTMLInputElement

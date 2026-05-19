@@ -62,6 +62,28 @@ describe('RecipeSourceEditor', () => {
     expect(onChange).toHaveBeenCalledWith([...sources, { label: '', url: '' }])
   })
 
+  it('renders a "foto maken" button', () => {
+    setup()
+    expect(screen.getByRole('button', { name: /foto maken/i })).toBeInTheDocument()
+  })
+
+  it('camera file input has capture="environment"', () => {
+    const { container } = setup()
+    const cameraInput = container.querySelector('input[capture="environment"]')
+    expect(cameraInput).not.toBeNull()
+  })
+
+  it('clicking "foto maken" calls uploadSourceImage and appends the new source', async () => {
+    vi.mocked(uploadSourceImage).mockResolvedValue('https://cdn.example.com/img.jpg')
+    const { onChange, container } = setup()
+    const file = new File(['img'], 'foto.jpg', { type: 'image/jpeg' })
+    const cameraInput = container.querySelector('input[capture="environment"]') as HTMLInputElement
+    await userEvent.upload(cameraInput, file)
+    await waitFor(() => expect(onChange).toHaveBeenCalled())
+    const lastCall = onChange.mock.calls.at(-1)![0]
+    expect(lastCall.at(-1)).toEqual({ label: 'foto.jpg', url: 'https://cdn.example.com/img.jpg' })
+  })
+
   it('file upload calls uploadSourceImage and then onChange with the new source', async () => {
     vi.mocked(uploadSourceImage).mockResolvedValue('https://cdn.example.com/img.jpg')
     const { onChange } = setup()
