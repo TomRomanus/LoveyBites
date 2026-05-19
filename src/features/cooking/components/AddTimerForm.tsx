@@ -228,17 +228,25 @@ export function AddTimerForm() {
             </button>
           </motion.div>
         ) : (
-          <motion.button
-            key="actions-add"
-            className="w-full h-10 rounded-full border-[0.5px] border-paper/20 text-paper text-[15px] font-sans"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.12 }}
-            onClick={() => setAddingTimer(true)}
-          >
-            Timer toevoegen
-          </motion.button>
+          <div key="actions-add" className="flex flex-col gap-2">
+            <motion.button
+              className="w-full h-10 rounded-full border-[0.5px] border-paper/20 text-paper text-[15px] font-sans"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.12 }}
+              onClick={() => setAddingTimer(true)}
+            >
+              Timer toevoegen
+            </motion.button>
+            <button
+              type="button"
+              className="w-full h-8 rounded-full border-[0.5px] border-paper/10 text-paper/40 text-[12px] font-sans"
+              onClick={() => navigator.vibrate?.([400, 150, 400, 150, 400, 150, 600])}
+            >
+              Test trillen
+            </button>
+          </div>
         )}
       </AnimatePresence>
     </>
