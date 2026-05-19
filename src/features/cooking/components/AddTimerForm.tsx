@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useCookTimers } from '@/features/cooking/context/TimerContext'
@@ -104,6 +104,16 @@ export function AddTimerForm() {
       setNewSeconds(String(Math.max(0, total)))
     }
   }
+
+  const [vibrateResult, setVibrateResult] = useState<string | null>(null)
+  const testVibration = useCallback(() => {
+    if (!('vibrate' in navigator)) {
+      setVibrateResult('navigator.vibrate niet beschikbaar')
+      return
+    }
+    const ok = navigator.vibrate([400, 150, 400, 150, 400, 150, 600])
+    setVibrateResult(ok ? 'vibrate() → true' : 'vibrate() → false (geblokkeerd?)')
+  }, [])
 
   const handleCancel = () => {
     setAddingTimer(false)
@@ -241,11 +251,14 @@ export function AddTimerForm() {
             </motion.button>
             <button
               type="button"
-              className="w-full h-8 rounded-full border-[0.5px] border-paper/10 text-paper/40 text-[12px] font-sans"
-              onClick={() => navigator.vibrate?.([400, 150, 400, 150, 400, 150, 600])}
+              className="w-full h-8 rounded-full border-[0.5px] border-paper/10 text-paper/40 text-[12px] font-sans active:opacity-50"
+              onClick={testVibration}
             >
               Test trillen
             </button>
+            {vibrateResult && (
+              <p className="text-center text-[11px] text-paper/40 font-mono">{vibrateResult}</p>
+            )}
           </div>
         )}
       </AnimatePresence>
