@@ -78,10 +78,10 @@ describe('TimerContext', () => {
     const vibrateSpy = vi.spyOn(navigator, 'vibrate').mockReturnValue(true)
     const { result } = renderHook(() => useCookTimers(), { wrapper })
     act(() => { result.current.startTimer('pasta', 2) })
-    act(() => { vi.advanceTimersByTime(2000) })   // finishes
+    act(() => { vi.advanceTimersByTime(2000) })   // finishes — 1st vibrate
     expect(vibrateSpy).toHaveBeenCalledTimes(1)
-    act(() => { vi.advanceTimersByTime(3000) })   // more ticks — should not re-notify
-    expect(vibrateSpy).toHaveBeenCalledTimes(1)
+    act(() => { vi.advanceTimersByTime(3000) })   // continuous interval fires at 2250 ms
+    expect(vibrateSpy).toHaveBeenCalledTimes(2)
     vibrateSpy.mockRestore()
   })
 
@@ -124,9 +124,9 @@ describe('TimerContext', () => {
       act(() => { vi.advanceTimersByTime(1000) })   // finishes — 1st notification
       expect(vibrateSpy).toHaveBeenCalledTimes(1)
       const id = result.current.timers[0].id
-      act(() => { result.current.addTime(id, 1) })  // restart with 1 s
+      act(() => { result.current.addTime(id, 1) })  // restart — cleanup calls vibrate(0) to stop buzzing
       act(() => { vi.advanceTimersByTime(1000) })   // finishes again — 2nd notification
-      expect(vibrateSpy).toHaveBeenCalledTimes(2)
+      expect(vibrateSpy).toHaveBeenCalledTimes(3)  // initial + cleanup-stop + 2nd finish
       vibrateSpy.mockRestore()
     })
   })

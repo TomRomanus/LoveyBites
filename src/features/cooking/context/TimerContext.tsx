@@ -118,18 +118,21 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         notifiedRef.current.add(t.id)
         cancelAlarm(t.id)
         playFinishSound()
-        navigator.vibrate?.([200, 100, 200, 100, 400])
+        navigator.vibrate?.([400, 150, 400, 150, 400, 150, 600])
       })
   }, [timers])
 
   const finishedCount = timers.filter(t => t.status === 'finished').length
   useEffect(() => {
     if (finishedCount === 0) return
-    const id = setInterval(() => {
-      playFinishSound()
-      navigator.vibrate?.([200, 100, 200, 100, 400])
-    }, 4000)
-    return () => clearInterval(id)
+    const soundId = setInterval(() => playFinishSound(), 4000)
+    // Vibrate continuously: re-trigger every 2.25s so there's no gap between pattern repetitions.
+    const vibrateId = setInterval(() => navigator.vibrate?.([400, 150, 400, 150, 400, 150, 600]), 2250)
+    return () => {
+      clearInterval(soundId)
+      clearInterval(vibrateId)
+      navigator.vibrate?.(0)
+    }
   }, [finishedCount])
 
   const startTimer = useCallback((label: string, durationSecs: number): string => {
