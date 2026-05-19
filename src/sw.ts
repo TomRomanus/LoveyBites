@@ -51,18 +51,13 @@ self.addEventListener('message', (event: ExtendableMessageEvent) => {
       alarmTimeouts.delete(msg.id)
     }
   } else if (msg.type === 'VIBRATE_NOW') {
-    // Show a notification for vibration and close it immediately — OS vibrates before the close.
-    event.waitUntil((async () => {
-      const tag = `vibrate-${msg.id}`
-      await self.registration.showNotification(msg.label, {
+    event.waitUntil(
+      self.registration.showNotification(msg.label, {
         body: 'Je timer is klaar!',
         icon: '/icons/icon-192.png',
-        tag,
+        tag: `vibrate-${msg.id}`,
         vibrate: VIBRATE_PATTERN,
       })
-      await new Promise<void>(resolve => setTimeout(resolve, 300))
-      const notifications = await self.registration.getNotifications({ tag })
-      notifications.forEach(n => n.close())
-    })())
+    )
   }
 })
