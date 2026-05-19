@@ -111,16 +111,16 @@ export function AddTimerForm() {
       setVibrateResult('navigator.vibrate niet beschikbaar')
       return
     }
-    const simple = navigator.vibrate(300)
-    const pattern = navigator.vibrate([400, 150, 400, 150, 400, 150, 600])
-    setVibrateResult(`vibrate(300)→${simple} | vibrate([…])→${pattern}`)
+    const ok = navigator.vibrate(1000)
+    setVibrateResult(`vibrate(1000)→${ok}`)
   }, [])
 
-  const testSwVibration = useCallback(() => {
-    navigator.serviceWorker?.ready
-      .then(reg => reg.active?.postMessage({ type: 'VIBRATE_NOW', id: 'test', label: 'Test' }))
-      .catch(() => {})
-    setVibrateResult('SW VIBRATE_NOW verstuurd')
+  const testSwVibration = useCallback(async () => {
+    const permission = Notification.permission
+    const reg = await navigator.serviceWorker?.ready
+    const swState = reg?.active?.state ?? 'geen SW'
+    reg?.active?.postMessage({ type: 'VIBRATE_NOW', id: 'test', label: 'Test' })
+    setVibrateResult(`notificatie: ${permission} | SW: ${swState}`)
   }, [])
 
   const handleCancel = () => {
@@ -260,7 +260,7 @@ export function AddTimerForm() {
             <button
               type="button"
               className="w-full h-8 rounded-full border-[0.5px] border-paper/10 text-paper/40 text-[12px] font-sans active:opacity-50"
-              onClick={testVibration}
+              onTouchStart={testVibration}
             >
               Test trillen (direct)
             </button>
