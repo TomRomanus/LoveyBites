@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useCookTimers } from '@/features/cooking/context/TimerContext'
@@ -104,32 +104,6 @@ export function AddTimerForm() {
       setNewSeconds(String(Math.max(0, total)))
     }
   }
-
-  const [vibrateResult, setVibrateResult] = useState<string | null>(null)
-  const testVibration = useCallback(() => {
-    if (!('vibrate' in navigator)) {
-      setVibrateResult('navigator.vibrate niet beschikbaar')
-      return
-    }
-    const ok = navigator.vibrate(1000)
-    setVibrateResult(`vibrate(1000)→${ok}`)
-  }, [])
-
-  const testSwVibration = useCallback(async () => {
-    const permission = Notification.permission
-    const reg = await navigator.serviceWorker?.ready
-    const swState = reg?.active?.state ?? 'geen SW'
-    try {
-      await reg?.showNotification('Test timer', {
-        body: 'Je timer is klaar!',
-        icon: '/icons/icon-192.png',
-        vibrate: [400, 150, 400, 150, 400, 150, 600],
-      })
-      setVibrateResult(`notificatie: ${permission} | SW: ${swState} | OK`)
-    } catch (e) {
-      setVibrateResult(`notificatie: ${permission} | SW: ${swState} | FOUT: ${e}`)
-    }
-  }, [])
 
   const handleCancel = () => {
     setAddingTimer(false)
@@ -254,35 +228,17 @@ export function AddTimerForm() {
             </button>
           </motion.div>
         ) : (
-          <div key="actions-add" className="flex flex-col gap-2">
-            <motion.button
-              className="w-full h-10 rounded-full border-[0.5px] border-paper/20 text-paper text-[15px] font-sans"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.12 }}
-              onClick={() => setAddingTimer(true)}
-            >
-              Timer toevoegen
-            </motion.button>
-            <button
-              type="button"
-              className="w-full h-8 rounded-full border-[0.5px] border-paper/10 text-paper/40 text-[12px] font-sans active:opacity-50"
-              onTouchStart={testVibration}
-            >
-              Test trillen (direct)
-            </button>
-            <button
-              type="button"
-              className="w-full h-8 rounded-full border-[0.5px] border-paper/10 text-paper/40 text-[12px] font-sans active:opacity-50"
-              onClick={testSwVibration}
-            >
-              Test trillen (notificatie)
-            </button>
-            {vibrateResult && (
-              <p className="text-center text-[11px] text-paper/40 font-mono">{vibrateResult}</p>
-            )}
-          </div>
+          <motion.button
+            key="actions-add"
+            className="w-full h-10 rounded-full border-[0.5px] border-paper/20 text-paper text-[15px] font-sans"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.12 }}
+            onClick={() => setAddingTimer(true)}
+          >
+            Timer toevoegen
+          </motion.button>
         )}
       </AnimatePresence>
     </>

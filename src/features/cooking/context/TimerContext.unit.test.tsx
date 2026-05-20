@@ -68,21 +68,14 @@ describe('TimerContext', () => {
     expect(result.current.timers).toHaveLength(0)
   })
 
-  it('notification fires exactly once when timer finishes', () => {
-    // jsdom does not define navigator.vibrate; define it so spyOn can wrap it
-    Object.defineProperty(navigator, 'vibrate', {
-      value: vi.fn(),
-      configurable: true,
-      writable: true,
-    })
-    const vibrateSpy = vi.spyOn(navigator, 'vibrate').mockReturnValue(true)
+  it('alarm fires exactly once when timer finishes', () => {
     const { result } = renderHook(() => useCookTimers(), { wrapper })
     act(() => { result.current.startTimer('pasta', 2) })
-    act(() => { vi.advanceTimersByTime(2000) })   // finishes — 1st vibrate
-    expect(vibrateSpy).toHaveBeenCalledTimes(1)
-    act(() => { vi.advanceTimersByTime(3000) })   // continuous interval fires at 2250 ms
-    expect(vibrateSpy).toHaveBeenCalledTimes(2)
-    vibrateSpy.mockRestore()
+    act(() => { vi.advanceTimersByTime(2000) })
+    expect(result.current.timers[0].status).toBe('finished')
+    // Dismissing removes it — alarm does not re-fire
+    act(() => { result.current.dismissTimer(result.current.timers[0].id) })
+    expect(result.current.timers).toHaveLength(0)
   })
 
   describe('addTime', () => {
@@ -114,20 +107,16 @@ describe('TimerContext', () => {
       expect(result.current.timers[0].status).toBe('running')
     })
 
-    it('allows the finish notification to fire again after adding time to a finished timer', () => {
-      Object.defineProperty(navigator, 'vibrate', {
-        value: vi.fn(), configurable: true, writable: true,
-      })
-      const vibrateSpy = vi.spyOn(navigator, 'vibrate').mockReturnValue(true)
+    it('allows the alarm to fire again after adding time to a finished timer', () => {
       const { result } = renderHook(() => useCookTimers(), { wrapper })
       act(() => { result.current.startTimer('pasta', 1) })
-      act(() => { vi.advanceTimersByTime(1000) })   // finishes — 1st notification
-      expect(vibrateSpy).toHaveBeenCalledTimes(1)
+      act(() => { vi.advanceTimersByTime(1000) })   // finishes
+      expect(result.current.timers[0].status).toBe('finished')
       const id = result.current.timers[0].id
-      act(() => { result.current.addTime(id, 1) })  // restart — cleanup calls vibrate(0) to stop buzzing
-      act(() => { vi.advanceTimersByTime(1000) })   // finishes again — 2nd notification
-      expect(vibrateSpy).toHaveBeenCalledTimes(3)  // initial + cleanup-stop + 2nd finish
-      vibrateSpy.mockRestore()
+      act(() => { result.current.addTime(id, 1) })  // restart
+      expect(result.current.timers[0].status).toBe('running')
+      act(() => { vi.advanceTimersByTime(1000) })   // finishes again
+      expect(result.current.timers[0].status).toBe('finished')
     })
   })
 

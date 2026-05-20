@@ -68,15 +68,6 @@ function cancelAlarm(id: string) {
     .catch(() => {})
 }
 
-// navigator.vibrate() is blocked in Chrome 86+ without a transient user gesture.
-// Posting VIBRATE_NOW to the SW triggers an OS notification which bypasses this restriction.
-function vibrateNow(id: string, label: string) {
-  navigator.vibrate?.([400, 150, 400, 150, 400, 150, 600])
-  navigator.serviceWorker?.ready
-    .then(reg => reg.active?.postMessage({ type: 'VIBRATE_NOW', id, label }))
-    .catch(() => {})
-}
-
 export function TimerProvider({ children }: { children: ReactNode }) {
   const [timers, setTimers] = useState<CookTimer[]>([])
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -127,21 +118,14 @@ export function TimerProvider({ children }: { children: ReactNode }) {
         notifiedRef.current.add(t.id)
         cancelAlarm(t.id)
         playFinishSound()
-        vibrateNow(t.id, t.label)
       })
   }, [timers])
 
   const finishedCount = timers.filter(t => t.status === 'finished').length
   useEffect(() => {
     if (finishedCount === 0) return
-    const soundId = setInterval(() => playFinishSound(), 4000)
-    // Vibrate continuously: re-trigger every 2.25s so there's no gap between pattern repetitions.
-    const vibrateId = setInterval(() => navigator.vibrate?.([400, 150, 400, 150, 400, 150, 600]), 2250)
-    return () => {
-      clearInterval(soundId)
-      clearInterval(vibrateId)
-      navigator.vibrate?.(0)
-    }
+    const id = setInterval(() => playFinishSound(), 4000)
+    return () => clearInterval(id)
   }, [finishedCount])
 
   const startTimer = useCallback((label: string, durationSecs: number): string => {
