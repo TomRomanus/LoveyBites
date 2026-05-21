@@ -28,7 +28,7 @@ const MealRecipeRow = ({ recipe: r, selectedId, saving, onSelect, index }: MealR
       onClick={() => onSelect(r.id)}
       disabled={saving}
       whileTap={{ scale: 0.98 }}
-      className="block py-[10px] border-0 border-b border-[0.5px] border-ink/10 w-full text-left cursor-pointer rounded-[4px]"
+      className="block py-[10px] border-0 border-b-[0.5px] border-ink/10 w-full text-left cursor-pointer rounded-[4px]"
     >
       <div className="flex items-center justify-between gap-[10px]">
         <div className="flex-1 min-w-0">

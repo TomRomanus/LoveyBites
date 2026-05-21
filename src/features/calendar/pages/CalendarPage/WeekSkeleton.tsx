@@ -1,10 +1,10 @@
-const CalendarSkeleton = () => {
+const WeekSkeleton = () => {
   return (
     <div className="flex-1 overflow-y-auto py-3 px-5 pb-[120px]">
       {Array.from({ length: 7 }).map((_, i) => (
         <div
           key={i}
-          className={`flex items-start gap-[5px] py-[15px] min-h-[38px] ${i < 6 ? 'border-b border-[0.5px] border-ink/10' : ''}`}
+          className={`flex items-start gap-[5px] py-[15px] min-h-[38px] ${i < 6 ? 'border-b-[0.5px] border-ink/10' : ''}`}
         >
           <div className="grid shrink-0 w-12 mt-[1px] items-center [grid-template-columns:17px_22px] gap-x-[5px]">
             <div className="lb-skeleton w-[14px] h-[9px] rounded-[2px]" />
@@ -30,7 +30,7 @@ const CalendarSkeleton = () => {
               </div>
             )}
           </div>
-          <div className="w-0 self-stretch border-l border-[0.5px] border-ink/10 shrink-0" />
+          <div className="w-0 self-stretch border-l-[0.5px] border-ink/10 shrink-0" />
           <div className="lb-skeleton w-3 h-3 rounded-[3px] shrink-0 mt-[3px]" />
         </div>
       ))}
@@ -38,4 +38,4 @@ const CalendarSkeleton = () => {
   )
 }
 
-export default CalendarSkeleton
+export default WeekSkeleton

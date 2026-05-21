@@ -12,7 +12,8 @@ import useCalendarView from '@/features/calendar/hooks/useCalendarView'
 import useCalendarData from '@/features/calendar/hooks/useCalendarData'
 import CalendarHeader from '@/features/calendar/pages/CalendarPage/CalendarHeader'
 import CalendarNavControls from '@/features/calendar/pages/CalendarPage/CalendarNavControls'
-import CalendarSkeleton from '@/features/calendar/pages/CalendarPage/CalendarSkeleton'
+import WeekSkeleton from '@/features/calendar/pages/CalendarPage/WeekSkeleton'
+import MonthSkeleton from '@/features/calendar/pages/CalendarPage/MonthSkeleton'
 
 const CalendarPage = () => {
   const {
@@ -63,7 +64,7 @@ const CalendarPage = () => {
       />
 
       {loading ? (
-        <CalendarSkeleton />
+        view === 'month' ? <MonthSkeleton /> : <WeekSkeleton />
       ) : (
         <AnimatePresence mode="wait" custom={navDir}>
           <motion.div

@@ -94,7 +94,7 @@ const WeekView = ({ anchor, today, entries, recipeMap, onAdd, onDelete }: WeekVi
             </div>
 
             {/* Separator + add */}
-            <div className="w-0 self-stretch border-l border-[0.5px] border-ink/10 shrink-0" />
+            <div className="w-0 self-stretch border-l-[0.5px] border-ink/10 shrink-0" />
             <motion.button
               data-testid="add-meal-btn"
               onClick={() => onAdd(iso)}

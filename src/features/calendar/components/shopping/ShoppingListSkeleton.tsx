@@ -14,7 +14,7 @@ const ShoppingListSkeleton = () => {
         { title: 45, items: [65, 48] },
         { title: 70, items: [58, 75, 42, 68] },
       ].map((sec, si) => (
-        <div key={si} className="mb-4 pb-[14px] border-b border-[0.5px] border-ink/10">
+        <div key={si} className="mb-4 pb-[14px] border-b-[0.5px] border-ink/10">
           <div className="lb-skeleton h-[9px] w-[28%] rounded-[3px] mb-[6px]" />
           <div
             className="lb-skeleton h-4 rounded-[4px] mb-[10px]"
