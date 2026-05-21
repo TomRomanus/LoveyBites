@@ -17,7 +17,7 @@ const StepComment = ({ comment, theme = 'light', className }: StepCommentProps) 
     <div
       className={cn(
         'flex-1 rounded-md px-[10px] py-[6px] text-[13px] leading-[1.5]',
-        theme === 'dark' ? 'bg-honey-500/10 text-paper/75' : 'bg-honey-500/8 text-ink-2',
+        theme === 'dark' ? 'bg-honey-500/10 text-paper/75' : 'bg-honey-500/[8%] text-ink-2',
       )}
     >
       {comment}
